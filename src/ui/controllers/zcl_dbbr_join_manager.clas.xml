@@ -1,0 +1,454 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Manager for Join definitions</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>001</KEY>
+     <ENTRY>Table/Conditions</ENTRY>
+     <LENGTH>26</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>002</KEY>
+     <ENTRY>Field / Description</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>003</KEY>
+     <ENTRY>Comparator</ENTRY>
+     <LENGTH>20</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Field2 / Value / Join Type</ENTRY>
+     <LENGTH>30</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>005</KEY>
+     <ENTRY>Comparator 2</ENTRY>
+     <LENGTH>22</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>006</KEY>
+     <ENTRY>Value2</ENTRY>
+     <LENGTH>16</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>007</KEY>
+     <ENTRY>Expand all nodes</ENTRY>
+     <LENGTH>26</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>008</KEY>
+     <ENTRY>Collapse all</ENTRY>
+     <LENGTH>22</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>009</KEY>
+     <ENTRY>Update Join Definition</ENTRY>
+     <LENGTH>44</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>010</KEY>
+     <ENTRY>Transfer</ENTRY>
+     <LENGTH>18</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>011</KEY>
+     <ENTRY>Field Conditions</ENTRY>
+     <LENGTH>26</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>012</KEY>
+     <ENTRY>Filter Conditions</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>013</KEY>
+     <ENTRY>Join Table</ENTRY>
+     <LENGTH>19</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>014</KEY>
+     <ENTRY>Delete Join Table?</ENTRY>
+     <LENGTH>28</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>015</KEY>
+     <ENTRY>All Join Tables</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>016</KEY>
+     <ENTRY>Delete all Join Tables?</ENTRY>
+     <LENGTH>46</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>017</KEY>
+     <ENTRY>Show SQL FROM</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>018</KEY>
+     <ENTRY>Virtual</ENTRY>
+     <LENGTH>17</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>019</KEY>
+     <ENTRY>Show SQL</ENTRY>
+     <LENGTH>18</LENGTH>
+    </item>
+   </TPOOL>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ADD_AND_CONDITION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Add new AND condition to join table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ADD_NEW_JOIN_TABLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Adds new join table to the tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ADD_OR_CONDITION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Add new OR condition to join table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CHANGE_FIELD_CONDITION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Changes values of given field condition</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CHANGE_FILTER_CONDITION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Changes values of given filter condition</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CHANGE_JOIN_TABLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Changes values of a given join table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CHANGE_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Change node content</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CLASS_CONSTRUCTOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>CLASS_CONSTRUCTOR</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CREATE_COLUMNS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create columns for join tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CREATE_FIELD_CONDITION_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create node for field condition</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CREATE_FILTER_CONDITION_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create node for filter condition</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CREATE_HEADER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create header document to hold some information</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CREATE_JOIN_TABLE_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create node for join table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CREATE_OR_GROUP_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create OR Group Node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CREATE_SPLITTER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create splitter container</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CREATE_STATUS_FUNCTIONS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create GUI Status functions for Join Manager</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CREATE_TOOLBAR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates toolbar for Tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CREATE_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create Tree to hold tables/conditions</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>DELETE_ALL_CONDITIONS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Deletes all conditions (filter or field)</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>DELETE_CONDITION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Delete Condition</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>DELETE_FIELD_CONDITION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Deletes a field condition</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>DELETE_FILTER_CONDITION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Deletes a filter condition</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>DELETE_NODE_AND_SELECT_NEXT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Deletes the passed node and select next best node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>DELETE_OR_GROUP</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Deletes the selected OR-Group</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>DELETE_TABLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Delete selected table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>FILL_TREE_WITH_JOIN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fill tree with existing join definition</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>FILL_VALUE_ITEM_CONTENT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fill text content for value items</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>GET_NEXT_KEY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Get next free node key</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>MR_JOIN_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Tree for storing join definition</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>MR_RELAT_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Node of a column tree model</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>MR_S_JOIN_DEF</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Definition of a Join</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>MS_NEW_COND_RELAT_NODEMAP</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Tree Model: Node Key</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>MT_TABLE_NODES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Tree Model: Table of Node Keys</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>MV_CURRENT_KEY_COUNT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Tree Model: Node Key</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_BEFORE_OUTPUT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for PBO of program</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_BUTTON_CLICK</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for Button press in tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_CREATED_FIELD_CONDITION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when join field condition was created</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_CREATED_FILTER_CONDITION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when join filter condition was created</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_CREATED_JOIN_TABLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when join table was created</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_DELETE_REQUEST_FROM_JOIN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when join requests node deletion</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_EXIT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when screen should be left</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_NODE_CTX_MENU_REQUEST</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for node context menu request</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_NODE_CTX_MENU_SELECT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for menu node selection</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_NODE_DOUBLE_CLICK</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for tree node double click</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_NODE_KEYPRESS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for key press on node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_TOOLBAR_FUNCTION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for Toolbar function click</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ON_USER_COMMAND</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for user command of program</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>ST_JOIN_TYPE_FIXVALS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Description of Domain Fixed Values</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>TEST_JOIN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Test the join definition</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>TRANSFER_JOIN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Transfers join from tree to structure</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>UPDATE_OR_GROUP_OF_FILTER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Updates the OR Group node key for this filter node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>VALIDATE_JOIN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Do some further validations for the join</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>WAS_UPDATED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Signals to the caller if the join was updated</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

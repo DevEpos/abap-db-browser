@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_TABL" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <DD02V>
+    <TABNAME>ZDBBR_CDS_ANNOTATION</TABNAME>
+    <DDLANGUAGE>E</DDLANGUAGE>
+    <TABCLASS>INTTAB</TABCLASS>
+    <DDTEXT>Annotation for CDS View (Head, field or parameter)</DDTEXT>
+    <EXCLASS>1</EXCLASS>
+   </DD02V>
+   <DD03P_TABLE>
+    <DD03P>
+     <TABNAME>ZDBBR_CDS_ANNOTATION</TABNAME>
+     <FIELDNAME>NAME</FIELDNAME>
+     <DDLANGUAGE>E</DDLANGUAGE>
+     <POSITION>0001</POSITION>
+     <ADMINFIELD>0</ADMINFIELD>
+     <INTTYPE>C</INTTYPE>
+     <INTLEN>000512</INTLEN>
+     <DATATYPE>CHAR</DATATYPE>
+     <LENG>000256</LENG>
+     <MASK>  CHAR</MASK>
+     <DDTEXT>Key/Name for Annotation</DDTEXT>
+    </DD03P>
+    <DD03P>
+     <TABNAME>ZDBBR_CDS_ANNOTATION</TABNAME>
+     <FIELDNAME>POSITION</FIELDNAME>
+     <POSITION>0002</POSITION>
+     <ROLLNAME>DDFDPOS</ROLLNAME>
+     <ADMINFIELD>0</ADMINFIELD>
+     <COMPTYPE>E</COMPTYPE>
+    </DD03P>
+    <DD03P>
+     <TABNAME>ZDBBR_CDS_ANNOTATION</TABNAME>
+     <FIELDNAME>VALUE</FIELDNAME>
+     <POSITION>0003</POSITION>
+     <ROLLNAME>ZDBBR_ANNOTATION_VALUE</ROLLNAME>
+     <ADMINFIELD>0</ADMINFIELD>
+     <COMPTYPE>E</COMPTYPE>
+    </DD03P>
+   </DD03P_TABLE>
+  </asx:values>
+ </asx:abap>
+</abapGit>

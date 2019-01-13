@@ -1,0 +1,347 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Favorites tree controller</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <CLSFINAL>X</CLSFINAL>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>001</KEY>
+     <ENTRY>Tree was reloaded due to an error</ENTRY>
+     <LENGTH>88</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>002</KEY>
+     <ENTRY>Collapse folder</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>003</KEY>
+     <ENTRY>Expand folder</ENTRY>
+     <LENGTH>23</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Display full history</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>005</KEY>
+     <ENTRY>Delete History</ENTRY>
+     <LENGTH>24</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>006</KEY>
+     <ENTRY>Delete Entry</ENTRY>
+     <LENGTH>22</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>007</KEY>
+     <ENTRY>Execute with Default Settings</ENTRY>
+     <LENGTH>58</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>008</KEY>
+     <ENTRY>Insert Current Entity</ENTRY>
+     <LENGTH>42</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>009</KEY>
+     <ENTRY>Insert Folder</ENTRY>
+     <LENGTH>23</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>010</KEY>
+     <ENTRY>Insert Favorite</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>011</KEY>
+     <ENTRY>Change Favorite</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>012</KEY>
+     <ENTRY>Delete Favorite</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>013</KEY>
+     <ENTRY>Import from Clipboard</ENTRY>
+     <LENGTH>42</LENGTH>
+    </item>
+   </TPOOL>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>BUILD_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Build/Re Build the favorite tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>COLLAPSE_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Collapse the current node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>CONSTRUCTOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>CONSTRUCTOR</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>CREATE_MULTIPLE_FAVENTRIES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates multiple favorite entries from table entries</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>CREATE_NEW_FAVORITE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create new favorite</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>CREATE_NEW_FAV_FOLDER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create new folder</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>CREATE_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates the tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>DELETE_FAVORITE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Delete favorite</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>DELETE_FAVORITE_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Deletes the current favorite</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>DELETE_SELECTED_NODES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Deletes several selected favorite entries</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>EDIT_FAVORITE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Edits the current selected favorite</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>EXPAND_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expands the current node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>FAVORITE_EXISTS_IN_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks if the favorite exists in the node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>FILL_TOOLBAR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fill the toolbar with functions</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>FREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Frees all used controls and removes the tree from the screen</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>GET_NODE_FAVMENU_DATA</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Gets favorite menu data for node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>GET_SELECTED_FAVORITE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieves the currently selected node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>GET_SELECTION_MODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Get the selection mode</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>HANDLE_GUI_FUNCTION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>handles a ui function code</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>IMPORT_FROM_CLIPBOARD</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Import favorites from Clipboard</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>LOAD_FAVORITE_NODES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Loads all favorite nodes into the tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>MOVE_FAVORITE_DOWN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Moves the current entry one position down</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>MOVE_FAVORITE_UP</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Moves the current entry one position up</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_DROP_COMPLETE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when drop completed</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_ENTITY_DELETED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for deleted entity -&gt; remove invalid nodes</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_EXPAND_NO_CHILDREN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when children are to be loaded lazily</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_CONTEXT_MENU_REQUEST</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for requesting a context menu for a node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_CONTEXT_MENU_SELECT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when the context menu entry was chosen</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_DOUBLE_CLICK</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for double click on node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_ENTER_KEY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for ENTER key press on node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_TOOLBAR_BUTTON</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for pressed toolbar button</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_TREE_DRAG</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for Tree drag was started</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_TREE_DRAG_MULTIPLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler fro Multiple Tree drag was started</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_TREE_DROP</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for a single drop</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>ON_TREE_DROP_COMPLETE_MULTIPLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for multiple drops completed</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>SET_NODE_FAVMENU_DATA</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Sets favorite menu data for node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>SHOULD_DISPLAY_AS_FOLDER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks if node should be displayed as folder</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>SHOW</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Shows the tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>START_WITH_DEFAULT_VARIANT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Start entity behind favorite with default variant</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>UPDATE_MENULEVEL_OF_CHILDREN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Updates the menulevel of the child nodes of a node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>UPDATE_SORTORDER_OF_CHILDREN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Updates the sort order of the child nodes of a node</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

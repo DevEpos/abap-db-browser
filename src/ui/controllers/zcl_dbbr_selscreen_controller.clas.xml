@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Controller for data selection screen</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <CLSFINAL>X</CLSFINAL>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>001</KEY>
+     <ENTRY>Select Additional Fields</ENTRY>
+     <LENGTH>48</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>002</KEY>
+     <ENTRY>Multiple Selection with OR Tuples</ENTRY>
+     <LENGTH>66</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>003</KEY>
+     <ENTRY>More</ENTRY>
+     <LENGTH>14</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Table</ENTRY>
+     <LENGTH>15</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>005</KEY>
+     <ENTRY>Query</ENTRY>
+     <LENGTH>16</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>006</KEY>
+     <ENTRY>CDS View</ENTRY>
+     <LENGTH>18</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>008</KEY>
+     <ENTRY>off</ENTRY>
+     <LENGTH>13</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>009</KEY>
+     <ENTRY>on</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>010</KEY>
+     <ENTRY>Allow Case Sensitive Input</ENTRY>
+     <LENGTH>29</LENGTH>
+    </item>
+   </TPOOL>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>CHECK_ENTITY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Check the entered Entity</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>HANDLE_PARAMETER_LINE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handles pressed function for possible parameter field</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>LOAD_ENTITY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Load current entity into selection screen</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>MF_FROM_CENTRAL_SEARCH</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Function Code Table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>MR_ENTITY_HISTORY_VIEW</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>History View for Selection Screen</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>MR_NAVIGATOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Navigation Control in Selection Screen</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>ON_AGGR_ATTR_CHANGED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for Attr changed event</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>ON_FAVENTRY_SELECTED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for selection of favorite entry</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>ON_FAV_TREE_EVENT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for favorites tree event</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>ON_HISTORY_NAVIGATION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for history navigation event</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>ON_REQUEST_NEW_ENTITY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Event handler for requesting new entity for screen</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>ON_REQUEST_OBJECT_SEARCH</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Event Handler for requesting new object search</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>ON_TOOLBAR_BUTTON_PRESSED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for Toolbar button press event</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>ON_VARIANT_FAVENTRY_SELECTED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for variant favorites entry selection</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>PERFORM_EXTENDED_SEARCH</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Performs extended Entity Search</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>PICK_NAVIGATE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Performs pick navigation (F2/Double Click)</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>READ_VARIANT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Reads Variant</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>SEARCH_OBJECTS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Perform object browser search via popup</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>SHOW_HISTORY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Shows/hides navigation history</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>SHOW_OBJECT_LIST</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Shows the object list for the current object</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_CONTROLLER</CLSNAME>
+     <CMPNAME>SHOW_OBJECT_NAVIGATOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Display/Hide Object navigator</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

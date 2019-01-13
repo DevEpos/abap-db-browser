@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_TTYP" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <DD40V>
+    <TYPENAME>ZDBBR_CUSTOM_F4_MAP_ITAB</TYPENAME>
+    <DDLANGUAGE>E</DDLANGUAGE>
+    <ROWTYPE>ZDBBR_CUSTOM_F4_MAP</ROWTYPE>
+    <ROWKIND>S</ROWKIND>
+    <DATATYPE>STRU</DATATYPE>
+    <ACCESSMODE>H</ACCESSMODE>
+    <KEYDEF>K</KEYDEF>
+    <KEYKIND>U</KEYKIND>
+    <KEYFDCOUNT>0002</KEYFDCOUNT>
+    <DDTEXT>List of map for user-defined value helps</DDTEXT>
+   </DD40V>
+   <DD42V>
+    <DD42V>
+     <TYPENAME>ZDBBR_CUSTOM_F4_MAP_ITAB</TYPENAME>
+     <KEYFDPOS>0001</KEYFDPOS>
+     <ROWTYPEPOS>0001</ROWTYPEPOS>
+     <KEYFIELD>TABNAME</KEYFIELD>
+    </DD42V>
+    <DD42V>
+     <TYPENAME>ZDBBR_CUSTOM_F4_MAP_ITAB</TYPENAME>
+     <KEYFDPOS>0002</KEYFDPOS>
+     <ROWTYPEPOS>0002</ROWTYPEPOS>
+     <KEYFIELD>FIELDNAME</KEYFIELD>
+    </DD42V>
+   </DD42V>
+  </asx:values>
+ </asx:abap>
+</abapGit>

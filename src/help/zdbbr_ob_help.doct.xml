@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_DOCT" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <DOC>
+    <HEAD>
+     <TDOBJECT>DOKU</TDOBJECT>
+     <TDNAME>ZDBBR_OB_HELP</TDNAME>
+     <TDID>TX</TDID>
+     <TDSPRAS>E</TDSPRAS>
+     <TDFORM>S_DOCU_SHOW</TDFORM>
+     <TDSTYLE>S_DOCUS1</TDSTYLE>
+     <TDVERSION>00001</TDVERSION>
+     <TDLINESIZE>072</TDLINESIZE>
+    </HEAD>
+    <LINES>
+     <TLINE>
+      <TDFORMAT>U2</TDFORMAT>
+      <TDLINE>Definition</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+      <TDLINE>Describes the usage of the Object Search</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>U2</TDFORMAT>
+      <TDLINE>General Use</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+      <TDLINE>The object search can be used in be in the following ways. Either you</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>enter a name directly without any wildcards e.g. MARA, then an object</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>with this name has to exist or you enter the name with wildcards like</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>MAR*, then all objects that start with MAR will be returned.</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+      <TDLINE>Additionally to an entered search query several search options can be</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>provided. A search option always has to be entered in the following way</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>&lt;ZH&gt;option&lt;/&gt;:&lt;ZH&gt;value&lt;/&gt;. For most of the available search options</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>there is also the possibility to enter the value with wildcards, e.g.</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>owner:&lt;ZH&gt;mue*&lt;/&gt;. To supply more than one value for a search option you</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>can either do that via separating the values via a comma character e.g.</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>&lt;ZH&gt;owner:user1,user2&lt;/&gt; or by enter several option-value combinations</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>e.g. &lt;ZH&gt;owner:user1 owner:user2. &lt;/&gt;</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>U2</TDFORMAT>
+      <TDLINE>The available search options</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+      <TDLINE>The following sections describe the different search options that are</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>available. ,,,,,,,,,,,,</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>K3</TDFORMAT>
+      <TDLINE>Option,,Description,,Single Value,,Exclusion Allowed,,Possible Values</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>owner,,Responsible Person,,-,,X,,*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>desc,,Description,,-,,X,,*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>api,,API State,,X,,-,,[true]</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>from,,Select from part,,-,,X,,*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>assoc,,Search Associations,,X,,X,,*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>type,,Object type,,-,,X,,[hierarchy,function,view]</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>package,,Developmen package,,-,,X,,*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>anno,,Annotation Name,,-,,X,,*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>field,,Fieldname of object,,-,,X,,*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>params,,View with parameters,,X,,-,,[true]</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>maxrows,,Sets max rows of result (default is 50),,X,,-,,numeric</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>U2</TDFORMAT>
+      <TDLINE>Available options by search mode</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>K3</TDFORMAT>
+      <TDLINE>Option,,CDS View,,Database Table/View,,Package,,Query</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>owner,,X,,X,,X,,X</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>desc,,X,,X,,X,,X</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>api,,X,,-,,-,,-</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>from,,X,,-,,-,,-</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>assoc,,X,,-,,-,,-</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>type,,X,,-,,-,,-</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>package,,X,,X,,-,,-</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>anno,,X,,-,,-,,-</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>field,,X,,X,,-,,-</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>params,,X,,-,,-,,-</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>maxrows,,X,,X,,X,,X,,</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>U2</TDFORMAT>
+      <TDLINE>Examples</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+      <TDLINE>CDS View searches:</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>from:mara,marc maxrows:500</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>assoc:i_prod* api:released</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>params:true type:hierarchy i_*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>desc:*Mater*</TDLINE>
+     </TLINE>
+    </LINES>
+   </DOC>
+  </asx:values>
+ </asx:abap>
+</abapGit>

@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Factory for query accesses</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <CLSFINAL>X</CLSFINAL>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>CHECK_QUERY_AUTHORITY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Check if user has authority for query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>DELETE_QUERY_BY_ID</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Delete query for the given id</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>DELETE_RELATED_BY_QUERY_NAME</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Delete data in other database tables related by query name</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>FIND_QUERIES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Find queries by name/primary table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>GET_QUERY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve the query by name</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>GET_QUERY_BY_ID</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retriev the query by id</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>GET_QUERY_ID</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve query id for query name</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>GET_TABLES_OF_QUERY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve join tables of query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>QUERY_EXISTS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks if query exists</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>SAVE_QUERY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Saves the given query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_FACTORY</CLSNAME>
+     <CMPNAME>UPDATE_QUERY_FLAGS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Update flags of query</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

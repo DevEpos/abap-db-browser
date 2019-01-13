@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Data Wrapper for Selection Screen</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <CLSFINAL>X</CLSFINAL>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>CLEAR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Clear all references values</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>CLEAR_CUSTOM_FUNCTIONS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Clears all custom functions</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>IS_MULTI_TABLE_MODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Selection screen resides in multi table mode</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_S_ENTITY_FUNCTION1</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Menu Painter: Program interface for dynamic texts</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_S_ENTITY_FUNCTION2</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Menu Painter: Program interface for dynamic texts</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_S_ENTITY_FUNCTION3</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Menu Painter: Program interface for dynamic texts</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_S_ENTITY_FUNCTION4</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Menu Painter: Program interface for dynamic texts</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_S_ENTITY_FUNCTION5</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Menu Painter: Program interface for dynamic texts</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_S_JOIN_DEF</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Definition of a Join</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_S_QUERY_INFO</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Short information about query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_S_TOP_CUSTOM_MENU</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Menu Painter: Program interface for dynamic texts</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_V_INTERVAL_ON_OFF</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Button for DB Browser</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_V_SELMASK_ENTITY_NAME</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Table Name</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>MR_V_SELMASK_ENTITY_TYPE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Char 15</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_DATA</CLSNAME>
+     <CMPNAME>STORE_OLD_JOIN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Stores current join definition for comparison reasons</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

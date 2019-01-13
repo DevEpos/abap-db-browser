@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_DOCT" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <DOC>
+    <HEAD>
+     <TDOBJECT>DOKU</TDOBJECT>
+     <TDNAME>ZDBBR_JOIN_MANAGER_HELP</TDNAME>
+     <TDID>TX</TDID>
+     <TDSPRAS>E</TDSPRAS>
+     <TDFORM>S_DOCU_SHOW</TDFORM>
+     <TDSTYLE>S_DOCUS1</TDSTYLE>
+     <TDVERSION>00001</TDVERSION>
+     <TDLINESIZE>072</TDLINESIZE>
+    </HEAD>
+    <LINES>
+     <TLINE>
+      <TDFORMAT>U2</TDFORMAT>
+      <TDLINE>Definition</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+      <TDLINE>Describes the usage for defining Joins for a database entity</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>U2</TDFORMAT>
+      <TDLINE>Usage</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+     </TLINE>
+    </LINES>
+   </DOC>
+  </asx:values>
+ </asx:abap>
+</abapGit>

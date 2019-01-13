@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Helper for DDIC objects</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+     <CMPNAME>FIND_BASE_TABLES_OF_VIEW</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Find base tables for database view</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+     <CMPNAME>FIND_DATABASE_TAB_VIEW</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Find database tables/views</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+     <CMPNAME>GET_DOMAIN_TO_CONVEXIT_ENTRIES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve all mappings of domain to convexit</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+     <CMPNAME>GET_ENTITIES_FROM_CLIPBOARD</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve table/view/cds from clipboard</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+     <CMPNAME>GET_ENTITY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve database entity for the given name</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+     <CMPNAME>GET_TABLE_DESCRIPTION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Read description for table/view</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+     <CMPNAME>GET_TEXT_TABLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve Text table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+     <CMPNAME>IS_DTEL_NUMERIC</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks if Data element is numeric</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+     <CMPNAME>IS_TYPE_NUMERIC</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks if type is numeric</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DICTIONARY_HELPER</CLSNAME>
+     <CMPNAME>NAVIGATE_TO_TABLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Navigate to Table/View via SE11</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Controlller zum Speichern/Lesen/Löschen von Varianten</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>013</KEY>
+     <ENTRY>There already is a variant with the name</ENTRY>
+     <LENGTH>96</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>014</KEY>
+     <ENTRY>Do you want to</ENTRY>
+     <LENGTH>68</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>015</KEY>
+     <ENTRY>delete the existing variant?</ENTRY>
+     <LENGTH>35</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>016</KEY>
+     <ENTRY>override the existing variant?</ENTRY>
+     <LENGTH>35</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>MS1</KEY>
+     <ENTRY>Delete</ENTRY>
+     <LENGTH>17</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>MS2</KEY>
+     <ENTRY>Save</ENTRY>
+     <LENGTH>19</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>V01</KEY>
+     <ENTRY>Get variant</ENTRY>
+     <LENGTH>24</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>V02</KEY>
+     <ENTRY>Save variant</ENTRY>
+     <LENGTH>28</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>V03</KEY>
+     <ENTRY>Delete variant</ENTRY>
+     <LENGTH>26</LENGTH>
+    </item>
+   </TPOOL>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
+     <CMPNAME>CREATE_VARIANT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create new variant</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
+     <CMPNAME>DELETE_VARIANT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Delete variant</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
+     <CMPNAME>MV_SELSCREEN_MODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Mode for Seleciton Screen of DB Browser</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
+     <CMPNAME>READ_VARIANT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Read variant</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

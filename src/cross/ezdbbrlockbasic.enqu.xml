@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_ENQU" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <DD25V>
+    <VIEWNAME>EZDBBRLOCKBASIC</VIEWNAME>
+    <AS4LOCAL>A</AS4LOCAL>
+    <DDLANGUAGE>E</DDLANGUAGE>
+    <AGGTYPE>E</AGGTYPE>
+    <ROOTTAB>ZDBBR_LOCKBASIC</ROOTTAB>
+    <DDTEXT>Locks for DB Browser</DDTEXT>
+   </DD25V>
+   <DD26E_TABLE>
+    <DD26E>
+     <VIEWNAME>EZDBBRLOCKBASIC</VIEWNAME>
+     <TABNAME>ZDBBR_LOCKBASIC</TABNAME>
+     <TABPOS>0001</TABPOS>
+     <FORTABNAME>ZDBBR_LOCKBASIC</FORTABNAME>
+     <ENQMODE>E</ENQMODE>
+    </DD26E>
+   </DD26E_TABLE>
+   <DD27P_TABLE>
+    <DD27P>
+     <VIEWNAME>EZDBBRLOCKBASIC</VIEWNAME>
+     <OBJPOS>0001</OBJPOS>
+     <VIEWFIELD>USE_CASE</VIEWFIELD>
+     <TABNAME>ZDBBR_LOCKBASIC</TABNAME>
+     <FIELDNAME>USE_CASE</FIELDNAME>
+     <KEYFLAG>X</KEYFLAG>
+     <ENQMODE>E</ENQMODE>
+     <SHLPORIGIN>F</SHLPORIGIN>
+     <VALEXI>X</VALEXI>
+    </DD27P>
+   </DD27P_TABLE>
+  </asx:values>
+ </asx:abap>
+</abapGit>

@@ -1,0 +1,380 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>Messages for exceptions</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>000</MSGNR>
+     <TEXT>Global queries should start with &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Not global queries should not start with &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>The query &amp;1 cannot be copied to itself</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>The query &amp;1 cannot be overridden</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>The query &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>You are not allowed to start the query &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>You did not select a query</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>You selected more than one query</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>008</MSGNR>
+     <TEXT>Canceled by user</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>009</MSGNR>
+     <TEXT>An error occurred during the export of the queries</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>010</MSGNR>
+     <TEXT>A query with name &amp;1, Creator: &amp;2, Is Global: &amp;3 already exists</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>011</MSGNR>
+     <TEXT>You are not the creator of the query &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>012</MSGNR>
+     <TEXT>Put in at least 1 criteria</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>013</MSGNR>
+     <TEXT>Type in a field</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>014</MSGNR>
+     <TEXT>The field &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>015</MSGNR>
+     <TEXT>The field &amp;1 does not exist in the table &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>016</MSGNR>
+     <TEXT>Fill all mandatory fields</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>017</MSGNR>
+     <TEXT>There are duplicative entries</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>018</MSGNR>
+     <TEXT>The field &amp;1 has another type/length as the field &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>019</MSGNR>
+     <TEXT>&amp;1&amp;2&amp;3&amp;4</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>020</MSGNR>
+     <TEXT>There are no favorites in the file</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>021</MSGNR>
+     <TEXT>Error in text definition of formula field: &amp;1&amp;2&amp;3&amp;4</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>022</MSGNR>
+     <TEXT>Error in definition of a formula field: &amp;1&amp;2&amp;3&amp;4</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>023</MSGNR>
+     <TEXT>Error in definition of an icon field: &amp;1&amp;2&amp;3&amp;4</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>024</MSGNR>
+     <TEXT>Unknown Key Word &amp;1 detected</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>025</MSGNR>
+     <TEXT>Type of formula field must be given in form of &apos;Table-Field&apos;</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>026</MSGNR>
+     <TEXT>No formula field extractor for key word &apos;&amp;1&apos; found</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>027</MSGNR>
+     <TEXT>Formula field &amp;1 was not defined</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>028</MSGNR>
+     <TEXT>There already is a formula field with the name &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>029</MSGNR>
+     <TEXT>At least 1 formula field has to be defined in the formula</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>030</MSGNR>
+     <TEXT>Formula field &amp;1 does not match the template &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>031</MSGNR>
+     <TEXT>Necessary calculation field &amp;1 is not in the list of fields</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>032</MSGNR>
+     <TEXT>Wrong syntax for &amp;1: &amp;2&amp;3&amp;4</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>033</MSGNR>
+     <TEXT>There is no icon with the name &amp;l</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>034</MSGNR>
+     <TEXT>The formula does not contain any executable lines of code</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>035</MSGNR>
+     <TEXT>Invalid key word &amp;1 in line &amp;2 detected</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>036</MSGNR>
+     <TEXT>Error in source code: &amp;1 (&amp;2 in line &amp;3)</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>037</MSGNR>
+     <TEXT>The query &amp;1 belongs to &amp;2 and cannot be overridden</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>038</MSGNR>
+     <TEXT>An error occurred during the export of the value helps</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>039</MSGNR>
+     <TEXT>There are no additional texts in the file</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>040</MSGNR>
+     <TEXT>There already is an additional text for the key &amp;1&amp;2&amp;3&amp;4</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>041</MSGNR>
+     <TEXT>Package &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>042</MSGNR>
+     <TEXT>General error during Tree processing</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>043</MSGNR>
+     <TEXT>Query cannot be saved due to an invalid Formula definition</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>044</MSGNR>
+     <TEXT>Table Variants cannot have existing Join Definitions</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>045</MSGNR>
+     <TEXT>Choose a Key Field (Click on a Field Name)</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>046</MSGNR>
+     <TEXT>There already exists a Value Help for this field</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>047</MSGNR>
+     <TEXT>No value supplied for Parameter &apos;&amp;1&apos;</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>048</MSGNR>
+     <TEXT>The maximum level of CDS View Navigations has been reached</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>049</MSGNR>
+     <TEXT>CDS View &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>050</MSGNR>
+     <TEXT>Query &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>051</MSGNR>
+     <TEXT>Database Table/View &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>052</MSGNR>
+     <TEXT>Parameter &apos;&amp;1&apos; is not a valid search parameter</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>053</MSGNR>
+     <TEXT>Query string &apos;&amp;1&apos; is invalid</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>054</MSGNR>
+     <TEXT>Invalid query option &apos;&amp;1&apos; for search type</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>055</MSGNR>
+     <TEXT>An error ocurred during the loading of the Favorite Tree</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>056</MSGNR>
+     <TEXT>No parameter value supplied for View &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>057</MSGNR>
+     <TEXT>Query is empty</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>058</MSGNR>
+     <TEXT>Search option &apos;&amp;1&apos; does not support multiple values</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>059</MSGNR>
+     <TEXT>Option &apos;&amp;1&apos; does support the value &apos;&amp;2&apos;</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>060</MSGNR>
+     <TEXT>Column Grouping not successful due to Arithmetic overflow</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>

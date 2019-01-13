@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_BASE_SELECT_TC</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Base table controller for low/high like input table controls</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_BASE_SELECT_TC</CLSNAME>
+     <CMPNAME>CHECK_INTERVAL_VALIDITY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Check interval validity of selection field</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_BASE_SELECT_TC</CLSNAME>
+     <CMPNAME>CONSTRUCTOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>CONSTRUCTOR</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_BASE_SELECT_TC</CLSNAME>
+     <CMPNAME>CONV_SELFIELDS_TO_INTERNAL</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Convert selfield low/high to internal format</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_BASE_SELECT_TC</CLSNAME>
+     <CMPNAME>FILL_SELOPT_SIGN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fills the sign in the selection field</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_BASE_SELECT_TC</CLSNAME>
+     <CMPNAME>GET_UTIL</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve current selscreen util instance</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_BASE_SELECT_TC</CLSNAME>
+     <CMPNAME>IS_CUSTOM_TIMEST_CONV</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks if custom timestamp conversion should be done</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_BASE_SELECT_TC</CLSNAME>
+     <CMPNAME>IS_UPPERCASE_CONV_DISABLED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Check if uppercase conversion should be prevented</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_BASE_SELECT_TC</CLSNAME>
+     <CMPNAME>PRECHECK_SELFIELD_VALUE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Perform pre conversion checks</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

@@ -1,0 +1,14 @@
+class ZCL_DBBR_FAVMENU_HELPER definition
+  public
+  final
+  create public .
+
+public section.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS ZCL_DBBR_FAVMENU_HELPER IMPLEMENTATION.
+ENDCLASS.

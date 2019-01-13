@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_TRAN" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <TSTC>
+    <TCODE>ZDBBR_SEARCH</TCODE>
+    <CINFO>Ag==</CINFO>
+   </TSTC>
+   <TSTCC>
+    <TCODE>ZDBBR_SEARCH</TCODE>
+    <S_WIN32>X</S_WIN32>
+   </TSTCC>
+   <TSTCT>
+    <SPRSL>E</SPRSL>
+    <TCODE>ZDBBR_SEARCH</TCODE>
+    <TTEXT>DB Browser - Central Search</TTEXT>
+   </TSTCT>
+   <TSTCP>
+    <TCODE>ZDBBR_SEARCH</TCODE>
+    <PARAM>/*OS_APPLICATION CLASS=ZCL_DBBR_START;METHOD=START_SEARCH;UPDATE_MODE=U;</PARAM>
+   </TSTCP>
+  </asx:values>
+ </asx:abap>
+</abapGit>

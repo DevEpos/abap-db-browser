@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_SELECTION_HELPER</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Helper for data selection (SQL)</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSFINAL>X</CLSFINAL>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>001</KEY>
+     <ENTRY>Choose Option</ENTRY>
+     <LENGTH>23</LENGTH>
+    </item>
+   </TPOOL>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELECTION_HELPER</CLSNAME>
+     <CMPNAME>APPEND_PARAMS_TO_TABLE_STRING</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Append parameters string to table clause</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELECTION_HELPER</CLSNAME>
+     <CMPNAME>CREATE_IGNORE_CASE_COND</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates additional where conditions for ignore case</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELECTION_HELPER</CLSNAME>
+     <CMPNAME>READ_DB_SIZE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Read DB table size</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

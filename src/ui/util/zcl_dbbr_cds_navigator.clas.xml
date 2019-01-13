@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Navigator to CDS Entity</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSFINAL>X</CLSFINAL>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+     <CMPNAME>CONSTRUCTOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>CONSTRUCTOR</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+     <CMPNAME>CREATE_OUTPUT_FIELDS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create output fields for target entity</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+     <CMPNAME>EXPORT_DATA_TO_MEMORY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Export the collected data to memory for new transaction call</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+     <CMPNAME>FILL_SELECTION_FIELDS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fill selection criteria for target entity</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+     <CMPNAME>HANDLE_MESSAGES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handle message from navigation call</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+     <CMPNAME>MR_SOURCE_CDS_VIEW</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>CDS View</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+     <CMPNAME>MR_SOURCE_TABFIELDS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Wrapper for list of table fields</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+     <CMPNAME>MR_TABFIELDS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Wrapper for list of table fields</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+     <CMPNAME>MT_NAV_BREADCRUMBS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>List of Strings</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_NAVIGATOR</CLSNAME>
+     <CMPNAME>MV_ENTITY_TYPE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Type of Entity</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

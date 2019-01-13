@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_TRAN" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <TSTC>
+    <TCODE>ZDBBR_FETEST</TCODE>
+    <CINFO>Ag==</CINFO>
+   </TSTC>
+   <TSTCC>
+    <TCODE>ZDBBR_FETEST</TCODE>
+    <S_WEBGUI>1</S_WEBGUI>
+    <S_WIN32>X</S_WIN32>
+   </TSTCC>
+   <TSTCT>
+    <SPRSL>E</SPRSL>
+    <TCODE>ZDBBR_FETEST</TCODE>
+    <TTEXT>DB Browser: Formula-Editor-Test</TTEXT>
+   </TSTCT>
+   <TSTCP>
+    <TCODE>ZDBBR_FETEST</TCODE>
+    <PARAM>/*OS_APPLICATION CLASS=ZCL_DBBR_START;METHOD=START_FORMULA_EDITOR_TEST;UPDATE_MODE=U;</PARAM>
+   </TSTCP>
+  </asx:values>
+ </asx:abap>
+</abapGit>

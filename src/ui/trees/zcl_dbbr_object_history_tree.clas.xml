@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Object tree history</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <CLSFINAL>X</CLSFINAL>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>001</KEY>
+     <ENTRY>Delete all</ENTRY>
+     <LENGTH>20</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>002</KEY>
+     <ENTRY>Object Name</ENTRY>
+     <LENGTH>21</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>003</KEY>
+     <ENTRY>Refresh</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Delete Entry</ENTRY>
+     <LENGTH>22</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>005</KEY>
+     <ENTRY>Execute with Default Settings</ENTRY>
+     <LENGTH>58</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>006</KEY>
+     <ENTRY>Full History</ENTRY>
+     <LENGTH>22</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>007</KEY>
+     <ENTRY>Toggle full history</ENTRY>
+     <LENGTH>29</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>008</KEY>
+     <ENTRY>Delete all?</ENTRY>
+     <LENGTH>21</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>009</KEY>
+     <ENTRY>Are you sure you want to delete your full history?</ENTRY>
+     <LENGTH>100</LENGTH>
+    </item>
+   </TPOOL>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>BUILD_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Builds history tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>CLEAR_NODES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Clears all nodes from the tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>CONSTRUCTOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>CONSTRUCTOR</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>CREATE_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates the tree model and control</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>DELETE_SELECTED_NODES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Delete selected nodes</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>FILL_TOOLBAR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fill toolbar with buttons</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>HANDLE_FUNCTION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handle function</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>LOAD_NODES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Loads history nodes</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>ON_EXPAND_NO_CHILDREN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when children are to be loaded lazily</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_CONTEXT_MENU_REQUEST</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for requesting a context menu for a node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_CONTEXT_MENU_SELECT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when the context menu entry was chosen</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_DOUBLE_CLICK</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for double click on node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_ENTER_KEY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for ENTER key press on node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>ON_TOOLBAR_BUTTON</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for pressed toolbar button</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>START_WITH_DEFAULT_VARIANT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Start node with default variant</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

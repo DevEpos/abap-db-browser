@@ -1,0 +1,542 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZDBBR_INFO</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>Info Messages</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>000</MSGNR>
+     <TEXT>All Value Helps for &amp;1 in &amp;2 have been deleted</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Join definition &amp;1 was saved successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>Join definition &amp;1 was deleted successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>Join definition &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>Join table &amp;1 is already used in a join condition</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>An unsaved join definition was detected</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>Table &amp;1 does not exist in the list of the current join tables</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>Supply a value for all join tables</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>008</MSGNR>
+     <TEXT>There are incomplete join conditions</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>009</MSGNR>
+     <TEXT>There is a join table with no join condition</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>010</MSGNR>
+     <TEXT>No table was supplied</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>011</MSGNR>
+     <TEXT>Technical settings were saved</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>012</MSGNR>
+     <TEXT>There are no additional texts for the selection criteria</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>013</MSGNR>
+     <TEXT>No value was supplied for &apos;&amp;1&apos;</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>014</MSGNR>
+     <TEXT>Field &amp;1 does not exist in table &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>015</MSGNR>
+     <TEXT>Supply a value for table &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>016</MSGNR>
+     <TEXT>Supply a reference value for the field &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>017</MSGNR>
+     <TEXT>Enter a reference field</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>018</MSGNR>
+     <TEXT>The field &amp;1 does not exist in the table &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>019</MSGNR>
+     <TEXT>Either choose &apos;grouping&apos; or &apos;aggregation&apos;</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>020</MSGNR>
+     <TEXT>Aggregation function &apos;&amp;1&apos; is only allowed for numerical data types</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>021</MSGNR>
+     <TEXT>There is no query &apos;&amp;1&apos; for the table &apos;&amp;2&apos;</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>022</MSGNR>
+     <TEXT>Query &amp;1 was saved successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>023</MSGNR>
+     <TEXT>Query &amp;1 was deleted</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>024</MSGNR>
+     <TEXT>Entries found: &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>025</MSGNR>
+     <TEXT>Enter a name for the join condition</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>026</MSGNR>
+     <TEXT>You entered no name for the join definition</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>027</MSGNR>
+     <TEXT>All changes will be lost if you continue</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>028</MSGNR>
+     <TEXT>Variant &amp;1 was saved successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>029</MSGNR>
+     <TEXT>Variant &amp;1 was deleted</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>030</MSGNR>
+     <TEXT>The variant &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>031</MSGNR>
+     <TEXT>Data type &amp;1 is not numerical</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>032</MSGNR>
+     <TEXT>Fill all mandatory fields</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>033</MSGNR>
+     <TEXT>&amp;1 filter values were transferred to selection screen</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>034</MSGNR>
+     <TEXT>No Selection field was found for the filter values</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>035</MSGNR>
+     <TEXT>Query &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>036</MSGNR>
+     <TEXT>Variant &amp;1 has been loaded</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>037</MSGNR>
+     <TEXT>Query &amp;1 was copied successfully to query &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>038</MSGNR>
+     <TEXT>&amp;1 queries were exported to &quot;&amp;2&quot;</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>039</MSGNR>
+     <TEXT>&amp;1 queries were imported successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>040</MSGNR>
+     <TEXT>No queries in the chosen file match the given criteria</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>041</MSGNR>
+     <TEXT>Query &amp;1 was imported successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>042</MSGNR>
+     <TEXT>Import of &amp;1 has been started</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>043</MSGNR>
+     <TEXT>Import of &amp;1 was completed successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>044</MSGNR>
+     <TEXT>Import of &amp;1 was completed with errors</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>045</MSGNR>
+     <TEXT>&amp;1 favorites were imported successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>046</MSGNR>
+     <TEXT>Formula is free of errors</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>047</MSGNR>
+     <TEXT>Virtual join did not find any hits</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>048</MSGNR>
+     <TEXT>&amp;1 value helps have been exported to &quot;&amp;2&quot;</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>049</MSGNR>
+     <TEXT>&amp;1 value helps have been imported successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>050</MSGNR>
+     <TEXT>&amp;1 additional texts have been imported successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>051</MSGNR>
+     <TEXT>&amp;1 DB tables have been imported into the favorite menu</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>052</MSGNR>
+     <TEXT>Default ALV variant has been loaded</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>053</MSGNR>
+     <TEXT>No Table, Query or CDS View entered</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>054</MSGNR>
+     <TEXT>Additional Text was deleted</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>055</MSGNR>
+     <TEXT>There are no Value Helps for &amp;1 in &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>056</MSGNR>
+     <TEXT>&amp;1 Queries were deleted successfully</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>057</MSGNR>
+     <TEXT>There are no Queries</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>058</MSGNR>
+     <TEXT>There is no previous Entry</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>059</MSGNR>
+     <TEXT>Select at least 2 rows for a Comparison Operation</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>060</MSGNR>
+     <TEXT>No Entries found</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>061</MSGNR>
+     <TEXT>&amp;1 Entries were deleted from the Table &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>062</MSGNR>
+     <TEXT>Select at least 1 Column for a Grouping Operation</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>063</MSGNR>
+     <TEXT>No Column was found for &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>064</MSGNR>
+     <TEXT>No Query entered</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>065</MSGNR>
+     <TEXT>Table &amp;1 is a Customizing View. Content cannot be displayed</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>066</MSGNR>
+     <TEXT>Enter a Parameter Name</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>067</MSGNR>
+     <TEXT>Enter a Field Name or a Literal</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>068</MSGNR>
+     <TEXT>Enter at least 1 active Parameter</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>069</MSGNR>
+     <TEXT>Select exactly 1 Jump Field</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>070</MSGNR>
+     <TEXT>The Transaction &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>071</MSGNR>
+     <TEXT>Selected System Field cannot be used here</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>072</MSGNR>
+     <TEXT>CDS View &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>073</MSGNR>
+     <TEXT>No CDS View entered</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>074</MSGNR>
+     <TEXT>Select at least 1 Row for an Association Navigation</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>075</MSGNR>
+     <TEXT>No operator supplied for Join Field</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>076</MSGNR>
+     <TEXT>Operator &apos;&amp;1&apos; is not valid</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>077</MSGNR>
+     <TEXT>Condition &apos;&amp;1&apos; is not valid</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>078</MSGNR>
+     <TEXT>No condition supplied for Join Field (Use AND or OR)</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>079</MSGNR>
+     <TEXT>Central Search settings were saved</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>080</MSGNR>
+     <TEXT>Technical view &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>081</MSGNR>
+     <TEXT>&amp;1 CDS Views have been imported into the favorite menu</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>082</MSGNR>
+     <TEXT>No entities were found in clipboard</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>083</MSGNR>
+     <TEXT>&amp;1 of &amp;2 Entities have been imported from the clipboard</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>084</MSGNR>
+     <TEXT>More than &amp;1 results</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>085</MSGNR>
+     <TEXT>Top package already reached</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>086</MSGNR>
+     <TEXT>No Results</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>087</MSGNR>
+     <TEXT>&amp;1 Results</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>

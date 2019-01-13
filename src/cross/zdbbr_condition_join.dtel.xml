@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_DTEL" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <DD04V>
+    <ROLLNAME>ZDBBR_CONDITION_JOIN</ROLLNAME>
+    <DDLANGUAGE>E</DDLANGUAGE>
+    <DOMNAME>ZDBBR_CONDITION_JOIN</DOMNAME>
+    <HEADLEN>06</HEADLEN>
+    <SCRLEN1>10</SCRLEN1>
+    <SCRLEN2>15</SCRLEN2>
+    <SCRLEN3>20</SCRLEN3>
+    <DDTEXT>AND/OR link in a selection condition</DDTEXT>
+    <REPTEXT>AND/OR</REPTEXT>
+    <SCRTEXT_S>AND/OR</SCRTEXT_S>
+    <SCRTEXT_M>AND/OR</SCRTEXT_M>
+    <SCRTEXT_L>AND/OR</SCRTEXT_L>
+    <APPLCLASS>SDIC</APPLCLASS>
+    <DTELMASTER>E</DTELMASTER>
+    <REFKIND>D</REFKIND>
+   </DD04V>
+   <I18N_LANGS>
+    <LANGU>D</LANGU>
+   </I18N_LANGS>
+   <DD04_TEXTS>
+    <item>
+     <DDLANGUAGE>D</DDLANGUAGE>
+     <DDTEXT>AND/OR-Verknüpfung in einer Selektionsbedingung</DDTEXT>
+     <REPTEXT>AND/OR</REPTEXT>
+     <SCRTEXT_S>AND/OR</SCRTEXT_S>
+     <SCRTEXT_M>AND/OR</SCRTEXT_M>
+     <SCRTEXT_L>AND/OR</SCRTEXT_L>
+    </item>
+   </DD04_TEXTS>
+   <LONGTEXTS>
+    <item>
+     <DOKIL>
+      <ID>DE</ID>
+      <OBJECT>ZDBBR_CONDITION_JOIN</OBJECT>
+      <LANGU>D</LANGU>
+      <TYP>E</TYP>
+      <VERSION>0012</VERSION>
+      <TXTLINES>00012</TXTLINES>
+      <DOKSTATE>A</DOKSTATE>
+     </DOKIL>
+     <HEAD>
+      <TDOBJECT>DOKU</TDOBJECT>
+      <TDNAME>ZDBBR_CONDITION_JOIN</TDNAME>
+      <TDID>DE</TDID>
+      <TDSPRAS>D</TDSPRAS>
+      <TDFORM>S_DOCU_SHOW</TDFORM>
+      <TDSTYLE>S_DOCUS1</TDSTYLE>
+      <TDVERSION>00012</TDVERSION>
+      <TDLINESIZE>072</TDLINESIZE>
+     </HEAD>
+     <LINES>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;DEFINITION&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>Feldwertvergleiche in</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>&lt;DS:TX.DDDOK_SELEKTIONSBEDINGUNG&gt;Selektionsbedingungen&lt;/&gt; können durch</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>die logischen Operatoren &apos;AND&apos; und &apos;OR&apos; miteinander verknüpft werden.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>&apos;OR&apos;-Verknüpfungen sind jedoch nur zwischen Feldwertvergleichen</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>zulässig, die sich auf dasselbe Feld beziehen.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;USE&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;WHAT_TO_DO&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;EXAMPLES&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;DEPENDENCIES&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>Beachten Sie, daß hier &apos;OR&apos; stärker als &apos;AND&apos; ist.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>Die Bedingung &lt;BED1&gt; AND &lt;BED2&gt; OR &lt;BED3&gt; wird also als</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>/</TDFORMAT>
+       <TDLINE>&lt;BED1&gt; AND (&lt;BED2&gt; OR &lt;BED3&gt;) interpretiert.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>Siehe</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;DS:REPO.DD_DOCUCALL_SE11&gt;Aufgabenorientierte Anleitung&lt;/&gt;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;DS:ABEN.DDIC_CLASSICAL_VIEWS&gt;Referenzdokumentation zu klassischen Views</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>=</TDFORMAT>
+       <TDLINE>&lt;/&gt;</TDLINE>
+      </TLINE>
+     </LINES>
+    </item>
+    <item>
+     <DOKIL>
+      <ID>DE</ID>
+      <OBJECT>ZDBBR_CONDITION_JOIN</OBJECT>
+      <LANGU>E</LANGU>
+      <TYP>E</TYP>
+      <VERSION>0012</VERSION>
+      <MASTERLANG>X</MASTERLANG>
+      <TXTLINES>00012</TXTLINES>
+      <DOKSTATE>A</DOKSTATE>
+     </DOKIL>
+     <HEAD>
+      <TDOBJECT>DOKU</TDOBJECT>
+      <TDNAME>ZDBBR_CONDITION_JOIN</TDNAME>
+      <TDID>DE</TDID>
+      <TDSPRAS>E</TDSPRAS>
+      <TDFORM>S_DOCU_SHOW</TDFORM>
+      <TDSTYLE>S_DOCUS1</TDSTYLE>
+      <TDVERSION>00012</TDVERSION>
+      <TDLINESIZE>072</TDLINESIZE>
+     </HEAD>
+     <LINES>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;DEFINITION&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>Field value comparisons in &lt;DS:TX.DDDOK_SELEKTIONSBEDINGUNG&gt;selection</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>conditions&lt;/&gt; can be linked with each other through the logical</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>operators &apos;AND&apos; and &apos;OR&apos;. OR operators are only permitted between field</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>value comparisons that refer to the same field.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;USE&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;WHAT_TO_DO&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;EXAMPLES&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;DEPENDENCIES&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>Bear in mind that, here, &apos;OR&apos; is stronger than &apos;AND&apos;.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>The condition &lt;(&gt;&lt;&lt;)&gt;BED1&gt; AND &lt;(&gt;&lt;&lt;)&gt;BED2&gt; OR &lt;(&gt;&lt;&lt;)&gt;BED3&gt; is thus</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>interpreted as</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>/</TDFORMAT>
+       <TDLINE>&lt;(&gt;&lt;&lt;)&gt;BED1&gt; AND (&lt;(&gt;&lt;&lt;)&gt;BED2&gt; OR &lt;(&gt;&lt;&lt;)&gt;BED3&gt;).</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>See</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;DS:REPO.DD_DOCUCALL_SE11&gt;Task-Oriented Instructions&lt;/&gt;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;DS:ABEN.DDIC_CLASSICAL_VIEWS&gt;Reference Documentation for Classical</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>Views&lt;/&gt;</TDLINE>
+      </TLINE>
+     </LINES>
+    </item>
+   </LONGTEXTS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

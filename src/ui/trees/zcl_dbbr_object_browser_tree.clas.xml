@@ -1,0 +1,437 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Repository tree for Navigator</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <CLSFINAL>X</CLSFINAL>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>001</KEY>
+     <ENTRY>Package</ENTRY>
+     <LENGTH>17</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>002</KEY>
+     <ENTRY>CDS View</ENTRY>
+     <LENGTH>18</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>003</KEY>
+     <ENTRY>Database Table/View</ENTRY>
+     <LENGTH>29</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Enter name of Entity</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>005</KEY>
+     <ENTRY>Input Help</ENTRY>
+     <LENGTH>20</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>006</KEY>
+     <ENTRY>Object Category</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>007</KEY>
+     <ENTRY>Perform search</ENTRY>
+     <LENGTH>24</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>008</KEY>
+     <ENTRY>Query</ENTRY>
+     <LENGTH>15</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>009</KEY>
+     <ENTRY>Description/Property</ENTRY>
+     <LENGTH>21</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>010</KEY>
+     <ENTRY>Object Name</ENTRY>
+     <LENGTH>21</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>011</KEY>
+     <ENTRY>Superordinate Object List</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>012</KEY>
+     <ENTRY>Select From</ENTRY>
+     <LENGTH>21</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>013</KEY>
+     <ENTRY>Associations</ENTRY>
+     <LENGTH>22</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>014</KEY>
+     <ENTRY>Data Definitions</ENTRY>
+     <LENGTH>26</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>015</KEY>
+     <ENTRY>Loading Tree Nodes...</ENTRY>
+     <LENGTH>42</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>016</KEY>
+     <ENTRY>Loading Object List...</ENTRY>
+     <LENGTH>44</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>017</KEY>
+     <ENTRY>Properties</ENTRY>
+     <LENGTH>19</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>018</KEY>
+     <ENTRY>Responsible</ENTRY>
+     <LENGTH>21</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>019</KEY>
+     <ENTRY>API States</ENTRY>
+     <LENGTH>20</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>020</KEY>
+     <ENTRY>Views</ENTRY>
+     <LENGTH>15</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>021</KEY>
+     <ENTRY>Database Tables</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>022</KEY>
+     <ENTRY>Loading DDLS of Package</ENTRY>
+     <LENGTH>46</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>023</KEY>
+     <ENTRY>Loading DB Tables of Package</ENTRY>
+     <LENGTH>56</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>024</KEY>
+     <ENTRY>Loading DB Views of Package</ENTRY>
+     <LENGTH>54</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>025</KEY>
+     <ENTRY>Loading parent package...</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>026</KEY>
+     <ENTRY>Favorites</ENTRY>
+     <LENGTH>19</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>027</KEY>
+     <ENTRY>Add</ENTRY>
+     <LENGTH>13</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>028</KEY>
+     <ENTRY>Edit...</ENTRY>
+     <LENGTH>14</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>029</KEY>
+     <ENTRY>Open in ADT</ENTRY>
+     <LENGTH>21</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>030</KEY>
+     <ENTRY>Open in new Window</ENTRY>
+     <LENGTH>28</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>031</KEY>
+     <ENTRY>Show Content</ENTRY>
+     <LENGTH>22</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>032</KEY>
+     <ENTRY>Show Content (New Task)</ENTRY>
+     <LENGTH>46</LENGTH>
+    </item>
+   </TPOOL>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CLEAR_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Clears tree of all nodes</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CONSTRUCTOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>CONSTRUCTOR</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_INPUT_DD</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create dynamic document for search input</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_MULTIPLE_CDS_VIEW_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create tree for multiple cds views</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_MULTIPLE_DB_TAB_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create tree for multiple packages</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_MULTIPLE_PACKAGE_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create tree for multiple packages</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_QUERY_SUB_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create query sub tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_QUERY_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create query tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_SINGLE_CDS_VIEW_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create tree for single cds view</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_SINGLE_DB_TAB_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create tree for single table/view</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_SINGLE_PACKAGE_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Build Tree for a single package</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_SPLITTER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates splitter</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_SUBNODES_FOR_CDS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create sub nodes for single CDS node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates Tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_CDS_VIEW_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expand a single CDS View</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_PACKAGE_DBTABS_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expand db tabs subnode of package node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_PACKAGE_DDLS_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expand ddls subnode of package node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_PACKAGE_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expand the package</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_PACKAGE_VIEWS_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expand views subnode of package node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_QUERY_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expand a single Query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_VIEW_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expand a single Database view</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>FILL_FAVORITE_DD_MENU</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fill favorites dropdown</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>FILL_TOOLBAR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fill toolbar for tree</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_DISPLAY_OBJECT_LIST</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for DISPLAY_OBJECT_LIST event</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_EXPAND_NO_CHILDREN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when children are to be loaded lazily</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_EXTERNAL_OBJECT_SEARCH_REQ</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for External object search request</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_CONTEXT_MENU_REQUEST</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for requesting a context menu for a node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_CONTEXT_MENU_SELECT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when the context menu entry was chosen</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_DOUBLE_CLICK</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for double click on node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_ENTER_KEY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for ENTER key press on node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_PERFORM_SEARCH</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for performing the search</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_SEARCH_INPUT_ENTER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Enter Handler for serach input</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_SEARCH_TYPE_SELECTED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Dropdown Selection changed handler</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ON_TOOLBAR_BUTTON</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for pressed toolbar button</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>SHOW_SUPERORDINATE_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Show superordinate tree of current object</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>TRIGGER_NEW_SEARCH</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Trigger a new search</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>UPDATE_TOOLBAR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Update toolbar for tree</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>
