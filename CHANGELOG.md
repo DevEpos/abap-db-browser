@@ -1,2 +1,3 @@
-# DBBrowser
-ABAP Database Browser (Tables, Views, CDS Views, Custom Queries, ...)
+# DBBrowser - Changelog
+
+## v1.0.5   - 2019-01-13
