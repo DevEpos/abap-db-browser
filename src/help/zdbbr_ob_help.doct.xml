@@ -28,7 +28,7 @@
      </TLINE>
      <TLINE>
       <TDFORMAT>*</TDFORMAT>
-      <TDLINE>The object search can be used in be in the following ways. Either you</TDLINE>
+      <TDLINE>The object search can be used in one of the following ways. Either you</TDLINE>
      </TLINE>
      <TLINE>
       <TDLINE>enter a name directly without any wildcards e.g. MARA, then an object</TDLINE>
@@ -109,7 +109,7 @@
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>api,,API State,,X,,-,,[true]</TDLINE>
+      <TDLINE>api,,API State,,X,,-,,[released]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
