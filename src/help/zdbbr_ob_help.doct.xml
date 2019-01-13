@@ -65,6 +65,26 @@
       <TDLINE>e.g. &lt;ZH&gt;owner:user1 owner:user2. &lt;/&gt;</TDLINE>
      </TLINE>
      <TLINE>
+      <TDFORMAT>U3</TDFORMAT>
+      <TDLINE>How to use option value exclusion</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+      <TDLINE>If you want to exclude entities which possess a certain option value</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>from the result view you do this either with a leading &apos;!&apos; or &apos;&lt;&gt;&apos;. So</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>let&apos;s say you want objects whose description contains &apos;Mat&apos; but don&apos;t</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>want to see those which contain &apos;cond&apos; you do this with the following</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>query: &lt;ZK&gt;desc&lt;/&gt;:*Mat*,!*cond*</TDLINE>
+     </TLINE>
+     <TLINE>
       <TDFORMAT>U2</TDFORMAT>
       <TDLINE>The available search options</TDLINE>
      </TLINE>
@@ -73,7 +93,7 @@
       <TDLINE>The following sections describe the different search options that are</TDLINE>
      </TLINE>
      <TLINE>
-      <TDLINE>available. ,,,,,,,,,,,,</TDLINE>
+      <TDLINE>available.,,,,,,,,,,</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>K3</TDFORMAT>
@@ -186,24 +206,89 @@
       <TDLINE>Examples</TDLINE>
      </TLINE>
      <TLINE>
-      <TDFORMAT>*</TDFORMAT>
+      <TDFORMAT>U3</TDFORMAT>
       <TDLINE>CDS View searches:</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>from:mara,marc maxrows:500</TDLINE>
+      <TDLINE>&lt;ZK&gt;from&lt;/&gt;:mara,marc &lt;ZK&gt;maxrows&lt;/&gt;:500</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>BL</TDFORMAT>
+      <TDLINE>Searches for all CDS views that select from tables mara or marc, also</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>the maximum result count is raised to 500</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>assoc:i_prod* api:released</TDLINE>
+      <TDLINE>&lt;ZK&gt;assoc&lt;/&gt;:i_prod* &lt;ZK&gt;api&lt;/&gt;:released</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>BL</TDFORMAT>
+      <TDLINE>Searches for all CDS views that have an association to entities that</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>start with &quot;i_prod&quot; and have a released api state</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>params:true type:hierarchy i_*</TDLINE>
+      <TDLINE>&lt;ZK&gt;params&lt;/&gt;:true &lt;ZK&gt;type&lt;/&gt;:hierarchy i_*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>BL</TDFORMAT>
+      <TDLINE>Searches for all CDS views that have parameters and are of type</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>&quot;hierarchy&quot; and whose name starts with &quot;i_&quot;</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>desc:*Mater*</TDLINE>
+      <TDLINE>&lt;ZK&gt;desc&lt;/&gt;:*Mater*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>BL</TDFORMAT>
+      <TDLINE>Searches for all CDS Views whose Description contains the string &quot;Mater&quot;</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>&lt;ZK&gt;anno&lt;/&gt;:analytics*query</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>BL</TDFORMAT>
+      <TDLINE>Searches for all CDS Views that have an annotation like</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>&quot;analytics*query&quot;</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>U3</TDFORMAT>
+      <TDLINE>Database Table/View searches</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>&lt;ZK&gt;field&lt;/&gt;:matnr &lt;ZK&gt;desc&lt;/&gt;:*Cond* &lt;ZK&gt;package&lt;/&gt;:test*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>BL</TDFORMAT>
+      <TDLINE>Searches for all database tables/views that have a field named &quot;MATNR&quot;,</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>whose description contains &quot;Cond&quot;, and that lie in a development package</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>starting with &quot;TEST&quot;</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>&lt;ZK&gt;owner&lt;/&gt;:sy-uname cs*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>BL</TDFORMAT>
+      <TDLINE>Searches for all database tables/views where the responsible person is</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>the currently logged on user and which start with the name &quot;CS&quot;</TDLINE>
      </TLINE>
     </LINES>
    </DOC>
