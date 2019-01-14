@@ -109,7 +109,7 @@
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>api,,API State,,X,,-,,[released]</TDLINE>
+      <TDLINE>api,,API State,,X,,-,,[released,key_user,custom_fields,remote,cloud]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>

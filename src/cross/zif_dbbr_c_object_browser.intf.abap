@@ -21,7 +21,11 @@ INTERFACE zif_dbbr_c_object_browser
   CONSTANTS:
     "! Values for API option
     BEGIN OF c_api_option_value,
-      released TYPE string VALUE 'RELEASED',
+      released      TYPE string VALUE 'RELEASED',
+      custom_fields TYPE string VALUE 'CUSTOM_FIELDS',
+      key_user      TYPE string VALUE 'KEY_USER',
+      remote_api    TYPE string VALUE 'REMOTE',
+      cloud_user    TYPE string VALUE 'CLOUD',
     END OF c_api_option_value.
   CONSTANTS:
     "! Values for 'TYPE' option

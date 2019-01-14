@@ -40,7 +40,11 @@ CLASS cl_qov_cds IMPLEMENTATION.
     ELSEIF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_api.
       CASE iv_value.
 
-        WHEN zif_dbbr_c_object_browser=>c_api_option_value-released.
+        WHEN zif_dbbr_c_object_browser=>c_api_option_value-released or
+             zif_dbbr_c_object_browser=>c_api_option_value-key_user or
+             zif_dbbr_c_object_browser=>c_api_option_value-cloud_user or
+             zif_dbbr_c_object_browser=>c_api_option_value-remote_api or
+             zif_dbbr_c_object_browser=>c_api_option_value-custom_fields.
 
         WHEN OTHERS.
           lf_invalid = abap_true.

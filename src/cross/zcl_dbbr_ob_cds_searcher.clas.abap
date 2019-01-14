@@ -23,11 +23,80 @@ CLASS zcl_dbbr_ob_cds_searcher DEFINITION
     METHODS add_type_option_filter
       IMPORTING
         it_values TYPE zif_dbbr_ty_object_browser=>ty_search_option_values-value_range.
+    "! <p class="shorttext synchronized" lang="en">Create filter for API option</p>
+    "!
+    METHODS add_api_option_filter
+      IMPORTING
+        it_values TYPE zif_dbbr_ty_object_browser=>ty_search_option_values-value_range.
 
 ENDCLASS.
 
 
-CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
+
+CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
+
+
+  METHOD add_api_option_filter.
+    DATA: lt_api_filters TYPE RANGE OF string.
+
+    LOOP AT it_values INTO DATA(ls_value).
+
+      CASE ls_value-low.
+
+        WHEN zif_dbbr_c_object_browser=>c_api_option_value-released.
+          CONTINUE.
+
+        WHEN zif_dbbr_c_object_browser=>c_api_option_value-custom_fields.
+          ls_value-low = zif_dbbr_c_cds_api_state=>add_custom_fields.
+
+        WHEN zif_dbbr_c_object_browser=>c_api_option_value-key_user.
+          ls_value-low = zif_dbbr_c_cds_api_state=>use_in_key_user_apps.
+
+        WHEN zif_dbbr_c_object_browser=>c_api_option_value-remote_api.
+          ls_value-low = zif_dbbr_c_cds_api_state=>use_as_remote_api.
+
+        WHEN zif_dbbr_c_object_browser=>c_api_option_value-cloud_user.
+          ls_value-low = zif_dbbr_c_cds_api_state=>use_in_sap_cloud_platform.
+
+      ENDCASE.
+
+      lt_api_filters = VALUE #( BASE lt_api_filters ( ls_value ) ).
+    ENDLOOP.
+
+    check lt_api_filters is not initial.
+
+    add_option_filter(
+        iv_fieldname = |{ c_api_alias }~FilterValue|
+        it_values    = lt_api_filters
+    ).
+  ENDMETHOD.
+
+
+  METHOD add_type_option_filter.
+    DATA: lt_type_filters TYPE RANGE OF string.
+
+    LOOP AT it_values INTO DATA(ls_value).
+      CASE ls_value-low.
+
+        WHEN zif_dbbr_c_object_browser=>c_type_option_value-function.
+          ls_value-low = zif_dbbr_c_cds_view_type=>table_function.
+
+        WHEN zif_dbbr_c_object_browser=>c_type_option_value-hierarchy.
+          ls_value-low = zif_dbbr_c_cds_view_type=>hierarchy.
+
+        WHEN zif_dbbr_c_object_browser=>c_type_option_value-view.
+          ls_value-low = zif_dbbr_c_cds_view_type=>view.
+      ENDCASE.
+
+      lt_type_filters = VALUE #( BASE lt_type_filters ( ls_value ) ).
+    ENDLOOP.
+
+    add_option_filter(
+        iv_fieldname = 'source_type'
+        it_values    = lt_type_filters
+    ).
+  ENDMETHOD.
+
 
   METHOD zif_dbbr_object_searcher~search.
 
@@ -111,6 +180,8 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
                   ( fieldname = 'objecttype' tabname_alias = CONV #( c_api_alias ) value = 'DDLS'  )
                 )
             ).
+
+            add_api_option_filter( it_values = <ls_option>-value_range ).
 
 *.......... Find views where the filter exists in the FROM part of the cds view
           WHEN zif_dbbr_c_object_browser=>c_search_option-by_select_from.
@@ -204,31 +275,4 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
 
     rt_result = mt_result.
   ENDMETHOD.
-
-
-  METHOD add_type_option_filter.
-    DATA: lt_type_filters TYPE RANGE OF string.
-
-    LOOP AT it_values INTO DATA(ls_value).
-      CASE ls_value-low.
-
-        WHEN zif_dbbr_c_object_browser=>c_type_option_value-function.
-          ls_value-low = zif_dbbr_c_cds_view_type=>table_function.
-
-        WHEN zif_dbbr_c_object_browser=>c_type_option_value-hierarchy.
-          ls_value-low = zif_dbbr_c_cds_view_type=>hierarchy.
-
-        WHEN zif_dbbr_c_object_browser=>c_type_option_value-view.
-          ls_value-low = zif_dbbr_c_cds_view_type=>view.
-      ENDCASE.
-
-      lt_type_filters = VALUE #( BASE lt_type_filters ( ls_value ) ).
-    ENDLOOP.
-
-    add_option_filter(
-        iv_fieldname = 'source_type'
-        it_values    = lt_type_filters
-    ).
-  ENDMETHOD.
-
 ENDCLASS.
