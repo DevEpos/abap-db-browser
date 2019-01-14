@@ -34,9 +34,9 @@ private section.
   data MR_LANGUAGE_FIELD type ref to FIELDNAME .
   data MR_ID_FIELD type ref to FIELDNAME .
   data MR_ID_FIELD2 type ref to FIELDNAME .
-  data MR_ID_TABLE type ref to TABNAME16 .
+  data MR_ID_TABLE type ref to TABNAME .
   data MR_TEXT_FIELD type ref to FIELDNAME .
-  data MR_TEXT_TABLE type ref to TABNAME16 .
+  data MR_TEXT_TABLE type ref to TABNAME .
   data MF_DATA_SAVED type BOOLEAN .
   data MS_ADDTEXT_DATA type ZDBBR_ADDTEXT .
   data MR_KEY_FIELD type ref to FIELDNAME .
@@ -232,7 +232,7 @@ CLASS ZCL_DBBR_ADDTEXTFIELD_CTRL IMPLEMENTATION.
         DATA(lr_addtext_f) = NEW ZCL_DBBR_addtext_factory( ).
         ms_addtext_data-id_table        = mr_id_table->*.
         ms_addtext_data-id_field        = mr_id_field->*.
-        ms_addtext_data-id_field2        = mr_id_field2->*.
+        ms_addtext_data-id_field2       = mr_id_field2->*.
         ms_addtext_data-text_table      = mr_text_table->*.
         ms_addtext_data-text_field      = mr_text_field->*.
         ms_addtext_data-language_field  = mr_language_field->*.

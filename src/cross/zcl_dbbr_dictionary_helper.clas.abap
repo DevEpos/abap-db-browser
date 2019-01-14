@@ -231,13 +231,18 @@ CLASS zcl_dbbr_dictionary_helper DEFINITION
         iv_package TYPE devclass .
     "! <p class="shorttext synchronized" lang="en">Read description for table/view</p>
     "!
-    "! @parameter is_table_info | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter rv_description | <p class="shorttext synchronized" lang="en"></p>
     CLASS-METHODS get_table_description
       IMPORTING
         is_table_info         TYPE dd02v
       RETURNING
         VALUE(rv_description) TYPE dd02v-ddtext.
+    "! <p class="shorttext synchronized" lang="en">Retrieve field information for rollname</p>
+    "!
+    CLASS-METHODS get_dfies_info_for_rollname
+      IMPORTING
+        iv_rollname     TYPE rollname
+      RETURNING
+        VALUE(rs_dfies) TYPE dfies.
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -654,6 +659,14 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD get_dfies_info_for_rollname.
+    DATA(lr_elem_descr) = CAST cl_abap_elemdescr(
+        cl_abap_elemdescr=>describe_by_name( iv_rollname )
+    ).
+    rs_dfies = lr_elem_descr->get_ddic_field( p_langu = zcl_dbbr_appl_util=>get_description_language( ) ).
+  ENDMETHOD.
+
+
   METHOD get_domain_fix_value_text.
 *& Description: Returns the text for the given domain fix value
 *&---------------------------------------------------------------------*
@@ -720,6 +733,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
       EXPORTING
         tabname        = iv_tablename
         lfieldname     = lv_fieldname
+        langu          = zcl_dbbr_appl_util=>get_description_language( )
       IMPORTING
         dfies_wa       = rs_dfies
       EXCEPTIONS

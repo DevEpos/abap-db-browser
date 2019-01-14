@@ -138,7 +138,7 @@ CLASS zcl_dbbr_ob_generic_searcher IMPLEMENTATION.
   METHOD add_join_table.
     ms_join_def-tables = VALUE #( BASE ms_join_def-tables
       ( add_table         = iv_join_table
-        alias             = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE iv_join_table )
+        add_table_alias   = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE iv_join_table )
         join_type         = iv_join_type
         field_conditions  = it_fields
         filter_conditions = it_filter
@@ -169,7 +169,7 @@ CLASS zcl_dbbr_ob_generic_searcher IMPLEMENTATION.
 
   METHOD set_base_select_table.
     ms_join_def-primary_table = iv_entity.
-    ms_join_def-alias = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE iv_entity ).
+    ms_join_def-primary_table_alias = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE iv_entity ).
     ms_join_def-parameters = it_parameters.
   ENDMETHOD.
 

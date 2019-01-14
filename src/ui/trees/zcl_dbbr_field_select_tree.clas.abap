@@ -274,7 +274,7 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
       APPEND VALUE #(
         item_name  = mc_column_names-text_field_column
         class      = cl_list_tree_model=>item_class_checkbox
-        chosen     = mr_fields->active_field_exists( iv_tabname       = ir_tabfield_info->tabname
+        chosen     = mr_fields->active_field_exists( iv_tabname       = ir_tabfield_info->tabname_alias
                                                      iv_fieldname     = ir_tabfield_info->fieldname
                                                      if_is_text_field = abap_true )
         editable   = abap_true
@@ -521,7 +521,7 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
       lr_tabfield->set_custom_order( lv_new_order ).
     ELSEIF item_name = mc_column_names-text_field_column.
       mr_fields->set_all_text_fields(
-          iv_tabname      = ls_tabfield_info-tabname
+          iv_tabname      = ls_tabfield_info-tabname_alias
           iv_fieldname    = ls_tabfield_info-fieldname
           if_active       = checked
           iv_output_order = lv_new_order
@@ -628,7 +628,7 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
             " update text select column
             IF ls_tabfield_info-has_text_field = abap_true.
               DATA(lr_textfield_ref) = mr_fields->get_field_ref(
-                 iv_tabname_alias       = ls_tabfield_info-tabname
+                 iv_tabname_alias = ls_tabfield_info-tabname_alias
                  iv_fieldname     = ls_tabfield_info-fieldname
                  if_is_text_field = abap_true
               ).
@@ -770,7 +770,7 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
       lr_tabfield->set_custom_order( lv_new_order ).
     ELSE.
       mr_fields->set_all_text_fields(
-          iv_tabname      = ls_tabfield_info-tabname
+          iv_tabname      = ls_tabfield_info-tabname_alias
           iv_fieldname    = ls_tabfield_info-fieldname
           if_active       = lf_checked
           iv_output_order = lv_new_order

@@ -6,7 +6,7 @@ CLASS ZCL_DBBR_addtext_factory DEFINITION
   PUBLIC SECTION.
     METHODS exists_for_bus_key
       IMPORTING
-        iv_id_table       TYPE tabname16
+        iv_id_table       TYPE tabname
         iv_id_field1      TYPE fieldname
         iv_id_field2      TYPE fieldname
         iv_cond_field     TYPE fieldname
@@ -16,7 +16,7 @@ CLASS ZCL_DBBR_addtext_factory DEFINITION
         VALUE(result)     TYPE abap_bool.
     METHODS find_add_texts
       IMPORTING
-        !iv_id_table  TYPE tabname16 OPTIONAL
+        !iv_id_table  TYPE tabname OPTIONAL
         !iv_id_field  TYPE fieldname OPTIONAL
       EXPORTING
         !et_add_texts TYPE ZDBBR_addtext_itab .
@@ -27,13 +27,13 @@ CLASS ZCL_DBBR_addtext_factory DEFINITION
         !et_addtext        TYPE ZDBBR_addtext_itab .
     METHODS add_text_exists
       IMPORTING
-        !iv_id_table     TYPE tabname16
+        !iv_id_table     TYPE tabname
         !iv_id_field     TYPE fieldname
       RETURNING
         VALUE(rf_exists) TYPE boolean .
     METHODS get_add_texts
       IMPORTING
-        !iv_id_table       TYPE tabname16
+        !iv_id_table       TYPE tabname
         !iv_id_field       TYPE fieldname
       RETURNING
         VALUE(rt_add_text) TYPE ZDBBR_addtext_itab .

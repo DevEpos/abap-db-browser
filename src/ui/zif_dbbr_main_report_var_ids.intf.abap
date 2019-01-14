@@ -108,7 +108,7 @@ interface ZIF_DBBR_MAIN_REPORT_VAR_IDS
   "! Type - boolean
   constants C_P_XSORT type string value 'P_XSORT' ##NO_TEXT.
   constants C_P_HAS_SELECTION_CRITERIA type string value 'P_XFILTV' ##NO_TEXT.
-  "! Type - tabname16
+  "! Type - tabname
   constants C_P_IDTAB type string value 'P_IDTAB' ##NO_TEXT.
   "! Type - string
   constants C_P_IDFLD type string value 'P_IDFLD' ##NO_TEXT.
@@ -120,7 +120,7 @@ interface ZIF_DBBR_MAIN_REPORT_VAR_IDS
   constants C_RB_TTDTEL type string value 'P_TTDTEL' ##NO_TEXT.
   "! Type - sap_bool
   constants C_RB_TTFLD type string value 'P_TTFLD' ##NO_TEXT.
-  "! Type - tabname16
+  "! Type - tabname
   constants C_P_TXTTAB type string value 'P_TXTTAB' ##NO_TEXT.
   "! Type - string
   constants C_P_TXTFLD type string value 'P_TXTFLD' ##NO_TEXT.

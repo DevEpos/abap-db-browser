@@ -184,8 +184,8 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
     ENDIF.
 
     rs_join-primary_table = rs_join-primary_table && | AS | &&
-                            COND #( WHEN is_join_def-alias IS NOT INITIAL THEN
-                                        is_join_def-alias
+                            COND #( WHEN is_join_def-primary_table_alias IS NOT INITIAL THEN
+                                        is_join_def-primary_table_alias
                                     ELSE
                                         |{ it_table_to_alias_map[ tabname = is_join_def-primary_table ]-alias }|
                                   ).
@@ -193,8 +193,8 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
 *... build joins for defined join tables
     LOOP AT is_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_join_table>) WHERE is_virtual = abap_false.
 
-      DATA(lv_join_table_alias) = COND #( WHEN <ls_join_table>-alias IS NOT INITIAL THEN
-                                            <ls_join_table>-alias
+      DATA(lv_join_table_alias) = COND #( WHEN <ls_join_table>-add_table_alias IS NOT INITIAL THEN
+                                            <ls_join_table>-add_table_alias
                                           ELSE
                                             it_table_to_alias_map[ tabname = <ls_join_table>-add_table ]-alias ).
 
@@ -229,9 +229,9 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
         lv_reference_alias = COND #( WHEN <ls_field_cond>-ref_table_alias IS NOT INITIAL THEN
                                        <ls_field_cond>-ref_table_alias
                                      WHEN <ls_field_cond>-ref_table = is_join_def-primary_table THEN
-                                       is_join_def-alias
+                                       is_join_def-primary_table_alias
                                      ELSE
-                                       is_join_def-tables[ add_table = <ls_field_cond>-ref_table ]-alias ).
+                                       is_join_def-tables[ add_table = <ls_field_cond>-ref_table ]-add_table_alias ).
         IF lv_reference_alias IS INITIAL.
           lv_reference_alias = it_table_to_alias_map[ tabname = <ls_field_cond>-ref_table ]-alias.
         ENDIF.
@@ -252,9 +252,9 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
         lv_reference_alias = COND #( WHEN ls_filter_cond-tabname_alias IS NOT INITIAL THEN
                                        ls_filter_cond-tabname_alias
                                      WHEN ls_filter_cond-tabname = is_join_def-primary_table THEN
-                                       is_join_def-alias
+                                       is_join_def-primary_table_alias
                                      when ls_filter_cond-tabname is not initial then
-                                       is_join_def-tables[ add_table = ls_filter_cond-tabname ]-alias ).
+                                       is_join_def-tables[ add_table = ls_filter_cond-tabname ]-add_table_alias ).
         IF lv_reference_alias IS INITIAL.
           lv_reference_alias = it_table_to_alias_map[ tabname = ls_filter_cond-tabname ]-alias.
         ENDIF.

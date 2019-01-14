@@ -8,15 +8,16 @@ CLASS zcl_dbbr_addtext_bl DEFINITION
     CLASS-METHODS get_instance
       RETURNING
         VALUE(rr_instance) TYPE REF TO zcl_dbbr_addtext_bl .
-    METHODS determine_text_fields
-      IMPORTING
-        !is_tabfield_info    TYPE dfies OPTIONAL
-        is_data_element_info TYPE dd04v OPTIONAL.
+
+    "! <p class="shorttext synchronized" lang="en">Check if there is a text field for the given field</p>
+    "!
     METHODS text_exists
       IMPORTING
         !is_data_element_info TYPE dfies
       RETURNING
         VALUE(rf_exists)      TYPE boolean .
+    "! <p class="shorttext synchronized" lang="en">Retrieve text fields</p>
+    "!
     METHODS get_text_fields
       IMPORTING
         !iv_tablename       TYPE tabname
@@ -25,11 +26,23 @@ CLASS zcl_dbbr_addtext_bl DEFINITION
         VALUE(rt_text_info) TYPE zdbbr_addtext_data_itab .
     METHODS add_text_fields_to_list
       IMPORTING
-        !ir_tabfields    TYPE REF TO zcl_dbbr_tabfield_list
-        !is_ref_tabfield TYPE zdbbr_tabfield_info_ui
-        !if_post_select  TYPE abap_bool OPTIONAL
-        !iv_position     TYPE tabfdpos
-        !is_altcoltext   TYPE zdbbr_altcoltext_data .
+        ir_tabfields    TYPE REF TO zcl_dbbr_tabfield_list
+        is_ref_tabfield TYPE zdbbr_tabfield_info_ui
+        if_post_select  TYPE abap_bool OPTIONAL
+        iv_position     TYPE tabfdpos
+        is_altcoltext   TYPE zdbbr_altcoltext_data .
+    "! <p class="shorttext synchronized" lang="en">Determine Text fields for cds view</p>
+    "!
+    METHODS determine_t_flds_for_cds_field
+      IMPORTING
+        iv_cds_view      TYPE zdbbr_cds_view_name
+        iv_cds_field     TYPE fieldname
+        is_tabfield_info TYPE dfies .
+    "! <p class="shorttext synchronized" lang="en">Determine text fields for table</p>
+    "!
+    METHODS determine_t_fields_for_tab
+      IMPORTING
+        is_tabfield_info TYPE dfies OPTIONAL.
   PROTECTED SECTION.
   PRIVATE SECTION.
     TYPES: BEGIN OF ty_text_tab_map,
@@ -43,20 +56,37 @@ CLASS zcl_dbbr_addtext_bl DEFINITION
 
     DATA mt_text_table_map TYPE HASHED TABLE OF ty_text_tab_map WITH UNIQUE KEY checktable.
     DATA mt_addtext_info TYPE zdbbr_addtext_data_itab.
+    DATA mv_id_table TYPE tabname.
+    DATA mv_id_field TYPE fieldname.
     DATA ms_dtel_info TYPE dfies.
     DATA mr_addtext_factory TYPE REF TO zcl_dbbr_addtext_factory.
     CLASS-DATA sr_instance TYPE REF TO zcl_dbbr_addtext_bl.
 
+    "! <p class="shorttext synchronized" lang="en">Create text from f4 data</p>
+    "!
     METHODS create_addtext_from_f4_data
       IMPORTING
         is_f4_infos TYPE zdbbr_sh_infos.
+    "! <p class="shorttext synchronized" lang="en">Create text from manual data</p>
+    "!
     METHODS create_addtext_from_manual
       IMPORTING
         is_manual_addtext TYPE zdbbr_addtext.
+    "! <p class="shorttext synchronized" lang="en">Determine text fields via text table</p>
+    "!
     METHODS determine_textfield_via_txttab.
+    "! <p class="shorttext synchronized" lang="en">Add manual text field entries</p>
+    "!
     METHODS add_manual_text_field_entries.
+    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    "!
     METHODS constructor.
+    "! <p class="shorttext synchronized" lang="en">Delete all existing fields for the given key</p>
+    "!
     METHODS delete_existing_for_key.
+    "! <p class="shorttext synchronized" lang="en">Determine Text fields</p>
+    "!
+    METHODS determine_text_fields.
 ENDCLASS.
 
 
@@ -75,7 +105,7 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
 
   METHOD add_text_fields_to_list.
 
-    LOOP AT mt_addtext_info ASSIGNING FIELD-SYMBOL(<ls_text_field>) USING KEY key_for_source WHERE id_table = CONV tabname16( is_ref_tabfield-tabname )
+    LOOP AT mt_addtext_info ASSIGNING FIELD-SYMBOL(<ls_text_field>) USING KEY key_for_source WHERE id_table = is_ref_tabfield-tabname
                                                                                                AND id_field = is_ref_tabfield-fieldname.
 
       IF ( <ls_text_field>-text_field IS NOT INITIAL
@@ -83,7 +113,9 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
 
         DATA(ls_text_tabfield) = VALUE zdbbr_tabfield_info_ui(
           tabname                = is_ref_tabfield-tabname
+          tabname_alias          = is_ref_tabfield-tabname_alias
           fieldname              = is_ref_tabfield-fieldname
+          fieldname_raw          = is_ref_tabfield-fieldname_raw
           rollname               = is_ref_tabfield-rollname
           domname                = is_ref_tabfield-domname
           is_key                 = abap_false
@@ -128,7 +160,7 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
         RETURN.
     ENDCASE.
 
-    DATA(ls_add_text) = CORRESPONDING zdbbr_addtext_data( ms_dtel_info ).
+    DATA(ls_add_text) = VALUE zdbbr_addtext_data( ).
 
 *.. determine selection type
     CASE is_f4_infos-type.
@@ -163,8 +195,8 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
         ls_add_text-id_field_domname = ms_dtel_info-domname.
     ENDCASE.
 
-    ls_add_text-id_field = ms_dtel_info-fieldname.
-    ls_add_text-id_table = ms_dtel_info-tabname.
+    ls_add_text-id_field = mv_id_field.
+    ls_add_text-id_table = mv_id_table.
 
     APPEND ls_add_text TO mt_addtext_info.
 
@@ -181,8 +213,8 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
 
 
   METHOD delete_existing_for_key.
-    DELETE mt_addtext_info WHERE id_table = ms_dtel_info-tabname
-                             AND id_field = ms_dtel_info-fieldname.
+    DELETE mt_addtext_info WHERE id_table = mv_id_table
+                             AND id_field = mv_id_field.
   ENDMETHOD.
 
 
@@ -278,8 +310,26 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD determine_t_flds_for_cds_field.
+*& Description: Starting point for determining optional text field
+*&---------------------------------------------------------------------*
+*& Description: Determines text field for given cds view field
+*& by evaluating any defined elementary f4 helps, through defined checktables
+*& or value tabs at domains
+*&---------------------------------------------------------------------*
 
-  METHOD determine_text_fields.
+    IF is_tabfield_info IS NOT INITIAL.
+      ms_dtel_info = is_tabfield_info.
+      mv_id_table = iv_cds_view.
+      mv_id_field = iv_cds_field.
+    ELSE.
+      RETURN.
+    ENDIF.
+
+    determine_text_fields( ).
+  ENDMETHOD.
+
+  METHOD determine_t_fields_for_tab.
 *& Description: Starting point for determining optional text field
 *&---------------------------------------------------------------------*
 *& Description: Determines text field for given table field
@@ -290,33 +340,14 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
 
     IF is_tabfield_info IS NOT INITIAL.
       ms_dtel_info = is_tabfield_info.
-    ELSEIF is_data_element_info IS NOT INITIAL.
+      mv_id_table = is_tabfield_info-tabname.
+      mv_id_field = is_tabfield_info-fieldname.
     ELSE.
       RETURN.
     ENDIF.
 
-*.. delete any existing text fields for table/fieldname combination
-    delete_existing_for_key( ).
+    determine_text_fields( ).
 
-    " 1) try getting text field through f4 information defined at the data element
-    IF ms_dtel_info-f4availabl = abap_true.
-      DATA(ls_f4_infos) = zcl_dbbr_f4_helper=>get_f4_infos(
-          iv_fieldname = ms_dtel_info-fieldname
-          iv_tablename = ms_dtel_info-tabname
-      ).
-
-      lf_f4_exists = xsdbool( ls_f4_infos IS NOT INITIAL ).
-    ENDIF.
-
-    IF lf_f4_exists = abap_false.
-      " TODO:
-      " 2) check if tablefield has `checktable`
-      determine_textfield_via_txttab( ).
-    ELSE.
-      create_addtext_from_f4_data( ls_f4_infos ).
-    ENDIF.
-
-    add_manual_text_field_entries( ).
   ENDMETHOD.
 
 
@@ -342,4 +373,30 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
     rf_exists = xsdbool( line_exists( mt_addtext_info[ KEY key_for_source id_table = is_data_element_info-tabname
                                                                           id_field = is_data_element_info-fieldname ] ) ).
   ENDMETHOD.
+
+  METHOD determine_text_fields.
+
+*.. delete any existing text fields for table/fieldname combination
+    delete_existing_for_key( ).
+
+    " 1) try getting text field through f4 information defined at the data element
+    IF ms_dtel_info-f4availabl = abap_true.
+      DATA(ls_f4_infos) = zcl_dbbr_f4_helper=>get_f4_infos(
+          iv_fieldname = ms_dtel_info-fieldname
+          iv_tablename = ms_dtel_info-tabname
+      ).
+
+      IF ls_f4_infos IS NOT INITIAL.
+        create_addtext_from_f4_data( ls_f4_infos ).
+      ELSE.
+        determine_textfield_via_txttab( ).
+      ENDIF.
+    ELSE.
+      determine_textfield_via_txttab( ).
+    ENDIF.
+
+    add_manual_text_field_entries( ).
+
+  ENDMETHOD.
+
 ENDCLASS.

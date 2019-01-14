@@ -100,14 +100,16 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
 
 
   METHOD add_view_colums.
-    DATA: ls_datel    TYPE dd04v,
+    DATA: ls_datel    TYPE dfies,
           lv_rollname TYPE rollname.
+
+    DATA(lr_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
 
     LOOP AT it_columns ASSIGNING FIELD-SYMBOL(<ls_column>).
       CLEAR: lv_rollname,
              ls_datel.
 
-*... determine the rollname of the parameter
+*.... determine the rollname of the parameter
       lv_rollname = COND rollname(
         WHEN <ls_column>-rollname IS NOT INITIAL THEN
            <ls_column>-rollname
@@ -136,18 +138,21 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
 
 *... get additional information from rollname
       IF ls_tabfield-rollname IS NOT INITIAL.
-        ls_datel = zcl_dbbr_dictionary_helper=>get_data_element( ls_tabfield-rollname ).
-        " TODO: Adjust addtext bl to load existing value helps for rollname
-*        zcl_dbbr_addtext_bl=>get_instance( )->determine_text_fields( is_data_element_info = ls_datel ).
+        ls_datel = zcl_dbbr_dictionary_helper=>get_dfies_info_for_rollname( ls_tabfield-rollname ).
+        lr_addtext_bl->determine_t_flds_for_cds_field(
+            iv_cds_view      = iv_name
+            iv_cds_field     = <ls_column>-fieldname
+            is_tabfield_info = ls_datel
+        ).
         ls_tabfield-domname = ls_datel-domname.
         ls_tabfield-is_lowercase = ls_datel-lowercase.
         ls_tabfield-outputlen = ls_datel-outputlen.
-        ls_tabfield-f4_available = xsdbool( ls_datel-shlpname IS NOT INITIAL ).
+        ls_tabfield-f4_available = ls_datel-f4availabl.
         ls_tabfield-std_short_text = ls_datel-scrtext_s.
         ls_tabfield-std_medium_text = ls_datel-scrtext_m.
         ls_tabfield-std_long_text = ls_datel-scrtext_l.
         ls_tabfield-header_text = ls_datel-reptext.
-        ls_tabfield-field_ddtext = ls_datel-ddtext.
+        ls_tabfield-field_ddtext = ls_datel-fieldtext.
         ls_tabfield-convexit = ls_datel-convexit.
         ls_tabfield-inttype = zcl_dbbr_dictionary_helper=>get_dtel_inttype( iv_data_element = ls_datel-rollname  ).
       ELSE.
@@ -161,11 +166,23 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
       ENDIF.
 
       ls_tabfield-is_numeric = zcl_dbbr_dictionary_helper=>is_type_numeric( ls_tabfield-inttype ).
-      DATA(lr_new_field) = ir_tabfield_list->zif_uitb_data_ref_list~add( REF #( ls_tabfield ) ).
-      " TODO: Add additional text field if any exists for the new field @see zcl_dbbr_selscreen_util->create_table_fields( )
+      DATA(lr_new_field) = CAST zdbbr_tabfield_info_ui( ir_tabfield_list->zif_uitb_data_ref_list~add( REF #( ls_tabfield ) ) ).
+
+      IF ls_datel IS NOT INITIAL AND lr_addtext_bl->text_exists( value #( tabname = iv_name fieldname = ls_tabfield-fieldname ) ).
+
+        lr_addtext_bl->add_text_fields_to_list(
+          ir_tabfields  = ir_tabfield_list
+          is_ref_tabfield = ls_tabfield
+          iv_position   = ls_tabfield-ddic_order
+          is_altcoltext = VALUE #( )
+        ).
+
+*...... connect text field and key field
+        lr_new_field->has_text_field = abap_true.
+      ENDIF.
     ENDLOOP.
 
-    " add cds view to list of tables
+*.. add cds view to list of tables
     ir_tabfield_list->add_table(
       VALUE zdbbr_entity_info(
         active_selection     = if_selection

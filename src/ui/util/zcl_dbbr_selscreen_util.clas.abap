@@ -532,7 +532,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
       ls_tabfield = CORRESPONDING #( BASE ( ls_tabfield ) <ls_data_element_field> ).
 
-      lr_addtext_bl->determine_text_fields( is_tabfield_info = <ls_data_element_field> ).
+      lr_addtext_bl->determine_t_fields_for_tab( is_tabfield_info = <ls_data_element_field> ).
 
 
       IF ls_altcoltext-alt_long_text IS NOT INITIAL.

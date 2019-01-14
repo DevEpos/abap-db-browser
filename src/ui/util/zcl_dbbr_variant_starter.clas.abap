@@ -135,7 +135,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
 
     ls_tabfield = CORRESPONDING #( BASE ( ls_tabfield ) is_dfies ).
 
-    lr_addtext_bl->determine_text_fields( is_tabfield_info = is_dfies ).
+    lr_addtext_bl->determine_t_fields_for_tab( is_tabfield_info = is_dfies ).
 
     DATA(lr_new_field) = CAST zdbbr_tabfield_info_ui( mr_tabfield_list->add( REF #( ls_tabfield ) ) ).
 

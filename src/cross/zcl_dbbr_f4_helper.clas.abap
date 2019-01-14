@@ -107,7 +107,7 @@ ENDCLASS.
 CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
 
   METHOD get_cds_field_f4_infos.
-
+     " TODO: read cds view field foreignkey and valuehelp association
   ENDMETHOD.
 
   METHOD get_f4_infos.

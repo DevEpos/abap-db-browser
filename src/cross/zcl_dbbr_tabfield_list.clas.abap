@@ -667,7 +667,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     CLEAR: cs_field-sql_fieldname,
            cs_field-alv_fieldname.
 
-    DATA(lv_text_fieldname) = |{ cs_field-fieldname(24) }_TXT|.
+    DATA(lv_text_fieldname) = |{ cs_field-fieldname_raw(24) }_TXT|.
 
     cs_field-alv_fieldname = COND #( WHEN cs_field-alias IS NOT INITIAL THEN cs_field-alias && '_' ) && lv_text_fieldname.
     cs_field-sql_fieldname = COND #( WHEN cs_field-alias IS NOT INITIAL THEN cs_field-alias && '~' ) && lv_text_fieldname.
@@ -1057,7 +1057,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
       DATA(lv_active_text_field_count) = 0.
 
-      LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_text_field>) USING KEY unique WHERE tabname_alias = <ls_field>-tabname
+      LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_text_field>) USING KEY unique WHERE tabname_alias = <ls_field>-tabname_alias
                                                                                    AND fieldname     = <ls_field>-fieldname
                                                                                    AND is_text_field = abap_true.
 
@@ -1096,12 +1096,13 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
           lr_s_tabfield->fieldname_raw = lr_s_tabfield->fieldname.
         ENDIF.
 
-        IF NOT line_exists( mt_fields[ KEY unique tabname_alias = lr_s_tabfield->tabname
+        IF NOT line_exists( mt_fields[ KEY unique tabname_alias = lr_s_tabfield->tabname_alias
                                                   fieldname     = lr_s_tabfield->fieldname
                                                   is_text_field = lr_s_tabfield->is_text_field ] ).
           APPEND lr_s_tabfield->* TO mt_fields REFERENCE INTO rr_new_element.
         ENDIF.
       CATCH cx_sy_move_cast_error.
+      CATCH cx_sy_itab_duplicate_key.
     ENDTRY.
   ENDMETHOD.
 
