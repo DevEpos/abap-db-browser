@@ -157,6 +157,11 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
         has_output_fields = mr_ui_use_output_fields->*
         has_sort_fields   = mr_ui_use_sort_fields->*
         has_filter_values = mr_ui_use_selection_criteria->*
+*...... Retrieve stored jump destinations
+        jump_fields       = COND #( WHEN ls_query_existing-query_id IS NOT INITIAL THEN
+                                      CORRESPONDING #( DEEP
+                                         NEW zcl_dbbr_jump_destination_f( )->get_jump_destinations( ls_query_existing-query_id ) )
+                                      )
         join_def          = ms_join_def
         fields            = lt_fields
         tables            = CORRESPONDING #( mr_tabfield_list->get_table_list( ) )
@@ -174,7 +179,7 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
           iv_entity_id           = CONV #( lv_new_query_id )
           iv_variant_id          = lr_variant_f->find_default_query_variant( iv_query_id = lv_new_query_id )
           iv_entity_type         = zif_dbbr_c_entity_type=>query
-          iv_variant_description = 'Default'
+          iv_variant_description = 'Default'(013)
           it_selfields           = mr_t_selfields->*
           it_multi_selfields     = mr_t_multi_selfields->*
           it_multi_or            = mr_t_multi_or->*
@@ -263,15 +268,11 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
 
   METHOD zif_uitb_screen_controller~set_status.
 
-    DATA: lt_excl TYPE TABLE OF sy-ucomm.
-
-    lt_excl = VALUE #( ( 'SAVE_LOAD' ) ).
-
-    CALL FUNCTION 'RS_SET_SELSCREEN_STATUS'
-      EXPORTING
-        p_status  = '0710'
-      TABLES
-        p_exclude = lt_excl.
+    zcl_uitb_screen_util=>set_selscreen_status(
+        iv_status              = '0710'
+        iv_repid               = zif_dbbr_c_report_id=>main
+        it_excluding_functions = VALUE #( ( 'SAVE_LOAD' ) )
+    ).
 
   ENDMETHOD.
 

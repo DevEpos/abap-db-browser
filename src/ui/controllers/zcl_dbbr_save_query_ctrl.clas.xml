@@ -26,6 +26,12 @@
      <ENTRY>Do you want to override the existing query?</ENTRY>
      <LENGTH>94</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>013</KEY>
+     <ENTRY>Default</ENTRY>
+     <LENGTH>17</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>

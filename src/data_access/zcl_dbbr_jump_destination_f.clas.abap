@@ -1,60 +1,61 @@
-class ZCL_DBBR_JUMP_DESTINATION_F definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_jump_destination_f DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  methods SAVE_JUMP_DESTINATIONS
-    importing
-      !IV_query_ID type ZDBBR_query_ID
-    changing
-      !CT_JUMP_DESTINATIONS type ZDBBR_JUMPDEST_DATA_UI_ITAB .
-  methods GET_JUMP_DESTINATIONS
-    importing
-      !IV_query_ID type ZDBBR_query_ID
-    returning
-      value(RT_JUMP_DESTINATIONS) type ZDBBR_JUMPDEST_DATA_UI_ITAB .
-  methods DELETE_JUMPDEST_BY_query_ID
-    importing
-      !IV_query_ID type ZDBBR_query_ID .
+    METHODS save_jump_destinations
+      IMPORTING
+        !iv_query_id          TYPE zdbbr_query_id
+        if_update_query_flag  TYPE abap_bool OPTIONAL
+      CHANGING
+        !ct_jump_destinations TYPE zdbbr_jumpdest_data_ui_itab .
+    METHODS get_jump_destinations
+      IMPORTING
+        !iv_query_id                TYPE zdbbr_query_id
+      RETURNING
+        VALUE(rt_jump_destinations) TYPE zdbbr_jumpdest_data_ui_itab .
+    METHODS delete_jumpdest_by_query_id
+      IMPORTING
+        !iv_query_id TYPE zdbbr_query_id .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  methods SAVE_JUMP_DESTINATION
-    changing
-      !CS_JUMP_DESTINATION type ZDBBR_JUMPDEST_DATA_UI .
-  methods SAVE_PARAMETER
-    importing
-      !IS_PARAMETER type ZDBBR_JUMPDESTP .
-  methods DELETE_PARAMETERS_FOR_JUMPDEST
-    importing
-      !IV_JUMPDEST_ID type ZDBBR_JUMPDEST_ID .
-  methods DELETE_JUMPDEST
-    importing
-      !IS_JUMP_DEFINITION type ZDBBR_JUMPDEST .
-  methods READ_JUMP_DESTINATIONS
-    importing
-      !IV_query_ID type ZDBBR_query_ID
-    returning
-      value(RT_JUMP_DESTINATIONS) type ZDBBR_JUMPDEST_ITAB .
-  methods READ_PARAMS_FOR_JUMPDEST
-    importing
-      !IV_JUMPDEST_ID type ZDBBR_JUMPDEST_ID
-    returning
-      value(RT_PARAMS) type ZDBBR_JUMPPARAM_ITAB .
-  methods DELETE_PARAMETER_BY_ID
-    importing
-      !IV_PARAMETER_ID type MEMORYID .
+    METHODS save_jump_destination
+      CHANGING
+        !cs_jump_destination TYPE zdbbr_jumpdest_data_ui .
+    METHODS save_parameter
+      IMPORTING
+        !is_parameter TYPE zdbbr_jumpdestp .
+    METHODS delete_parameters_for_jumpdest
+      IMPORTING
+        !iv_jumpdest_id TYPE zdbbr_jumpdest_id .
+    METHODS delete_jumpdest
+      IMPORTING
+        !is_jump_definition TYPE zdbbr_jumpdest .
+    METHODS read_jump_destinations
+      IMPORTING
+        !iv_query_id                TYPE zdbbr_query_id
+      RETURNING
+        VALUE(rt_jump_destinations) TYPE zdbbr_jumpdest_itab .
+    METHODS read_params_for_jumpdest
+      IMPORTING
+        !iv_jumpdest_id  TYPE zdbbr_jumpdest_id
+      RETURNING
+        VALUE(rt_params) TYPE zdbbr_jumpparam_itab .
+    METHODS delete_parameter_by_id
+      IMPORTING
+        !iv_parameter_id TYPE memoryid .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_JUMP_DESTINATION_F IMPLEMENTATION.
+CLASS zcl_dbbr_jump_destination_f IMPLEMENTATION.
 
 
   METHOD delete_jumpdest.
-    DELETE ZDBBR_jumpdest FROM is_jump_definition.
+    DELETE zdbbr_jumpdest FROM is_jump_definition.
   ENDMETHOD.
 
 
@@ -68,12 +69,12 @@ CLASS ZCL_DBBR_JUMP_DESTINATION_F IMPLEMENTATION.
 
 
   METHOD delete_parameters_for_jumpdest.
-    DELETE FROM ZDBBR_jumpdestp WHERE ref_jump_dest = iv_jumpdest_id.
+    DELETE FROM zdbbr_jumpdestp WHERE ref_jump_dest = iv_jumpdest_id.
   ENDMETHOD.
 
 
   METHOD delete_parameter_by_id.
-    DELETE FROM ZDBBR_jumpdestp WHERE parameter_id = iv_parameter_id.
+    DELETE FROM zdbbr_jumpdestp WHERE parameter_id = iv_parameter_id.
   ENDMETHOD.
 
 
@@ -102,21 +103,21 @@ CLASS ZCL_DBBR_JUMP_DESTINATION_F IMPLEMENTATION.
 
 
   METHOD read_jump_destinations.
-    SELECT * FROM ZDBBR_jumpdest INTO TABLE @rt_jump_destinations
+    SELECT * FROM zdbbr_jumpdest INTO TABLE @rt_jump_destinations
       WHERE ref_query_id = @iv_query_id.
   ENDMETHOD.
 
 
   METHOD read_params_for_jumpdest.
-    SELECT * FROM ZDBBR_jumpdestp INTO TABLE @rt_params
+    SELECT * FROM zdbbr_jumpdestp INTO TABLE @rt_params
       WHERE ref_jump_dest = @iv_jumpdest_id.
   ENDMETHOD.
 
 
   METHOD save_jump_destination.
-    DATA(ls_jumpdest) = CORRESPONDING ZDBBR_jumpdest( cs_jump_destination ).
+    DATA(ls_jumpdest) = CORRESPONDING zdbbr_jumpdest( cs_jump_destination ).
 
-    MODIFY ZDBBR_jumpdest FROM ls_jumpdest.
+    MODIFY zdbbr_jumpdest FROM ls_jumpdest.
 
     DATA(lt_existing_params) = read_params_for_jumpdest( iv_jumpdest_id = ls_jumpdest-jumpdest_id ).
     LOOP AT lt_existing_params ASSIGNING FIELD-SYMBOL(<ls_existing_param>).
@@ -151,7 +152,7 @@ CLASS ZCL_DBBR_JUMP_DESTINATION_F IMPLEMENTATION.
     LOOP AT ct_jump_destinations ASSIGNING FIELD-SYMBOL(<ls_jump_dest>).
       " is this a new jump destination ?
       IF <ls_jump_dest>-jumpdest_id IS INITIAL.
-        <ls_jump_dest>-jumpdest_id = ZCL_DBBR_system_helper=>create_guid_22( ).
+        <ls_jump_dest>-jumpdest_id = zcl_dbbr_system_helper=>create_guid_22( ).
       ENDIF.
 
       LOOP AT <ls_jump_dest>-parameters ASSIGNING FIELD-SYMBOL(<ls_param>).
@@ -164,13 +165,19 @@ CLASS ZCL_DBBR_JUMP_DESTINATION_F IMPLEMENTATION.
       ).
     ENDLOOP.
 
+    IF if_update_query_flag = abap_true.
+      NEW zcl_dbbr_query_factory( )->update_query_flags(
+        iv_query_id = iv_query_id if_has_jump_fields = xsdbool( ct_jump_destinations IS NOT INITIAL )
+      ).
+    ENDIF.
+
     " commit changes
-    MESSAGE |Jump destinations were successfully saved!| TYPE 'S'.
+    MESSAGE |{ 'Jump destinations were successfully saved!'(001) }| TYPE 'S'.
     COMMIT WORK.
   ENDMETHOD.
 
 
   METHOD save_parameter.
-    MODIFY ZDBBR_jumpdestp FROM is_parameter.
+    MODIFY zdbbr_jumpdestp FROM is_parameter.
   ENDMETHOD.
 ENDCLASS.

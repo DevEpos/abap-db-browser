@@ -98,9 +98,9 @@ CLASS zcl_dbbr_query_factory DEFINITION
     METHODS update_query_flags
       IMPORTING
         !iv_query_id          TYPE zdbbr_query_info_ui-query_id
-        !if_has_jump_fields   TYPE boolean OPTIONAL
-        !if_has_output_fields TYPE boolean OPTIONAL
-        !if_has_sort_fields   TYPE boolean OPTIONAL .
+        !if_has_jump_fields   TYPE abap_bool OPTIONAL
+        !if_has_output_fields TYPE abap_bool OPTIONAL
+        !if_has_sort_fields   TYPE abap_bool OPTIONAL .
     "! <p class="shorttext synchronized" lang="en">Retrieve query id for query name</p>
     "!
     "! @parameter iv_query_name | <p class="shorttext synchronized" lang="en"></p>
@@ -122,9 +122,9 @@ CLASS zcl_dbbr_query_factory DEFINITION
         !if_delete_all TYPE boolean OPTIONAL .
     METHODS fill_corresponding_data
       IMPORTING
-        !if_load_formulas          TYPE boolean OPTIONAL
-        !if_load_jump_destinations TYPE boolean OPTIONAL
-        !if_load_variants          TYPE boolean OPTIONAL
+        !if_load_formulas          TYPE abap_bool OPTIONAL
+        !if_load_jump_destinations TYPE abap_bool OPTIONAL
+        !if_load_variants          TYPE abap_bool OPTIONAL
       CHANGING
         !cs_query_data             TYPE zdbbr_query_data .
 ENDCLASS.
@@ -317,6 +317,8 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     DATA(lt_query_tables) = is_query-tables.
     lt_query_fields = CORRESPONDING #( is_query-fields ).
     DATA(ls_query) = CORRESPONDING zdbbr_query_info( is_query ).
+
+    ls_query-has_jump_fields = xsdbool( is_query-jump_fields is not INITIAL ).
 
     DATA(lr_join_factory) = NEW zcl_dbbr_join_factory( ).
 

@@ -234,7 +234,8 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
 
     NEW ZCL_DBBR_jump_destination_f( )->save_jump_destinations(
       EXPORTING
-        iv_query_id         = mv_query_id
+        iv_query_id          = mv_query_id
+        if_update_query_flag = abap_true
       CHANGING
         ct_jump_destinations = <lt_jump_definitions>
     ).
