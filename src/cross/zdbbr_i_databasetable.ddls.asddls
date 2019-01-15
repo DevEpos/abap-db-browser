@@ -16,6 +16,7 @@ define view ZDBBR_I_DatabaseTable
 {
   DbTable.tabname   as TableName,
   ddtext            as Description,
+  upper(ddtext)     as DescriptionUpper,
   ddlanguage        as Language,
   author            as CreatedBy,
   devclass          as DevelopmentPackage,

@@ -10,9 +10,10 @@ define view ZDBBR_I_CDSViewT
   as select from ddddlsrct as Text
 {
 
-  key Text.ddlname    as DdlName,
-  key Text.ddlanguage as Language,
-      Text.ddtext     as Description
+  key Text.ddlname       as DdlName,
+  key Text.ddlanguage    as Language,
+      Text.ddtext        as Description,
+      upper(Text.ddtext) as DescriptionUpper
 }
 where
   as4local = 'A'

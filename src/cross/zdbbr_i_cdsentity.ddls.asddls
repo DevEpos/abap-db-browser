@@ -18,8 +18,9 @@ define view ZDBBR_I_CDSEntity
   Base.DevelopmentPackage,
   Text.Language,
   Text.Description,
+  Text.DescriptionUpper,
   Base.CreatedBy,
-  'C' as Type
+  'C'                     as Type
 }
 where
       CdsSource.parentname = ''

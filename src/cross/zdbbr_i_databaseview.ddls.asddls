@@ -16,6 +16,7 @@ define view ZDBBR_I_DatabaseView
 {
   DbView.viewname   as ViewName,
   ddtext            as Description,
+  upper(ddtext)     as DescriptionUpper,
   ddlanguage        as Language,
   author            as CreatedBy,
   devclass          as DevelopmentPackage,

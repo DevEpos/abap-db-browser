@@ -11,9 +11,10 @@
 define view ZDBBR_I_CDSFieldValueWithVH
   as select from ddfieldanno
 {
-  key strucobjn  as Entity,
-  key lfieldname as FieldName,
-      value      as ValueHelpAssociation
+  key strucobjn                                     as Entity,
+  key lfieldname                                    as FieldName,
+      value                                         as AssociationNameRaw,
+      upper(replace(value, '''', ''))               as AssociationName
 }
 where
      name = 'OBJECTMODEL.FOREIGNKEY.ASSOCIATION'
