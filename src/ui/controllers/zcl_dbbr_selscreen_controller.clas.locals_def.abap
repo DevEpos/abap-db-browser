@@ -4,7 +4,9 @@
 INTERFACE lif_selfield_names.
   CONSTANTS:
     c_tabname           TYPE dynfnam VALUE 'GS_SELFIELDS-TABNAME',
+    c_tabname_alias     TYPE dynfnam VALUE 'GS_SELFIELDS-TABNAME_ALIAS',
     c_fieldname         TYPE dynfnam VALUE 'GS_SELFIELDS-FIELDNAME',
+    c_fieldname_raw     TYPE dynfnam VALUE 'GS_SELFIELDS-FIELDNAME_RAW',
     c_alias             TYPE dynfnam VALUE 'GS_SELFIELDS-ALIAS',
     c_entry             TYPE dynfnam VALUE 'GS_SELFIELDS-ENTRY',
     c_sign              TYPE dynfnam VALUE 'GS_SELFIELDS-SIGN',

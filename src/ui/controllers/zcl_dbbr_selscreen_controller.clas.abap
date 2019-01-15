@@ -983,18 +983,51 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD pick_navigate.
-    CHECK mr_cursor->get_field( ) = lif_selfield_names=>c_fieldname OR
-          mr_cursor->get_field( ) = lif_selfield_names=>c_scrtext_l OR
-          mr_cursor->get_field( ) = lif_selfield_names=>c_description OR
-          mr_cursor->get_field( ) = lif_selfield_names=>c_scrtext_m.
+    DATA: lf_field_navigation  TYPE abap_bool,
+          lf_entity_navigation TYPE abap_bool.
 
-    DATA(ldo_current_line) = CAST zdbbr_selfield( mr_selection_table->zif_uitb_table~get_current_line_ref( ) ).
 
-    CALL FUNCTION 'RS_DD_DTEL_SHOW'
-      EXPORTING
-        objname = ldo_current_line->rollname
-      EXCEPTIONS
-        OTHERS  = 4.
+    IF mr_cursor->get_field( ) = lif_selfield_names=>c_fieldname OR
+       mr_cursor->get_field( ) = lif_selfield_names=>c_fieldname_raw OR
+       mr_cursor->get_field( ) = lif_selfield_names=>c_scrtext_l OR
+       mr_cursor->get_field( ) = lif_selfield_names=>c_description OR
+       mr_cursor->get_field( ) = lif_selfield_names=>c_scrtext_m.
+      lf_field_navigation = abap_true.
+    ELSEIF mr_cursor->get_field( ) = 'GS_ENTITY_INFO-ENTITY_ID' AND
+           ( mr_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>cds_view OR
+             mr_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>table ).
+      lf_entity_navigation = abap_true.
+    ENDIF.
+
+    IF lf_entity_navigation = abap_false AND
+       lf_field_navigation = abap_false.
+      RETURN.
+    ENDIF.
+
+
+    IF lf_field_navigation = abap_true.
+      DATA(lr_s_current_line) = CAST zdbbr_selfield( mr_selection_table->zif_uitb_table~get_current_line_ref( ) ).
+
+      CALL FUNCTION 'RS_DD_DTEL_SHOW'
+        EXPORTING
+          objname = lr_s_current_line->rollname
+        EXCEPTIONS
+          OTHERS  = 4.
+    ENDIF.
+
+    IF lf_entity_navigation = abap_true.
+      IF mr_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>cds_view.
+        TRY.
+            zcl_dbbr_adt_util=>jump_adt(
+                iv_obj_name     = |{ mr_data->mr_s_entity_info->entity_id }|
+                iv_obj_type     = 'DDLS'
+            ).
+          CATCH zcx_dbbr_adt_error.
+        ENDTRY.
+      ELSE.
+        zcl_dbbr_dictionary_helper=>navigate_to_table( mr_data->mr_s_entity_info->entity_id ).
+      ENDIF.
+    ENDIF.
   ENDMETHOD.
 
 
