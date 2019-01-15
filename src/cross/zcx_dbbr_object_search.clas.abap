@@ -16,6 +16,26 @@ CLASS zcx_dbbr_object_search DEFINITION
         !msgv4    TYPE sy-msgv4 OPTIONAL .
 
     CONSTANTS:
+      "! Search Option &1 is incomplete
+      BEGIN OF option_incomplete,
+        msgid TYPE symsgid VALUE 'ZDBBR_EXCEPTION',
+        msgno TYPE symsgno VALUE '062',
+        attr1 TYPE scx_attrname VALUE 'MSGV1',
+        attr2 TYPE scx_attrname VALUE '',
+        attr3 TYPE scx_attrname VALUE '',
+        attr4 TYPE scx_attrname VALUE '',
+      END OF option_incomplete .
+    CONSTANTS:
+      "! Option &1 requires a numeric value
+      BEGIN OF option_val_not_numeric,
+        msgid TYPE symsgid VALUE 'ZDBBR_EXCEPTION',
+        msgno TYPE symsgno VALUE '061',
+        attr1 TYPE scx_attrname VALUE 'MSGV1',
+        attr2 TYPE scx_attrname VALUE '',
+        attr3 TYPE scx_attrname VALUE '',
+        attr4 TYPE scx_attrname VALUE '',
+      END OF option_val_not_numeric .
+    CONSTANTS:
       "! Value &1 is not supported for Query option &2
       BEGIN OF invalid_option_value,
         msgid TYPE symsgid VALUE 'ZDBBR_EXCEPTION',

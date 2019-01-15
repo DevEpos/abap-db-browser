@@ -374,6 +374,18 @@
      <MSGNR>060</MSGNR>
      <TEXT>Column Grouping not successful due to Arithmetic overflow</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>061</MSGNR>
+     <TEXT>Option &amp;1 requires a numeric value</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>062</MSGNR>
+     <TEXT>Search Option &amp;1 is incomplete</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>
