@@ -97,54 +97,82 @@
      </TLINE>
      <TLINE>
       <TDFORMAT>K3</TDFORMAT>
-      <TDLINE>Option,,Description,,Single Value,,Exclusion Allowed,,Possible Values</TDLINE>
+      <TDLINE>[Option],,[Description],,[Exclusion Allowed],,[Possible Values]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>owner,,Responsible Person,,-,,X,,*</TDLINE>
+      <TDLINE>owner,,Responsible Person,,X,,*</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>desc,,Description,,-,,X,,*</TDLINE>
+      <TDLINE>desc,,Description,,X,,*</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>api,,API State,,X,,-,,[released,key_user,custom_fields,remote,cloud]</TDLINE>
+      <TDLINE>api,,API State,,X,,[released,key_user,custom_fields,remote,cloud]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>from,,Select from part,,-,,X,,*</TDLINE>
+      <TDLINE>from,,Select from part,,X,,*</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>assoc,,Search Associations,,X,,X,,*</TDLINE>
+      <TDLINE>assoc,,Search Associations,,X,,*</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>type,,Object type,,-,,X,,[hierarchy,function,view]</TDLINE>
+      <TDLINE>type,,Object type,,X,,[hierarchy,function,view]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>package,,Developmen package,,-,,X,,*</TDLINE>
+      <TDLINE>package,,Development package,,X,,*</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>anno,,Annotation Name,,-,,X,,*</TDLINE>
+      <TDLINE>anno&lt;ZH&gt;*&lt;/&gt;,,Annotation Name,,X,,*</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>field,,Fieldname of object,,-,,X,,*</TDLINE>
+      <TDLINE>field,,Fieldname of object,,X,,*</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>params,,View with parameters,,X,,-,,[true]</TDLINE>
+      <TDLINE>params,,View with parameters,,-,,[true]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>maxrows,,Sets max rows of result (default is 50),,X,,-,,numeric</TDLINE>
+      <TDLINE>maxrows,,Sets max rows of result (default is 50),,-,,numeric</TDLINE>
      </TLINE>
      <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
+      <TDFORMAT>U2</TDFORMAT>
+      <TDLINE>Special notes about some search options</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>U3</TDFORMAT>
+      <TDLINE>Search by annotation</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>*</TDFORMAT>
+      <TDLINE>For annotation search there exists a special search option as</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>annotations in a CDS view always consist of a &lt;ZK&gt;name&lt;/&gt; and a &lt;ZK&gt;v</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>=</TDFORMAT>
+      <TDLINE>alue&lt;/&gt;. To use this kind of search, you must adhere to the following</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>pattern: &lt;ZK&gt;anno:&lt;name_1&gt;=&lt;value_1&gt;,&lt;name_x&gt;=&lt;value_x&gt;&lt;/&gt;. Of course,</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>you also can combine name-only searches with name-value searches, e.g.</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>anno:&lt;name_1&gt;,&lt;name_2&gt;=&lt;value_2&gt;. For an example look in the section</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>&lt;ZH&gt;Examples&lt;/&gt; below.</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>U2</TDFORMAT>
@@ -152,7 +180,7 @@
      </TLINE>
      <TLINE>
       <TDFORMAT>K3</TDFORMAT>
-      <TDLINE>Option,,CDS View,,Database Table/View,,Package,,Query</TDLINE>
+      <TDLINE>[Option],,[CDS View],,[Database Table/View],,[Package],,[Query]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
@@ -197,9 +225,6 @@
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
       <TDLINE>maxrows,,X,,X,,X,,X,,</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
      </TLINE>
      <TLINE>
       <TDFORMAT>U2</TDFORMAT>
@@ -260,6 +285,17 @@
      </TLINE>
      <TLINE>
       <TDLINE>&quot;analytics*query&quot;</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>anno:vdm.private*=true,*query*=true</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>BL</TDFORMAT>
+      <TDLINE>Searches for all CDS Views that have an annotation @VDM.private: true or</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>an Annotation like *query*: true,,</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>U3</TDFORMAT>
