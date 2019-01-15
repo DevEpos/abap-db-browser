@@ -7,7 +7,6 @@ ABSTRACT.
   PUBLIC SECTION.
     "! Validates the given option value
     METHODS validate
-          ABSTRACT
       IMPORTING
         iv_option TYPE string
         iv_value  TYPE string

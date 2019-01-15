@@ -20,12 +20,37 @@ CLASS cl_query_option_validator IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD validate.
+    IF iv_value IS INITIAL.
+      RAISE EXCEPTION TYPE zcx_dbbr_object_search
+        EXPORTING
+          textid = zcx_dbbr_object_search=>option_incomplete
+          msgv1  = |{ iv_option }|.
+    ENDIF.
+
+    CASE iv_option.
+
+      WHEN zif_dbbr_c_object_browser=>c_search_option-max_rows.
+        IF iv_value CN '0123456789'.
+          RAISE EXCEPTION TYPE zcx_dbbr_object_search
+            EXPORTING
+              textid = zcx_dbbr_object_search=>option_val_not_numeric
+              msgv1  = |{ iv_option }|.
+        ENDIF.
+    ENDCASE.
+  ENDMETHOD.
+
 ENDCLASS.
 
 CLASS cl_qov_cds IMPLEMENTATION.
 
   METHOD validate.
     DATA: lf_invalid TYPE abap_bool.
+
+    super->validate(
+        iv_option = iv_option
+        iv_value  = iv_value
+    ).
 
     IF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_type.
       CASE iv_value.
@@ -40,10 +65,10 @@ CLASS cl_qov_cds IMPLEMENTATION.
     ELSEIF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_api.
       CASE iv_value.
 
-        WHEN zif_dbbr_c_object_browser=>c_api_option_value-released or
-             zif_dbbr_c_object_browser=>c_api_option_value-key_user or
-             zif_dbbr_c_object_browser=>c_api_option_value-cloud_user or
-             zif_dbbr_c_object_browser=>c_api_option_value-remote_api or
+        WHEN zif_dbbr_c_object_browser=>c_api_option_value-released OR
+             zif_dbbr_c_object_browser=>c_api_option_value-key_user OR
+             zif_dbbr_c_object_browser=>c_api_option_value-cloud_user OR
+             zif_dbbr_c_object_browser=>c_api_option_value-remote_api OR
              zif_dbbr_c_object_browser=>c_api_option_value-custom_fields.
 
         WHEN OTHERS.
@@ -72,6 +97,11 @@ CLASS cl_qov_database_tab_view IMPLEMENTATION.
   METHOD validate.
     DATA: lf_invalid TYPE abap_bool.
 
+    super->validate(
+        iv_option = iv_option
+        iv_value  = iv_value
+    ).
+
     IF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_type.
       CASE iv_value.
 
@@ -97,7 +127,10 @@ ENDCLASS.
 CLASS cl_qov_query IMPLEMENTATION.
 
   METHOD validate.
-
+    super->validate(
+        iv_option = iv_option
+        iv_value  = iv_value
+    ).
   ENDMETHOD.
 
 ENDCLASS.

@@ -7,11 +7,11 @@ CLASS zcl_dbbr_ob_cds_searcher DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_dbbr_object_searcher.
   PROTECTED SECTION.
-
-
   PRIVATE SECTION.
+
     CONSTANTS:
-      c_ddl_source_table          TYPE string VALUE 'source',
+      c_base_alias                TYPE string VALUE 'base' ##NO_TEXT,
+      c_ddl_source_table          TYPE string VALUE 'source' ##NO_TEXT,
       c_api_alias                 TYPE string VALUE 'api' ##NO_TEXT,
       c_source_ddlview_alias      TYPE string VALUE 'sourceddlview' ##NO_TEXT,
       c_select_from_alias         TYPE string VALUE 'frompart' ##NO_TEXT,
@@ -21,6 +21,11 @@ CLASS zcl_dbbr_ob_cds_searcher DEFINITION
     "! <p class="shorttext synchronized" lang="en">Create filter for TYPE option</p>
     "!
     METHODS add_type_option_filter
+      IMPORTING
+        it_values TYPE zif_dbbr_ty_object_browser=>ty_search_option_values-value_range.
+    "! <p class="shorttext synchronized" lang="en">Create filter for ANNO option</p>
+    "!
+    METHODS add_anno_option_filter
       IMPORTING
         it_values TYPE zif_dbbr_ty_object_browser=>ty_search_option_values-value_range.
     "! <p class="shorttext synchronized" lang="en">Create filter for API option</p>
@@ -33,8 +38,30 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
+CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
 
+  METHOD add_anno_option_filter.
+    new_and_cond_list( ).
+
+    add_join_table(
+        iv_join_table = |{ get_cds_sql_name( |{ zif_dbbr_c_select_source_id=>zdbbr_i_cdsannotation }| ) }|
+        iv_alias      = 'anno'
+        it_fields     = VALUE #(
+          ( field = 'entityid' ref_field = 'entityid' ref_table_alias = c_base_alias )
+        )
+    ).
+
+    LOOP AT it_values INTO DATA(ls_filter_value).
+      add_filter( VALUE #( field = 'anno~name' sign = 'I' option = COND #( WHEN ls_filter_value-low CS '*' THEN 'CP' ELSE 'EQ' ) low = ls_filter_value-low )  ).
+
+      IF ls_filter_value-high IS NOT INITIAL.
+        add_filter( VALUE #( field = 'anno~value' sign = 'I' option = COND #( WHEN ls_filter_value-high CS '*' THEN 'CP' ELSE 'EQ' ) low = ls_filter_value-high )  ).
+      ENDIF.
+      new_or_cond_list( ).
+    ENDLOOP.
+
+    new_and_cond_list( ).
+  ENDMETHOD.
 
   METHOD add_api_option_filter.
     DATA: lt_api_filters TYPE RANGE OF string.
@@ -63,7 +90,7 @@ CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
       lt_api_filters = VALUE #( BASE lt_api_filters ( ls_value ) ).
     ENDLOOP.
 
-    check lt_api_filters is not initial.
+    CHECK lt_api_filters IS NOT INITIAL.
 
     add_option_filter(
         iv_fieldname = |{ c_api_alias }~FilterValue|
@@ -105,9 +132,9 @@ CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
         iv_alias  = c_ddl_source_table
     ).
 
-    DATA(lv_cds_base) = get_cds_sql_name( |{ zif_dbbr_c_select_source_id=>zdbbr_p_cdsviewbase }| ).
     add_join_table(
-        iv_join_table = |{ lv_cds_base }|
+        iv_join_table = |{ get_cds_sql_name( |{ zif_dbbr_c_select_source_id=>zdbbr_p_cdsviewbase }| ) }|
+        iv_alias      = c_base_alias
         it_fields     = VALUE #(
           ( field = 'ddlname' ref_field = 'ddlname' ref_table_alias = c_ddl_source_table )
         )
@@ -120,23 +147,23 @@ CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
         iv_join_table = |{ lv_cds_text_view }|
         iv_join_type  = zif_dbbr_c_join_types=>left_outer_join
         it_fields     = VALUE #(
-          ( field = 'ddlname' ref_field = 'ddlname' ref_table = lv_cds_base )
+          ( field = 'ddlname' ref_field = 'ddlname' ref_table_alias = c_base_alias )
         )
         it_filter     = VALUE #(
           ( fieldname = 'language' tabname = lv_cds_text_view value = zcl_dbbr_appl_util=>get_description_language( ) )
         )
     ).
 
-    add_select_field( iv_fieldname = 'entityid' iv_fieldname_alias = 'entity_id' iv_entity = lv_cds_base ).
-    add_select_field( iv_fieldname = 'rawentityid' iv_fieldname_alias = 'entity_id_raw' iv_entity = lv_cds_base ).
+    add_select_field( iv_fieldname = 'entityid' iv_fieldname_alias = 'entity_id' iv_entity = c_base_alias ).
+    add_select_field( iv_fieldname = 'rawentityid' iv_fieldname_alias = 'entity_id_raw' iv_entity = c_base_alias ).
     add_select_field( iv_fieldname = 'description' iv_entity = lv_cds_text_view ).
-    add_select_field( iv_fieldname = 'developmentpackage' iv_fieldname_alias = 'devclass' iv_entity = lv_cds_base ).
+    add_select_field( iv_fieldname = 'developmentpackage' iv_fieldname_alias = 'devclass' iv_entity = c_base_alias ).
     add_select_field( iv_fieldname = |'C'| iv_fieldname_alias = 'entity_type' ).
 
-    add_order_by( iv_fieldname = 'entityid' iv_entity = lv_cds_base  ).
+    add_order_by( iv_fieldname = 'entityid' iv_entity = c_base_alias  ).
 
     IF mr_search_query->has_search_string( ).
-      add_filter( VALUE #( field  = |{ lv_cds_base }~entityid|
+      add_filter( VALUE #( field  = |{ c_base_alias }~entityid|
                            option = mr_search_query->mv_search_option
                            sign   = 'I'
                            low    = mr_search_query->mv_search_string ) ).
@@ -149,7 +176,7 @@ CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
 *.......... Find views via its description
           WHEN zif_dbbr_c_object_browser=>c_search_option-by_description.
             add_option_filter(
-              iv_fieldname = 'description'
+              iv_fieldname = mv_description_filter_field
               it_values    = <ls_option>-value_range
             ).
 
@@ -189,7 +216,7 @@ CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
                 iv_join_table = |{ zif_dbbr_c_select_source_id=>ddldependency }|
                 iv_alias      = c_source_ddlview_alias
                 it_fields     = VALUE #(
-                  ( field = 'ddlname' ref_field = 'ddlname' ref_table = lv_cds_base )
+                  ( field = 'ddlname' ref_field = 'ddlname' ref_table_alias = c_base_alias )
                 )
                 it_filter     = VALUE #(
                   ( fieldname = 'objecttype' value = 'VIEW' tabname_alias = c_source_ddlview_alias  )
@@ -209,17 +236,8 @@ CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
 
 *.......... Find views which have a certain annotation
           WHEN zif_dbbr_c_object_browser=>c_search_option-by_anno.
-            DATA(lv_anno_table) = get_cds_sql_name( |{ zif_dbbr_c_select_source_id=>zdbbr_i_cdsannotation }| ).
-            add_join_table(
-                iv_join_table = |{ lv_anno_table }|
-                iv_alias      = 'anno'
-                it_fields     = VALUE #(
-                  ( field = 'entityid' ref_field = 'entityid' ref_table = lv_cds_base )
-                )
-            ).
-            add_option_filter(
-                iv_fieldname = 'name'
-                it_values    = <ls_option>-value_range
+            add_anno_option_filter(
+              it_values = <ls_option>-value_range
             ).
 
 *.......... Find views that are parameterized
@@ -228,18 +246,17 @@ CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
                 iv_join_table = |{ get_cds_sql_name( |{ zif_dbbr_c_select_source_id=>zdbbr_i_cdsviewwithparameter }| ) }|
                 iv_alias      = c_parameterized_view_alias
                 it_fields     = VALUE #(
-                  ( field = 'entityid' ref_field = 'entityid' ref_table = lv_cds_base )
+                  ( field = 'entityid' ref_field = 'entityid' ref_table_alias = c_base_alias )
                 )
             ).
 
 *.......... Find views which have a certain field a component
           WHEN zif_dbbr_c_object_browser=>c_search_option-by_field.
-            DATA(lv_field_table) = get_cds_sql_name( |{ zif_dbbr_c_select_source_id=>zdbbr_i_cdsviewfield }| ).
             add_join_table(
-                iv_join_table = |{ lv_field_table }|
+                iv_join_table = |{ get_cds_sql_name( |{ zif_dbbr_c_select_source_id=>zdbbr_i_cdsviewfield }| ) }|
                 iv_alias      = 'field'
                 it_fields     = VALUE #(
-                  ( field = 'entityid' ref_field = 'entityid' ref_table = lv_cds_base )
+                  ( field = 'entityid' ref_field = 'entityid' ref_table_alias = c_base_alias )
                 )
             ).
             add_option_filter(
@@ -254,7 +271,7 @@ CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
                 iv_join_table = |{ lv_association_usage_table }|
                 iv_alias      = c_used_in_association_alias
                 it_fields     = VALUE #(
-                  ( field = 'ddlname' ref_field = 'ddlname' ref_table = lv_cds_base )
+                  ( field = 'ddlname' ref_field = 'ddlname' ref_table_alias = c_base_alias )
                 )
             ).
             add_option_filter(
@@ -270,6 +287,8 @@ CLASS ZCL_DBBR_OB_CDS_SEARCHER IMPLEMENTATION.
         ENDCASE.
       ENDLOOP.
     ENDIF.
+
+    new_and_cond_list( ).
 
     search( ).
 

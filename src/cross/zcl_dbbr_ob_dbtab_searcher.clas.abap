@@ -57,7 +57,7 @@ CLASS zcl_dbbr_ob_dbtab_searcher IMPLEMENTATION.
 *.......... Find objects via its description
         WHEN zif_dbbr_c_object_browser=>c_search_option-by_description.
           add_option_filter(
-            iv_fieldname = 'description'
+            iv_fieldname = mv_description_filter_field
             it_values    = <ls_option>-value_range
           ).
 
@@ -111,6 +111,8 @@ CLASS zcl_dbbr_ob_dbtab_searcher IMPLEMENTATION.
     add_select_field( iv_fieldname = 'description' iv_entity = c_base_table ).
     add_select_field( iv_fieldname = 'developmentpackage' iv_fieldname_alias = 'devclass' iv_entity = c_base_table ).
     add_select_field( iv_fieldname = 'type' iv_fieldname_alias = 'entity_type' iv_entity = c_base_table ).
+
+    new_and_cond_list( ).
 
     search( ).
     rt_result = mt_result.

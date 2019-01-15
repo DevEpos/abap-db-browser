@@ -62,6 +62,7 @@ CLASS zcl_dbbr_object_search_query DEFINITION
     TYPES: BEGIN OF ty_option_setting,
              option      TYPE string,
              single      TYPE abap_bool,
+             key_value   TYPE abap_bool,
              no_negation TYPE abap_bool,
            END OF ty_option_setting.
     CLASS-DATA gt_search_option_map TYPE STANDARD TABLE OF ty_allowed_option_by_type.
@@ -72,6 +73,7 @@ CLASS zcl_dbbr_object_search_query DEFINITION
     CONSTANTS c_value_separator TYPE string VALUE ',' ##NO_TEXT.
     CONSTANTS c_negation_operator TYPE string VALUE '!' ##no_text.
     CONSTANTS c_negation_operator2 TYPE string VALUE '<>' ##no_text.
+    CONSTANTS c_key_value_pair_separator TYPE string VALUE '=' ##no_text.
 
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     "!
@@ -125,19 +127,18 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
   METHOD class_constructor.
 *.. Settings for search options
     gt_search_option_setting = VALUE #(
-      ( option = c_search_option-by_owner                                                  )
-      ( option = c_search_option-by_api         single = abap_true no_negation = abap_true )
-      ( option = c_search_option-by_params      single = abap_true no_negation = abap_true )
-      ( option = c_search_option-by_select_from                                            )
-      ( option = c_search_option-by_association                                            )
-      ( option = c_search_option-by_anno                                                   )
-      ( option = c_search_option-by_field                                                  )
-      ( option = c_search_option-by_type                                                   )
-      ( option = c_search_option-by_package                                                )
-      ( option = c_search_option-by_description                                            )
-      ( option = c_search_option-max_rows       single = abap_true no_negation = abap_true )
-      ( option = c_search_option-by_table                                                  )
-      ( option = c_search_option-max_rows       single = abap_true no_negation = abap_true )
+      ( option = c_search_option-by_owner )
+      ( option = c_search_option-by_api )
+      ( option = c_search_option-by_params single = abap_true no_negation = abap_true )
+      ( option = c_search_option-by_select_from )
+      ( option = c_search_option-by_association )
+      ( option = c_search_option-by_anno key_value = abap_true )
+      ( option = c_search_option-by_field )
+      ( option = c_search_option-by_type )
+      ( option = c_search_option-by_package )
+      ( option = c_search_option-by_description )
+      ( option = c_search_option-by_table )
+      ( option = c_search_option-max_rows single = abap_true no_negation = abap_true )
     ).
 
 *.. Create mapping between search type and allowed search options
@@ -244,13 +245,18 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD convert_option_value.
-    CASE iv_option.
+    IF sy-saprl >= 751. " upper() function in CDS view
+      TRANSLATE cv_value TO UPPER CASE.
+    ELSE.
+      CASE iv_option.
 
-      WHEN zif_dbbr_c_object_browser=>c_search_option-by_description.
+        WHEN zif_dbbr_c_object_browser=>c_search_option-by_description OR
+             zif_dbbr_c_object_browser=>c_search_option-by_anno.
 
-      WHEN OTHERS.
-        TRANSLATE cv_value TO UPPER CASE.
-    ENDCASE.
+        WHEN OTHERS.
+          TRANSLATE cv_value TO UPPER CASE.
+      ENDCASE.
+    ENDIF.
 
     IF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_owner.
       IF cv_value = 'SY-UNAME'.
@@ -260,6 +266,8 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD add_option_value.
+    DATA: lv_value2 TYPE string.
+
     ASSIGN ct_options[ option = is_option-option ] TO FIELD-SYMBOL(<ls_option>).
     IF sy-subrc <> 0.
       INSERT VALUE #(
@@ -282,9 +290,19 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
+    IF is_option-key_value = abap_true AND lv_value CS c_key_value_pair_separator.
+      SPLIT lv_value AT c_key_value_pair_separator INTO lv_value lv_value2.
+      TRANSLATE lv_value TO UPPER CASE.
+      IF sy-saprl >= 751. " upper() function available!
+        TRANSLATE lv_value2 TO UPPER CASE.
+      ENDIF.
+    ELSE.
+      TRANSLATE lv_value TO UPPER CASE.
+    ENDIF.
+
     <ls_option>-value_range = VALUE #(
         BASE <ls_option>-value_range
-        ( sign = lv_sign  option = COND #( WHEN iv_value CS '*' THEN 'CP' ELSE 'EQ ' ) low = lv_value )
+        ( sign = lv_sign  option = COND #( WHEN iv_value CS '*' THEN 'CP' ELSE 'EQ ' ) low = lv_value high = lv_value2 )
     ).
   ENDMETHOD.
 

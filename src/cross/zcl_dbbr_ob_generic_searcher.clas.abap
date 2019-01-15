@@ -16,12 +16,22 @@ CLASS zcl_dbbr_ob_generic_searcher DEFINITION
     DATA mr_search_query TYPE REF TO zcl_dbbr_object_search_query.
     DATA mt_result TYPE zdbbr_entity_t.
     DATA mt_criteria TYPE zdbbr_seltab_t.
+    DATA mt_criteria_or TYPE zdbbr_or_seltab_sql_t.
+    DATA mt_criteria_and TYPE zdbbr_and_seltab_t.
     DATA mt_where TYPE zdbbr_string_t.
     DATA mt_select TYPE zdbbr_string_t.
     DATA mt_order_by TYPE zdbbr_string_t.
     DATA mt_from TYPE TABLE OF string.
     DATA ms_join_def TYPE zdbbr_join_def.
     DATA mf_search_executed TYPE abap_bool.
+    DATA mv_description_filter_field TYPE string.
+
+    "! <p class="shorttext synchronized" lang="en">Start new criteria table connected with OR</p>
+    "!
+    METHODS new_or_cond_list.
+    "! <p class="shorttext synchronized" lang="en">Start new criteria table connected with AND</p>
+    "!
+    METHODS new_and_cond_list.
 
     "! <p class="shorttext synchronized" lang="en">Starts the object search</p>
     "!
@@ -111,6 +121,7 @@ CLASS zcl_dbbr_ob_generic_searcher IMPLEMENTATION.
 
   METHOD constructor.
     mr_search_query = ir_query.
+    mv_description_filter_field = cond #( when sy-saprl >= 751 then 'descriptionupper' else 'description' ).
   ENDMETHOD.
 
   METHOD get_cds_sql_name.
@@ -210,10 +221,11 @@ CLASS zcl_dbbr_ob_generic_searcher IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_where_clause.
-    CHECK mt_criteria IS NOT INITIAL.
+
+    CHECK mt_criteria_and IS NOT INITIAL.
 
     mt_where = zcl_dbbr_where_clause_builder=>create_and_condition(
-        it_and_seltab = VALUE #( ( VALUE #( ( values = mt_criteria ) ) ) )
+        it_and_seltab = mt_criteria_and
     ).
   ENDMETHOD.
 
@@ -227,6 +239,26 @@ CLASS zcl_dbbr_ob_generic_searcher IMPLEMENTATION.
         <lv_select> = <lv_select> && |, |.
       ENDIF.
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD new_and_cond_list.
+    IF mt_criteria_or IS NOT INITIAL.
+      IF mt_criteria IS NOT INITIAL.
+        new_or_cond_list( ).
+      ENDIF.
+      mt_criteria_and = VALUE #( BASE mt_criteria_and ( VALUE #( ( LINES OF mt_criteria_or ) ) ) ).
+      CLEAR mt_criteria_or.
+    ELSEIF mt_criteria IS NOT INITIAL.
+      mt_criteria_and = VALUE #( BASE mt_criteria_and ( VALUE #( ( values = mt_criteria ) ) ) ).
+      CLEAR mt_criteria.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD new_or_cond_list.
+    IF mt_criteria IS NOT INITIAL.
+      mt_criteria_or = VALUE #( BASE mt_criteria_or ( values = mt_criteria ) ).
+      CLEAR mt_criteria.
+    ENDIF.
   ENDMETHOD.
 
 ENDCLASS.
