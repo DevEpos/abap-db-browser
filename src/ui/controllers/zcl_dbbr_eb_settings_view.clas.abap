@@ -56,9 +56,9 @@ CLASS ZCL_DBBR_EB_SETTINGS_VIEW IMPLEMENTATION.
   METHOD constructor.
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( get_report_id( ) ).
 
-    ms_settings_ref-entry_search_function = CAST #( lr_data_cache->get_data_ref( c_p_entry_search_function ) ).
-    ms_settings_ref-link_mode = CAST #( lr_data_cache->get_data_ref( c_p_link_mode ) ).
-    ms_settings_ref-max_hits = CAST #( lr_data_cache->get_data_ref( c_p_max_hits ) ).
+    ms_settings_ref-entry_search_function = CAST #( lr_data_cache->get_data_ref( conv #( c_p_entry_search_function ) ) ).
+    ms_settings_ref-link_mode = CAST #( lr_data_cache->get_data_ref( conv #( c_p_link_mode ) ) ).
+    ms_settings_ref-max_hits = CAST #( lr_data_cache->get_data_ref( conv #( c_p_max_hits ) ) ).
   ENDMETHOD.
 
 
