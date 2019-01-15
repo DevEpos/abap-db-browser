@@ -10,7 +10,7 @@ CLASS zcl_dbbr_version DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
     "! <p class="shorttext synchronized" lang="en">Current version of DB Browser</p>
-    CLASS-DATA gv_version TYPE string VALUE '1.0.6'.
+    CLASS-DATA gv_version TYPE string VALUE '1.0.7'.
 ENDCLASS.
 
 
