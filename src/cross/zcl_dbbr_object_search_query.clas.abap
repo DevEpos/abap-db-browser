@@ -290,14 +290,17 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
-    IF is_option-key_value = abap_true AND lv_value CS c_key_value_pair_separator.
-      SPLIT lv_value AT c_key_value_pair_separator INTO lv_value lv_value2.
-      TRANSLATE lv_value TO UPPER CASE.
-      IF sy-saprl >= 751. " upper() function available!
-        TRANSLATE lv_value2 TO UPPER CASE.
+*.. Consider key-value options in a special way
+    IF is_option-key_value = abap_true.
+      IF lv_value CS c_key_value_pair_separator.
+        SPLIT lv_value AT c_key_value_pair_separator INTO lv_value lv_value2.
+        TRANSLATE lv_value TO UPPER CASE.
+        IF sy-saprl >= 751. " upper() function available!
+          TRANSLATE lv_value2 TO UPPER CASE.
+        ENDIF.
+      ELSE.
+        TRANSLATE lv_value TO UPPER CASE.
       ENDIF.
-    ELSE.
-      TRANSLATE lv_value TO UPPER CASE.
     ENDIF.
 
     <ls_option>-value_range = VALUE #(
