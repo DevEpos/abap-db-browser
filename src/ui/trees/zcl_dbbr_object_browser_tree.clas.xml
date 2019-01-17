@@ -7,9 +7,7 @@
     <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Repository tree for Navigator</DESCRIPT>
-    <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
-    <CLSFINAL>X</CLSFINAL>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
@@ -186,7 +184,7 @@
     <item>
      <ID>I</ID>
      <KEY>029</KEY>
-     <ENTRY>Open in ADT</ENTRY>
+     <ENTRY>Open with ADT</ENTRY>
      <LENGTH>21</LENGTH>
     </item>
     <item>
@@ -206,6 +204,12 @@
      <KEY>032</KEY>
      <ENTRY>Show Content (New Task)</ENTRY>
      <LENGTH>46</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>033</KEY>
+     <ENTRY>Created On</ENTRY>
+     <LENGTH>22</LENGTH>
     </item>
    </TPOOL>
    <DESCRIPTIONS>

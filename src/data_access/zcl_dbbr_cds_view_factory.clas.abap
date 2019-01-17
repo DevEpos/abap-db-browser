@@ -31,6 +31,14 @@ CLASS zcl_dbbr_cds_view_factory DEFINITION
       RETURNING
         VALUE(result)     TYPE abap_bool .
 
+    "! <p class="shorttext synchronized" lang="en">Retrieve annotation/value for a range of annotation names</p>
+    "!
+    CLASS-METHODS get_annotations
+      IMPORTING
+        it_annotation_name TYPE zif_dbbr_global_types=>tt_cds_anno_name_range
+      RETURNING
+        VALUE(rt_anno)     TYPE zif_dbbr_global_types=>tt_cds_annotation.
+
     "! <p class="shorttext synchronized" lang="en">Finds header information for cds view(s)</p>
     "!
     "! @parameter iv_cds_view_name | <p class="shorttext synchronized" lang="en"></p>
@@ -57,12 +65,12 @@ CLASS zcl_dbbr_cds_view_factory DEFINITION
     "! <p class="shorttext synchronized" lang="en">Get author of given CDS View</p>
     "!
     "! @parameter iv_cds_view | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter rv_author | <p class="shorttext synchronized" lang="en"></p>
-    CLASS-METHODS get_author
+    "! @parameter rs_tadir | <p class="shorttext synchronized" lang="en">Repository information for CDS view</p>
+    CLASS-METHODS get_tadir_entry
       IMPORTING
-        !iv_cds_view     TYPE zdbbr_cds_view_name
+        !iv_cds_view    TYPE zdbbr_cds_view_name
       RETURNING
-        VALUE(rv_author) TYPE responsibl .
+        VALUE(rs_tadir) TYPE zif_dbbr_global_types=>ty_cds_tadir.
     "! <p class="shorttext synchronized" lang="en">Retrieve DDL Name for CDS Entity name</p>
     "!
     "! @parameter iv_cds_view_name | <p class="shorttext synchronized" lang="en"></p>
@@ -162,6 +170,13 @@ CLASS zcl_dbbr_cds_view_factory DEFINITION
         !iv_cds_view_name     TYPE zdbbr_cds_view_name
       RETURNING
         VALUE(rv_source_type) TYPE zdbbr_cds_source_type .
+    "! <p class="shorttext synchronized" lang="en">Handler for REQUEST_ANNOTATIONS</p>
+    "!
+    CLASS-METHODS on_annotation_read_request
+          FOR EVENT request_annotations OF zcl_dbbr_cds_view
+      IMPORTING
+          et_anno_name_range
+          sender.
     "! <p class="shorttext synchronized" lang="en">Event Handler for lazy loading of CDS View API states</p>
     "!
     "! @parameter sender | <p class="shorttext synchronized" lang="en"></p>
@@ -172,8 +187,8 @@ CLASS zcl_dbbr_cds_view_factory DEFINITION
     "! <p class="shorttext synchronized" lang="en">Event Handler for lazy loading of CDS View author</p>
     "!
     "! @parameter sender | <p class="shorttext synchronized" lang="en"></p>
-    CLASS-METHODS on_author_loading_request
-          FOR EVENT request_author OF zcl_dbbr_cds_view
+    CLASS-METHODS on_tadir_info_loading_request
+          FOR EVENT request_tadir_info OF zcl_dbbr_cds_view
       IMPORTING
           !sender .
     "! <p class="shorttext synchronized" lang="en">Event handler for lazy loading of CDS Views base tables</p>
@@ -396,7 +411,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
       WHERE entityid           IN @lt_cds_view_range
         AND developmentpackage IN @lt_package_range
         AND description        IN @lt_description_range
-      order by entity_id
+      ORDER BY entity_id
     INTO CORRESPONDING FIELDS OF TABLE @result
       UP TO @iv_max_rows ROWS.
 
@@ -418,13 +433,20 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_author.
-    SELECT SINGLE author
+  METHOD get_tadir_entry.
+    SELECT SINGLE author AS created_by, created_on AS created_date
       FROM tadir
       WHERE object   = 'STOB'
         AND pgmid    = 'R3TR'
         AND obj_name = @iv_cds_view
-    INTO @rv_author.
+    INTO @rs_tadir.
+  ENDMETHOD.
+
+  METHOD get_annotations.
+    SELECT *
+      FROM zdbbr_i_cdsannotation
+      WHERE name IN @it_annotation_name
+    INTO CORRESPONDING FIELDS OF TABLE @rt_anno.
   ENDMETHOD.
 
 
@@ -477,7 +499,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
 
   METHOD get_source_type.
 
-    IF sy-saprl >= 750.
+    IF sy-saprl >= 751.
       DATA(lv_select) = 'SOURCE_TYPE'.
       SELECT SINGLE (lv_select)
         FROM ddddlsrc
@@ -494,6 +516,19 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD on_annotation_read_request.
+    SELECT *
+      FROM zdbbr_i_cdsannotation
+      WHERE name IN @et_anno_name_range
+    APPENDING CORRESPONDING FIELDS OF TABLE @sender->mt_annotations.
+
+    IF sy-subrc = 0.
+      SORT sender->mt_annotations BY fieldname name.
+      DELETE ADJACENT DUPLICATES FROM sender->mt_annotations.
+    ENDIF.
+  ENDMETHOD.
+
+
   METHOD on_api_states_loading_request.
     sender->mt_api_states = get_api_states( sender->mv_view_name ).
 
@@ -502,11 +537,11 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD on_author_loading_request.
-    sender->mv_author = get_author( sender->mv_view_name ).
+  METHOD on_tadir_info_loading_request.
+    sender->ms_tadir_info = get_tadir_entry( sender->mv_view_name ).
 
     SET HANDLER:
-        on_author_loading_request FOR sender ACTIVATION abap_false.
+        on_tadir_info_loading_request FOR sender ACTIVATION abap_false.
   ENDMETHOD.
 
 
@@ -711,7 +746,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
         SET HANDLER:
           on_base_table_loading_request FOR result,
           on_api_states_loading_request FOR result,
-          on_author_loading_request FOR result,
+          on_tadir_info_loading_request FOR result,
           on_description_loading_request FOR result.
 
 *... fill cache

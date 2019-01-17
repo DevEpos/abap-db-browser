@@ -12,11 +12,14 @@ CLASS zcl_dbbr_cds_view DEFINITION
     DATA mv_view_name TYPE zdbbr_cds_view_name READ-ONLY .
     DATA mv_association_count TYPE i READ-ONLY .
     DATA mv_select_table_count TYPE i READ-ONLY .
-
+    "! <p class="shorttext synchronized" lang="en">Requests annotations for CDS View</p>
+    EVENTS request_annotations
+      EXPORTING
+        VALUE(et_anno_name_range) TYPE zif_dbbr_global_types=>tt_cds_anno_name_range.
     "! <p class="shorttext synchronized" lang="en">Requests API States</p>
     EVENTS request_api_states .
     "! <p class="shorttext synchronized" lang="en">Requests author of CDS View</p>
-    EVENTS request_author.
+    EVENTS request_tadir_info.
     "! <p class="shorttext synchronized" lang="en">Requests Base Tables</p>
     EVENTS request_base_tables .
     "! <p class="shorttext synchronized" lang="en">Requests Description</p>
@@ -30,6 +33,14 @@ CLASS zcl_dbbr_cds_view DEFINITION
         !it_association TYPE zdbbr_cds_association_t OPTIONAL
         !it_api_states  TYPE zif_dbbr_global_types=>tt_cds_api_state OPTIONAL
         !it_base_tables TYPE zdbbr_cds_view_base_table_t OPTIONAL .
+    "! <p class="shorttext synchronized" lang="en">Get Annotation of CDS View</p>
+    "!
+    METHODS get_annotations
+      IMPORTING
+        it_annotation_name   TYPE zif_dbbr_global_types=>tt_cds_anno_name_range
+      RETURNING
+        VALUE(rt_annotation) TYPE zif_dbbr_global_types=>tt_cds_annotation.
+
     "! <p class="shorttext synchronized" lang="en">Retrieve API States of CDS View</p>
     "!
     "! @parameter rt_api_states | <p class="shorttext synchronized" lang="en"></p>
@@ -42,9 +53,9 @@ CLASS zcl_dbbr_cds_view DEFINITION
         VALUE(result) TYPE zdbbr_cds_association_t .
     "! <p class="shorttext synchronized" lang="en">Get author of CDS view</p>
     "!
-    METHODS get_author
+    METHODS get_tadir_info
       RETURNING
-        VALUE(rv_author) TYPE responsibl.
+        VALUE(rs_tadir_info) TYPE zif_dbbr_global_types=>ty_cds_tadir.
     "! <p class="shorttext synchronized" lang="en">Returns base tables for CDS View</p>
     METHODS get_base_tables
       RETURNING
@@ -96,8 +107,9 @@ CLASS zcl_dbbr_cds_view DEFINITION
     DATA mt_base_tables TYPE zdbbr_cds_view_base_table_t .
     DATA mf_base_tables_loaded TYPE abap_bool .
     DATA mf_api_states_loaded TYPE abap_bool.
-    DATA mf_author_loaded TYPE abap_bool.
-    DATA mv_author TYPE responsibl.
+    DATA mf_tadir_info_loaded TYPE abap_bool.
+    DATA ms_tadir_info TYPE zif_dbbr_global_types=>ty_cds_tadir.
+    DATA mt_annotations TYPE zif_dbbr_global_types=>tt_cds_annotation.
     DATA mv_description TYPE ddtext.
     DATA mf_description_loaded TYPE abap_bool.
 ENDCLASS.
@@ -128,6 +140,23 @@ CLASS zcl_dbbr_cds_view IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD get_annotations.
+*.. Check if the requested annotations were already read
+    LOOP AT mt_annotations ASSIGNING FIELD-SYMBOL(<ls_annotation>) WHERE name IN it_annotation_name.
+    ENDLOOP.
+
+    IF sy-subrc <> 0.
+      RAISE EVENT request_annotations
+        EXPORTING
+          et_anno_name_range = it_annotation_name.
+    ENDIF.
+
+    LOOP AT mt_annotations ASSIGNING <ls_annotation> WHERE name IN it_annotation_name.
+      rt_annotation = VALUE #( BASE rt_annotation ( <ls_annotation> ) ).
+    ENDLOOP.
+  ENDMETHOD.
+
+
   METHOD get_api_states.
     IF mf_api_states_loaded = abap_false.
       RAISE EVENT request_api_states.
@@ -142,14 +171,6 @@ CLASS zcl_dbbr_cds_view IMPLEMENTATION.
     result = mt_association.
   ENDMETHOD.
 
-  METHOD get_author.
-    IF mf_author_loaded = abap_false.
-      RAISE EVENT request_author.
-      mf_author_loaded = abap_true.
-    ENDIF.
-
-    rv_author = mv_author.
-  ENDMETHOD.
 
   METHOD get_base_tables.
 *... were the base tables already loaded?
@@ -164,6 +185,7 @@ CLASS zcl_dbbr_cds_view IMPLEMENTATION.
   METHOD get_columns.
     result = mt_columns.
   ENDMETHOD.
+
 
   METHOD get_description.
     IF mf_description_loaded = abap_false.
@@ -186,6 +208,16 @@ CLASS zcl_dbbr_cds_view IMPLEMENTATION.
     IF if_exclude_system_params = abap_true.
       DELETE result WHERE has_system_anno = abap_true.
     ENDIF.
+  ENDMETHOD.
+
+
+  METHOD get_tadir_info.
+    IF mf_tadir_info_loaded = abap_false.
+      RAISE EVENT request_tadir_info.
+      mf_tadir_info_loaded = abap_true.
+    ENDIF.
+
+    rs_tadir_info = ms_tadir_info.
   ENDMETHOD.
 
 
