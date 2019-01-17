@@ -29,7 +29,7 @@ CLASS zcl_dbbr_favmenu_importer IMPLEMENTATION.
 
 
   METHOD constructor.
-    super->constructor( iv_default_file_name = 'SE16N-Advanced-Favoriten' ).
+    super->constructor( iv_default_file_name = 'DB-Browser-Favorites' ).
     mr_favmenu_f = NEW #( ).
   ENDMETHOD.
 
