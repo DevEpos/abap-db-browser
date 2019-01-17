@@ -7,9 +7,7 @@
     <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Util for Handling CDS Selection Screen Logic</DESCRIPT>
-    <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
-    <CLSFINAL>X</CLSFINAL>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
@@ -74,6 +72,12 @@
      <KEY>010</KEY>
      <ENTRY>DDIC View</ENTRY>
      <LENGTH>19</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>011</KEY>
+     <ENTRY>Show Dependency Tree</ENTRY>
+     <LENGTH>40</LENGTH>
     </item>
    </TPOOL>
    <DESCRIPTIONS>

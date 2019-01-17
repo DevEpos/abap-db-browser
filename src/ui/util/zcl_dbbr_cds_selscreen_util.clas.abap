@@ -11,35 +11,35 @@ CLASS zcl_dbbr_cds_selscreen_util DEFINITION
         !ir_selscreen_data TYPE REF TO zcl_dbbr_selscreen_data .
 
     METHODS check_mandatory_fields
-         REDEFINITION .
+        REDEFINITION .
     METHODS get_entity_information
-         REDEFINITION .
+        REDEFINITION .
     METHODS get_title
-         REDEFINITION .
+        REDEFINITION .
     METHODS load_entity
-         REDEFINITION .
+        REDEFINITION .
     METHODS set_custom_functions
-         REDEFINITION .
+        REDEFINITION .
     METHODS update_description_texts
-         REDEFINITION .
+        REDEFINITION .
     METHODS zif_dbbr_screen_table_util~handle_pbo
-         REDEFINITION .
+        REDEFINITION .
     METHODS zif_dbbr_screen_util~get_deactivated_functions
-         REDEFINITION .
+        REDEFINITION .
     METHODS zif_dbbr_screen_util~handle_pbo
-         REDEFINITION .
+        REDEFINITION .
     METHODS zif_dbbr_screen_util~handle_ui_function
-         REDEFINITION .
+        REDEFINITION .
     METHODS clear
-         REDEFINITION .
+        REDEFINITION .
   PROTECTED SECTION.
 
     METHODS create_table_header
-         REDEFINITION .
+        REDEFINITION .
     METHODS fill_selection_mask
-         REDEFINITION .
+        REDEFINITION .
     METHODS fill_table
-         REDEFINITION .
+        REDEFINITION .
 
 
   PRIVATE SECTION.
@@ -155,20 +155,25 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
 
     mr_custom_menu = NEW cl_ctmenu( ).
     mr_custom_menu->add_function(
-      fcode = zif_dbbr_c_selscreen_functions=>show_ddls_source
-      text  = |{ 'Show DDL Source'(002) }|
-    ).
-    mr_custom_menu->add_function(
-      fcode = zif_dbbr_c_selscreen_functions=>choose_cds_sub_entity
-      text  = |{ 'Navigate to Sub Entity'(003) }|
-    ).
-    mr_custom_menu->add_function(
       fcode = zif_dbbr_c_selscreen_functions=>open_cds_view_with_adt
       text  = |{ 'Open with ADT'(005) }|
     ).
     mr_custom_menu->add_function(
       fcode = zif_dbbr_c_selscreen_functions=>go_to_ddic_view_of_cds
       text  = |{ 'Go to DDIC View'(006) }|
+    ).
+    mr_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>choose_cds_sub_entity
+      text  = |{ 'Navigate to Sub Entity'(003) }|
+    ).
+    mr_custom_menu->add_separator( ).
+    mr_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>show_ddls_source
+      text  = |{ 'Show DDL Source'(002) }|
+    ).
+    mr_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>show_cds_dependency_tree
+      text  = |{ 'Show Dependency Tree'(011) }|
     ).
 
     fill_toolbar( if_create_extended_search = abap_true ).
@@ -449,6 +454,10 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
         ENDTRY.
         CLEAR: cv_function.
 
+
+      WHEN zif_dbbr_c_selscreen_functions=>show_cds_dependency_tree.
+        NEW zcl_dbbr_cds_dependency_tree( iv_cds_view = mv_cds_view_name_raw )->show( ).
+        CLEAR: cv_function.
 
       WHEN zif_dbbr_c_selscreen_functions=>choose_cds_sub_entity.
         choose_cds_sub_entity( ).

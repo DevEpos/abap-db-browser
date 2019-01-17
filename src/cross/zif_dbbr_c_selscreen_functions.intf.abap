@@ -2,6 +2,7 @@ INTERFACE zif_dbbr_c_selscreen_functions
   PUBLIC .
 
   CONSTANTS object_browser_search TYPE sy-ucomm VALUE 'NEWOBJSRCH' ##no_text.
+  CONSTANTS show_cds_dependency_tree TYPE sy-ucomm VALUE 'SHOWCDSDEPTREE' ##no_text.
   CONSTANTS display_db_browser_version TYPE sy-ucomm VALUE 'SHOWVERSIO' ##no_text.
   CONSTANTS goto_next_obj_navigator_view TYPE sy-ucomm VALUE 'NXTOBJNAVV' ##no_text.
   CONSTANTS activate_optional_or_select TYPE sy-ucomm VALUE 'OR_SEL_ON' ##NO_TEXT.
