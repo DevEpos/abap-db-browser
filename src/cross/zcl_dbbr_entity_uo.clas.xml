@@ -7,9 +7,7 @@
     <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>User Object for Entity (ID and type)</DESCRIPT>
-    <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
-    <CLSFINAL>X</CLSFINAL>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>

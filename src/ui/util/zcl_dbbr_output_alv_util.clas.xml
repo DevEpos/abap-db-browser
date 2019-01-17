@@ -7,7 +7,6 @@
     <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Abstract ALV Filter for Output Grid</DESCRIPT>
-    <EXPOSURE>2</EXPOSURE>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>

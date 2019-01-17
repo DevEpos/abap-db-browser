@@ -8,7 +8,6 @@
     <LANGU>E</LANGU>
     <DESCRIPT>Creates subroutine pool program for selection data from db</DESCRIPT>
     <STATE>1</STATE>
-    <CLSFINAL>X</CLSFINAL>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>

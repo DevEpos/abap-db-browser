@@ -251,9 +251,6 @@ CLASS ZCL_DBBR_SQL_QUERY_CONSOLE IMPLEMENTATION.
     mr_abap_edit->register_event_insert_pattern( ).
 
     DATA: lt_text TYPE STANDARD TABLE OF char140.
-    lt_text = VALUE #(
-      ( |* Enter your Query here| )
-    ).
     mr_abap_edit->set_text(
         table           = lt_text
 

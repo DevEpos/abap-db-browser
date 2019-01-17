@@ -64,8 +64,6 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     CONSTANTS c_hierarchy_node3 TYPE tv_itmname VALUE 'HIER3' ##NO_TEXT.
     CONSTANTS c_top_node TYPE tm_nodekey VALUE '00001' ##NO_TEXT.
     CLASS-DATA gt_api_state_texts TYPE ddfixvalues .
-    DATA mf_global_fav_mode TYPE boolean .
-    DATA mr_favmenu_f TYPE REF TO zcl_dbbr_favmenu_factory .
     DATA mr_input_dd TYPE REF TO cl_dd_document .
     DATA mr_parent TYPE REF TO cl_gui_container .
     DATA mr_query_f TYPE REF TO zcl_dbbr_query_factory .
@@ -84,7 +82,6 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     DATA mr_search_query TYPE REF TO zcl_dbbr_object_search_query.
     DATA mt_node_map TYPE SORTED TABLE OF ty_node_map WITH UNIQUE KEY node_key .
     DATA mv_current_search_type TYPE zdbbr_obj_browser_mode .
-    DATA mv_last_var_node_key TYPE tm_nodekey VALUE '50000' ##NO_TEXT.
     DATA mr_favorite_dd_menu TYPE REF TO cl_ctmenu .
 
     "! <p class="shorttext synchronized" lang="en">Clears tree of all nodes</p>
@@ -879,17 +876,33 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         node_type = c_node_type-cds_properties )
     ).
 
+    DATA(ls_tadir_info) = ir_cds_view->get_tadir_info( ).
 *.. Insert node for name of author
     lr_nodes->add_node(
         iv_relative_node_key = lr_cds_properties_node->mv_node_key
-        iv_image             = zif_dbbr_c_icon=>user_menu " lv_author_icon
-        iv_expanded_image    = zif_dbbr_c_icon=>user_menu " lv_author_icon
+        iv_image             = zif_dbbr_c_icon=>user_menu
+        iv_expanded_image    = zif_dbbr_c_icon=>user_menu
         it_item_table        = VALUE #(
           ( class     = cl_item_tree_model=>item_class_text
             text      = |{ 'Responsible'(018) }|
             item_name = mr_tree_model->c_hierarchy_column )
           ( class     = cl_item_tree_model=>item_class_text
-            text      = |{ ir_cds_view->get_author( ) }|
+            text      = |{ ls_tadir_info-created_by }|
+            item_name = c_hierarchy_node2
+            style     = zif_uitb_c_ctm_style=>inverted_blue )
+        )
+    ).
+*.. Insert node for created date
+    lr_nodes->add_node(
+        iv_relative_node_key = lr_cds_properties_node->mv_node_key
+        iv_image             = zif_dbbr_c_icon=>date
+        iv_expanded_image    = zif_dbbr_c_icon=>date
+        it_item_table        = VALUE #(
+          ( class     = cl_item_tree_model=>item_class_text
+            text      = |{ 'Created On'(033) }|
+            item_name = mr_tree_model->c_hierarchy_column )
+          ( class     = cl_item_tree_model=>item_class_text
+            text      = |{ ls_tadir_info-created_date DATE = USER }|
             item_name = c_hierarchy_node2
             style     = zif_uitb_c_ctm_style=>inverted_blue )
         )
@@ -1461,7 +1474,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           IF <ls_node_map>-node_type <> c_node_type-query.
             er_menu->add_function(
                 fcode = c_functions-open_with_adt
-                text  = |{ 'Open in ADT'(029) }|
+                text  = |{ 'Open with ADT'(029) }|
             ).
           ENDIF.
 
