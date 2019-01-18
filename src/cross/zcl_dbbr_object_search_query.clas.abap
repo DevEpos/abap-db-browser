@@ -259,7 +259,7 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
     ENDIF.
 
     IF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_owner.
-      IF cv_value = 'SY-UNAME'.
+      IF cv_value = 'SY-UNAME' or cv_value = 'ME'.
         cv_value = sy-uname.
       ENDIF.
     ENDIF.
