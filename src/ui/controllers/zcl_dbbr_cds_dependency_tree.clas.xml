@@ -265,6 +265,48 @@
      <ENTRY>Open with ADT</ENTRY>
      <LENGTH>21</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>043</KEY>
+     <ENTRY>Show DDL Source Code</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>044</KEY>
+     <ENTRY>Show CDS Source Code</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>045</KEY>
+     <ENTRY>CDS Source</ENTRY>
+     <LENGTH>20</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>046</KEY>
+     <ENTRY>Show DB Content</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>047</KEY>
+     <ENTRY>Content</ENTRY>
+     <LENGTH>17</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>048</KEY>
+     <ENTRY>Show DB Content in new Task</ENTRY>
+     <LENGTH>54</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>049</KEY>
+     <ENTRY>Content (New Task)</ENTRY>
+     <LENGTH>28</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -350,6 +392,18 @@
      <CMPNAME>ON_TOOLBAR_BUTTON</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Handler for toolbar button event</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_DEPENDENCY_TREE</CLSNAME>
+     <CMPNAME>SHOW_CDS_SOURCE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Show CDS Source Code</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_DEPENDENCY_TREE</CLSNAME>
+     <CMPNAME>SHOW_CONTENT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Show Content of DB Entity</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

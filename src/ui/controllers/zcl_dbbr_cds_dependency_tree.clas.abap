@@ -24,19 +24,21 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
       BEGIN OF c_functions,
         open_with_adt              TYPE ui_func VALUE 'ADTJUMP',
         open_in_new_window         TYPE ui_func VALUE 'OPENINDBBRSNEWWIN',
+        show_ddl_source            TYPE ui_func VALUE 'SHOWSOURCE',
         exec_with_dbbrs            TYPE ui_func VALUE 'EXECWIHTDBBRS',
         exec_with_dbbrs_new_window TYPE ui_func VALUE 'EXECWIHTDBBRSNEW',
       END OF c_functions .
 
     TYPES:
       BEGIN OF ty_node_map,
-        node_key    TYPE tm_nodekey,
-        entity_id   TYPE zdbbr_entity_id,
-        entity_type TYPE zdbbr_entity_type,
-        sql_name    TYPE tabname,
+        node_key      TYPE tm_nodekey,
+        entity_id     TYPE zdbbr_entity_id,
+        entity_id_raw TYPE zdbbr_entity_id,
+        entity_type   TYPE zdbbr_entity_type,
+        sql_name      TYPE tabname,
       END OF ty_node_map .
     CONSTANTS c_relation_col TYPE tv_itmname VALUE 'RELATION' ##NO_TEXT.
-    CONSTANTS c_entity_name_col TYPE tv_itmname VALUE 'DBOBJECT' ##NO_TEXT.
+    CONSTANTS c_sql_name_col TYPE tv_itmname VALUE 'DBOBJECT' ##NO_TEXT.
     CONSTANTS c_object_type_col TYPE tv_itmname VALUE 'OBJTYPE' ##NO_TEXT.
     CONSTANTS c_hierarchy_node2 TYPE tv_itmname VALUE 'HIER2' ##NO_TEXT.
     CONSTANTS c_fill_text_func TYPE sy-ucomm VALUE 'FILLTXT' ##no_text.
@@ -125,6 +127,14 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
           FOR EVENT node_double_click OF zif_uitb_tree_model_events
       IMPORTING
           !ev_node_key .
+    "! <p class="shorttext synchronized" lang="en">Show CDS Source Code</p>
+    "!
+    METHODS show_cds_source.
+    "! <p class="shorttext synchronized" lang="en">Show Content of DB Entity</p>
+    "!
+    METHODS show_content
+      IMPORTING
+        if_new_task TYPE abap_bool OPTIONAL.
 ENDCLASS.
 
 
@@ -137,9 +147,26 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
     mr_view = zcl_uitb_templt_prog_callback=>create_template_program( |{ 'SQL Dependency Tree for'(002) } { mv_view_name }| ).
 
-
+    mr_view->add_function(
+        iv_function_id = zif_uitb_template_prog=>c_func_f5
+        iv_text        = |{ 'Show CDS Source Code'(044) }|
+        iv_icon        = icon_abap
+        iv_icon_text   = |{ 'CDS Source'(045) }|
+    ).
+    mr_view->add_function(
+        iv_function_id = zif_uitb_template_prog=>c_func_f6
+        iv_text        = |{ 'Show DB Content'(046) }|
+        iv_icon        = icon_table_settings
+        iv_icon_text   = |{ 'Content'(047) }|
+    ).
     mr_view->add_function(
         iv_function_id = zif_uitb_template_prog=>c_func_f7
+        iv_text        = |{ 'Show DB Content in new Task'(048) }|
+        iv_icon        = icon_table_settings
+        iv_icon_text   = |{ 'Content (New Task)'(049) }|
+    ).
+    mr_view->add_function(
+        iv_function_id = zif_uitb_template_prog=>c_func_f8
         iv_text        = |{ 'Show Complexity Metrics'(032) }|
         iv_icon        = icon_calculation
         iv_icon_text   = |{ 'Metrics'(033) }|
@@ -155,7 +182,7 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
     mr_tree = NEW zcl_uitb_column_tree_model(
       ir_parent           = mr_view->get_container( )
       is_hierarchy_header = VALUE #(
-        heading = 'SQL Name'(001)
+        heading = 'Entity Name'(035)
         width   = 110
       )
 *      if_item_selection   =
@@ -178,9 +205,9 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
         iv_header_text    = |{ 'SQL Relation'(034) }|
     ).
     lr_columns->add_column(
-        iv_colname        = c_entity_name_col
+        iv_colname        = c_sql_name_col
         iv_width          = 40
-        iv_header_text    = |{ 'Entity Name'(035) }|
+        iv_header_text    = |{ 'SQL Name'(001) }|
     ).
     lr_columns->add_column(
         iv_colname        = c_object_type_col
@@ -224,31 +251,6 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
   METHOD add_node.
     DATA: lv_entity_type TYPE zdbbr_entity_type.
 
-    DATA(lr_nodes) = mr_tree->get_nodes( ).
-    DATA(lr_node) = lr_nodes->add_node(
-        iv_relative_node_key = iv_parent_node
-        iv_image             = get_icon_for_node( is_node-type )
-        iv_expanded_image    = get_icon_for_node( is_node-type )
-        it_item_table        = VALUE #(
-          ( item_name = mr_tree->c_hierarchy_column
-            class     = cl_item_tree_model=>item_class_text
-            text      = |{ is_node-name }| )
-          ( item_name = c_hierarchy_node2
-            class     = cl_item_tree_model=>item_class_text
-            style     = zif_uitb_c_ctm_style=>inverted_gray )
-          ( item_name = c_entity_name_col
-            class     = cl_item_tree_model=>item_class_text
-            text      = |{ is_node-user_defined_entity_name }| )
-          ( item_name = c_relation_col
-            class     = cl_item_tree_model=>item_class_text
-            text      = get_relation_text( is_node-relation ) )
-          ( item_name = c_object_type_col
-            class     = cl_item_tree_model=>item_class_text
-            text      = get_object_type_text( is_node-type ) )
-        )
-    ).
-
-
     IF is_node-type = cl_ddls_dependency_visitor=>co_node_type-cds_view OR
        is_node-type = cl_ddls_dependency_visitor=>co_node_type-cds_table_function.
       lv_entity_type = zif_dbbr_c_entity_type=>cds_view.
@@ -258,12 +260,37 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
       lv_entity_type = zif_dbbr_c_entity_type=>view.
     ENDIF.
 
+    DATA(lr_nodes) = mr_tree->get_nodes( ).
+    DATA(lr_node) = lr_nodes->add_node(
+        iv_relative_node_key = iv_parent_node
+        iv_image             = get_icon_for_node( is_node-type )
+        iv_expanded_image    = get_icon_for_node( is_node-type )
+        it_item_table        = VALUE #(
+          ( item_name = mr_tree->c_hierarchy_column
+            class     = cl_item_tree_model=>item_class_text
+            text      = |{ COND #( WHEN is_node-user_defined_entity_name IS NOT INITIAL THEN is_node-user_defined_entity_name ELSE is_node-name ) }| )
+          ( item_name = c_hierarchy_node2
+            class     = cl_item_tree_model=>item_class_text
+            style     = zif_uitb_c_ctm_style=>inverted_gray )
+          ( item_name = c_sql_name_col
+            class     = cl_item_tree_model=>item_class_text
+            text      = |{ COND #( WHEN lv_entity_type IS NOT INITIAL THEN is_node-name ) }| )
+          ( item_name = c_relation_col
+            class     = cl_item_tree_model=>item_class_text
+            text      = get_relation_text( is_node-relation ) )
+          ( item_name = c_object_type_col
+            class     = cl_item_tree_model=>item_class_text
+            text      = get_object_type_text( is_node-type ) )
+        )
+    ).
+
     IF lv_entity_type IS NOT INITIAL.
       mt_node_map = VALUE #( BASE mt_node_map
-        ( node_key    = lr_node->mv_node_key
-          entity_id   = COND #( WHEN is_node-entity_name IS NOT INITIAL THEN is_node-entity_name ELSE is_node-name )
-          entity_type = lv_entity_type
-          sql_name    = is_node-name )
+        ( node_key      = lr_node->mv_node_key
+          entity_id     = COND #( WHEN is_node-entity_name IS NOT INITIAL THEN is_node-entity_name ELSE is_node-name )
+          entity_id_raw = is_node-entity_name
+          entity_type   = lv_entity_type
+          sql_name      = is_node-name )
       ).
     ENDIF.
 
@@ -286,8 +313,16 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
       WHEN c_fill_text_func.
         fill_entity_texts( ).
 
-      WHEN zif_uitb_template_prog=>c_func_f7.
+      WHEN zif_uitb_template_prog=>c_func_f8.
         show_complexity_metrics( ).
+
+      WHEN zif_uitb_template_prog=>c_func_f5.
+        show_cds_source( ).
+      WHEN zif_uitb_template_prog=>c_func_f6.
+        show_content( ).
+
+      WHEN zif_uitb_template_prog=>c_func_f7.
+        show_content( if_new_task = abap_true ).
 
       WHEN zif_uitb_template_prog=>c_func_find.
         DATA(ls_result) = mr_tree->get_search( )->find( ).
@@ -322,6 +357,7 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
       create_tree( ).
 
       zcl_uitb_screen_util=>set_function_code( c_fill_text_func ).
+      mr_tree->zif_uitb_gui_control~focus( ).
     ENDIF.
   ENDMETHOD.
 
@@ -534,6 +570,14 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
         fcode = c_functions-exec_with_dbbrs_new_window
         text  = |{ 'Show Content (New Task)'(039) }|
     ).
+    IF <ls_node_map>-entity_type = zif_dbbr_c_entity_type=>cds_view.
+      er_menu->add_separator( ).
+      er_menu->add_function(
+          fcode = c_functions-show_ddl_source
+          text  = |{ 'Show DDL Source Code'(043) }|
+      ).
+    ENDIF.
+
   ENDMETHOD.
 
   METHOD on_node_context_menu_select.
@@ -585,6 +629,17 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
           CATCH zcx_dbbr_variant_error INTO DATA(lx_variant_error).
             lx_variant_error->show_message( ).
         ENDTRY.
+
+      WHEN c_functions-show_ddl_source.
+        TRY.
+            DATA(lv_source) = zcl_dbbr_cds_view_factory=>read_ddls_source( <ls_node_map>-entity_id ).
+            zcl_uitb_abap_code_viewer=>show_code(
+                iv_title = |DDL Source { <ls_node_map>-entity_id_raw }|
+                iv_code  = lv_source
+            ).
+          CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
+            lx_app_error->zif_dbbr_exception_message~print( ).
+        ENDTRY.
     ENDCASE.
   ENDMETHOD.
 
@@ -601,6 +656,31 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
     zcl_dbbr_selscr_nav_events=>raise_entity_chosen(
         iv_entity_id   = lr_s_node_map->entity_id
         iv_entity_type = lr_s_node_map->entity_type
+    ).
+  ENDMETHOD.
+
+  METHOD show_cds_source.
+    DATA(lt_selected_nodes) = mr_tree->get_selections( )->get_selected_nodes( ).
+    CHECK lines( lt_selected_nodes ) = 1.
+
+    ASSIGN mt_node_map[ node_key    = lt_selected_nodes[ 1 ]->mv_node_key
+                        entity_type = zif_dbbr_c_entity_type=>cds_view ] TO FIELD-SYMBOL(<ls_node_map>).
+    CHECK sy-subrc = 0.
+    on_node_context_menu_select(
+        ev_fcode    = c_functions-show_ddl_source
+        ev_node_key = <ls_node_map>-node_key
+    ).
+  ENDMETHOD.
+
+  METHOD show_content.
+    DATA(lt_selected_nodes) = mr_tree->get_selections( )->get_selected_nodes( ).
+    CHECK lines( lt_selected_nodes ) = 1.
+
+    ASSIGN mt_node_map[ node_key = lt_selected_nodes[ 1 ]->mv_node_key ] TO FIELD-SYMBOL(<ls_node_map>).
+    CHECK sy-subrc = 0.
+    on_node_context_menu_select(
+        ev_fcode    = cond #( when if_new_task = abap_true then c_functions-exec_with_dbbrs_new_window else c_functions-exec_with_dbbrs )
+        ev_node_key = <ls_node_map>-node_key
     ).
   ENDMETHOD.
 
