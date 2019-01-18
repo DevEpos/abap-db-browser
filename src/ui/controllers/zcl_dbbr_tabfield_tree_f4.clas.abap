@@ -17,52 +17,52 @@ CLASS zcl_dbbr_tabfield_tree_f4 DEFINITION
         !ev_chosen_table           TYPE tabname
         ev_chosen_field_with_alias TYPE zdbbr_fieldname_with_alias .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  data MR_TMPLT_PROG type ref to ZIF_UITB_TEMPLATE_PROG .
-  data MV_CHOSEN_FIELD type FIELDNAME .
-  data MV_CHOSEN_FIELD_WITH_ALIAS type ZDBBR_FIELDNAME_WITH_ALIAS .
-  data MV_CHOSEN_TABLE type TABNAME .
-  data MR_TREE_NODE_FILLER type ref to ZIF_DBBR_TREE_NODE_FILLER .
-  data MR_F4_TREE type ref to ZCL_UITB_COLUMN_TREE_MODEL .
-  data MV_TOP_NODE type TM_NODEKEY .
-  data MT_NODE_MAP type ZIF_DBBR_TREE_NODE_FILLER=>TT_NODE_MAP .
+    DATA mr_tmplt_prog TYPE REF TO zif_uitb_template_prog .
+    DATA mv_chosen_field TYPE fieldname .
+    DATA mv_chosen_field_with_alias TYPE zdbbr_fieldname_with_alias .
+    DATA mv_chosen_table TYPE tabname .
+    DATA mr_tree_node_filler TYPE REF TO zif_dbbr_tree_node_filler .
+    DATA mr_f4_tree TYPE REF TO zcl_uitb_column_tree_model .
+    DATA mv_top_node TYPE tm_nodekey .
+    DATA mt_node_map TYPE zif_dbbr_tree_node_filler=>tt_node_map .
 
-  methods CREATE_TREE .
-  methods DO_ON_FIRST_CALL .
-  methods HANDLE_SELECTED_NODE
-    importing
-      !IV_NODE_KEY type TM_NODEKEY .
-  methods ON_NODE_DOUBLE_CLICK
-    for event NODE_DOUBLE_CLICK of ZCL_UITB_CTM_EVENTS
-    importing
-      !EV_NODE_KEY .
-  methods ON_NODE_KEY_PRESS
-    for event NODE_KEYPRESS of ZCL_UITB_CTM_EVENTS
-    importing
-      !EV_NODE_KEY
-      !EV_KEY .
-  methods ON_PAI
-    for event USER_COMMAND of ZIF_UITB_VIEW_CALLBACK
-    importing
-      !EV_FUNCTION_ID
-      !ER_CALLBACK .
-  methods ON_PBO
-    for event BEFORE_OUTPUT of ZIF_UITB_VIEW_CALLBACK
-    importing
-      !ER_CALLBACK .
-  methods ON_TOOLBAR_FUNCTION
-    for event FUNCTION_SELECTED of ZIF_UITB_TOOLBAR_EVENTS
-    importing
-      !EV_FCODE .
-  methods SET_SELECTED_VALUES
-    importing
-      !IS_NODE_MAP type ZIF_DBBR_TREE_NODE_FILLER=>TY_NODE_MAP .
+    METHODS create_tree .
+    METHODS do_on_first_call .
+    METHODS handle_selected_node
+      IMPORTING
+        !iv_node_key TYPE tm_nodekey .
+    METHODS on_node_double_click
+          FOR EVENT node_double_click OF zcl_uitb_ctm_events
+      IMPORTING
+          !ev_node_key .
+    METHODS on_node_key_press
+          FOR EVENT node_keypress OF zcl_uitb_ctm_events
+      IMPORTING
+          !ev_node_key
+          !ev_key .
+    METHODS on_pai
+          FOR EVENT user_command OF zif_uitb_view_callback
+      IMPORTING
+          !ev_function_id
+          !er_callback .
+    METHODS on_pbo
+          FOR EVENT before_output OF zif_uitb_view_callback
+      IMPORTING
+          !er_callback .
+    METHODS on_toolbar_function
+          FOR EVENT function_selected OF zif_uitb_toolbar_events
+      IMPORTING
+          !ev_fcode .
+    METHODS set_selected_values
+      IMPORTING
+        !is_node_map TYPE zif_dbbr_tree_node_filler=>ty_node_map .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_TABFIELD_TREE_F4 IMPLEMENTATION.
+CLASS zcl_dbbr_tabfield_tree_f4 IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -144,8 +144,14 @@ CLASS ZCL_DBBR_TABFIELD_TREE_F4 IMPLEMENTATION.
     create_tree( ).
 *... Fill the tree through the node filler instance
     mt_node_map = mr_tree_node_filler->fill_node_item_tables( mr_f4_tree->get_nodes( ) ).
-*... Expand root nodes
-    mr_f4_tree->get_nodes( )->expand_root_nodes( ).
+
+    mr_f4_tree->get_nodes( )->collapse_all_nodes( ).
+    ASSIGN mt_node_map[ node_type = zif_dbbr_tree_node_filler=>c_node_type-matched_fields ] TO FIELD-SYMBOL(<ls_matched_fields_node>).
+    IF sy-subrc = 0.
+      mr_f4_tree->get_nodes( )->expand_node( <ls_matched_fields_node>-node_key ).
+    ELSE.
+      mr_f4_tree->get_nodes( )->expand_root_nodes( ).
+    ENDIF.
     mr_f4_tree->get_nodes( )->set_first_root_node_as_top( ).
     mr_f4_tree->zif_uitb_gui_control~focus( ).
   ENDMETHOD.

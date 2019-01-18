@@ -75,6 +75,7 @@ CLASS ZCL_DBBR_TABLE_TREENO_FILL IMPLEMENTATION.
 *.. Now add all the matched nodes to a special node on top
     CHECK mt_matched_fields IS NOT INITIAL.
 
+*.. Collapse the table field nodes
     ir_nodes->add_node(
         iv_node_key          = c_matched_node
         iv_relative_node_key = mv_first_table_node
@@ -88,6 +89,11 @@ CLASS ZCL_DBBR_TABLE_TREENO_FILL IMPLEMENTATION.
             text      = |Suitable Table fields| )
         )
     ).
+    ct_node_map = value #( base ct_node_map
+      ( node_key = c_matched_node
+        node_type = zif_dbbr_tree_node_filler=>c_node_type-matched_fields )
+    ).
+
 *.. Add matched fields - 1) domain matched, 2) type matches
     SORT mt_matched_fields BY domain_match DESCENDING prio ascending.
     LOOP AT mt_matched_fields ASSIGNING FIELD-SYMBOL(<ls_matched_fields>).
@@ -101,7 +107,8 @@ CLASS ZCL_DBBR_TABLE_TREENO_FILL IMPLEMENTATION.
       ).
       DATA(lv_matched_field_node) = |{ c_matched_node }{ sy-tabix }|.
       ct_node_map = VALUE #( BASE ct_node_map
-        ( node_key = lv_matched_field_node
+        ( node_key  = lv_matched_field_node
+          node_type = zif_dbbr_tree_node_filler=>c_node_type-matched_field
           fieldname = <ls_matched_fields>-fieldname
           tabname   = <ls_matched_fields>-tabname )
       ).
@@ -109,6 +116,8 @@ CLASS ZCL_DBBR_TABLE_TREENO_FILL IMPLEMENTATION.
           iv_node_key          = lv_matched_field_node
           iv_relative_node_key = c_matched_node
           iv_image             = lv_icon
+          iv_style             = cond #( when <ls_matched_fields>-domain_match = abap_true and
+                                              <ls_matched_fields>-fieldname = ms_join_field_info-fieldname then zif_uitb_c_ctm_style=>light_green )
           it_item_table        = VALUE #(
             ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
               font      = cl_item_tree_model=>item_font_prop
@@ -138,6 +147,7 @@ CLASS ZCL_DBBR_TABLE_TREENO_FILL IMPLEMENTATION.
 *.... add node to node map
       ct_node_map = VALUE #( BASE ct_node_map
         ( node_key  = lv_field_node_key
+          node_type = zif_dbbr_tree_node_filler=>c_node_type-field
           tabname   = iv_tabname
           fieldname = <ls_table_field>-fieldname )
       ).

@@ -1,9 +1,18 @@
 INTERFACE zif_dbbr_tree_node_filler
   PUBLIC .
 
+  CONSTANTS:
+    BEGIN OF c_node_type,
+      table          TYPE i VALUE 0,
+      field          TYPE i VALUE 1,
+      matched_fields TYPE i VALUE 2,
+      matched_field  TYPE i VALUE 3,
+    END OF c_node_type.
+
   TYPES:
     BEGIN OF ty_node_map,
       node_key        TYPE tm_nodekey,
+      node_type       TYPE i,
       tabname         TYPE tabname,
       fieldname       TYPE fieldname,
       alias_fieldname TYPE zdbbr_fieldname_with_alias,

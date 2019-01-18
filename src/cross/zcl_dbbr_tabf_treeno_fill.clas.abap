@@ -1,24 +1,24 @@
-class ZCL_DBBR_TABF_TREENO_FILL definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_tabf_treeno_fill DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_DBBR_TREE_NODE_FILLER .
+    INTERFACES zif_dbbr_tree_node_filler .
 
-  methods CONSTRUCTOR
-    importing
-      !IR_TABFIELD_LIST type ref to ZCL_DBBR_TABFIELD_LIST .
+    METHODS constructor
+      IMPORTING
+        !ir_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list .
   PROTECTED SECTION.
   PRIVATE SECTION.
-    DATA mt_table_to_alias_map TYPE ZDBBR_table_to_alias_map_itab.
-    DATA mr_tabfield_list TYPE REF TO ZCL_DBBR_tabfield_list.
+    DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab.
+    DATA mr_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_TABF_TREENO_FILL IMPLEMENTATION.
+CLASS zcl_dbbr_tabf_treeno_fill IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -68,6 +68,11 @@ CLASS ZCL_DBBR_TABF_TREENO_FILL IMPLEMENTATION.
               text      = <ls_table>-description )
           )
       ).
+      rt_node_map = VALUE #( BASE rt_node_map
+        ( node_key        = lv_table_node_key
+          tabname         = <ls_table>-tabname
+          node_type       = zif_dbbr_tree_node_filler=>c_node_type-table )
+      ).
 
       ADD 1 TO lv_table_node_counter.
 
@@ -80,6 +85,7 @@ CLASS ZCL_DBBR_TABF_TREENO_FILL IMPLEMENTATION.
         rt_node_map = VALUE #( BASE rt_node_map
           ( node_key        = lv_field_node_key
             tabname         = <ls_table>-tabname
+            node_type       = zif_dbbr_tree_node_filler=>c_node_type-field
             alias_fieldname = <ls_table_field>-sql_fieldname
             fieldname       = <ls_table_field>-fieldname )
         ).
