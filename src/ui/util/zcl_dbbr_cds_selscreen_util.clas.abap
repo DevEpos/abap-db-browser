@@ -446,14 +446,14 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
       WHEN zif_dbbr_c_selscreen_functions=>show_ddls_source.
         TRY.
             DATA(lv_source) = zcl_dbbr_cds_view_factory=>read_ddls_source( mv_cds_view ).
-            NEW zcl_uitb_popup_editor(
-                iv_text        =  lv_source
-            )->zif_uitb_view~show( iv_end_column = 150 ).
+             zcl_uitb_abap_code_viewer=>show_code(
+                 iv_title = |DDL Source { mv_cds_view_name_raw }|
+                 iv_code  = lv_source
+             ).
           CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
             lx_app_error->zif_dbbr_exception_message~print( ).
         ENDTRY.
         CLEAR: cv_function.
-
 
       WHEN zif_dbbr_c_selscreen_functions=>show_cds_dependency_tree.
         NEW zcl_dbbr_cds_dependency_tree( iv_cds_view = mv_cds_view_name_raw )->show( ).
