@@ -211,6 +211,18 @@
      <ENTRY>Created On</ENTRY>
      <LENGTH>22</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>034</KEY>
+     <ENTRY>Show DDL Source Code</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>035</KEY>
+     <ENTRY>Open with Dependency Analyzer</ENTRY>
+     <LENGTH>58</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>

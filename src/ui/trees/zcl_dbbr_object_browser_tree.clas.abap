@@ -37,9 +37,10 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
 
     TYPES:
       BEGIN OF ty_node_map,
-        node_key  TYPE tm_nodekey,
-        entity_id TYPE zdbbr_entity_id,
-        node_type TYPE i,
+        node_key      TYPE tm_nodekey,
+        entity_id     TYPE zdbbr_entity_id,
+        entity_id_raw TYPE zdbbr_entity_id,
+        node_type     TYPE i,
       END OF ty_node_map .
     TYPES:
       BEGIN OF mty_node_data.
@@ -59,6 +60,8 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
         edit_favorites             TYPE ui_func VALUE 'EDITFAV' ##NO_TEXT,
         to_parent                  TYPE ui_func VALUE 'TO_PARENT' ##NO_TEXT,
         favorite_dropdown          TYPE ui_func VALUE 'FAVMENU' ##NO_TEXT,
+        show_ddl_source            TYPE ui_func VALUE 'SHOWSOURCE' ##no_text,
+        analyze_dependencies       TYPE ui_func VALUE 'ANALYZEDEP' ##no_text,
       END OF c_functions .
     CONSTANTS c_hierarchy_node2 TYPE tv_itmname VALUE 'HIER2' ##NO_TEXT.
     CONSTANTS c_hierarchy_node3 TYPE tv_itmname VALUE 'HIER3' ##NO_TEXT.
@@ -599,6 +602,8 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       clear_tree( ).
 
+      DATA(lv_cds_name_raw) = ir_cds_view->get_header( )-entityname_raw.
+
       lr_cds_view_node = lr_nodes->add_node(
           if_folder            = abap_true
           iv_image             = zif_dbbr_c_icon=>cds_view
@@ -606,7 +611,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           it_item_table        = VALUE #(
             ( class     = cl_item_tree_model=>item_class_text
               item_name = mr_tree_model->c_hierarchy_column
-              text      = ir_cds_view->get_header( )-entityname_raw )
+              text      = lv_cds_name_raw )
             ( class     = cl_item_tree_model=>item_class_text
               item_name = c_hierarchy_node2
               style     = zif_uitb_c_ctm_style=>inverted_gray
@@ -615,9 +620,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       ).
       mt_node_map = VALUE #(
         BASE mt_node_map
-        ( node_key  = lr_cds_view_node->mv_node_key
-          entity_id = ir_cds_view->mv_view_name
-          node_type = c_node_type-cds_view )
+        ( node_key      = lr_cds_view_node->mv_node_key
+          entity_id     = ir_cds_view->mv_view_name
+          entity_id_raw = lv_cds_name_raw
+          node_type     = c_node_type-cds_view )
       ).
     ENDIF.
 
@@ -1004,9 +1010,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
         mt_node_map = VALUE #(
          BASE mt_node_map
-         ( node_key  = lr_cds_base_table_node->mv_node_key
-           entity_id = <ls_base_table>-entityname
-           node_type = lv_node_type )
+         ( node_key      = lr_cds_base_table_node->mv_node_key
+           entity_id     = <ls_base_table>-entityname
+           entity_id_raw = <ls_base_table>-entityname_raw
+           node_type     = lv_node_type )
        ).
       ENDLOOP.
 
@@ -1059,9 +1066,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         ).
         mt_node_map = VALUE #(
           BASE mt_node_map
-          ( node_key  = lr_cds_assoc_view_node->mv_node_key
-            entity_id = <ls_assoc>-ref_cds_view
-            node_type = lv_node_type )
+          ( node_key      = lr_cds_assoc_view_node->mv_node_key
+            entity_id     = <ls_assoc>-ref_cds_view
+            entity_id_raw = <ls_assoc>-ref_cds_view_raw
+            node_type     = lv_node_type )
         ).
 
 
@@ -1491,6 +1499,18 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
               fcode = c_functions-exec_with_dbbrs_new_window
               text  = |{ 'Show Content (New Task)'(032) }|
           ).
+          IF <ls_node_map>-node_type = c_node_type-cds_view.
+            er_menu->add_separator( ).
+            er_menu->add_function(
+               fcode = c_functions-show_ddl_source
+               text  = |{ 'Show DDL Source Code'(034) }|
+            ).
+            er_menu->add_function(
+               fcode = c_functions-analyze_dependencies
+               text  = |{ 'Open with Dependency Analyzer'(035) }|
+            ).
+          ENDIF.
+
         WHEN OTHERS.
       ENDCASE.
     ELSE.
@@ -1567,6 +1587,20 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           CATCH zcx_dbbr_variant_error INTO DATA(lx_variant_error).
             lx_variant_error->show_message( ).
         ENDTRY.
+
+      WHEN c_functions-show_ddl_source.
+        TRY.
+            DATA(lv_source) = zcl_dbbr_cds_view_factory=>read_ddls_source( <ls_node_map>-entity_id ).
+            zcl_uitb_abap_code_viewer=>show_code(
+                iv_title = |DDL Source { <ls_node_map>-entity_id_raw }|
+                iv_code  = lv_source
+            ).
+          CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
+            lx_app_error->zif_dbbr_exception_message~print( ).
+        ENDTRY.
+
+      WHEN c_functions-analyze_dependencies.
+        NEW zcl_dbbr_cds_dependency_tree( <ls_node_map>-entity_id )->show( ).
     ENDCASE.
   ENDMETHOD.
 
