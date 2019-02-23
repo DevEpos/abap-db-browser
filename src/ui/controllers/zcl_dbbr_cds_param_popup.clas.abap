@@ -1,26 +1,40 @@
 "! <p class="shorttext synchronized" lang="en">Popup for selecting CDS view parameters</p>
 CLASS zcl_dbbr_cds_param_popup DEFINITION
   PUBLIC
+  INHERITING FROM zcl_uitb_gui_modal_dialog
   CREATE PUBLIC .
 
   PUBLIC SECTION.
 
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
-    "! @parameter IR_CDS_VIEW | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter it_param_values | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter IR_TABFIELDS | <p class="shorttext synchronized" lang="en"></p>
+    "!
     METHODS constructor
       IMPORTING
-        !ir_cds_view    TYPE REF TO zcl_dbbr_cds_view
         it_param_values TYPE zif_dbbr_global_types=>tt_cds_param_value OPTIONAL
-        !ir_tabfields   TYPE REF TO zcl_dbbr_tabfield_list .
-    "! <p class="shorttext synchronized" lang="en">Show popup for entering parameter values</p>
-    "! @parameter RT_VALUES | <p class="shorttext synchronized" lang="en"></p>
-    METHODS show
+        !io_tabfields   TYPE REF TO zcl_dbbr_tabfield_list .
+    "! <p class="shorttext synchronized" lang="en">Get entered param values</p>
+    "!
+    METHODS get_param_values
       RETURNING
         VALUE(rt_values) TYPE zif_dbbr_global_types=>tt_cds_param_value .
+    METHODS zif_uitb_gui_command_handler~execute_command
+        REDEFINITION.
+    METHODS zif_uitb_gui_screen~show
+        REDEFINITION.
   PROTECTED SECTION.
+
+    METHODS create_content
+        REDEFINITION.
+    METHODS do_before_dynpro_output
+        REDEFINITION.
+    METHODS handle_exit_request
+        REDEFINITION.
   PRIVATE SECTION.
+
+    CONSTANTS:
+      BEGIN OF c_functions,
+        update_params TYPE ui_func VALUE 'UPDATE',
+      END OF c_functions.
 
     TYPES:
       BEGIN OF ty_param.
@@ -29,36 +43,26 @@ CLASS zcl_dbbr_cds_param_popup DEFINITION
     TYPES: t_style       TYPE lvc_t_styl.
     TYPES: END OF ty_param .
 
-    DATA mr_alv TYPE REF TO zcl_uitb_alv .
-    DATA mr_view TYPE REF TO zif_uitb_template_prog .
-    DATA:
-      mt_parameters TYPE STANDARD TABLE OF ty_param .
-    DATA mr_cds_view TYPE REF TO zcl_dbbr_cds_view .
-    DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_alv TYPE REF TO zcl_uitb_alv .
+    DATA mt_parameters TYPE STANDARD TABLE OF ty_param .
+    DATA mo_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
 
     "! <p class="shorttext synchronized" lang="en">Convert parameter to display format</p>
-    "! @parameter ir_s_param | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter is_tabfield | <p class="shorttext synchronized" lang="en"></p>
+    "!
     METHODS convert_param_to_display
       IMPORTING
         ir_s_param  TYPE REF TO ty_param
         is_tabfield TYPE zdbbr_tabfield_info_ui.
     "! <p class="shorttext synchronized" lang="en">Convert parameters to internal format</p>
+    "!
     METHODS convert_params_to_internal .
     "! <p class="shorttext synchronized" lang="en">Create ALV for input</p>
-    METHODS create_alv .
-    "! <p class="shorttext synchronized" lang="en">Handler for exit event</p>
-    "! @parameter ER_CALLBACK | <p class="shorttext synchronized" lang="en"></p>
-    METHODS on_cancel
-          FOR EVENT exit OF zif_uitb_view_callback
+    "!
+    METHODS create_alv
       IMPORTING
-          !er_callback .
+        io_container TYPE REF TO cl_gui_container.
     "! <p class="shorttext synchronized" lang="en">Handler for data changed event</p>
-    "! @parameter EF_ONF4 | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter EF_ONF4_AFTER | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter EF_ONF4_BEFORE | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter ER_CHANGE_PROTOCOL | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter EV_FUNCTION | <p class="shorttext synchronized" lang="en"></p>
+    "!
     METHODS on_data_changed
           FOR EVENT data_changed OF zcl_uitb_alv_events
       IMPORTING
@@ -68,12 +72,7 @@ CLASS zcl_dbbr_cds_param_popup DEFINITION
           !er_change_protocol
           !ev_function .
     "! <p class="shorttext synchronized" lang="en">Handler for F4 event</p>
-    "! @parameter EF_DISPLAY | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter ER_EVENT_DATA | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter ES_ROW_NO | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter ET_BAD_CELLS | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter EV_FIELDNAME | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter EV_FIELDVALUE | <p class="shorttext synchronized" lang="en"></p>
+    "!
     METHODS on_f4
           FOR EVENT f4 OF zcl_uitb_alv_events
       IMPORTING
@@ -83,20 +82,6 @@ CLASS zcl_dbbr_cds_param_popup DEFINITION
           !et_bad_cells
           !ev_fieldname
           !ev_fieldvalue .
-    "! <p class="shorttext synchronized" lang="en">Handler for PAI event</p>
-    "! @parameter ER_CALLBACK | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter EV_FUNCTION_ID | <p class="shorttext synchronized" lang="en"></p>
-    METHODS on_pai
-          FOR EVENT user_command OF zif_uitb_view_callback
-      IMPORTING
-          !er_callback
-          !ev_function_id .
-    "! <p class="shorttext synchronized" lang="en">Handler for PBO event</p>
-    "! @parameter ER_CALLBACK | <p class="shorttext synchronized" lang="en"></p>
-    METHODS on_pbo
-          FOR EVENT before_output OF zif_uitb_view_callback
-      IMPORTING
-          !er_callback .
 ENDCLASS.
 
 
@@ -105,22 +90,11 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
 
 
   METHOD constructor.
-    mr_cds_view = ir_cds_view.
-    mr_tabfields = ir_tabfields.
-    mr_view = zcl_uitb_templt_prog_callback=>create_template_program( iv_title = |{ 'Enter Parameters'(001) }| ).
+    super->constructor( iv_title = |{ 'Enter Parameters'(001) }| ).
 
-    mr_view->add_function(
-        iv_function_id = zif_uitb_template_prog=>c_func_f8
-        iv_text        = |{ 'Execute Selection'(002) }|
-        iv_icon        = icon_execute_object
-    ).
+    mo_tabfields = io_tabfields.
 
-    SET HANDLER:
-      on_pbo FOR mr_view,
-      on_cancel FOR mr_view,
-      on_pai FOR mr_view.
-
-    DATA(lr_iterator) = ir_tabfields->zif_uitb_data_ref_list~get_iterator(
+    DATA(lr_iterator) = io_tabfields->zif_uitb_data_ref_list~get_iterator(
         iv_where = 'IS_PARAMETER = abap_true'
     ).
     WHILE lr_iterator->has_next( ).
@@ -149,10 +123,45 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
     ENDWHILE.
   ENDMETHOD.
 
+  METHOD zif_uitb_gui_command_handler~execute_command.
+    CASE io_command->mv_function.
+
+      WHEN c_functions-update_params.
+*.... Run check for parameters
+        CHECK mo_alv->get_data_changes( )->check_changed( ).
+
+        LOOP AT mt_parameters ASSIGNING FIELD-SYMBOL(<ls_param>) WHERE value IS INITIAL.
+        ENDLOOP.
+        IF sy-subrc = 0.
+          MESSAGE |{ 'Enter missing parameter values'(003) }| TYPE 'E'.
+          RETURN.
+        ENDIF.
+
+        convert_params_to_internal( ).
+        leave_screen( ).
+
+    ENDCASE.
+  ENDMETHOD.
+
+  METHOD get_param_values.
+    rt_values = CORRESPONDING #( mt_parameters ).
+  ENDMETHOD.
+
+
+
+  METHOD zif_uitb_gui_screen~show.
+    super->show(
+        iv_top    = 10
+        iv_left   = 20
+        iv_width  = 60
+        iv_height = 8
+    ).
+  ENDMETHOD.
+
 
   METHOD convert_params_to_internal.
     LOOP AT mt_parameters ASSIGNING FIELD-SYMBOL(<ls_param>).
-      DATA(lr_s_field) = mr_tabfields->get_field_ref(
+      DATA(lr_s_field) = mo_tabfields->get_field_ref(
            iv_tabname_alias                = zif_dbbr_global_consts=>c_parameter_dummy_table
            iv_fieldname              = <ls_param>-name
       ).
@@ -182,15 +191,15 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
   METHOD create_alv.
     DATA: lr_col TYPE REF TO zcl_uitb_alv_column.
 
-    CHECK mr_alv IS INITIAL.
+    CHECK mo_alv IS INITIAL.
 
-    mr_alv = zcl_uitb_alv=>create_alv(
-       ir_data                 = REF #( mt_parameters )
-       ir_container            = mr_view->get_container( )
-       if_editable             = abap_true
+    mo_alv = zcl_uitb_alv=>create_alv(
+       ir_data       = REF #( mt_parameters )
+       ir_container  = io_container
+       if_editable   = abap_true
     ).
 
-    DATA(lr_cols) = mr_alv->get_columns( ).
+    DATA(lr_cols) = mo_alv->get_columns( ).
     lr_cols->set_style_column( 'T_STYLE' ).
 
     lr_cols->get_column( 'NAME' )->set_technical( ).
@@ -207,26 +216,52 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
     lr_col->set_custom_f4( ).
 
 
-    DATA(lr_functions) = mr_alv->get_functions( ).
+    DATA(lr_functions) = mo_alv->get_functions( ).
     lr_functions->set_all( abap_false ).
 
-    DATA(lr_display_settings) = mr_alv->get_display_settings( ).
+    DATA(lr_display_settings) = mo_alv->get_display_settings( ).
     lr_display_settings->set_row_insertions( abap_false ).
     lr_display_settings->set_row_marks( abap_false ).
     lr_display_settings->set_row_move_allowed( abap_false ).
 
-    DATA(lr_events) = mr_alv->get_events( ).
+    DATA(lr_events) = mo_alv->get_events( ).
     SET HANDLER:
         on_data_changed FOR lr_events,
         on_f4 FOR lr_events.
 
-    mr_alv->display( ).
-    mr_alv->zif_uitb_gui_control~focus( ).
+    mo_alv->display( ).
+    mo_alv->zif_uitb_gui_control~focus( ).
   ENDMETHOD.
 
-
-  METHOD on_cancel.
+  METHOD handle_exit_request.
     CLEAR mt_parameters.
+  ENDMETHOD.
+
+  METHOD create_content.
+    create_control_toolbar(
+      EXPORTING
+        io_parent    = io_container
+        it_button    = VALUE #(
+          ( function  = c_functions-update_params
+            icon      = icon_execute_object
+            quickinfo = |{ 'Update parameter values'(004) }| )
+        )
+      IMPORTING
+        eo_client    = DATA(lo_container)
+    ).
+    create_alv( lo_container ).
+  ENDMETHOD.
+
+  METHOD do_before_dynpro_output.
+    io_callback->map_fkey_function( iv_fkey            = zif_uitb_c_gui_screen=>c_functions-f8
+                                    iv_mapped_function = c_functions-update_params
+                                    iv_text            = |{ 'Update parameter values'(004) }| ).
+
+    IF NOT io_callback->is_first_screen_call( ).
+      mo_alv->zif_uitb_gui_control~focus( ).
+    ENDIF.
+
+    io_callback->deactivate_function( zif_uitb_c_gui_screen=>c_functions-save ).
   ENDMETHOD.
 
 
@@ -242,7 +277,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
 
       DATA(lr_s_param_value) = REF #( mt_parameters[ <ls_mod_cell>-row_id ] ).
 
-      DATA(ls_param_field) = mr_tabfields->get_field(
+      DATA(ls_param_field) = mo_tabfields->get_field(
         iv_tabname   = zif_dbbr_global_consts=>c_parameter_dummy_table
         iv_fieldname = mt_parameters[ <ls_mod_cell>-row_id ]-name
       ).
@@ -296,7 +331,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
 
 *.. Retrieve param information for current field
     DATA(lr_s_param) = REF #( mt_parameters[ es_row_no-row_id ] ).
-    DATA(ls_param_field) = mr_tabfields->get_field(
+    DATA(ls_param_field) = mo_tabfields->get_field(
         iv_tabname = zif_dbbr_global_consts=>c_parameter_dummy_table
         iv_fieldname = lr_s_param->name
     ).
@@ -319,48 +354,4 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-
-  METHOD on_pai.
-    CASE ev_function_id.
-
-      WHEN zif_uitb_template_prog=>c_func_f8.
-*.... Run check for parameters
-        CHECK mr_alv->get_data_changes( )->check_changed( ).
-
-        LOOP AT mt_parameters ASSIGNING FIELD-SYMBOL(<ls_param>) WHERE value IS INITIAL.
-        ENDLOOP.
-        IF sy-subrc = 0.
-          MESSAGE |{ 'Enter missing parameter values'(003) }| TYPE 'E'.
-          RETURN.
-        ENDIF.
-
-        convert_params_to_internal( ).
-        mr_view->leave_program( ).
-
-    ENDCASE.
-  ENDMETHOD.
-
-
-  METHOD on_pbo.
-    IF er_callback->is_first_screen_call( ).
-      create_alv( ).
-    ELSE.
-      mr_alv->zif_uitb_gui_control~focus( ).
-    ENDIF.
-
-    er_callback->deactivate_function( iv_function = zif_uitb_template_prog=>c_func_save ).
-    er_callback->deactivate_function( iv_function = zif_uitb_template_prog=>c_func_ok ).
-  ENDMETHOD.
-
-
-  METHOD show.
-    mr_view->zif_uitb_view~show(
-        iv_start_line   = 10
-        iv_start_column = 20
-        iv_end_line     = 18
-        iv_end_column   = 80
-    ).
-
-    rt_values = CORRESPONDING #( mt_parameters ).
-  ENDMETHOD.
 ENDCLASS.

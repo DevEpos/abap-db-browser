@@ -52,10 +52,10 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
     ).
 
     LOOP AT it_values INTO DATA(ls_filter_value).
-      add_filter( VALUE #( field = 'anno~name' sign = 'I' option = COND #( WHEN ls_filter_value-low CS '*' THEN 'CP' ELSE 'EQ' ) low = ls_filter_value-low )  ).
+      add_filter( VALUE #( sqlfieldname = 'anno~name' sign = 'I' option = COND #( WHEN ls_filter_value-low CS '*' THEN 'CP' ELSE 'EQ' ) low = ls_filter_value-low )  ).
 
       IF ls_filter_value-high IS NOT INITIAL.
-        add_filter( VALUE #( field = 'anno~value' sign = 'I' option = COND #( WHEN ls_filter_value-high CS '*' THEN 'CP' ELSE 'EQ' ) low = ls_filter_value-high )  ).
+        add_filter( VALUE #( sqlfieldname = 'anno~value' sign = 'I' option = COND #( WHEN ls_filter_value-high CS '*' THEN 'CP' ELSE 'EQ' ) low = ls_filter_value-high )  ).
       ENDIF.
       new_or_cond_list( ).
     ENDLOOP.
@@ -155,6 +155,7 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
     ).
 
     add_select_field( iv_fieldname = 'entityid' iv_fieldname_alias = 'entity_id' iv_entity = c_base_alias ).
+    add_select_field( iv_fieldname = 'createdby' iv_fieldname_alias = 'created_by' iv_entity = c_base_alias ).
     add_select_field( iv_fieldname = 'rawentityid' iv_fieldname_alias = 'entity_id_raw' iv_entity = c_base_alias ).
     add_select_field( iv_fieldname = 'description' iv_entity = lv_cds_text_view ).
     add_select_field( iv_fieldname = 'developmentpackage' iv_fieldname_alias = 'devclass' iv_entity = c_base_alias ).
@@ -163,10 +164,10 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
     add_order_by( iv_fieldname = 'entityid' iv_entity = c_base_alias  ).
 
     IF mr_search_query->has_search_string( ).
-      add_filter( VALUE #( field  = |{ c_base_alias }~entityid|
-                           option = mr_search_query->mv_search_option
-                           sign   = 'I'
-                           low    = mr_search_query->mv_search_string ) ).
+      add_filter( VALUE #( sqlfieldname = |{ c_base_alias }~entityid|
+                           option       = mr_search_query->mv_search_option
+                           sign         = 'I'
+                           low          = mr_search_query->mv_search_string ) ).
     ENDIF.
 
     IF mr_search_query->has_options( ).
@@ -260,7 +261,7 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
                 )
             ).
             add_option_filter(
-                iv_fieldname = 'fieldname'
+                iv_fieldname = |field~fieldname|
                 it_values    = <ls_option>-value_range
             ).
 

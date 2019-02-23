@@ -8,39 +8,39 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
   PUBLIC SECTION.
 
     METHODS build_simple_alv_title
-         REDEFINITION .
+        REDEFINITION .
     METHODS execute_selection
-         REDEFINITION .
+        REDEFINITION .
     METHODS fill_header
-         REDEFINITION .
+        REDEFINITION .
     METHODS get_entity_name
-         REDEFINITION .
+        REDEFINITION .
     METHODS handle_alv_ctx_menu_request
-         REDEFINITION .
+        REDEFINITION .
     METHODS init
-         REDEFINITION .
+        REDEFINITION .
     METHODS refresh_selection
-         REDEFINITION .
+        REDEFINITION .
     METHODS zif_dbbr_screen_util~free_resources
-         REDEFINITION .
+        REDEFINITION .
     METHODS zif_dbbr_screen_util~get_deactivated_functions
-         REDEFINITION .
+        REDEFINITION .
     METHODS zif_dbbr_screen_util~handle_ui_function
-         REDEFINITION .
+        REDEFINITION .
     METHODS zif_dbbr_screen_util~handle_pbo
-         REDEFINITION .
+        REDEFINITION .
   PROTECTED SECTION.
 
     METHODS create_from_clause
-         REDEFINITION .
+        REDEFINITION .
     METHODS read_entity_infos
-         REDEFINITION .
+        REDEFINITION .
   PRIVATE SECTION.
 
     "! Name of CDS view
     DATA mv_cds_view TYPE zdbbr_cds_view_name .
     "! CDS View
-    DATA mr_cds_view TYPE REF TO zcl_dbbr_cds_view .
+    DATA mo_cds_view TYPE REF TO zcl_dbbr_cds_view .
     "! Utilities for screen
     DATA mr_assoc_selector TYPE REF TO zcl_dbbr_cds_sub_entity_sel .
 
@@ -73,7 +73,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   METHOD build_simple_alv_title.
     DATA: lv_title TYPE lvc_title.
 
-    DATA(ls_header) = mr_cds_view->get_header( ).
+    DATA(ls_header) = mo_cds_view->get_header( ).
 
     lv_title = |CDS View - { ls_header-entityname_raw } - { ls_header-description }|.
 
@@ -90,17 +90,18 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   METHOD change_parameters.
     DATA: lf_trigger_select TYPE abap_bool.
 
-    DATA(lt_new_param_values) = NEW zcl_dbbr_cds_param_popup(
-        ir_cds_view  = mr_cds_view
-        ir_tabfields = mr_tabfields_all
+    DATA(lo_param_popup) = NEW zcl_dbbr_cds_param_popup(
+        io_tabfields = mo_tabfields_all
         it_param_values = VALUE #(
-          FOR param IN mt_selection_fields WHERE ( is_parameter = abap_true ) ( name = param-fieldname value = param-low )
+          FOR param IN mt_param_values WHERE ( is_parameter = abap_true ) ( name = param-fieldname value = param-low )
         )
-    )->show( ).
+    ).
+    lo_param_popup->show( ).
+    DATA(lt_new_param_values) = lo_param_popup->get_param_values( ).
 
     IF lt_new_param_values IS NOT INITIAL.
       LOOP AT lt_new_param_values ASSIGNING FIELD-SYMBOL(<ls_new_param>).
-        ASSIGN mt_selection_fields[ fieldname = <ls_new_param>-name is_parameter = abap_true ] TO FIELD-SYMBOL(<ls_old_param>).
+        ASSIGN mt_param_values[ fieldname = <ls_new_param>-name is_parameter = abap_true ] TO FIELD-SYMBOL(<ls_old_param>).
         IF sy-subrc = 0 AND
            <ls_old_param>-low <> <ls_new_param>-value.
           lf_trigger_select = abap_true.
@@ -143,7 +144,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
 *... retrieve association
     lr_association_chooser = NEW #(
-      ir_cds_view          = mr_cds_view
+      ir_cds_view          = mo_cds_view
       if_only_associations = abap_true
       if_as_dock           = lf_show_docked
     ).
@@ -163,16 +164,23 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
 
   METHOD create_from_clause.
-    DATA: lv_handled_params TYPE i.
+    DATA: lv_handled_params TYPE i,
+          lv_entity type tabname.
 
-    IF mr_cds_view->has_parameters( ).
+    if ms_technical_info-use_ddl_view_for_select = abap_true.
+      lv_entity = mo_cds_view->get_header( )-ddlview.
+    else.
+      lv_entity = mv_cds_view.
+    endif.
+
+    IF mo_cds_view->has_parameters( ).
 *...from clause has to be single line for the parameters select to work
-      DATA(lv_from_line) = |{ mv_cds_view }( |.
+      DATA(lv_from_line) = |{ lv_entity }( |.
 
-      DATA(lv_param_count) = lines( mr_cds_view->get_parameters( if_exclude_system_params = abap_true ) ).
+      DATA(lv_param_count) = lines( mo_cds_view->get_parameters( if_exclude_system_params = abap_true ) ).
 
 *...fill parameter values
-      LOOP AT mt_selection_fields ASSIGNING FIELD-SYMBOL(<ls_param>) WHERE is_parameter = abap_true.
+      LOOP AT mt_param_values ASSIGNING FIELD-SYMBOL(<ls_param>) WHERE is_parameter = abap_true.
         ADD 1 TO lv_handled_params.
 
         lv_from_line = |{ lv_from_line }{ <ls_param>-fieldname } = { cl_abap_dyn_prg=>quote( <ls_param>-low ) }|.
@@ -189,11 +197,11 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
 *... no parameter was added, so just add the name of the cds view
       IF sy-subrc <> 0.
-        mt_from = VALUE #( ( CONV #( mv_cds_view ) ) ).
+        mt_from = VALUE #( ( CONV #( lv_entity ) ) ).
       ENDIF.
 
     ELSE.
-      mt_from = VALUE #( ( CONV #( mv_cds_view ) ) ).
+      mt_from = VALUE #( ( CONV #( lv_entity ) ) ).
     ENDIF.
   ENDMETHOD.
 
@@ -213,10 +221,10 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
     build_full_fieldnames( ).
 
-    mr_tabfields->update_text_field_status( ).
+    mo_tabfields->update_text_field_status( ).
 
     zcl_dbbr_addtext_helper=>prepare_text_fields(
-      EXPORTING ir_fields    = mr_tabfields
+      EXPORTING ir_fields    = mo_tabfields
       CHANGING  ct_add_texts = mt_add_texts
     ).
 
@@ -255,40 +263,40 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       EXPORTING no_of_columns = 3
                 border        = '0'
                 width         = '60%'
-      IMPORTING table         = DATA(lr_table)
+      IMPORTING table         = DATA(lo_table)
     ).
 
-    lr_table->add_column( IMPORTING column = DATA(lr_col1) ).
-    lr_table->add_column( IMPORTING column = DATA(lr_col2) ).
-    lr_table->add_column( IMPORTING column = DATA(lr_col3) ).
+    lo_table->add_column( IMPORTING column = DATA(lo_col1) ).
+    lo_table->add_column( IMPORTING column = DATA(lo_col2) ).
+    lo_table->add_column( IMPORTING column = DATA(lo_col3) ).
 
 *...add Table content
-    lr_table->span_columns( col_start_span = lr_col1 no_of_cols = 2 ).
-    lr_table->new_row( ).
-    lr_col1->add_text(
+    lo_table->span_columns( col_start_span = lo_col1 no_of_cols = 2 ).
+    lo_table->new_row( ).
+    lo_col1->add_text(
         text          = 'CDS View'
         sap_emphasis  = cl_dd_document=>strong
     ).
-    lr_table->new_row( ).
+    lo_table->new_row( ).
 
-    lr_col1->add_text( text = |{ mr_cds_view->get_header( )-entityname_raw }| ).
-    lr_col2->add_text( text = |{ mr_cds_view->get_header( )-description }| ).
+    lo_col1->add_text( text = |{ mo_cds_view->get_header( )-entityname_raw }| ).
+    lo_col2->add_text( text = |{ mo_cds_view->get_header( )-description }| ).
 
 *...create header lines for secondary tables
-    IF mr_cds_view->has_associations( ).
-      lr_table->new_row( ).
-      lr_table->span_columns( col_start_span = lr_col1 no_of_cols = 2 ).
-      lr_col1->add_text( text = 'Associations' sap_emphasis  = cl_dd_document=>strong ).
-      lr_table->new_row( ).
+    IF mo_cds_view->has_associations( ).
+      lo_table->new_row( ).
+      lo_table->span_columns( col_start_span = lo_col1 no_of_cols = 2 ).
+      lo_col1->add_text( text = 'Associations' sap_emphasis  = cl_dd_document=>strong ).
+      lo_table->new_row( ).
 
 
 *...print associations
-      LOOP AT mr_cds_view->get_associations( ) ASSIGNING FIELD-SYMBOL(<ls_association>).
-        lr_col1->add_text( text = |{ <ls_association>-raw_name }| ).
-        lr_col2->add_text( text = |{ <ls_association>-ref_cds_view_raw }| ).
-        lr_col3->add_text( text = |{ <ls_association>-ddtext }| ).
+      LOOP AT mo_cds_view->get_associations( ) ASSIGNING FIELD-SYMBOL(<ls_association>).
+        lo_col1->add_text( text = |{ <ls_association>-raw_name }| ).
+        lo_col2->add_text( text = |{ <ls_association>-ref_cds_view_raw }| ).
+        lo_col3->add_text( text = |{ <ls_association>-ddtext }| ).
 
-        lr_table->new_row( ).
+        lo_table->new_row( ).
       ENDLOOP.
     ENDIF.
   ENDMETHOD.
@@ -307,7 +315,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    IF mr_cds_view->has_associations( ).
+    IF mo_cds_view->has_associations( ).
       lt_entries = VALUE #(
         ( fcode = zif_dbbr_c_selection_functions=>navigate_association
           text  = 'Follow Association...'
@@ -322,7 +330,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   METHOD init.
     mv_cds_view = mv_entity_id.
     TRY.
-        mr_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( mv_cds_view ).
+        mo_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( mv_cds_view ).
       CATCH zcx_dbbr_data_read_error INTO DATA(lx_read_error).
         MESSAGE lx_read_error->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
     ENDTRY.
@@ -336,8 +344,8 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
         ir_t_data             = mr_t_data
         is_tech_info          = ms_technical_info
         it_source_index       = mt_selected_rows
-        ir_source_tabfields   = mr_tabfields
-        ir_source_cds_view    = mr_cds_view
+        ir_source_tabfields   = mo_tabfields
+        ir_source_cds_view    = mo_cds_view
         is_association        = is_assoc
         it_nav_breadcrumbs    = mt_nav_breadcrumbs
         iv_nav_count          = mv_navigation_count
@@ -399,11 +407,11 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
     result = super->get_deactivated_functions( ).
 
-    IF mr_cds_view->has_parameters( ).
+    IF mo_cds_view->has_parameters( ).
       DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>change_cds_parameters.
     ENDIF.
 
-    IF NOT mr_cds_view->has_associations( ).
+    IF NOT mo_cds_view->has_associations( ).
       result = VALUE #( BASE result
         ( zif_dbbr_c_selection_functions=>navigate_association )
         ( zif_dbbr_c_selection_functions=>set_focus_to_assoc_list )
@@ -423,7 +431,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       IF ms_technical_info-assoc_sel_mode = zif_dbbr_c_assoc_select_mode=>docked AND
          ms_technical_info-show_assoc_brws_at_start = abap_true AND
 *... don't show association browser if no association exist
-         mr_cds_view->has_associations( ).
+         mo_cds_view->has_associations( ).
         choose_association( ).
       ENDIF.
     ENDIF.

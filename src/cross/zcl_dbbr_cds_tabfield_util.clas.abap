@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Utilities for CDS View Tablefield list</p>
 CLASS zcl_dbbr_cds_tabfield_util DEFINITION
   PUBLIC
   FINAL
@@ -5,20 +6,31 @@ CLASS zcl_dbbr_cds_tabfield_util DEFINITION
 
   PUBLIC SECTION.
 
+    "! <p class="shorttext synchronized" lang="en">Adds columns to tab field list</p>
+    "!
     CLASS-METHODS add_view_colums
       IMPORTING
         !ir_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list
+        io_custom_f4_map  TYPE REF TO zcl_dbbr_custom_f4_map OPTIONAL
         !if_output        TYPE abap_bool DEFAULT abap_true
         !if_selection     TYPE abap_bool DEFAULT abap_true
         !it_columns       TYPE dd03ndvtab
+        if_has_params     TYPE abap_bool OPTIONAL
         !if_is_primary    TYPE abap_bool OPTIONAL
         !iv_name          TYPE ddstrucobjname
+        iv_alias          TYPE zdbbr_entity_alias OPTIONAL
         !iv_raw_name      TYPE ddstrucobjname_raw
-        !iv_description   TYPE ddtext .
+        !iv_description   TYPE ddtext
+      RETURNING
+        VALUE(rs_entity)  TYPE zdbbr_entity_info .
+    "! <p class="shorttext synchronized" lang="en">Add parameters to tab field list</p>
+    "!
     CLASS-METHODS add_parameters
       IMPORTING
         !ir_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list
-        !it_parameters    TYPE zdbbr_cds_parameter_t .
+        !it_parameters    TYPE zdbbr_cds_parameter_t
+      RETURNING
+        VALUE(rs_entity)  TYPE zdbbr_entity_info .
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -85,16 +97,17 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
     ENDLOOP.
 
 
-    " add cds view to list of tables
-    ir_tabfield_list->add_table(
-      VALUE zdbbr_entity_info(
-        active_selection     = abap_true
-        tabname              = zif_dbbr_global_consts=>c_parameter_dummy_table
-        type                 = zif_dbbr_c_entity_type=>table
-        description          = 'Parameters'
-        no_output            = abap_true
-      )
+*.. add cds view to list of tables
+    rs_entity = VALUE zdbbr_entity_info(
+       active_selection     = abap_true
+       tabname              = zif_dbbr_global_consts=>c_parameter_dummy_table
+       tabname_alias        = zif_dbbr_global_consts=>c_parameter_dummy_table
+       type                 = zif_dbbr_c_entity_type=>table
+       description          = 'Parameters'
+       no_output            = abap_true
     ).
+
+    ir_tabfield_list->add_table( rs_entity ).
 
   ENDMETHOD.
 
@@ -119,7 +132,8 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
 
       DATA(ls_tabfield) = VALUE zdbbr_tabfield_info_ui(
         tabname          = iv_name
-        tabname_alias    = iv_raw_name
+        tabname_raw      = iv_raw_name
+        tabname_alias    = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE iv_name )
         fieldname        = <ls_column>-fieldname
         fieldname_raw    = <ls_column>-fieldname_raw
         is_key           = <ls_column>-keyflag
@@ -135,6 +149,12 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
         ref_tab          = <ls_column>-reftable
       ).
 
+      IF io_custom_f4_map IS BOUND.
+        ls_tabfield-has_custom_f4 = io_custom_f4_map->entry_exists(
+          iv_tabname   = iv_name
+          iv_fieldname = ls_tabfield-fieldname
+        ).
+      ENDIF.
 
 *... get additional information from rollname
       IF ls_tabfield-rollname IS NOT INITIAL.
@@ -168,7 +188,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
       ls_tabfield-is_numeric = zcl_dbbr_dictionary_helper=>is_type_numeric( ls_tabfield-inttype ).
       DATA(lr_new_field) = CAST zdbbr_tabfield_info_ui( ir_tabfield_list->zif_uitb_data_ref_list~add( REF #( ls_tabfield ) ) ).
 
-      IF ls_datel IS NOT INITIAL AND lr_addtext_bl->text_exists( value #( tabname = iv_name fieldname = ls_tabfield-fieldname ) ).
+      IF ls_datel IS NOT INITIAL AND lr_addtext_bl->text_exists( VALUE #( tabname = iv_name fieldname = ls_tabfield-fieldname ) ).
 
         lr_addtext_bl->add_text_fields_to_list(
           ir_tabfields  = ir_tabfield_list
@@ -183,16 +203,16 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
     ENDLOOP.
 
 *.. add cds view to list of tables
-    ir_tabfield_list->add_table(
-      VALUE zdbbr_entity_info(
-        active_selection     = if_selection
-        tabname              = iv_name
-        tabname_alias        = iv_raw_name
-        type                 = zif_dbbr_c_entity_type=>cds_view
-        description          = iv_description
-        fields_are_loaded    = abap_true
-        is_primary           = if_is_primary
-      )
+    rs_entity = VALUE zdbbr_entity_info(
+      active_selection     = if_selection
+      tabname              = iv_name
+      tabname_alias        = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE iv_name )
+      has_params           = if_has_params
+      type                 = zif_dbbr_c_entity_type=>cds_view
+      description          = iv_description
+      fields_are_loaded    = abap_true
+      is_primary           = if_is_primary
     ).
+    ir_tabfield_list->add_table( rs_entity ).
   ENDMETHOD.
 ENDCLASS.

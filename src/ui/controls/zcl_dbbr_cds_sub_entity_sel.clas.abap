@@ -278,9 +278,11 @@ CLASS zcl_dbbr_cds_sub_entity_sel IMPLEMENTATION.
             it_item_table        = VALUE #(
               ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
                 class     = cl_column_tree_model=>item_class_text
+                font      = cl_item_tree_model=>item_font_prop
                 text      = 'Select From'(006) )
               ( item_name = c_description_col
                 class     = cl_column_tree_model=>item_class_text
+                font      = cl_item_tree_model=>item_font_prop
                 text      = 'Select Part of CDS View'(007) )
             )
         ).
@@ -290,9 +292,11 @@ CLASS zcl_dbbr_cds_sub_entity_sel IMPLEMENTATION.
             it_item_table        = VALUE #(
               ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
                 class     = cl_column_tree_model=>item_class_text
+                font      = cl_item_tree_model=>item_font_prop
                 text      = 'Associations' )
               ( item_name = c_description_col
                 class     = cl_column_tree_model=>item_class_text
+                font      = cl_item_tree_model=>item_font_prop
                 text      = 'Associations of CDS'(008) )
             )
         ).
@@ -379,9 +383,11 @@ CLASS zcl_dbbr_cds_sub_entity_sel IMPLEMENTATION.
           it_item_table        = VALUE #(
             ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
               class     = cl_column_tree_model=>item_class_text
+              font      = cl_item_tree_model=>item_font_prop
               text      = <ls_base_table>-entityname_raw )
             ( item_name = c_description_col
               class     = cl_column_tree_model=>item_class_text
+              font      = cl_item_tree_model=>item_font_prop
               text      = <ls_base_table>-description )
           )
       ).
@@ -408,12 +414,15 @@ CLASS zcl_dbbr_cds_sub_entity_sel IMPLEMENTATION.
           it_item_table        = VALUE #(
             ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
               class     = cl_column_tree_model=>item_class_text
+              font      = cl_item_tree_model=>item_font_prop
               text      = |{ <ls_assoc>-cardinality_text } { <ls_assoc>-raw_name }| )
             ( item_name = c_type_col
               class     = cl_column_tree_model=>item_class_text
+              font      = cl_item_tree_model=>item_font_prop
               text      = <ls_assoc>-ref_cds_view_raw )
             ( item_name = c_description_col
               class     = cl_column_tree_model=>item_class_text
+              font      = cl_item_tree_model=>item_font_prop
               text      = <ls_assoc>-ddtext )
           )
       ).

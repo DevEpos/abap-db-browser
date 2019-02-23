@@ -31,6 +31,12 @@
      <ENTRY>Enter missing parameter values</ENTRY>
      <LENGTH>60</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Update parameter values</ENTRY>
+     <LENGTH>46</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -59,9 +65,9 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_CDS_PARAM_POPUP</CLSNAME>
-     <CMPNAME>ON_CANCEL</CMPNAME>
+     <CMPNAME>GET_PARAM_VALUES</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Handler for exit event</DESCRIPT>
+     <DESCRIPT>Get entered param values</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_CDS_PARAM_POPUP</CLSNAME>
@@ -74,24 +80,6 @@
      <CMPNAME>ON_F4</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Handler for F4 event</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CDS_PARAM_POPUP</CLSNAME>
-     <CMPNAME>ON_PAI</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Handler for PAI event</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CDS_PARAM_POPUP</CLSNAME>
-     <CMPNAME>ON_PBO</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Handler for PBO event</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CDS_PARAM_POPUP</CLSNAME>
-     <CMPNAME>SHOW</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Show popup for entering parameter values</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

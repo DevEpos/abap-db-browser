@@ -16,12 +16,12 @@ CLASS zcl_dbbr_cds_variant_starter DEFINITION
 
     METHODS fill_data_from_variant
         REDEFINITION.
+    METHODS fill_primary_entity
+        REDEFINITION.
   PRIVATE SECTION.
 
-    DATA mr_cds_view TYPE REF TO zcl_dbbr_cds_view .
+    DATA mo_cds_view TYPE REF TO zcl_dbbr_cds_view .
     DATA mv_cds_view TYPE zdbbr_cds_view_name .
-
-    METHODS load_cds_view .
 ENDCLASS.
 
 
@@ -32,27 +32,6 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
   METHOD constructor.
     super->constructor( iv_variant_id ).
     mv_cds_view = iv_cds_view.
-  ENDMETHOD.
-
-
-  METHOD load_cds_view.
-    mr_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( mv_cds_view ).
-
-*... CREATE PARAMETERS
-    zcl_dbbr_cds_tabfield_util=>add_parameters(
-        ir_tabfield_list = mr_tabfield_list
-        it_parameters    = mr_cds_view->get_parameters( )
-    ).
-*... create table fields for cds view
-    DATA(ls_header) = mr_cds_view->get_header( ).
-    zcl_dbbr_cds_tabfield_util=>add_view_colums(
-        ir_tabfield_list = mr_tabfield_list
-        it_columns       = mr_cds_view->get_columns( )
-        iv_name          = mv_cds_view
-        iv_raw_name      = ls_header-entityname_raw
-        iv_description   = ls_header-description
-        if_is_primary    = abap_true
-    ).
   ENDMETHOD.
 
 
@@ -91,12 +70,12 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
   METHOD zif_dbbr_variant_starter~initialize.
     ms_global_data-primary_table = mv_cds_view.
 
-    load_cds_view( ).
+    fill_primary_entity( ).
     load_variant( ).
 
     CHECK mv_variant_id <> zif_dbbr_global_consts=>c_dummy_variant.
 
-    DATA(ls_header) = mr_cds_view->get_header( ).
+    DATA(ls_header) = mo_cds_view->get_header( ).
 
     NEW zcl_dbbr_favmenu_factory( )->refresh_most_used(
         iv_entry     = mv_cds_view
@@ -109,16 +88,18 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
   METHOD fill_data_from_variant.
     IF mv_variant_id = zif_dbbr_global_consts=>c_dummy_variant.
 *.... Fill parameters if the cds view has any
-      IF mr_cds_view->has_parameters( ).
-        DATA(lt_param_values) = NEW zcl_dbbr_cds_param_popup(
-            ir_cds_view  = mr_cds_view
-            ir_tabfields = mr_tabfield_list
-        )->show( ).
+      IF mo_cds_view->has_parameters( ).
+        DATA(lo_param_popup) = NEW zcl_dbbr_cds_param_popup(
+            io_tabfields = mo_tabfield_list
+        ).
+        lo_param_popup->show( ).
+        DATA(lt_param_values) = lo_param_popup->get_param_values( ).
+
         IF lt_param_values IS INITIAL.
           RAISE EXCEPTION TYPE zcx_dbbr_variant_error
             EXPORTING
               textid = zcx_dbbr_variant_error=>missing_params
-              msgv1  = |{ mr_cds_view->get_header( )-entityname_raw }|.
+              msgv1  = |{ mo_cds_view->get_header( )-entityname_raw }|.
         ELSE.
           mt_selfields = VALUE #(
             FOR param IN lt_param_values
@@ -131,6 +112,17 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
     ELSE.
       super->fill_data_from_variant( ).
     ENDIF.
+  ENDMETHOD.
+
+  METHOD fill_primary_entity.
+    mo_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( mv_cds_view ).
+
+    create_cds_fields( VALUE #(
+      tabname       = mv_cds_view
+      tabname_alias = mv_cds_view
+      is_primary    = abap_true
+    ) ).
+
   ENDMETHOD.
 
 ENDCLASS.
