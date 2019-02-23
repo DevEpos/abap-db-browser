@@ -7,11 +7,13 @@
 define view ZDBBR_I_CdsViewField
   as select from dd03nd as Field
 {
-  Field.strucobjn     as EntityId,
-  Field.fieldname     as FieldName,
-  Field.fieldname_raw as RawFieldName,
-  Field.domname       as DomainName,
-  Field.rollname      as RollName
+  key  Field.strucobjn     as EntityId,
+  key  Field.fieldname     as FieldName,
+       Field.position      as FieldPosition,
+       Field.keyflag       as IsKeyField,
+       Field.fieldname_raw as RawFieldName,
+       Field.domname       as DomainName,
+       Field.rollname      as RollName
 
 }
 where
