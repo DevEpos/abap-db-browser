@@ -1,36 +1,48 @@
-CLASS ZCL_DBBR_output_tab_builder DEFINITION
+"! <p class="shorttext synchronized" lang="en">Creation of output structure</p>
+CLASS zcl_dbbr_output_tab_builder DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+    "! <p class="shorttext synchronized" lang="en">Create dynamic table for data output</p>
+    "!
     CLASS-METHODS create_dyn_comp_tab
       IMPORTING
-        ir_tabfields       TYPE REF TO ZCL_DBBR_tabfield_list
+        ir_tabfields       TYPE REF TO zcl_dbbr_tabfield_list
         if_active_grouping TYPE abap_bool OPTIONAL
-        it_add_texts       TYPE ZDBBR_additional_text_itab OPTIONAL
-        is_tech_info       TYPE ZDBBR_tech_info
+        it_add_texts       TYPE zdbbr_additional_text_itab OPTIONAL
+        is_tech_info       TYPE zdbbr_tech_info
       RETURNING
-        VALUE(rt_comp_tab) TYPE ZDBBR_abap_comp_type_itab.
+        VALUE(rt_comp_tab) TYPE zdbbr_abap_comp_type_itab.
+
+    "! <p class="shorttext synchronized" lang="en">Create/enhance table components for output table</p>
+    "!
+    CLASS-METHODS enhance_output_table_comps
+      IMPORTING
+        ir_table      TYPE REF TO data
+      EXPORTING
+        eo_line_type  TYPE REF TO cl_abap_structdescr
+        eo_table_type TYPE REF TO cl_abap_tabledescr.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
     CLASS-METHODS add_text_comp_to_dyntab
       IMPORTING
-        ir_current_field TYPE REF TO ZDBBR_tabfield_info_ui
-        it_add_texts     TYPE ZDBBR_additional_text_itab
+        ir_current_field TYPE REF TO zdbbr_tabfield_info_ui
+        it_add_texts     TYPE zdbbr_additional_text_itab
       CHANGING
-        ct_comp_type_tab TYPE ZDBBR_abap_comp_type_itab.
+        ct_comp_type_tab TYPE zdbbr_abap_comp_type_itab.
 
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_OUTPUT_TAB_BUILDER IMPLEMENTATION.
+CLASS zcl_dbbr_output_tab_builder IMPLEMENTATION.
 
 
   METHOD add_text_comp_to_dyntab.
-    DATA(ls_ddtext_text_field_def) = VALUE ZDBBR_abap_comp_type(
+    DATA(ls_ddtext_text_field_def) = VALUE zdbbr_abap_comp_type(
         name        = ir_current_field->alv_fieldname
         simple_name = ir_current_field->fieldname
         table_alias = ir_current_field->alias
@@ -159,14 +171,6 @@ CLASS ZCL_DBBR_OUTPUT_TAB_BUILDER IMPLEMENTATION.
       ( name        = zif_dbbr_c_special_out_columns=>hide_flag
         simple_name = zif_dbbr_c_special_out_columns=>hide_flag
         type_name   = 'ZDBBR_ALV_SPECIAL_CELLS-HIDE_FLAG' )
-        " for marking external data rows
-      ( name        = zif_dbbr_c_special_out_columns=>external_data
-        simple_name = zif_dbbr_c_special_out_columns=>external_data
-        type_name   = 'ZDBBR_ALV_SPECIAL_CELLS-EXTERNAL_DATA' )
-      ( name        = zif_dbbr_c_special_out_columns=>external_data_icon
-        simple_name = zif_dbbr_c_special_out_columns=>external_data_icon
-        type_name   = 'ZDBBR_ALV_SPECIAL_CELLS-EXTERNAL_DATA_ICON' )
-
     ).
 
 *...create data descriptors for type names
@@ -174,4 +178,30 @@ CLASS ZCL_DBBR_OUTPUT_TAB_BUILDER IMPLEMENTATION.
       <ls_component>-type = CAST #( cl_abap_typedescr=>describe_by_name( <ls_component>-type_name ) ).
     ENDLOOP.
   ENDMETHOD.
+
+  METHOD enhance_output_table_comps.
+    FIELD-SYMBOLS: <lt_data> TYPE table.
+
+    CHECK ir_table IS BOUND.
+
+    ASSIGN ir_table->* TO <lt_data>.
+
+    zcl_uitb_rtti_util=>extend_table_by_components(
+      EXPORTING
+        it_data             = <lt_data>
+        it_component_append = VALUE #(
+          ( component = zif_dbbr_c_special_out_columns=>line_index
+            type      = 'SYST-TABIX' )
+          ( component = zif_dbbr_c_special_out_columns=>cell_col_row_color
+            type      = zif_dbbr_c_special_out_columns=>alv_col_color_type )
+          ( component = zif_dbbr_c_special_out_columns=>hide_flag
+            type      = 'ZDBBR_ALV_SPECIAL_CELLS-HIDE_FLAG' )
+        )
+      IMPORTING
+        er_line_type        = eo_line_type
+        er_table_type       = eo_table_type
+    ).
+
+  ENDMETHOD.
+
 ENDCLASS.

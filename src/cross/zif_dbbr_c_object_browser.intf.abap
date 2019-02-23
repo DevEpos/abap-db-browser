@@ -50,6 +50,7 @@ INTERFACE zif_dbbr_c_object_browser
       cds_tables       TYPE i VALUE 22,
       cds_variants     TYPE i VALUE 23,
       query            TYPE i VALUE 30,
+      query_properties TYPE i VALUE 33,
       query_tables     TYPE i VALUE 31,
       query_variants   TYPE i VALUE 32,
       dbtable          TYPE i VALUE 40,

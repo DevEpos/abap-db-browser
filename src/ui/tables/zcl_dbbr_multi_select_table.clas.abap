@@ -219,12 +219,24 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
 
   METHOD display_lines.
 
-    zcl_dbbr_data_converter=>convert_selopt_to_disp_format(
-      EXPORTING iv_tabname   = mr_selfield_line->tabname
-                iv_fieldname = mr_selfield_line->fieldname
-      CHANGING  cv_value1    = mr_selfield_line->low
-                cv_value2    = mr_selfield_line->high
-    ).
+    IF mr_selfield_line->is_parameter = abap_true.
+      zcl_dbbr_data_converter=>convert_values_to_disp_format(
+        EXPORTING
+          iv_rollname = mr_selfield_line->rollname
+          iv_type     = mr_selfield_line->inttype
+          iv_length   = CONV #( mr_selfield_line->intlen )
+          iv_decimals = CONV #( mr_selfield_line->decimals )
+        CHANGING  cv_value1    = mr_selfield_line->low
+                  cv_value2    = mr_selfield_line->high
+      ).
+    ELSE.
+      zcl_dbbr_data_converter=>convert_selopt_to_disp_format(
+        EXPORTING iv_tabname   = mr_selfield_line->tabname
+                  iv_fieldname = mr_selfield_line->fieldname
+        CHANGING  cv_value1    = mr_selfield_line->low
+                  cv_value2    = mr_selfield_line->high
+      ).
+    ENDIF.
 
   ENDMETHOD.
 
@@ -257,7 +269,9 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
     ENDTRY.
 
     " get user selection
-    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option( ).
+    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option(
+      if_allow_null = xsdbool( ls_current_line-is_parameter = abap_false )
+    ).
     IF ls_chosen_option IS INITIAL.
       RETURN.
     ENDIF.

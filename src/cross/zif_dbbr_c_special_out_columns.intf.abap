@@ -7,6 +7,4 @@ INTERFACE zif_dbbr_c_special_out_columns
   CONSTANTS alv_col_color_type       TYPE string VALUE 'LVC_T_SCOL' ##no_text.
   CONSTANTS alv_col_color_struc_type TYPE string VALUE 'LVC_S_SCOL' ##no_text.
   CONSTANTS hide_flag                TYPE string VALUE 'HIDE_FLAG' ##no_text.
-  CONSTANTS external_data            TYPE string VALUE 'ZZ_EXTERNAL_DATA' ##no_text.
-  CONSTANTS external_data_icon       TYPE string VALUE 'ZZ_EXTERNAL_DATA_ICON' ##no_text.
 ENDINTERFACE.

@@ -83,6 +83,14 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     METHODS delete_formula_fields .
     METHODS delete_inactive_fields .
     METHODS delete_text_fields .
+    "! <p class="shorttext synchronized" lang="en">Deletion of tables/fields by custom criteria</p>
+    "!
+    METHODS delete_custom
+      IMPORTING
+        it_tabname_alias_range TYPE zdbbr_tabname_range_itab OPTIONAL
+        if_keep_primary        TYPE abap_bool DEFAULT abap_true
+        if_delete_params       TYPE abap_bool OPTIONAL
+        if_delete_formfields   TYPE abap_bool OPTIONAL.
     METHODS delete_where_in_tablist
       IMPORTING
         !it_tabselopt TYPE zdbbr_tabname_range_itab .
@@ -180,13 +188,26 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
         !if_exclude_fields_not_loaded TYPE abap_bool OPTIONAL
       RETURNING
         VALUE(rt_tables)              TYPE zdbbr_entity_info_t .
+    "! <p class="shorttext synchronized" lang="en">Retrieve reference to all tables in the list</p>
+    "!
+    METHODS get_tables_ref
+      RETURNING
+        VALUE(rr_tables) TYPE REF TO zdbbr_entity_info_t.
     METHODS get_where_for_active_check
       RETURNING
         VALUE(rv_where) TYPE string .
     METHODS has_more_lines
       RETURNING
-        VALUE(rf_more_lines) TYPE boolean .
+        VALUE(rf_more_lines) TYPE abap_bool.
+    "! <p class="shorttext synchronized" lang="en">Checks if the given table exists in the list</p>
+    "!
+    METHODS has_table
+      IMPORTING
+        iv_tabname_alias TYPE zdbbr_entity_alias
+      RETURNING
+        VALUE(rf_exists) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Checks if this list has multiple tables</p>
+    "!
     METHODS has_multiple_tables
       RETURNING
         VALUE(result) TYPE abap_bool .
@@ -226,9 +247,13 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     METHODS switch_mode
       IMPORTING
         !iv_mode TYPE zdbbr_field_chooser_mode .
-    METHODS update_alias_names
+    "! <p class="shorttext synchronized" lang="en">Replace table alias and update fields</p>
+    "!
+    METHODS replace_table_alias
       IMPORTING
-        !it_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab OPTIONAL .
+        iv_old_alias TYPE zdbbr_entity_alias
+        iv_new_alias TYPE zdbbr_entity_alias.
+    METHODS update_alias_names.
     "! <p class="shorttext synchronized" lang="en">Updates the table list (Aliases and indexes)</p>
     "! @parameter if_force_update | <p class="shorttext synchronized" lang="en">Forces the alias/index update even if not needed</p>
     METHODS update_tables
@@ -266,7 +291,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
       END OF mc_dynamic_where .
     DATA mt_fields TYPE zdbbr_tabfield_info_ui_itab .
     "! <p class="shorttext synchronized" lang="en">List of Entity infos</p>
-    DATA mt_tables TYPE zdbbr_entity_info_t .
+    DATA mt_tables TYPE zdbbr_entity_info_t.
     DATA mv_mode TYPE zdbbr_field_chooser_mode .
     DATA:
       BEGIN OF ms_where,
@@ -297,6 +322,9 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
       RETURNING
         VALUE(rv_where) TYPE string .
     METHODS update_mode .
+    METHODS is_multi_table_list
+      RETURNING
+        VALUE(rf_multi_tables) TYPE abap_bool.
 ENDCLASS.
 
 
@@ -347,7 +375,19 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
       ls_entity_info-selection_order = lines( mt_tables ) + 1.
     ENDIF.
 
-    mt_tables = VALUE #( BASE mt_tables ( ls_entity_info ) ).
+    IF ls_entity_info-tabname = zif_dbbr_global_consts=>c_parameter_dummy_table OR
+       ls_entity_info-tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
+      ls_entity_info-is_custom = abap_true.
+
+      IF ls_entity_info-tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
+        ls_entity_info-alias = zif_dbbr_global_consts=>c_formula_alias.
+      ENDIF.
+    ENDIF.
+
+    TRY.
+        mt_tables = VALUE #( BASE mt_tables ( ls_entity_info ) ).
+      CATCH cx_sy_itab_duplicate_key.
+    ENDTRY.
 
   ENDMETHOD.
 
@@ -471,10 +511,13 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   METHOD clear_alias_names.
     LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>).
       CLEAR <ls_table>-alias.
+*.... Reset table alias to table itself
+      <ls_table>-tabname_alias = <ls_table>-tabname.
     ENDLOOP.
 
     LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
       CLEAR <ls_field>-alias.
+      <ls_field>-tabname_alias = <ls_field>-tabname.
       fill_full_fieldnames( CHANGING cs_field = <ls_field> ).
     ENDLOOP.
   ENDMETHOD.
@@ -587,6 +630,36 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     DELETE mt_fields WHERE is_text_field = abap_true.
   ENDMETHOD.
 
+  METHOD delete_custom.
+    DATA(lt_tabname_range) = it_tabname_alias_range.
+
+
+    IF if_delete_formfields = abap_true.
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>gc_formula_dummy_table ) ).
+    ENDIF.
+
+    IF if_delete_params = abap_true.
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ).
+    ELSE.
+*.. Exclude parameters from being deleted until it is clear that no entity exists any more that needs them
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'E' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ).
+    ENDIF.
+
+    IF if_keep_primary = abap_true AND line_exists( mt_tables[ is_primary = abap_true ] ).
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'E' option = 'EQ' low = mt_tables[ is_primary = abap_true ]-tabname_alias ) ).
+    ENDIF.
+
+    IF lt_tabname_range IS NOT INITIAL.
+      DELETE mt_fields WHERE tabname_alias IN lt_tabname_range.
+      DELETE mt_tables WHERE tabname_alias IN lt_tabname_range.
+    ENDIF.
+
+    IF if_delete_params = abap_false AND
+       NOT line_exists( mt_tables[ has_params = abap_true ] ).
+      DELETE mt_fields WHERE tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table.
+      DELETE mt_tables WHERE tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table.
+    ENDIF.
+  ENDMETHOD.
 
   METHOD delete_where_in_tablist.
     DELETE mt_fields WHERE tabname_alias IN it_tabselopt.
@@ -634,30 +707,33 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     rf_is_active = xsdbool( <lv_active_field> = abap_true ).
   ENDMETHOD.
 
+  METHOD is_multi_table_list.
+    DATA: lv_tab_count TYPE i.
+
+    LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE is_custom = abap_false.
+      ADD 1 TO lv_tab_count.
+    ENDLOOP.
+
+    rf_multi_tables = xsdbool( lv_tab_count > 1 ).
+  ENDMETHOD.
+
 
   METHOD fill_full_fieldnames.
 
-    CASE mv_entity_type.
-      WHEN zif_dbbr_c_entity_type=>table OR
-           zif_dbbr_c_entity_type=>query.
+    cs_field-sql_fieldname_long = COND #( WHEN  is_multi_table_list( ) AND cs_field-tabname_alias IS NOT INITIAL THEN
+                                       cs_field-tabname_alias && '~' && cs_field-fieldname_raw
+                                     ELSE
+                                       cs_field-fieldname_raw ).
 
-        cs_field-sql_fieldname = COND #( WHEN cs_field-alias IS NOT INITIAL THEN
-                                           cs_field-alias && '~' && cs_field-fieldname
-                                         ELSE
-                                           cs_field-fieldname_raw ).
-        " possible crop for alv name
-        cs_field-alv_fieldname = COND #( WHEN cs_field-alias IS NOT INITIAL THEN
-                                           cs_field-alias && '_' && cs_field-fieldname
-                                         ELSE
-                                           cs_field-fieldname ).
-
-      WHEN zif_dbbr_c_entity_type=>cds_view.
-        cs_field-sql_fieldname = cs_field-fieldname_raw.
-        cs_field-alv_fieldname = cs_field-fieldname.
-
-      WHEN OTHERS.
-    ENDCASE.
-
+    cs_field-sql_fieldname = COND #( WHEN cs_field-alias IS NOT INITIAL THEN
+                                       cs_field-alias && '~' && cs_field-fieldname_raw
+                                     ELSE
+                                       cs_field-fieldname_raw ).
+    " possible crop for alv name
+    cs_field-alv_fieldname = COND #( WHEN cs_field-alias IS NOT INITIAL THEN
+                                       cs_field-alias && '_' && cs_field-fieldname
+                                     ELSE
+                                       cs_field-fieldname ).
   ENDMETHOD.
 
 
@@ -671,6 +747,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
     cs_field-alv_fieldname = COND #( WHEN cs_field-alias IS NOT INITIAL THEN cs_field-alias && '_' ) && lv_text_fieldname.
     cs_field-sql_fieldname = COND #( WHEN cs_field-alias IS NOT INITIAL THEN cs_field-alias && '~' ) && lv_text_fieldname.
+    cs_field-sql_fieldname_long = COND #( WHEN cs_field-alias IS NOT INITIAL THEN cs_field-alias && '~' ) && lv_text_fieldname.
 
     APPEND lv_text_fieldname TO ct_unique_txt_names.
   ENDMETHOD.
@@ -822,6 +899,9 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+  METHOD get_tables_ref.
+    rr_tables = REF #( mt_tables ).
+  ENDMETHOD.
 
   METHOD get_where_for_active_check.
     rv_where = ms_where-field_is_active.
@@ -848,6 +928,9 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD has_table.
+    rf_exists = xsdbool( line_exists( mt_tables[ tabname_alias = iv_tabname_alias ] ) ).
+  ENDMETHOD.
 
   METHOD has_multiple_tables.
     result = xsdbool( lines( mt_tables ) > 1 ).
@@ -965,6 +1048,18 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+  METHOD replace_table_alias.
+    ASSIGN mt_tables[ tabname_alias = iv_old_alias ] TO FIELD-SYMBOL(<ls_table>).
+    CHECK sy-subrc = 0.
+
+    <ls_table>-tabname_alias = iv_new_alias.
+
+*.. Update the fields as well
+    LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE tabname_alias = iv_old_alias.
+      <ls_field>-tabname_alias = iv_new_alias.
+    ENDLOOP.
+  ENDMETHOD.
+
 
   METHOD update_alias_names.
 
@@ -1013,7 +1108,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
 
   METHOD update_tables.
-    SORT mt_tables BY index.
+    SORT mt_tables BY selection_order.
 
     DATA(lv_index) = 1.
 
@@ -1023,13 +1118,13 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>).
+    LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE tabname <> zif_dbbr_global_consts=>c_parameter_dummy_table.
       <ls_table>-index = sy-tabix.
       IF <ls_table>-tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
         <ls_table>-alias = zif_dbbr_global_consts=>c_formula_alias.
       ELSE.
         IF lines( mt_tables ) > 1.
-          <ls_table>-alias = zcl_dbbr_alias_map=>get_alias( CONV #( lv_index ) ).
+          <ls_table>-alias = zcl_dbbr_alias_map=>get_alias( lv_index ).
           ADD 1 TO lv_index.
         ELSE.
           CLEAR <ls_table>-alias.

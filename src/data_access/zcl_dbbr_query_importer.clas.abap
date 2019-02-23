@@ -5,32 +5,14 @@ CLASS zcl_dbbr_query_importer DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    METHODS constructor
-      IMPORTING
-        it_query_name_so TYPE zif_dbbr_global_types=>ty_query_name_range OPTIONAL
-        it_created_by_so  TYPE zif_dbbr_global_types=>ty_created_by_range OPTIONAL
-        it_description_so TYPE zif_dbbr_global_types=>ty_ddtext_range OPTIONAL
-        it_first_table_so TYPE zif_dbbr_global_types=>ty_tabname16_range OPTIONAL
-        it_any_tables_so  TYPE zif_dbbr_global_types=>ty_tabname16_range OPTIONAL
-        it_all_tables_so  TYPE zif_dbbr_global_types=>ty_tabname16_range OPTIONAL
-        it_only_tables_so TYPE zif_dbbr_global_types=>ty_tabname16_range OPTIONAL
-        it_none_tables_so TYPE zif_dbbr_global_types=>ty_tabname16_range OPTIONAL.
+    METHODS constructor.
   PROTECTED SECTION.
     METHODS: create_internal_table_ref REDEFINITION,
       write_no_data_found_message REDEFINITION,
-      filter_data REDEFINITION,
       process_import_data REDEFINITION,
       persist_import_data REDEFINITION.
     METHODS: write_start_message REDEFINITION.
   PRIVATE SECTION.
-    DATA mt_query_name_so TYPE zif_dbbr_global_types=>ty_query_name_range.
-    DATA mt_created_by_so TYPE zif_dbbr_global_types=>ty_created_by_range .
-    DATA mt_first_table_so TYPE zif_dbbr_global_types=>ty_tabname16_range .
-    DATA mt_any_tables_so TYPE zif_dbbr_global_types=>ty_tabname16_range .
-    DATA mt_all_tables_so TYPE zif_dbbr_global_types=>ty_tabname16_range .
-    DATA mt_only_tables_so TYPE zif_dbbr_global_types=>ty_tabname16_range .
-    DATA mt_none_tables_so TYPE zif_dbbr_global_types=>ty_tabname16_range .
-    DATA mt_description_so TYPE zif_dbbr_global_types=>ty_ddtext_range .
     DATA mr_query_f TYPE REF TO zcl_dbbr_query_factory .
 
     METHODS validate_query_names .
@@ -39,21 +21,11 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_query_IMPORTER IMPLEMENTATION.
+CLASS zcl_dbbr_query_importer IMPLEMENTATION.
 
 
   METHOD constructor.
     super->constructor( iv_default_file_name = 'DB-Browser-querys' ).
-
-    mt_query_name_so = it_query_name_so.
-    mt_created_by_so  = it_created_by_so.
-    mt_first_table_so = it_first_table_so.
-    mt_any_tables_so  = it_any_tables_so.
-    mt_all_tables_so  = it_all_tables_so.
-    mt_only_tables_so = it_only_tables_so.
-    mt_none_tables_so = it_none_tables_so.
-    mt_description_so = it_description_so.
-
     mr_query_f = NEW #( ).
   ENDMETHOD.
 
@@ -76,6 +48,7 @@ CLASS ZCL_DBBR_query_IMPORTER IMPLEMENTATION.
       ASSIGN <ls_query>-join_def TO FIELD-SYMBOL(<ls_join_def>).
       ASSIGN <ls_query>-variants TO FIELD-SYMBOL(<lt_variants>).
       ASSIGN <ls_query>-jump_fields TO FIELD-SYMBOL(<lt_jump_fields>).
+      ASSIGN <ls_query>-parameters TO FIELD-SYMBOL(<lt_parameters>).
 
       " 1) clear join definition of ids
       CLEAR: <ls_join_def>-join_id,
@@ -92,82 +65,20 @@ CLASS ZCL_DBBR_query_IMPORTER IMPLEMENTATION.
         <ls_jump_field>-ref_query_id = lv_new_query_id.
         CLEAR <ls_jump_field>-jumpdest_id.
       ENDLOOP.
-    ENDLOOP.
-  ENDMETHOD.
 
-
-  METHOD filter_data.
-    FIELD-SYMBOLS: <lt_queries> TYPE zdbbr_query_data_itab.
-    ASSIGN mr_import_data->* TO <lt_queries>.
-
-    FIELD-SYMBOLS: <ls_table_selopt> LIKE LINE OF mt_all_tables_so.
-
-    DELETE <lt_queries> WHERE primary_table NOT IN mt_first_table_so.
-    DELETE <lt_queries> WHERE created_by NOT IN mt_created_by_so.
-
-    IF <lt_queries> IS INITIAL.
-      RETURN.
-    ENDIF.
-
-    LOOP AT <lt_queries> ASSIGNING FIELD-SYMBOL(<ls_query>).
-
-      " only include query that match the passed names
-      IF <ls_query>-query_name NOT IN mt_query_name_so.
-        DELETE <lt_queries>.
-        CONTINUE.
-      ENDIF.
-
-      DATA(lf_one) = abap_false.
-      DATA(lf_all) = abap_true.
-      DATA(lf_only) = abap_false.
-      DATA(lf_none) = abap_true.
-      DATA(lf_query_ok) = abap_true.
-
-      LOOP AT <ls_query>-tables ASSIGNING FIELD-SYMBOL(<ls_table>).
-        IF mt_any_tables_so IS NOT INITIAL AND <ls_table>-tabname IN mt_any_tables_so.
-          lf_one = abap_true.
-          EXIT.
-        ENDIF.
-
-        IF mt_all_tables_so IS NOT INITIAL AND <ls_table>-tabname NOT IN mt_all_tables_so.
-          lf_all = abap_false.
-          EXIT.
-        ENDIF.
-
-        IF mt_only_tables_so IS NOT INITIAL AND <ls_table>-tabname NOT IN mt_only_tables_so.
-          lf_only = abap_false.
-          EXIT.
-        ENDIF.
-
-        IF mt_none_tables_so IS NOT INITIAL AND <ls_table>-tabname IN mt_none_tables_so.
-          lf_none = abap_false.
-          EXIT.
-        ENDIF.
+      LOOP AT <lt_parameters> ASSIGNING FIELD-SYMBOL(<ls_param>).
+        <ls_param>-ref_query_id = lv_new_query_id.
       ENDLOOP.
 
-      IF mt_any_tables_so IS NOT INITIAL AND lf_one = abap_false.
-        lf_query_ok = abap_false.
+      IF <ls_query>-source IS NOT INITIAL.
+        REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN <ls_query>-source WITH cl_abap_char_utilities=>cr_lf.
       ENDIF.
 
-      IF mt_all_tables_so IS NOT INITIAL AND lf_all = abap_false.
-        lf_query_ok = abap_false.
+      IF <ls_query>-formula IS NOT INITIAL.
+        REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN <ls_query>-formula WITH cl_abap_char_utilities=>cr_lf.
       ENDIF.
-
-      IF mt_only_tables_so IS NOT INITIAL AND lf_only = abap_false.
-        lf_query_ok = abap_false.
-      ENDIF.
-
-      IF mt_none_tables_so IS NOT INITIAL AND lf_none = abap_false.
-        lf_query_ok = abap_false.
-      ENDIF.
-
-      IF lf_query_ok = abap_false.
-        DELETE <lt_queries>.
-      ENDIF.
-
     ENDLOOP.
   ENDMETHOD.
-
 
   METHOD persist_import_data.
     DATA: lv_import_count TYPE i.

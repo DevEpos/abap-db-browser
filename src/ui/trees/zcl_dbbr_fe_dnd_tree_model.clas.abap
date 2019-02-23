@@ -1,4 +1,4 @@
-CLASS zcl_DBBR_fe_dnd_tree_model DEFINITION
+CLASS zcl_dbbr_fe_dnd_tree_model DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -9,8 +9,8 @@ CLASS zcl_DBBR_fe_dnd_tree_model DEFINITION
     METHODS constructor
       IMPORTING
         ir_parent        TYPE REF TO cl_gui_container
-        ir_tabfield_list TYPE REF TO zcl_DBBR_tabfield_list
-        it_join_tables   TYPE zDBBR_join_table_ui_itab.
+        ir_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list
+        it_join_tables   TYPE zdbbr_join_table_ui_itab.
     METHODS free .
     METHODS show.
     METHODS refresh_saved_formulas.
@@ -20,7 +20,7 @@ CLASS zcl_DBBR_fe_dnd_tree_model DEFINITION
 
     TYPES:
       BEGIN OF mty_node_data.
-            INCLUDE TYPE treemsnod.
+        INCLUDE TYPE treemsnod.
     TYPES: items TYPE treemcitab.
     TYPES: END OF mty_node_data .
 
@@ -34,13 +34,13 @@ CLASS zcl_DBBR_fe_dnd_tree_model DEFINITION
     DATA mv_formula_def_top_node TYPE tm_nodekey .
     DATA mv_saved_formulas_top_node TYPE tm_nodekey .
     DATA mv_other_saved_forms_top_node TYPE tm_nodekey.
-    DATA mt_join_tables TYPE zDBBR_join_table_ui_itab .
-    DATA mr_tabfield_list TYPE REF TO zcl_DBBR_tabfield_list .
+    DATA mt_join_tables TYPE zdbbr_join_table_ui_itab .
+    DATA mr_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list .
 
     TYPES:
       BEGIN OF ty_userobject_map,
         node_key    TYPE tm_nodekey,
-        user_object TYPE REF TO zcl_DBBR_fe_dnd_object,
+        user_object TYPE REF TO zcl_dbbr_fe_dnd_object,
       END OF ty_userobject_map .
 
     DATA:
@@ -55,10 +55,10 @@ CLASS zcl_DBBR_fe_dnd_tree_model DEFINITION
     DATA mr_tree_model TYPE REF TO cl_list_tree_model .
     DATA mr_parent TYPE REF TO cl_gui_container .
     DATA mr_tree_control TYPE REF TO cl_gui_control .
-    DATA mr_tree_wrapper TYPE REF TO zcl_DBBR_list_tree_wrapper .
+    DATA mr_tree_wrapper TYPE REF TO zcl_dbbr_list_tree_wrapper .
     DATA mr_example_dnd_behaviour TYPE REF TO cl_dragdrop .
     DATA mr_element_dnd_behaviour TYPE REF TO cl_dragdrop .
-    DATA mt_formulas TYPE zif_DBBR_fe_types=>tt_formula_defs .
+    DATA mt_formulas TYPE zif_dbbr_fe_types=>tt_formula_defs .
 
     METHODS create_tree .
     METHODS fill_tree.
@@ -79,7 +79,7 @@ CLASS zcl_DBBR_fe_dnd_tree_model DEFINITION
     METHODS create_example_nodes .
     METHODS create_saved_formula_node
       IMPORTING
-        !is_formula    TYPE zDBBR_ffdef
+        !is_formula    TYPE zdbbr_ffdef
         !iv_top_node   TYPE tm_nodekey
         !iv_dnd_handle TYPE i.
     METHODS get_next_node_key
@@ -96,7 +96,7 @@ CLASS zcl_DBBR_fe_dnd_tree_model DEFINITION
         !iv_parent_node TYPE tm_nodekey
         !iv_description TYPE string
         !iv_dnd_handle  TYPE i OPTIONAL
-        !ir_user_object TYPE REF TO zcl_DBBR_fe_dnd_object OPTIONAL .
+        !ir_user_object TYPE REF TO zcl_dbbr_fe_dnd_object OPTIONAL .
     METHODS create_color_node
       IMPORTING
         !iv_style          TYPE i
@@ -111,14 +111,14 @@ CLASS zcl_DBBR_fe_dnd_tree_model DEFINITION
     METHODS register_user_object_for_node
       IMPORTING
         !iv_node_key    TYPE tm_nodekey
-        !ir_user_object TYPE REF TO zcl_DBBR_fe_dnd_object .
+        !ir_user_object TYPE REF TO zcl_dbbr_fe_dnd_object .
     METHODS create_form_command_node
       IMPORTING
         iv_parent_node  TYPE tm_nodekey
         !iv_keyword     TYPE string
         !iv_description TYPE string
         !iv_handle      TYPE i
-        !ir_user_object TYPE REF TO zcl_DBBR_fe_dnd_object .
+        !ir_user_object TYPE REF TO zcl_dbbr_fe_dnd_object .
     METHODS expand_top_nodes.
     METHODS delete_formulas
       IMPORTING
@@ -161,7 +161,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
+CLASS zcl_dbbr_fe_dnd_tree_model IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -174,7 +174,7 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
   METHOD create_available_stmtns_nodes.
     mv_availbl_stmnts_top_node = create_simple_folder_node( iv_parent_node = mv_top_node
                                                             iv_description = 'Available Commands'  ).
-    LOOP AT zcl_DBBR_fe_templates=>st_valid_keywords_range ASSIGNING FIELD-SYMBOL(<ls_valid_keyword>).
+    LOOP AT zcl_dbbr_fe_templates=>st_valid_keywords_range ASSIGNING FIELD-SYMBOL(<ls_valid_keyword>).
       create_text_node( iv_parent = mv_availbl_stmnts_top_node iv_text = CONV #( <ls_valid_keyword>-low ) ).
     ENDLOOP.
   ENDMETHOD.
@@ -191,7 +191,7 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
       isfolder                = abap_false
       image                   = |{ icon_space }|
       drag_drop_id            = lv_dnd_handle
-      user_object             = NEW zcl_DBBR_fe_dnd_object( iv_text = |'{ iv_color_code }'| )
+      user_object             = NEW zcl_dbbr_fe_dnd_object( iv_text = |'{ iv_color_code }'| )
       item_table              = VALUE treemlitab(
         ( item_name  = 1
           class      = cl_gui_list_tree=>item_class_text
@@ -228,8 +228,8 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
         iv_parent_node = mv_examples_top_node
         iv_description = 'Short Manual'
         iv_dnd_handle  = lv_handle
-        ir_user_object = NEW zcl_DBBR_fe_dnd_object(
-           iv_text         = zcl_DBBR_fe_templates=>sv_introduction_template
+        ir_user_object = NEW zcl_dbbr_fe_dnd_object(
+           iv_text         = zcl_dbbr_fe_templates=>sv_introduction_template
            if_is_long_text = abap_true )
     ).
 
@@ -237,8 +237,8 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
         iv_parent_node = mv_examples_top_node
         iv_description = 'Calculate Difference'
         iv_dnd_handle  = lv_handle
-        ir_user_object = NEW zcl_DBBR_fe_dnd_object(
-           iv_text         = zcl_DBBR_fe_templates=>sv_calc_difference_exmple
+        ir_user_object = NEW zcl_dbbr_fe_dnd_object(
+           iv_text         = zcl_dbbr_fe_templates=>sv_calc_difference_exmple
            if_is_long_text = abap_true )
 
     ).
@@ -247,8 +247,8 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
         iv_parent_node = mv_examples_top_node
         iv_description = 'Add Icon to the List'
         iv_dnd_handle  = lv_handle
-        ir_user_object = NEW zcl_DBBR_fe_dnd_object(
-           iv_text         = zcl_DBBR_fe_templates=>sv_icon_example
+        ir_user_object = NEW zcl_dbbr_fe_dnd_object(
+           iv_text         = zcl_dbbr_fe_templates=>sv_icon_example
            if_is_long_text = abap_true )
     ).
 
@@ -256,8 +256,8 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
         iv_parent_node = mv_examples_top_node
         iv_description = 'Add Icon with Quickinfo to the List'
         iv_dnd_handle  = lv_handle
-        ir_user_object = NEW zcl_DBBR_fe_dnd_object(
-           iv_text         = zcl_DBBR_fe_templates=>sv_icon_quicktip_example
+        ir_user_object = NEW zcl_dbbr_fe_dnd_object(
+           iv_text         = zcl_dbbr_fe_templates=>sv_icon_quicktip_example
            if_is_long_text = abap_true )
     ).
   ENDMETHOD.
@@ -274,31 +274,31 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
         iv_keyword      = zif_dbbr_c_fe_keywords=>define_field
         iv_description  = 'Define Formula Field'
         iv_handle       = lv_handle
-        ir_user_object  = NEW #( iv_text = zcl_DBBR_fe_templates=>sv_form_field_tmplt ) ).
+        ir_user_object  = NEW #( iv_text = zcl_dbbr_fe_templates=>sv_form_field_tmplt ) ).
     create_form_command_node(
         iv_parent_node  = mv_formula_def_top_node
         iv_keyword      = space
         iv_description  = 'Define Formula Field with Data Element Type'
         iv_handle       = lv_handle
-        ir_user_object  = NEW #( iv_text = zcl_DBBR_fe_templates=>sv_form_field_rllnam_tmplt ) ).
+        ir_user_object  = NEW #( iv_text = zcl_dbbr_fe_templates=>sv_form_field_rllnam_tmplt ) ).
     create_form_command_node(
         iv_parent_node  = mv_formula_def_top_node
         iv_keyword      = zif_dbbr_c_fe_keywords=>define_description
         iv_description  = 'Define Heading for Formula Field'
         iv_handle       = lv_handle
-        ir_user_object  = NEW #( iv_text = zcl_DBBR_fe_templates=>sv_text_for_field_tmplt ) ).
+        ir_user_object  = NEW #( iv_text = zcl_dbbr_fe_templates=>sv_text_for_field_tmplt ) ).
     create_form_command_node(
         iv_parent_node  = mv_formula_def_top_node
         iv_keyword      = zif_dbbr_c_fe_keywords=>define_icon
         iv_description  = 'Define Icon Formula Field'
         iv_handle       = lv_handle
-        ir_user_object  = NEW #( iv_text = zcl_DBBR_fe_templates=>sv_icon_field_tmplt ) ).
+        ir_user_object  = NEW #( iv_text = zcl_dbbr_fe_templates=>sv_icon_field_tmplt ) ).
     create_form_command_node(
         iv_parent_node  = mv_formula_def_top_node
         iv_keyword      = zif_dbbr_c_fe_keywords=>define_icon_quick
         iv_description  = 'Define Icon Formula Field with Quickinfo'
         iv_handle       = lv_handle
-        ir_user_object  = NEW #( iv_text = zcl_DBBR_fe_templates=>sv_icon_tt_field_tmplt ) ).
+        ir_user_object  = NEW #( iv_text = zcl_dbbr_fe_templates=>sv_icon_tt_field_tmplt ) ).
 
   ENDMETHOD.
 
@@ -374,9 +374,9 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
 
       ASSIGNING FIELD-SYMBOL(<ls_field_group>).
 
-      DATA(lv_tab_description) = zcl_DBBR_dictionary_helper=>get_table_info( <ls_field_group>-tabname )-ddtext.
+      DATA(lv_tab_description) = zcl_dbbr_dictionary_helper=>get_table_info( <ls_field_group>-tabname )-ddtext.
 
-      DATA(lt_fields) = VALUE zDBBR_tabfield_info_ui_itab( FOR <ls_fld> IN GROUP <ls_field_group> ( <ls_fld> ) ).
+      DATA(lt_fields) = VALUE zdbbr_tabfield_info_ui_itab( FOR <ls_fld> IN GROUP <ls_field_group> ( <ls_fld> ) ).
 
       DATA(lr_table_func_executor) = NEW zcl_uitb_table_func_executor( ir_table = REF #( lt_fields ) ).
       DATA(lv_max_compname_length) = lr_table_func_executor->max_length( 'FIELDNAME' ).
@@ -404,7 +404,7 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
           isfolder                = abap_false
           image                   = |{ icon_space }|
           drag_drop_id            = lv_handle
-          user_object             = NEW zcl_DBBR_fe_dnd_object( iv_text = |ROW-{ lv_alias }{ <ls_tabfield>-fieldname }| )
+          user_object             = NEW zcl_dbbr_fe_dnd_object( iv_text = |ROW-{ lv_alias }{ <ls_tabfield>-fieldname }| )
           item_table              = VALUE treemlitab(
              ( item_name  = 1
                class      = cl_gui_list_tree=>item_class_text
@@ -443,7 +443,7 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
       isfolder                = abap_false
       image                   = |{ icon_space }|
       drag_drop_id            = iv_dnd_handle
-      user_object             = NEW zcl_DBBR_fe_dnd_object(
+      user_object             = NEW zcl_dbbr_fe_dnd_object(
                                     iv_text         = is_formula-formula_string
                                     if_is_long_text = abap_true
                                     iv_db_id        = CONV #( is_formula-id ) )
@@ -483,7 +483,7 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
 
     mr_example_dnd_behaviour->get_handle( IMPORTING handle = DATA(lv_dnd_handle) ).
 
-    DATA(lt_formulas) = NEW zcl_DBBR_formula_factory( )->get_formulas( iv_user_name ).
+    DATA(lt_formulas) = NEW zcl_dbbr_formula_factory( )->get_formulas( iv_user_name ).
 
     LOOP AT lt_formulas ASSIGNING FIELD-SYMBOL(<ls_formula>).
       create_saved_formula_node(
@@ -551,19 +551,19 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
         iv_keyword      = zif_dbbr_c_fe_keywords=>set_icon_value
         iv_description  = 'Set Icon with Quickinfo'
         iv_handle       = lv_handle
-        ir_user_object  = NEW #( iv_text = zcl_DBBR_fe_templates=>sv_set_icon_tmplt ) ).
+        ir_user_object  = NEW #( iv_text = zcl_dbbr_fe_templates=>sv_set_icon_tmplt ) ).
     create_form_command_node(
         iv_parent_node  = mv_special_func_top_node
         iv_keyword      = zif_dbbr_c_fe_keywords=>set_row_color
         iv_description  = 'Color the current Row'
         iv_handle       = lv_handle
-        ir_user_object  = NEW #( iv_text = zcl_DBBR_fe_templates=>sv_set_row_color_template ) ).
+        ir_user_object  = NEW #( iv_text = zcl_dbbr_fe_templates=>sv_set_row_color_template ) ).
     create_form_command_node(
         iv_parent_node  = mv_special_func_top_node
         iv_keyword      = zif_dbbr_c_fe_keywords=>set_cell_color
         iv_description  = 'Color a Cell in the current Row'
         iv_handle       = lv_handle
-        ir_user_object  = NEW #( iv_text = zcl_DBBR_fe_templates=>sv_set_cell_color_template ) ).
+        ir_user_object  = NEW #( iv_text = zcl_dbbr_fe_templates=>sv_set_cell_color_template ) ).
   ENDMETHOD.
 
 
@@ -579,7 +579,7 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
       isfolder                = abap_false
       image                   = CONV #( iv_icon )
       drag_drop_id            = lv_dnd_handle
-      user_object             = NEW zcl_DBBR_fe_dnd_object( iv_text = iv_text )
+      user_object             = NEW zcl_dbbr_fe_dnd_object( iv_text = iv_text )
       item_table              = VALUE treemlitab(
        ( item_name  = 1
          class      = cl_gui_list_tree=>item_class_text
@@ -612,7 +612,7 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
     mr_example_dnd_behaviour = NEW #( ).
 
     mr_example_dnd_behaviour->add(
-        flavor          = zif_dbbr_c_fe_tree_flavor=>example
+        flavor          = zcl_uitb_gui_code_editor=>c_dnd_flavor-replace
         dragsrc         = abap_true
         droptarget      = abap_false
         effect          = cl_dragdrop=>copy
@@ -620,13 +620,13 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
 
     mr_element_dnd_behaviour = NEW #( ).
     mr_element_dnd_behaviour->add(
-        flavor          = zif_dbbr_c_fe_tree_flavor=>element
+        flavor          = zcl_uitb_gui_code_editor=>c_dnd_flavor-insert
         dragsrc         = abap_true
         droptarget      = abap_false
         effect          = cl_dragdrop=>copy
     ).
 
-    mr_tree_wrapper = NEW zcl_DBBR_list_tree_wrapper( mr_tree_model ).
+    mr_tree_wrapper = NEW zcl_dbbr_list_tree_wrapper( mr_tree_model ).
 
 
     mr_tree_model->add_key_stroke( key = cl_list_tree_model=>key_enter ).
@@ -797,7 +797,7 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
         IMPORTING user_object  = DATA(lr_user_object)
       ).
       IF lr_user_object IS BOUND.
-        DATA(lr_fe_dnd_object) = CAST zcl_DBBR_fe_dnd_object( lr_user_object ).
+        DATA(lr_fe_dnd_object) = CAST zcl_dbbr_fe_dnd_object( lr_user_object ).
         IF lr_fe_dnd_object->is_long_text( ).
           NEW zcl_uitb_popup_editor( iv_text = lr_fe_dnd_object->get_text( ) )->zif_uitb_view~show( ).
         ENDIF.
@@ -832,7 +832,7 @@ CLASS ZCL_DBBR_FE_DND_TREE_MODEL IMPLEMENTATION.
 
   METHOD refresh_saved_formulas.
     DATA: lt_node_table TYPE treev_ntab,
-          lt_item_table TYPE zDBBR_treeitem_itab.
+          lt_item_table TYPE zdbbr_treeitem_itab.
 
     mr_tree_model->node_get_children(
       EXPORTING node_key       = mv_saved_formulas_top_node

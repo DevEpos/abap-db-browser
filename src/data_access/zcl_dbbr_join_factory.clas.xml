@@ -39,6 +39,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_FACTORY</CLSNAME>
+     <CMPNAME>REPAIR_JOIN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fill missing alias names and entity types</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_FACTORY</CLSNAME>
      <CMPNAME>SAVE_JOIN</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Saves the given join definition</DESCRIPT>

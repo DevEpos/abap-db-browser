@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC_PROXY</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Proxy for SQL Query execution</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC_PROXY</CLSNAME>
+     <CMPNAME>CHECK_AND_CORRECT_RESULT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Check and correct the query result</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC_PROXY</CLSNAME>
+     <CMPNAME>CREATE_SUBROUTINE_CODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create subroutine for sql statment</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC_PROXY</CLSNAME>
+     <CMPNAME>EXECUTE_COUNT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Execute Sql COUNT</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC_PROXY</CLSNAME>
+     <CMPNAME>EXECUTE_SELECT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Execute Sql SELECT</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC_PROXY</CLSNAME>
+     <CMPNAME>REMOVE_NULL</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Remove/adjust NULL values</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

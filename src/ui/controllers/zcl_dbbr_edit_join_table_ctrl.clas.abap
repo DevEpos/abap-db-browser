@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Controlling for editing a single join table</p>
 CLASS zcl_dbbr_edit_join_table_ctrl DEFINITION
   PUBLIC
   FINAL
@@ -7,77 +8,107 @@ CLASS zcl_dbbr_edit_join_table_ctrl DEFINITION
 
     INTERFACES zif_uitb_screen_controller .
 
+    "! <p class="shorttext synchronized" lang="en">Created new join table</p>
     EVENTS created
       EXPORTING
-        VALUE(es_join_table) TYPE zdbbr_joint .
+        VALUE(es_join_table) TYPE zdbbr_join_table_ui .
 
+    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
         !is_join_table TYPE zdbbr_joint OPTIONAL
         !if_is_new     TYPE abap_bool DEFAULT abap_true .
+    "! <p class="shorttext synchronized" lang="en">Retrieves the updated join table</p>
     METHODS get_updated_join_table
       RETURNING
-        VALUE(result) TYPE zdbbr_joint .
+        VALUE(result) TYPE zdbbr_join_table_ui .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  aliases GET_REPORT_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_REPORT_ID .
-  aliases GET_SCREEN_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_SCREEN_ID .
+    ALIASES get_report_id
+      FOR zif_uitb_screen_controller~get_report_id .
+    ALIASES get_screen_id
+      FOR zif_uitb_screen_controller~get_screen_id .
 
-    "! Type - tabname16
-  constants C_P_JOIN_TABLE type DYNFNAM value 'P_JOINTB' ##NO_TEXT.
+    "! Type - tabname
+    CONSTANTS c_p_join_table TYPE dynfnam VALUE 'P_JOINTB' ##NO_TEXT.
     "! Type - zdbbr_jointype
-  constants C_P_JOIN_TYPE type DYNFNAM value 'P_JOINTY' ##NO_TEXT.
+    CONSTANTS c_p_join_type TYPE dynfnam VALUE 'P_JOINTY' ##NO_TEXT.
     "! Type - abap_bool
-  constants C_F_IS_VIRTUAL_JOIN type DYNFNAM value 'P_XJVIRT' ##NO_TEXT.
-  constants C_R_EDIT_JOIN_TABLE_CONTROLLER type DYNFNAM value 'GR_EDIT_JOIN_TABLE_CONTROLLER' ##NO_TEXT.
-  data MR_V_JOIN_TABLE type ref to TABNAME .
-  data MR_F_IS_VIRTUAL_JOIN type ref to ABAP_BOOL .
-  data MR_V_JOIN_TYPE type ref to ZDBBR_JOINTYPE .
-  data MF_SAVED type ABAP_BOOL .
-  data MS_JOIN_TABLE type ZDBBR_JOINT .
-  data MF_IS_NEW type ABAP_BOOL .
-  data MR_CURSOR type ref to ZCL_UITB_CURSOR .
-  data MR_S_SAVE_FUNC type ref to SMP_DYNTXT .
-  data MR_S_SAVE_NEW_FUNC type ref to SMP_DYNTXT .
+    CONSTANTS c_f_is_virtual_join TYPE dynfnam VALUE 'P_XJVIRT' ##NO_TEXT.
+    CONSTANTS c_r_edit_join_table_controller TYPE dynfnam VALUE 'GR_EDIT_JOIN_TABLE_CONTROLLER' ##NO_TEXT.
+    "! Type - zdbbr_entity_alias
+    CONSTANTS c_p_alias TYPE dynfnam VALUE 'P_JOINTA' ##no_text.
+    "! Type - zdbbr_entity_alias_alv
+    CONSTANTS c_p_alias_alv TYPE dynfnam VALUE 'P_JONTIA' ##no_text.
 
-  methods SEND_UPDATED_VALUE .
-  methods VALIDATE .
-  methods SET_FUNCTIONS .
+    DATA mr_join_table TYPE REF TO tabname .
+    DATA mr_is_virtual_join TYPE REF TO abap_bool .
+    DATA mr_alias TYPE REF TO zdbbr_entity_alias.
+    DATA mr_join_type TYPE REF TO zdbbr_jointype .
+    DATA mf_saved TYPE abap_bool .
+    data ms_entity_temp type zdbbr_entity.
+    "! <p class="shorttext synchronized" lang="en">Join table</p>
+    DATA ms_join_table TYPE zdbbr_join_table_ui .
+    DATA mv_old_alias TYPE zdbbr_entity_alias.
+    DATA mf_is_new TYPE abap_bool .
+    DATA mo_cursor TYPE REF TO zcl_uitb_cursor .
+    DATA mr_save_func TYPE REF TO smp_dyntxt .
+    DATA mr_save_new_func TYPE REF TO smp_dyntxt .
+
+    "! <p class="shorttext synchronized" lang="en">Sends update value via event and clears screen values</p>
+    "!
+    METHODS send_updated_value .
+    "! <p class="shorttext synchronized" lang="en">Validate screen parameters</p>
+    "!
+    METHODS validate .
+    "! <p class="shorttext synchronized" lang="en">Set function icons/texts</p>
+    "!
+    METHODS set_functions .
+    "! <p class="shorttext synchronized" lang="en">Saves the validated Join Entity</p>
+    "!
+    METHODS save_entity
+      IMPORTING
+        if_leave_screen TYPE abap_bool.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_EDIT_JOIN_TABLE_CTRL IMPLEMENTATION.
+CLASS zcl_dbbr_edit_join_table_ctrl IMPLEMENTATION.
 
 
   METHOD constructor.
     DEFINE read_cached_field.
-      &1 = cast #( lr_data_cache->get_data_ref( |{ &2 }| ) ).
+      &1 = CAST #( lr_data_cache->get_data_ref( |{ &2 }| ) ).
     END-OF-DEFINITION.
 
     " init global data references from cache
-    DATA(lr_data_cache) = ZCL_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
+    DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
     read_cached_field:
-       mr_v_join_table         c_p_join_table,
-       mr_f_is_virtual_join    c_f_is_virtual_join,
-       mr_v_join_type          c_p_join_type,
-       mr_s_save_func          zif_dbbr_main_report_var_ids=>c_s_save_function,
-       mr_s_save_new_func      zif_dbbr_main_report_var_ids=>c_s_save_and_stay_function.
+       mr_join_table         c_p_join_table,
+       mr_is_virtual_join    c_f_is_virtual_join,
+       mr_alias              c_p_alias,
+       mr_join_type          c_p_join_type,
+       mr_save_func          zif_dbbr_main_report_var_ids=>c_s_save_function,
+       mr_save_new_func      zif_dbbr_main_report_var_ids=>c_s_save_and_stay_function.
 
 *... update current screen fields
     mf_is_new = if_is_new.
     IF mf_is_new = abap_true.
-      CLEAR: mr_v_join_table->*,
-             mr_f_is_virtual_join->*.
-      mr_v_join_type->* = zif_dbbr_c_join_types=>inner_join.
+      CLEAR: mr_join_table->*,
+             mr_alias->*,
+             mr_is_virtual_join->*.
+      mr_join_type->* = zif_dbbr_c_join_types=>inner_join.
     ELSE.
-      mr_v_join_table->* = is_join_table-add_table.
-      mr_v_join_type->* = is_join_table-join_type.
-      mr_f_is_virtual_join->* = is_join_table-is_virtual.
+      mr_join_table->* = is_join_table-add_table.
+      mr_join_type->* = is_join_table-join_type.
+      mr_is_virtual_join->* = is_join_table-is_virtual.
+      mr_alias->* = mv_old_alias
+                  = is_join_table-add_table_alias.
+      ms_entity_temp = value #(
+        entity_type = is_join_table-entity_type
+      ).
     ENDIF.
   ENDMETHOD.
 
@@ -93,47 +124,85 @@ CLASS ZCL_DBBR_EDIT_JOIN_TABLE_CTRL IMPLEMENTATION.
         es_join_table = ms_join_table.
 
     CLEAR: ms_join_table,
-           mr_f_is_virtual_join->*,
-           mr_v_join_table->*,
+           ms_entity_temp,
+           mr_is_virtual_join->*,
+           mr_join_table->*,
+           mr_alias->*,
 *......... clear save flag for next saving
            mf_saved.
 
-    mr_v_join_type->* = zif_dbbr_c_join_types=>inner_join.
+    mr_join_type->* = zif_dbbr_c_join_types=>inner_join.
     mf_is_new = abap_true.
+    mo_cursor->set_field( c_p_join_table ).
+    mo_cursor->request_update( ).
   ENDMETHOD.
 
 
   METHOD set_functions.
     IF mf_is_new = abap_true.
-      mr_s_save_func->icon_id = icon_create.
-      mr_s_save_func->icon_text = 'Create'.
-      mr_s_save_func->text = 'Create and close'.
+      mr_save_func->icon_id = icon_create.
+      mr_save_func->icon_text = 'Create'.
+      mr_save_func->text = 'Create and close'.
 
-      mr_s_save_new_func->icon_id = icon_create.
-      mr_s_save_new_func->icon_text = 'Create +'.
-      mr_s_save_new_func->text = 'Create and continue with another entry'.
+      mr_save_new_func->icon_id = icon_create.
+      mr_save_new_func->icon_text = 'Create +'.
+      mr_save_new_func->text = 'Create and continue with another entry'.
     ELSE.
-      mr_s_save_func->icon_id = icon_system_save.
-      mr_s_save_func->icon_text = 'Save'.
+      mr_save_func->icon_id = icon_system_save.
+      mr_save_func->icon_text = 'Save'.
     ENDIF.
   ENDMETHOD.
 
 
   METHOD validate.
-    TRANSLATE mr_v_join_table->* TO UPPER CASE.
+    TRANSLATE mr_join_table->* TO UPPER CASE.
 
-    zcl_dbbr_dictionary_helper=>validate_table_name(
-        iv_table_name       = CONV #( mr_v_join_table->* )
-        iv_dynpro_fieldname = c_p_join_table
-    ).
+    TRY.
+        ms_entity_temp = zcl_dbbr_dictionary_helper=>get_entity( mr_join_table->* ).
+      CATCH  zcx_dbbr_data_read_error INTO DATA(lx_read_error).
+        RAISE EXCEPTION TYPE zcx_dbbr_validation_exception
+          EXPORTING
+            previous       = lx_read_error
+            parameter_name = c_p_join_table.
+    ENDTRY.
 
-    IF mr_v_join_type->* = zif_dbbr_c_join_types=>right_outer_join and
-       mr_f_is_virtual_join->* = abap_true.
+*.. Define Entity alias if the field is still empty and check if it is unique
+    IF mr_alias->* IS INITIAL.
+      mr_alias->* = zcl_dbbr_entity_alias_util=>create_entity_alias(
+          iv_entity = to_upper( mr_join_table->* )
+      ).
+    ENDIF.
+
+    IF mf_is_new = abap_false.
+      IF mv_old_alias IS NOT INITIAL AND mv_old_alias <> mr_alias->*.
+        zcl_dbbr_entity_alias_util=>unregister_alias( mv_old_alias ).
+        CLEAR: mv_old_alias.
+      ELSE.
+        DATA(lf_do_not_check_alias) = abap_true.
+      ENDIF.
+    ENDIF.
+
+*.. Check the alias for uniqueness
+    TRY.
+        IF lf_do_not_check_alias = abap_false.
+          zcl_dbbr_entity_alias_util=>check_entity_alias( mr_alias->* ).
+        ENDIF.
+      CATCH zcx_dbbr_validation_exception INTO DATA(lx_valid_error).
+*...... Re raise exception with screen parameter connection
+        zcx_dbbr_validation_exception=>raise_with_text(
+            iv_text      = lx_valid_error->get_text( )
+            iv_parameter = c_p_alias
+        ).
+    ENDTRY.
+
+    IF mr_join_type->* = zif_dbbr_c_join_types=>right_outer_join AND
+       mr_is_virtual_join->* = abap_true.
       zcx_dbbr_validation_exception=>raise_with_text(
           iv_text      = |Right Outer Join is not possible with Virtual Join|
           iv_parameter = c_p_join_type
       ).
     ENDIF.
+
   ENDMETHOD.
 
 
@@ -154,6 +223,12 @@ CLASS ZCL_DBBR_EDIT_JOIN_TABLE_CTRL IMPLEMENTATION.
 
   METHOD zif_uitb_screen_controller~cancel.
     CLEAR mf_saved.
+
+*.. free already registered Entity Alias
+    IF mr_alias->* IS NOT INITIAL.
+      zcl_dbbr_entity_alias_util=>unregister_alias( mr_alias->* ).
+    ENDIF.
+
     zcl_dbbr_screen_helper=>leave_screen( ).
   ENDMETHOD.
 
@@ -176,7 +251,7 @@ CLASS ZCL_DBBR_EDIT_JOIN_TABLE_CTRL IMPLEMENTATION.
 
     DATA(lv_function) = cv_function_code.
     CLEAR cv_function_code.
-    mr_cursor = zcl_uitb_cursor=>get_cursor( ).
+    mo_cursor = zcl_uitb_cursor=>get_cursor( ).
 
     TRY.
         CASE lv_function.
@@ -184,25 +259,14 @@ CLASS ZCL_DBBR_EDIT_JOIN_TABLE_CTRL IMPLEMENTATION.
           WHEN 'SAVE' OR 'SAVENEW'.
             validate( ).
 
-            ms_join_table = VALUE #(
-              add_table  = mr_v_join_table->*
-              join_type  = mr_v_join_type->*
-              is_virtual = mr_f_is_virtual_join->*
-            ).
-            mf_saved = abap_true.
-
-            IF lv_function = 'SAVENEW'.
-              send_updated_value( ).
-            ELSE.
-              zcl_dbbr_screen_helper=>leave_screen( ).
-            ENDIF.
+            save_entity( if_leave_screen = xsdbool( lv_function <> 'SAVENEW' ) ).
 
         ENDCASE.
 
       CATCH zcx_dbbr_validation_exception INTO DATA(lx_valid).
         IF lx_valid->parameter_name IS NOT INITIAL.
-          mr_cursor->set_field( lx_valid->parameter_name ).
-          mr_cursor->refresh( ).
+          mo_cursor->set_field( lx_valid->parameter_name ).
+          mo_cursor->refresh( ).
         ENDIF.
         lx_valid->print_message( iv_msg_type = 'E' ).
     ENDTRY.
@@ -212,8 +276,8 @@ CLASS ZCL_DBBR_EDIT_JOIN_TABLE_CTRL IMPLEMENTATION.
   METHOD zif_uitb_screen_controller~pbo.
     zif_uitb_screen_controller~set_status( ).
 
-    IF mr_cursor is bound and mr_cursor->is_update_requested( ).
-      mr_cursor->refresh( ).
+    IF mo_cursor IS BOUND AND mo_cursor->is_update_requested( ).
+      mo_cursor->refresh( ).
     ENDIF.
 
     LOOP AT SCREEN.
@@ -222,6 +286,12 @@ CLASS ZCL_DBBR_EDIT_JOIN_TABLE_CTRL IMPLEMENTATION.
           screen-input = 0.
           MODIFY SCREEN.
         ENDIF.
+      ELSEIF screen-name = c_p_alias_alv.
+        screen-input = 0.
+        MODIFY SCREEN.
+      ELSEIF screen-name = c_p_alias.
+        screen-required = '2'.
+        MODIFY SCREEN.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
@@ -232,9 +302,9 @@ CLASS ZCL_DBBR_EDIT_JOIN_TABLE_CTRL IMPLEMENTATION.
     zcl_dbbr_screen_helper=>set_selscreen_status(
         iv_status              = 'EDIT_DIALOG_STATUS'
         iv_repid               = zif_dbbr_c_report_id=>main
-        it_excluding_functions = cond #(
-          when mf_is_new = abap_false then
-             value #( ( 'SAVENEW' ) )
+        it_excluding_functions = COND #(
+          WHEN mf_is_new = abap_false THEN
+             VALUE #( ( 'SAVENEW' ) )
         )
     ).
   ENDMETHOD.
@@ -243,4 +313,26 @@ CLASS ZCL_DBBR_EDIT_JOIN_TABLE_CTRL IMPLEMENTATION.
   METHOD zif_uitb_screen_controller~was_not_cancelled.
     rf_not_cancelled = mf_saved.
   ENDMETHOD.
+
+  METHOD save_entity.
+    ms_join_table = VALUE #(
+      add_table           = mr_join_table->*
+      add_table_alias     = mr_alias->*
+      add_table_raw       = ms_entity_temp-entity_id_raw
+      join_type           = mr_join_type->*
+      is_virtual          = mr_is_virtual_join->*
+      entity_type         = ms_entity_temp-entity_type
+      table_name          = ms_entity_temp-description
+    ).
+
+    zcl_dbbr_entity_alias_util=>add_entity_alias( mr_alias->* ).
+    mf_saved = abap_true.
+
+    IF if_leave_screen = abap_false.
+      send_updated_value( ).
+    ELSE.
+      zcl_dbbr_screen_helper=>leave_screen( ).
+    ENDIF.
+  ENDMETHOD.
+
 ENDCLASS.

@@ -386,6 +386,48 @@
      <MSGNR>062</MSGNR>
      <TEXT>Search Option &amp;1 is incomplete</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>063</MSGNR>
+     <TEXT>&amp;1 is not a valid View/Table or CDS View</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>064</MSGNR>
+     <TEXT>Query contains invalid Statement &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>065</MSGNR>
+     <TEXT>Query contains invalid Token &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>066</MSGNR>
+     <TEXT>Only 1 Select statement allowed</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>067</MSGNR>
+     <TEXT>No Select Statement found</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>068</MSGNR>
+     <TEXT>Invalid Token &amp;1 in Data declaration</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>069</MSGNR>
+     <TEXT>You are not allowed to edit the Query &amp;1</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

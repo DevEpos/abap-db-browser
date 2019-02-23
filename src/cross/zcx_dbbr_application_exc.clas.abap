@@ -9,6 +9,15 @@ CLASS zcx_dbbr_application_exc DEFINITION
     INTERFACES zif_dbbr_exception_message .
 
     CONSTANTS:
+      BEGIN OF db_entity_not_existing,
+        msgid TYPE symsgid VALUE 'ZDBBR_EXCEPTION',
+        msgno TYPE symsgno VALUE '063',
+        attr1 TYPE scx_attrname VALUE 'MSGV1',
+        attr2 TYPE scx_attrname VALUE '',
+        attr3 TYPE scx_attrname VALUE '',
+        attr4 TYPE scx_attrname VALUE '',
+      END OF db_entity_not_existing .
+    CONSTANTS:
       BEGIN OF general_error,
         msgid TYPE symsgid VALUE 'ZDBBR_EXCEPTION',
         msgno TYPE symsgno VALUE '019',

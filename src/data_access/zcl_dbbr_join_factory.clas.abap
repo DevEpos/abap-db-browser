@@ -1,39 +1,44 @@
-class ZCL_DBBR_JOIN_FACTORY definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_join_factory DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  methods SAVE_JOIN
-    importing
-      !IS_JOIN_DEF type ZDBBR_JOIN_DEF
-    returning
-      value(RV_NEW_query_ID) type ZDBBR_query_ID .
-  methods READ_JOIN
-    importing
-      !IV_JOIN_ID type ZDBBR_JOIN_ID
-    returning
-      value(RS_JOIN) type ZDBBR_JOIN_DEF .
-  methods DELETE_JOIN
-    importing
-      !IV_JOIN_ID type ZDBBR_JOIN_ID .
-  methods DELETE_MULTIPLE_JOINS
-    importing
-      !IT_JOIN_RANGE type ZDBBR_SELOPT_ITAB .
+    METHODS save_join
+      IMPORTING
+        !is_join_def           TYPE zdbbr_join_def
+      RETURNING
+        VALUE(rv_new_query_id) TYPE zdbbr_query_id .
+    METHODS read_join
+      IMPORTING
+        !iv_join_id    TYPE zdbbr_join_id
+      RETURNING
+        VALUE(rs_join) TYPE zdbbr_join_def .
+    METHODS delete_join
+      IMPORTING
+        !iv_join_id TYPE zdbbr_join_id .
+    METHODS delete_multiple_joins
+      IMPORTING
+        !it_join_range TYPE zdbbr_selopt_itab .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
     METHODS find_join_by_query_id
       IMPORTING
-        !iv_query_id     TYPE zdbbr_query_id
+        iv_query_id       TYPE zdbbr_query_id
       RETURNING
         VALUE(rv_join_id) TYPE zdbbr_join_id .
+    "! <p class="shorttext synchronized" lang="en">Fill missing alias names and entity types</p>
+    "!
+    METHODS repair_join
+      CHANGING
+        cs_join TYPE zdbbr_join_def.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_JOIN_FACTORY IMPLEMENTATION.
+CLASS zcl_dbbr_join_factory IMPLEMENTATION.
 
 
   METHOD delete_join.
@@ -114,6 +119,7 @@ CLASS ZCL_DBBR_JOIN_FACTORY IMPLEMENTATION.
       rs_join-tables = VALUE #( BASE rs_join-tables ( ls_join_table ) ).
     ENDLOOP.
 
+    repair_join( CHANGING cs_join = rs_join ).
   ENDMETHOD.
 
 
@@ -162,4 +168,34 @@ CLASS ZCL_DBBR_JOIN_FACTORY IMPLEMENTATION.
 
     COMMIT WORK.
   ENDMETHOD.
+
+  METHOD repair_join.
+    CHECK cs_join-primary_table_alias IS INITIAL.
+
+*.. Repair join definition to match new pattern
+    zcl_dbbr_entity_alias_util=>initialize_aliases( ).
+    IF cs_join-primary_table_alias IS INITIAL.
+      cs_join-primary_table_alias = cs_join-primary_table.
+*.... if long alias name is not supplied the short will probably empty as well
+      cs_join-primary_table_alias_alv = zcl_dbbr_entity_alias_util=>get_next_free_alv_alias( ).
+
+      LOOP AT cs_join-tables ASSIGNING FIELD-SYMBOL(<ls_join_table>).
+*...... Consider every entity as a normal table if it is not filled
+        IF <ls_join_table>-entity_type IS INITIAL.
+          <ls_join_table>-entity_type = zif_dbbr_c_entity_type=>table.
+        ENDIF.
+        <ls_join_table>-add_table_alias = <ls_join_table>-add_table.
+        <ls_join_table>-add_table_alias_alv = zcl_dbbr_entity_alias_util=>get_next_free_alv_alias( ).
+
+        LOOP AT <ls_join_table>-field_conditions ASSIGNING FIELD-SYMBOL(<ls_field_condition>).
+          <ls_field_condition>-ref_table_alias = <ls_field_condition>-ref_table.
+        ENDLOOP.
+
+        LOOP AT <ls_join_table>-filter_conditions ASSIGNING FIELD-SYMBOL(<ls_filter_condition>).
+          <ls_filter_condition>-tabname_alias = <ls_filter_condition>-tabname.
+        ENDLOOP.
+      ENDLOOP.
+    ENDIF.
+  ENDMETHOD.
+
 ENDCLASS.

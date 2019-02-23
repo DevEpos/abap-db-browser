@@ -274,8 +274,7 @@ CLASS ZCL_DBBR_TABFIELD_MANAGER IMPLEMENTATION.
     SORT mt_tableoverview BY selection_order.
 
     LOOP AT mt_tableoverview ASSIGNING FIELD-SYMBOL(<ls_table>).
-      IF <ls_table>-tabname = mr_global_data->primary_table AND
-         to_upper( <ls_table>-tabname_alias ) = mr_global_data->primary_table.
+      IF <ls_table>-is_primary = abap_true.
         <ls_table>-x_color = zif_dbbr_global_consts=>gc_alv_colors-light_green.
         EXIT.
       ENDIF.

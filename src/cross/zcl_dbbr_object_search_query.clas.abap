@@ -12,6 +12,8 @@ CLASS zcl_dbbr_object_search_query DEFINITION
 
     DATA mv_search_string TYPE string READ-ONLY.
     DATA mv_search_option TYPE ddoption READ-ONLY.
+    DATA mv_type TYPE zdbbr_obj_browser_mode READ-ONLY.
+    DATA mv_query TYPE string READ-ONLY.
     DATA mv_max_rows TYPE sy-tabix READ-ONLY.
     DATA mt_search_options TYPE zif_dbbr_ty_object_browser=>tt_search_option_values READ-ONLY.
 
@@ -46,6 +48,11 @@ CLASS zcl_dbbr_object_search_query DEFINITION
     METHODS get_options
       RETURNING
         VALUE(rt_options) TYPE zif_dbbr_ty_object_browser=>tt_search_option_values.
+    "! <p class="shorttext synchronized" lang="en">Add search option to query</p>
+    "!
+    METHODS set_option
+      IMPORTING
+        is_option TYPE zif_dbbr_ty_object_browser=>ty_search_option_values.
     "! <p class="shorttext synchronized" lang="en">Get a specific search option</p>
     "!
     METHODS get_option
@@ -79,6 +86,8 @@ CLASS zcl_dbbr_object_search_query DEFINITION
     "!
     METHODS constructor
       IMPORTING
+        iv_query          TYPE string
+        iv_type           TYPE zdbbr_obj_browser_mode
         iv_search_string  TYPE string
         it_search_options TYPE zif_dbbr_ty_object_browser=>tt_search_option_values.
     "! <p class="shorttext synchronized" lang="en">Validate option value</p>
@@ -168,7 +177,8 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
       ( type = zif_dbbr_c_object_browser_mode=>package option = c_search_option-max_rows       )
 *.... Query options
       ( type = zif_dbbr_c_object_browser_mode=>query option = c_search_option-by_owner )
-      ( type = zif_dbbr_c_object_browser_mode=>query option = c_search_option-by_table )
+      ( type = zif_dbbr_c_object_browser_mode=>query option = c_search_option-by_select_from )
+      ( type = zif_dbbr_c_object_browser_mode=>query option = c_search_option-by_description )
       ( type = zif_dbbr_c_object_browser_mode=>query option = c_search_option-max_rows )
     ).
   ENDMETHOD.
@@ -226,12 +236,16 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
 
     rr_query = NEW #(
       iv_search_string  = ls_query-query
+      iv_type           = iv_search_type
+      iv_query          = iv_query
       it_search_options = ls_query-options
     ).
 
   ENDMETHOD.
 
   METHOD constructor.
+    mv_query = iv_query.
+    mv_type = iv_type.
     mv_search_string = to_upper( iv_search_string ).
     IF iv_search_string IS NOT INITIAL.
       mv_search_option = COND #( WHEN iv_search_string CS '*' THEN 'CP' ELSE 'EQ' ).
@@ -259,7 +273,7 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
     ENDIF.
 
     IF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_owner.
-      IF cv_value = 'SY-UNAME' or cv_value = 'ME'.
+      IF cv_value = 'SY-UNAME' OR cv_value = 'ME'.
         cv_value = sy-uname.
       ENDIF.
     ENDIF.
@@ -375,6 +389,20 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
 
   METHOD get_option.
     rs_option = VALUE #( mt_search_options[ option = iv_option ] OPTIONAL ).
+  ENDMETHOD.
+
+  METHOD set_option.
+    ASSIGN mt_search_options[ option = is_option-option ] TO FIELD-SYMBOL(<ls_option>).
+    IF sy-subrc = 0.
+      <ls_option>-value_range = is_option-value_range.
+    ELSE.
+      mt_search_options = VALUE #( BASE mt_search_options ( is_option ) ).
+    ENDIF.
+
+    IF is_option-option = zif_dbbr_c_object_browser=>c_search_option-max_rows.
+      mv_max_rows = VALUE #( mt_search_options[ option = zif_dbbr_c_object_browser=>c_search_option-max_rows ]-value_range[ 1 ]-low DEFAULT 50 ).
+    ENDIF.
+
   ENDMETHOD.
 
   METHOD get_options.

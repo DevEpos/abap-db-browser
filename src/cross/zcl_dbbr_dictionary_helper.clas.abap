@@ -20,7 +20,13 @@ CLASS zcl_dbbr_dictionary_helper DEFINITION
         VALUE(rs_entity) TYPE zdbbr_entity
       RAISING
         zcx_dbbr_data_read_error.
-
+    "! <p class="shorttext synchronized" lang="en">Retrieve entities in search range</p>
+    "!
+    CLASS-METHODS get_entity_by_range
+      IMPORTING
+        it_entity_range TYPE zif_dbbr_global_types=>ty_tabname_range
+      RETURNING
+        VALUE(rt_entities) TYPE zdbbr_entity_t.
     "! <p class="shorttext synchronized" lang="en">Retrieve all mappings of domain to convexit</p>
     "!
     "! @parameter rt_convext2domain | <p class="shorttext synchronized" lang="en"></p>
@@ -1136,7 +1142,10 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
   METHOD get_entity.
     DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
 
-    SELECT SINGLE *
+    SELECT SINGLE entity AS entity_id,
+                  entityraw AS entity_id_raw,
+                  type AS entity_type,
+                  description
       FROM zdbbr_i_databaseentity( p_language = @lv_language )
       WHERE entity = @iv_entity_id
     INTO CORRESPONDING FIELDS OF @rs_entity.
@@ -1144,11 +1153,22 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_dbbr_data_read_error
         EXPORTING
-          textid = zcx_dbbr_data_read_error=>general_error
-          msgv1  = |{ 'Entity' } |
-          msgv2  = |'{ iv_entity_id }'|
-          msgv3  = | { 'does not exist' }|.
+          textid = zcx_dbbr_data_read_error=>db_entity_not_existing
+          msgv1  = |{ iv_entity_id } |.
     ENDIF.
+  ENDMETHOD.
+
+
+  METHOD get_entity_by_range.
+    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+
+    SELECT entity AS entity_id,
+           entityraw AS entity_id_raw,
+           type AS entity_type,
+           description
+      FROM zdbbr_i_databaseentity( p_language = @lv_language )
+      WHERE entity IN @it_entity_range
+    INTO CORRESPONDING FIELDS OF TABLE @rt_entities.
   ENDMETHOD.
 
 ENDCLASS.

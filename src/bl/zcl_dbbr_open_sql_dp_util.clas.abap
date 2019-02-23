@@ -209,7 +209,7 @@ CLASS zcl_dbbr_open_sql_dp_util IMPLEMENTATION.
       DATA(lv_description) = VALUE ddtext( ).
 
       DATA(lr_comp_type) = lo_ref_table_line_des->get_component_type( p_name = ls_table_field_details-name ).
-      IF lr_comp_type->is_ddic_type( ).
+      IF lr_comp_type->is_ddic_type( ) AND lr_comp_type->kind <> lr_comp_type->kind_struct.
         DATA(ls_ddic_header) = CAST cl_abap_elemdescr( lr_comp_type )->get_ddic_field( ).
         lv_rollname = ls_ddic_header-rollname.
         lv_domname = ls_ddic_header-domname.
@@ -293,9 +293,15 @@ CLASS zcl_dbbr_open_sql_dp_util IMPLEMENTATION.
 
             ENDIF.
           ENDIF.
-          IF lv_col_value IS NOT INITIAL AND
-             ls_table_field_details-type_kind IN lt_types.
-            lv_col_value = remove_null( lv_col_value ).
+
+          IF lv_col_value IS NOT INITIAL.
+            IF ls_table_field_details-type_kind IN lt_types.
+              lv_col_value = remove_null( lv_col_value ).
+*            ELSEIF ls_table_field_details-type_kind = cl_abap_typedescr=>typekind_int8.
+*              data(lv_int8) = conv int8( lv_col_value ).
+*              lv_col_value = |{ lv_int8 number = raw }|.
+            ENDIF.
+
           ENDIF.
 
           APPEND lv_col_value TO <ls_table_col>-dataset.

@@ -4,6 +4,7 @@ INTERFACE zif_dbbr_screen_ids
 
   CONSTANTS c_choose_table_query TYPE dynnr VALUE 0105 ##NO_TEXT.
   CONSTANTS c_save_query TYPE dynnr VALUE 1100 ##no_text.
+  CONSTANTS c_save_sql_query TYPE dynnr VALUE 1800 ##no_text.
   CONSTANTS c_choose_table_fields TYPE dynnr VALUE 0800 ##NO_TEXT.
   CONSTANTS c_table_variant TYPE dynnr VALUE 1200 ##NO_TEXT.
   constants c_query_variant TYPE dynnr VALUE 1201 ##NO_TEXT.

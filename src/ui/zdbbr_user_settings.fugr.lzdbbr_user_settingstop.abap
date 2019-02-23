@@ -11,7 +11,7 @@ DATA: gr_user_settings_controller TYPE REF TO zcl_dbbr_user_settings_sc,
 
 
 SELECTION-SCREEN BEGIN OF SCREEN 100 TITLE TEXT-s01 AS WINDOW.
-SELECTION-SCREEN BEGIN OF TABBED BLOCK setting_type FOR 20 LINES.
+SELECTION-SCREEN BEGIN OF TABBED BLOCK setting_type FOR 21 LINES.
 
 " settings for intro screen / general settings
 SELECTION-SCREEN TAB (30) btn_intr USER-COMMAND intro
@@ -93,7 +93,7 @@ SELECTION-SCREEN END OF LINE.
 " Disable Date to timestamp conversion
 SELECTION-SCREEN BEGIN OF LINE.
 PARAMETERS p_xdd2tc TYPE zdbbr_dsbl_date_to_times_conv AS CHECKBOX.
-SELECTION-SCREEN COMMENT 3(60) text-t27 FOR FIELD p_xdd2tc.
+SELECTION-SCREEN COMMENT 3(60) TEXT-t27 FOR FIELD p_xdd2tc.
 SELECTION-SCREEN END OF LINE.
 
 SELECTION-SCREEN SKIP.
@@ -211,6 +211,12 @@ PARAMETERS p_xflliv TYPE zdbbr_alv_live_filter_flag AS CHECKBOX.
 SELECTION-SCREEN COMMENT 3(60) TEXT-t26 FOR FIELD p_xflliv.
 SELECTION-SCREEN END OF LINE.
 
+" Use ddl view instead of cds view for data selection
+SELECTION-SCREEN BEGIN OF LINE.
+PARAMETERS p_xddlfs TYPE zdbbr_use_ddl_view_for_select AS CHECKBOX.
+SELECTION-SCREEN COMMENT 3(60) TEXT-t28 FOR FIELD p_xddlfs.
+SELECTION-SCREEN END OF LINE.
+
 SELECTION-SCREEN SKIP.
 
 *... Navigation via associations settings
@@ -254,7 +260,7 @@ SELECTION-SCREEN END OF SCREEN 104.
 SELECTION-SCREEN BEGIN OF SCREEN 200 TITLE TEXT-s02 AS WINDOW.
 
 SELECTION-SCREEN BEGIN OF BLOCK search_settings WITH FRAME TITLE TEXT-b03.
-PARAMETERS p_ebensf TYPE char1 AS LISTBOX VISIBLE LENGTH 20 OBLIGATORY DEFAULT zif_dbbr_c_eb_link_mode=>open_in_db_browser_new_task.
+PARAMETERS p_ebensf TYPE zdbbr_obj_browser_mode AS LISTBOX VISIBLE LENGTH 20 OBLIGATORY DEFAULT zif_dbbr_c_object_browser_mode=>cds_view.
 PARAMETERS p_eblimo TYPE zdbbr_entity_browser_link_mode AS LISTBOX VISIBLE LENGTH 35 OBLIGATORY DEFAULT zif_dbbr_c_entity_type=>table.
 PARAMETERS p_ebbmax TYPE int2 DEFAULT 500.
 SELECTION-SCREEN END OF BLOCK search_settings.

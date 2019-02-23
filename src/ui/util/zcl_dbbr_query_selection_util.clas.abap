@@ -1,27 +1,29 @@
-class ZCL_DBBR_query_SELECTION_UTIL definition
-  public
-  inheriting from ZCL_DBBR_TABLE_SELECTION_UTIL
-  final
-  create public .
+CLASS zcl_dbbr_query_selection_util DEFINITION
+  PUBLIC
+  INHERITING FROM zcl_dbbr_join_selection_util
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  methods BUILD_SIMPLE_ALV_TITLE
-    redefinition .
-  methods INIT
-    redefinition .
-  methods GET_ENTITY_NAME
-    redefinition .
-protected section.
-private section.
+    METHODS build_simple_alv_title
+        REDEFINITION .
+    METHODS init
+        REDEFINITION .
+    METHODS get_entity_name
+        REDEFINITION .
+  PROTECTED SECTION.
+    METHODS read_entity_infos
+        REDEFINITION.
+  PRIVATE SECTION.
 
-  data MV_query_NAME type ZDBBR_query_NAME .
-  data MV_query_DESCR type DDTEXT .
+    DATA mv_query_name TYPE zdbbr_query_name .
+    DATA mv_query_descr TYPE ddtext .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_QUERY_SELECTION_UTIL IMPLEMENTATION.
+CLASS zcl_dbbr_query_selection_util IMPLEMENTATION.
 
 
   METHOD build_simple_alv_title.
@@ -49,5 +51,46 @@ CLASS ZCL_DBBR_QUERY_SELECTION_UTIL IMPLEMENTATION.
 *... fill jump destination fields
     mt_jumpdest = NEW zcl_dbbr_jump_destination_f( )->get_jump_destinations( iv_query_id = ls_query-query_id ).
     DELETE mt_jumpdest WHERE is_active = abap_false.
+  ENDMETHOD.
+
+  METHOD read_entity_infos.
+***    DATA(lv_special_group_count) = 1.
+***
+***    DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( ms_control_info-primary_table ).
+***
+***    ms_control_info-primary_table_name = ls_table_info-ddtext.
+***    ms_control_info-client_dependent = ls_table_info-clidep.
+***    ms_control_info-primary_table_tabclass = ls_table_info-tabclass.
+***
+***    DATA(lv_sp_group) = CONV lvc_spgrp( c_col_group_prefix && lv_special_group_count ).
+***    mt_column_groups = VALUE #(
+***      ( sp_group = lv_sp_group
+***        text     = `Table - ` && ms_control_info-primary_table )
+***    ).
+***
+***    mt_group_tab_map = VALUE #( ( sp_group = lv_sp_group tabname = ms_control_info-primary_table ) ).
+***
+***    ADD 1 TO lv_special_group_count.
+***
+***    " update join table names
+***    IF ms_join_def-tables IS NOT INITIAL.
+***      LOOP AT ms_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_join_table>) WHERE table_name IS INITIAL.
+***        <ls_join_table>-table_name = zcl_dbbr_dictionary_helper=>get_table_info( <ls_join_table>-add_table )-ddtext.
+***        lv_sp_group = c_col_group_prefix && lv_special_group_count.
+***        mt_column_groups = VALUE #(
+***          BASE mt_column_groups
+***          ( sp_group = lv_sp_group
+***            text     = `Table - ` && <ls_join_table>-add_table )
+***        ).
+***        mt_group_tab_map = VALUE #(
+***          BASE mt_group_tab_map
+***          ( sp_group = lv_sp_group
+***            tabname  = <ls_join_table>-add_table )
+***        ).
+***        ADD 1 TO lv_special_group_count.
+***      ENDLOOP.
+***    ELSE.
+***      CLEAR mt_column_groups.
+***    ENDIF.
   ENDMETHOD.
 ENDCLASS.

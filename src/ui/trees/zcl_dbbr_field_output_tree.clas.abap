@@ -300,10 +300,12 @@ CLASS ZCL_DBBR_FIELD_OUTPUT_TREE IMPLEMENTATION.
     DATA(lt_items) = VALUE treemcitab(
         ( item_name  = mc_column_names-hierarchy_column
           class      = cl_list_tree_model=>item_class_text
+          font       = cl_list_tree_model=>item_font_prop
           text       = lv_node_key
         )
         ( item_name  = mc_column_names-key_column
           class      = cl_list_tree_model=>item_class_text
+          font       = cl_list_tree_model=>item_font_prop
           text       = <ls_tabfield_info>-is_key
         )
     ).

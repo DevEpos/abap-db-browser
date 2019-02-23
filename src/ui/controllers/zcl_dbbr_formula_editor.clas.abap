@@ -1,14 +1,15 @@
 CLASS zcl_dbbr_formula_editor DEFINITION
   PUBLIC
   FINAL
+  INHERITING FROM zcl_uitb_gui_screen
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    INTERFACES zif_uitb_view.
+
     CLASS-METHODS class_constructor.
     METHODS constructor
       IMPORTING
-        ir_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list
+        io_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list
         is_join_def      TYPE zdbbr_join_def
         iv_display_mode  TYPE zdbbr_display_mode
         iv_formula       TYPE string.
@@ -21,45 +22,44 @@ CLASS zcl_dbbr_formula_editor DEFINITION
     METHODS get_formula
       RETURNING
         VALUE(rr_formula) TYPE REF TO zcl_dbbr_formula.
+    METHODS zif_uitb_gui_command_handler~execute_command
+        REDEFINITION.
   PROTECTED SECTION.
 
     METHODS save_formula.
-    METHODS do_before_first_screen_call .
-    METHODS on_before_output
-          FOR EVENT before_output OF zif_uitb_view_callback
-      IMPORTING
-          !er_callback .
-    METHODS on_user_command
-          FOR EVENT user_command OF zif_uitb_view_callback
-      IMPORTING
-          !ev_function_id
-          !er_callback .
-    METHODS on_exit
-          FOR EVENT exit OF zif_uitb_view_callback
-      IMPORTING
-          !er_callback .
+    METHODS create_content
+        REDEFINITION.
+    METHODS do_before_dynpro_output
+        REDEFINITION.
+    METHODS handle_exit_request
+        REDEFINITION.
   PRIVATE SECTION.
-    CONSTANTS c_activate_function TYPE sy-ucomm VALUE zif_uitb_template_prog=>c_func_ctrl_f3.
-    CONSTANTS c_check_function TYPE sy-ucomm VALUE zif_uitb_template_prog=>c_func_ctrl_f2.
-    CONSTANTS c_view_edit TYPE sy-ucomm VALUE zif_uitb_template_prog=>c_func_ctrl_f1.
+    CONSTANTS:
+      BEGIN OF c_functions,
+        activate         TYPE ui_func VALUE 'ACTIVATE',
+        focus_on_editor  TYPE ui_func VALUE 'FOCUS_EDITOR',
+        check            TYPE ui_func VALUE 'CHECK',
+        rollname_f4      TYPE ui_func VALUE 'ROLLNAME_F4',
+        delete           TYPE ui_func VALUE 'DELETE',
+        insert_col_texts TYPE ui_func VALUE 'INSERT_COL_TEXT',
+        insert_icon      TYPE ui_func VALUE 'INSERT_ICON',
+      END OF c_functions.
     CLASS-DATA sv_dummy_form_text TYPE string.
 
     DATA mr_template_program TYPE REF TO zif_uitb_template_prog.
 
-    DATA mr_editor TYPE REF TO zcl_dbbr_fe_text_editor.
     DATA mf_formula_deleted TYPE abap_bool.
-    DATA mr_template_tm TYPE REF TO zcl_dbbr_fe_dnd_tree_model.
+    DATA mo_template_tm TYPE REF TO zcl_dbbr_fe_dnd_tree_model.
     DATA mv_display_mode TYPE zdbbr_display_mode.
-    DATA mr_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list.
-    DATA mr_splitter_container TYPE REF TO cl_gui_splitter_container.
+    DATA mo_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list.
     DATA ms_join_def TYPE zdbbr_join_def.
     DATA mv_formula TYPE string.
     DATA mv_current_formula TYPE string.
-    DATA: mr_formula_input_container TYPE REF TO cl_gui_container,
-          mf_formula_activated       TYPE abap_bool,
-          mr_formula                 TYPE REF TO zcl_dbbr_formula.
+    DATA mf_formula_activated TYPE abap_bool.
+    DATA mo_formula TYPE REF TO zcl_dbbr_formula.
+    DATA mo_splitter TYPE REF TO zcl_uitb_gui_splitter_cont.
+    DATA mo_editor TYPE REF TO zcl_uitb_gui_code_editor.
 
-    METHODS do_on_first_screen_call.
     METHODS create_formula_editor.
 
     METHODS validate_formula
@@ -67,9 +67,9 @@ CLASS zcl_dbbr_formula_editor DEFINITION
         if_hide_log_on_success TYPE abap_bool OPTIONAL
       RETURNING
         VALUE(rf_valid)        TYPE abap_bool.
-    METHODS create_splitter.
+
     METHODS create_dnd_tree_control.
-    METHODS free_resources.
+
     METHODS show_subroutine_pool.
     METHODS show_ddic_value_help.
     METHODS delete_formula
@@ -94,64 +94,168 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
 
 
   METHOD constructor.
+    super->constructor( |{ TEXT-t01 }| ).
+
     ms_join_def = is_join_def.
-    mv_formula = COND #( WHEN iv_formula IS INITIAL THEN sv_dummy_form_text ELSE iv_formula ).
-    mr_tabfield_list = ir_tabfield_list.
+    mv_formula =
+    mv_current_formula = iv_formula."COND #( WHEN iv_formula IS INITIAL THEN sv_dummy_form_text ELSE iv_formula ).
+    mo_tabfield_list = io_tabfield_list.
     mv_display_mode = iv_display_mode.
+  ENDMETHOD.
 
-    " create template program
-    mr_template_program = zcl_uitb_templt_prog_callback=>create_template_program( CONV #( TEXT-t01 ) ).
+  METHOD zif_uitb_gui_command_handler~execute_command.
 
-    " register event handlers
-    SET HANDLER: on_before_output FOR mr_template_program,
-                 on_user_command FOR mr_template_program,
-                 on_exit FOR mr_template_program.
+    CASE io_command->mv_function.
+
+      WHEN c_functions-focus_on_editor.
+        mo_editor->focus( ).
+
+      WHEN c_functions-activate.
+        DATA(lf_valid) = validate_formula( if_hide_log_on_success = abap_true ).
+        " if validation successful set current function
+        " as mv_formula and return to DB Browser selection screen
+        IF lf_valid = abap_true.
+          mf_formula_activated = abap_true.
+          MESSAGE |{ 'Formula has been activated'(015) }| TYPE 'S'.
+
+          mv_formula = mv_current_formula.
+          leave_screen( ).
+        ENDIF.
+
+      WHEN zif_uitb_c_gui_screen=>c_functions-save.
+        save_formula( ).
+
+      WHEN c_functions-delete.
+        IF delete_formula( ).
+          leave_screen( ).
+        ENDIF.
+
+      WHEN c_functions-rollname_f4.
+        show_ddic_value_help( ).
+
+      WHEN c_functions-check.
+        validate_formula( ).
+
+      WHEN c_functions-insert_col_texts.
+        set_field_coltexts( ).
+
+      WHEN c_functions-insert_icon.
+        insert_icon( ).
+
+    ENDCASE.
+  ENDMETHOD.
+
+  METHOD create_content.
+
+    create_control_toolbar(
+      EXPORTING
+        io_parent    = io_container
+        it_button    = VALUE #(
+        ( function = c_functions-check
+          quickinfo   = |{ 'Check Formula'(016) }|
+          icon        = icon_check )
+        ( function = c_functions-activate
+          quickinfo   = |{ 'Activate Formula'(017) }|
+          icon        = icon_activate )
+        ( function = c_functions-rollname_f4
+          icon        = icon_search
+          quickinfo   = |{ 'Find and Insert Data Element'(018) }| )
+        ( function = c_functions-delete
+          icon        = icon_delete
+          quickinfo   = |{ 'Delete Formula and Leave Editor'(019) }| )
+        ( function = c_functions-insert_col_texts
+          text        = |{ 'Insert Column Texts'(020) }|
+          icon        = icon_create_text
+          quickinfo   = |{ 'Insert Col. Texts for Formula Field'(021) }| )
+        ( function = c_functions-insert_icon
+          text        = |{ 'Insert Icon'(022) }| )
+        )
+      IMPORTING
+        eo_toolbar   = DATA(lo_toolbar)
+        eo_client    = DATA(lo_container)
+    ).
+
+    mo_splitter = NEW zcl_uitb_gui_splitter_cont(
+      iv_elements = 2
+      iv_size     = '70:30'
+      iv_mode     = zcl_uitb_gui_splitter_cont=>c_mode-cols
+      io_parent   = lo_container
+    ).
+    create_formula_editor( ).
+    create_dnd_tree_control( ).
+  ENDMETHOD.
+
+  METHOD do_before_dynpro_output.
+    io_callback->map_fkey_functions( VALUE #(
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f1
+        mapped_function = c_functions-focus_on_editor
+        text            = |{ 'Focus on Editor' }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f2
+        mapped_function = c_functions-check
+        text            = |{ 'Check Formula'(016) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f3
+        mapped_function = c_functions-activate
+        text            = |{ 'Activate Formula'(017) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f4
+        mapped_function = c_functions-rollname_f4
+        text            = |{ 'Find and Insert Data Element'(018) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f2
+        mapped_function = c_functions-delete
+        text            = |{ 'Delete Formula and Leave Editor'(019) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f5
+        mapped_function = c_functions-insert_col_texts
+        text            = |{ 'Insert Col. Texts for Formula Field'(021) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f7
+        mapped_function = c_functions-insert_icon
+        text            = |{ 'Insert Icon'(022) }| )
+    ) ).
+
+
+    IF NOT io_callback->is_first_screen_call( ).
+      mv_current_formula = mo_editor->get_text( ).
+      IF mv_current_formula <> mv_formula.
+        DATA(lv_edited_text) = | ({ TEXT-005 })|.
+      ENDIF.
+      io_callback->set_title( |DB Browser - Edit Formula{ lv_edited_text }| ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD handle_exit_request.
+    mv_current_formula = mo_editor->get_text( ).
+
+    IF mv_current_formula <> mv_formula.
+      IF zcl_dbbr_appl_util=>popup_to_confirm(
+          iv_title                 = 'Unsaved Changes'
+          iv_query                 = 'There unsaved Changes. If you continue these Changes will be lost. Do you want to continue?'
+          iv_icon_type             = 'ICON_INFORMATION' ) <> '1' .
+
+        io_callback->cancel_exit( ).
+      ENDIF.
+    ENDIF.
+
+    zcl_uitb_protocol=>get_instance( )->close_protocol( ).
   ENDMETHOD.
 
 
   METHOD create_dnd_tree_control.
-    " get right container of splitter control
-    DATA(lr_right_container) = mr_splitter_container->get_container( row = 1 column = 2 ).
-
-    mr_template_tm = NEW zcl_dbbr_fe_dnd_tree_model(
-        ir_parent        = lr_right_container
-        ir_tabfield_list = mr_tabfield_list
+    mo_template_tm = NEW zcl_dbbr_fe_dnd_tree_model(
+        ir_parent        = mo_splitter->get_container( 2 )
+        ir_tabfield_list = mo_tabfield_list
         it_join_tables   = ms_join_def-tables
     ).
-    mr_template_tm->show( ).
-
+    mo_template_tm->show( ).
   ENDMETHOD.
 
 
   METHOD create_formula_editor.
-    CHECK mr_editor IS INITIAL.
+    CHECK mo_editor IS INITIAL.
 
-    DATA(lr_container) = mr_splitter_container->get_container( row = 1 column = 1 ).
-
-    mr_editor = NEW zcl_dbbr_fe_text_editor(
-        ir_parent    = lr_container
-        ir_tabfields = mr_tabfield_list
+    mo_editor = NEW zcl_uitb_gui_code_editor(
+        io_parent = mo_splitter->get_container( 1 )
     ).
 
-    mr_editor->set_text( iv_text = mv_formula ).
+    mo_editor->set_text( iv_text = mv_formula ).
   ENDMETHOD.
-
-
-  METHOD create_splitter.
-    CHECK mr_splitter_container IS INITIAL.
-
-    mr_splitter_container = NEW cl_gui_splitter_container(
-        parent  = mr_template_program->get_container( )
-        columns = 2
-        rows    = 1
-    ).
-
-    mr_splitter_container->set_column_width( id = 1 width = 65 ).
-
-    mr_formula_input_container = mr_splitter_container->get_container( row = 1 column = 1 ).
-
-  ENDMETHOD.
-
 
   METHOD delete_formula.
     IF zcl_dbbr_appl_util=>popup_to_confirm(
@@ -159,7 +263,7 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
          iv_query                 = 'Are you sure you want to delete the current Formula?'
          if_display_cancel_button = abap_false
          iv_icon_type             = 'ICON_INFORMATION' ) = '1'.
-      CLEAR mr_formula.
+      CLEAR mo_formula.
       result =
       mf_formula_deleted = abap_true.
     ENDIF.
@@ -169,12 +273,12 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
   METHOD determine_calculation_fields.
     DATA: lr_field_ref TYPE REF TO zdbbr_tabfield_info_ui.
 
-    CHECK mr_formula IS BOUND.
+    CHECK mo_formula IS BOUND.
 
     " clear all previous calculation fields
-    mr_tabfield_list->clear_calculation_flag( ).
+    mo_tabfield_list->clear_calculation_flag( ).
 
-    mr_formula->get_statements( IMPORTING et_statements = DATA(lt_stmnt) ).
+    mo_formula->get_statements( IMPORTING et_statements = DATA(lt_stmnt) ).
 
     LOOP AT lt_stmnt ASSIGNING FIELD-SYMBOL(<ls_stmnt>) WHERE type <> 'U'.
       LOOP AT <ls_stmnt>-tokens ASSIGNING FIELD-SYMBOL(<ls_token>) WHERE is_row_field = abap_true.
@@ -187,9 +291,9 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
               DATA(lv_alias) = substring_before( val = lv_row_field_raw sub = '-' ).
               DATA(lv_field) = substring_after( val = lv_row_field_raw sub = '-' ).
 
-              lr_field_ref = mr_tabfield_list->get_field_ref_by_alv_name( |{ lv_alias }_{ lv_field }| ).
+              lr_field_ref = mo_tabfield_list->get_field_ref_by_alv_name( |{ lv_alias }_{ lv_field }| ).
             ELSE.
-              lr_field_ref = mr_tabfield_list->get_field_ref( iv_fieldname = CONV #( lv_row_field_raw ) ).
+              lr_field_ref = mo_tabfield_list->get_field_ref( iv_fieldname = CONV #( lv_row_field_raw ) ).
             ENDIF.
 
             " field was found -> add it to the list of needed calculation fields for the formula
@@ -205,76 +309,8 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD do_before_first_screen_call.
-    DATA: lf_test_mode TYPE abap_bool.
-
-    DATA(lf_experimental_mode) = NEW zcl_dbbr_usersettings_factory( )->is_experimental_mode_active( ).
-
-    mr_template_program->add_function(
-        iv_function_id = c_activate_function
-        iv_text        = 'Activate Formula'
-        iv_icon        = icon_activate
-    ).
-    mr_template_program->add_function(
-        iv_function_id = c_check_function
-        iv_text        = 'Check Formula'
-        iv_icon        = icon_check
-    ).
-
-    IF lf_test_mode = abap_true.
-      mr_template_program->add_function(
-          iv_function_id = zif_uitb_template_prog=>c_func_f7
-          iv_text        = 'Subroutine'
-          iv_icon        = icon_generate
-          iv_quickinfo   = 'Show Subroutine'
-      ).
-    ENDIF.
-
-    mr_template_program->add_function(
-        iv_function_id = zif_uitb_template_prog=>c_func_shift_f4
-        iv_text        = 'Find Data Element'
-        iv_icon        = icon_search
-        iv_quickinfo   = 'Find and Insert Data Element'
-    ).
-
-    mr_template_program->add_function(
-        iv_function_id = zif_uitb_template_prog=>c_func_shift_f2
-        iv_text        = 'Delete Formula'
-        iv_icon        = icon_delete
-        iv_quickinfo   = 'Delete Formula and Leave Editor'
-    ).
-
-    mr_template_program->add_function(
-        iv_function_id = zif_uitb_template_prog=>c_func_ctrl_f5
-        iv_text        = 'Insert Column Texts'
-        iv_icon        = icon_create_text
-        iv_icon_text   = 'Column Texts'
-        iv_quickinfo   = 'Insert Columns Texts for Formula Field'
-    ).
-
-    mr_template_program->add_function(
-        iv_function_id = zif_uitb_template_prog=>c_func_ctrl_f6
-        iv_text        = 'Insert Icon'
-    ).
-
-  ENDMETHOD.
-
-
-  METHOD do_on_first_screen_call.
-    create_splitter( ).
-    create_formula_editor( ).
-    create_dnd_tree_control( ).
-  ENDMETHOD.
-
-
-  METHOD free_resources.
-    FREE mr_splitter_container.
-    FREE mr_editor.
-  ENDMETHOD.
-
-
   METHOD get_formula.
-    rr_formula = mr_formula.
+    rr_formula = mo_formula.
   ENDMETHOD.
 
 
@@ -292,91 +328,13 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
     DATA(lv_icon) = zcl_dbbr_icon_handler=>show_icon_value_help( ).
 
     IF lv_icon IS NOT INITIAL.
-      mr_editor->set_selected_text( CONV #( lv_icon ) ).
+      mo_editor->set_selected_text( |{ lv_icon }| ).
     ENDIF.
-  ENDMETHOD.
-
-
-  METHOD on_before_output.
-    IF er_callback->is_first_screen_call( ).
-      do_on_first_screen_call( ).
-
-      mr_editor->zif_uitb_gui_control~focus( ).
-    ELSE.
-      mv_current_formula = mr_editor->get_raw_text_as_string( ).
-      IF mv_current_formula <> mv_formula.
-        DATA(lv_edited_text) = | ({ TEXT-005 })|.
-      ENDIF.
-      er_callback->set_title( |DB Browser - Edit Formula{ lv_edited_text }| ).
-    ENDIF.
-
-  ENDMETHOD.
-
-
-  METHOD on_exit.
-    mv_current_formula = mr_editor->get_raw_text_as_string( ).
-
-    IF mv_current_formula <> mv_formula.
-      IF zcl_dbbr_appl_util=>popup_to_confirm(
-          iv_title                 = 'Unsaved Changes'
-          iv_query                 = 'There unsaved Changes. If you continue these Changes will be lost. Do you want to continue?'
-          iv_icon_type             = 'ICON_INFORMATION' ) <> '1' .
-
-        er_callback->cancel_exit( ).
-      ENDIF.
-    ENDIF.
-
-    zcl_uitb_protocol=>get_instance( )->close_protocol( ).
-  ENDMETHOD.
-
-
-  METHOD on_user_command.
-    CASE ev_function_id.
-
-      WHEN c_activate_function.
-        DATA(lf_valid) = validate_formula( if_hide_log_on_success = abap_true ).
-        " if validation successful set current function
-        " as mv_formula and return to DB Browser selection screen
-        IF lf_valid = abap_true.
-          mf_formula_activated = abap_true.
-          MESSAGE |Formula has been activated| TYPE 'S'.
-
-          mv_formula = mv_current_formula.
-          er_callback->exit_screen( ).
-        ENDIF.
-
-      WHEN zif_uitb_template_prog=>c_save.
-        save_formula( ).
-
-      WHEN zif_uitb_template_prog=>c_func_shift_f2.
-        IF delete_formula( ).
-          er_callback->exit_screen( ).
-        ENDIF.
-
-      WHEN zif_uitb_template_prog=>c_func_shift_f4.
-        show_ddic_value_help( ).
-
-      WHEN c_view_edit.
-        mr_editor->toggle_view_edit_mode( ).
-
-      WHEN c_check_function.
-        validate_formula( ).
-
-      WHEN zif_uitb_template_prog=>c_func_ctrl_f5.
-        set_field_coltexts( ).
-
-      WHEN zif_uitb_template_prog=>c_func_ctrl_f6.
-        insert_icon( ).
-
-      WHEN zif_uitb_template_prog=>c_func_f7.
-        show_subroutine_pool( ).
-    ENDCASE.
   ENDMETHOD.
 
 
   METHOD save_formula.
-    DATA(lv_formula) = mr_editor->get_raw_text_as_string( ).
-
+    DATA(lv_formula) = mo_editor->get_text( ).
 
     DATA(lv_formula_descr) = zcl_dbbr_appl_util=>popup_get_value(
       EXPORTING
@@ -398,19 +356,19 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
 
     MESSAGE |{ 'Formula has been saved with'(010) }{ lv_formula_descr }'| TYPE 'S'.
 
-    mr_template_tm->refresh_saved_formulas( ).
+    mo_template_tm->refresh_saved_formulas( ).
   ENDMETHOD.
 
 
   METHOD set_field_coltexts.
 
-    data(lt_fields) = VALUE zcl_dbbr_appl_util=>tt_input_val(
+    DATA(lt_fields) = VALUE zcl_dbbr_appl_util=>tt_input_val(
         ( tabname = 'DD03L' fieldname = 'FIELDNAME' field_obl = abap_true fieldtext = 'Formula Field Name'(011) )
         ( tabname = 'DD04T' fieldname = 'SCRTEXT_M' field_obl = abap_true fieldtext = 'Short Description'(012) )
         ( tabname = 'DD04T' fieldname = 'SCRTEXT_L' fieldtext = 'Long Text (Tooltip)'(013) )
     ).
 
-    data(lf_cancelled) = zcl_dbbr_appl_util=>popup_get_values(
+    DATA(lf_cancelled) = zcl_dbbr_appl_util=>popup_get_values(
       EXPORTING
         iv_title     = |{ 'Define Column texts for formula Field'(014) }|
       CHANGING
@@ -426,9 +384,9 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
         lv_coltexts = |{ lv_coltexts } '{ lv_longtext }'|.
       ENDIF.
       lv_coltexts = lv_coltexts && '.'.
-      mr_editor->set_selected_text( lv_coltexts ).
+      mo_editor->set_selected_text( lv_coltexts ).
 
-      mr_editor->zif_uitb_gui_control~focus( ).
+      mo_editor->focus( ).
     ENDIF.
 
   ENDMETHOD.
@@ -438,7 +396,7 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
     DATA: lv_rollname TYPE se16n_value.
 
     " get value of selected text
-    lv_rollname = mr_editor->get_selected_text( ).
+    lv_rollname = mo_editor->get_selected_text( ).
 
     zcl_dbbr_f4_helper=>call_built_in_f4(
       EXPORTING iv_tablename = 'DD04L'
@@ -448,7 +406,7 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
     ).
 
     IF lv_rollname IS NOT INITIAL.
-      mr_editor->set_selected_text( CONV #( lv_rollname ) ).
+      mo_editor->set_selected_text( |{ lv_rollname }| ).
     ENDIF.
 
   ENDMETHOD.
@@ -457,11 +415,11 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
   METHOD show_subroutine_pool.
     CHECK validate_formula( if_hide_log_on_success = abap_true ).
 
-    DATA(lr_tabfield_list_copy) = mr_tabfield_list->copy( ).
+    DATA(lr_tabfield_list_copy) = mo_tabfield_list->copy( ).
 
     zcl_dbbr_formula_helper=>update_tabflds_from_formula(
-        ir_tabfields                = mr_tabfield_list
-        ir_formula                  = mr_formula
+        ir_tabfields                = mo_tabfield_list
+        ir_formula                  = mo_formula
     ).
 
     lr_tabfield_list_copy->build_complete_fieldnames( ).
@@ -473,7 +431,7 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
     ).
 
     DATA(lr_builder) = zcl_dbbr_fe_form_builder=>get_builder_for_subroutine_gen(
-       ir_formula        = mr_formula
+       ir_formula        = mo_formula
        ir_tabfields      = lr_tabfield_list_copy
        it_tab_components = lt_components
     ).
@@ -491,7 +449,7 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
     lr_protocol->close_protocol( ).
     lr_protocol->clear( ).
 
-    mv_current_formula = mr_editor->get_raw_text_as_string( ).
+    mv_current_formula = mo_editor->get_text( ).
 
     TRY.
         zcl_dbbr_screen_helper=>show_progress(
@@ -500,8 +458,8 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
         ).
 
         DATA(lr_validator) = NEW zcl_dbbr_fe_validator( iv_formula    = mv_current_formula
-                                                         ir_tabfields  = mr_tabfield_list ).
-        mr_formula = lr_validator->validate( ).
+                                                         ir_tabfields  = mo_tabfield_list ).
+        mo_formula = lr_validator->validate( ).
 
         IF if_hide_log_on_success = abap_false.
           MESSAGE s046(zdbbr_info).
@@ -511,20 +469,21 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
         rf_valid = abap_true.
       CATCH zcx_dbbr_formula_exception INTO DATA(lr_exception).
         IF lr_exception->invalid_row >= 0.
-          mr_editor->select_row( lr_exception->invalid_row  ).
+          mo_editor->select_row( lr_exception->invalid_row  ).
         ENDIF.
-        CLEAR mr_formula.
-        lr_exception->zif_dbbr_exception_message~get_message( ).
-        lr_protocol->add_error_from_sy( ).
+        CLEAR mo_formula.
+        IF lr_exception->syntax_message IS NOT INITIAL.
+          lr_protocol->add_error(
+              iv_message     = lr_exception->syntax_message
+              iv_line_number = CONV #( lr_exception->invalid_row )
+          ).
+        ELSE.
+          lr_exception->zif_dbbr_exception_message~get_message( ).
+          lr_protocol->add_error_from_sy( ).
+        ENDIF.
         lr_protocol->show_protocol( ).
     ENDTRY.
 
   ENDMETHOD.
 
-
-  METHOD zif_uitb_view~show.
-    do_before_first_screen_call( ).
-
-    mr_template_program->zif_uitb_view~show( ).
-  ENDMETHOD.
 ENDCLASS.

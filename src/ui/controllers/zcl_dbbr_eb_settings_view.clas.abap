@@ -38,9 +38,9 @@ CLASS zcl_dbbr_eb_settings_view DEFINITION
 
     DATA:
       BEGIN OF ms_settings_ref,
-        max_hits              TYPE REF TO int2,
-        link_mode             TYPE REF TO zdbbr_entity_browser_link_mode,
-        entry_search_function TYPE REF TO char1,
+        max_hits        TYPE REF TO int2,
+        link_mode       TYPE REF TO zdbbr_entity_browser_link_mode,
+        search_function TYPE REF TO zdbbr_obj_browser_mode,
       END OF ms_settings_ref .
     DATA mf_saved TYPE abap_bool .
 
@@ -50,22 +50,22 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_EB_SETTINGS_VIEW IMPLEMENTATION.
+CLASS zcl_dbbr_eb_settings_view IMPLEMENTATION.
 
 
   METHOD constructor.
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( get_report_id( ) ).
 
-    ms_settings_ref-entry_search_function = CAST #( lr_data_cache->get_data_ref( conv #( c_p_entry_search_function ) ) ).
-    ms_settings_ref-link_mode = CAST #( lr_data_cache->get_data_ref( conv #( c_p_link_mode ) ) ).
-    ms_settings_ref-max_hits = CAST #( lr_data_cache->get_data_ref( conv #( c_p_max_hits ) ) ).
+    ms_settings_ref-search_function = CAST #( lr_data_cache->get_data_ref( CONV #( c_p_entry_search_function ) ) ).
+    ms_settings_ref-link_mode = CAST #( lr_data_cache->get_data_ref( CONV #( c_p_link_mode ) ) ).
+    ms_settings_ref-max_hits = CAST #( lr_data_cache->get_data_ref( CONV #( c_p_max_hits ) ) ).
   ENDMETHOD.
 
 
   METHOD initialize_settings.
     DATA(ls_settings) = zcl_dbbr_usersettings_factory=>get_entity_browser_settings( ).
 
-    ms_settings_ref-entry_search_function->* = ls_settings-entry_search_function.
+    ms_settings_ref-search_function->* = ls_settings-entry_search_function.
     ms_settings_ref-link_mode->* = ls_settings-link_mode.
     ms_settings_ref-max_hits->* = ls_settings-max_hits.
   ENDMETHOD.
@@ -74,9 +74,9 @@ CLASS ZCL_DBBR_EB_SETTINGS_VIEW IMPLEMENTATION.
   METHOD save_settings.
     zcl_dbbr_usersettings_factory=>set_entity_browser_settings(
       VALUE #(
-        link_mode             = ms_settings_ref-link_mode->*
-        max_hits              = ms_settings_ref-max_hits->*
-        entry_search_function = ms_settings_ref-entry_search_function->*
+        link_mode       = ms_settings_ref-link_mode->*
+        max_hits        = ms_settings_ref-max_hits->*
+        search_function = ms_settings_ref-search_function->*
       )
     ).
     mf_saved = abap_true.
@@ -139,8 +139,9 @@ CLASS ZCL_DBBR_EB_SETTINGS_VIEW IMPLEMENTATION.
 
     IF mf_first_call = abap_true.
       lt_list = VALUE #(
-        ( key = zif_dbbr_c_search_function=>find_tables   text = 'Find Tables'(001) )
-        ( key = zif_dbbr_c_search_function=>find_cds_view text = 'Find CDS Views'(002) )
+        ( key = zif_dbbr_c_object_browser_mode=>cds_view            text = 'Find CDS Views'(001) )
+        ( key = zif_dbbr_c_object_browser_mode=>database_table_view text = 'Find Database Tables/Views'(002) )
+        ( key = zif_dbbr_c_object_browser_mode=>query               text = 'Find Queries'(003) )
       ).
       CALL FUNCTION 'VRM_SET_VALUES'
         EXPORTING

@@ -22,6 +22,7 @@ CLASS zcl_dbbr_join_helper DEFINITION
     CLASS-METHODS build_from_clause_for_join_def
       IMPORTING
         !is_join_def          TYPE zdbbr_join_def OPTIONAL
+        if_use_ddl_for_select TYPE abap_bool OPTIONAL
         !it_table_alias_map   TYPE zdbbr_table_to_alias_map_itab OPTIONAL
       RETURNING
         VALUE(rt_from_clause) TYPE zdbbr_string_t .
@@ -35,9 +36,16 @@ CLASS zcl_dbbr_join_helper DEFINITION
     "! <p class="shorttext synchronized" lang="en">Builds where clause for given conditions</p>
     CLASS-METHODS build_where_for_conditions
       IMPORTING
-        !it_conditions  TYPE tt_join_conditions
+        it_conditions   TYPE tt_join_conditions
       RETURNING
         VALUE(rt_where) TYPE zdbbr_string_t .
+    "! <p class="shorttext synchronized" lang="en">Prefill cds view parameters</p>
+    "!
+    CLASS-METHODS prefill_parameters
+      IMPORTING
+        io_tabfields TYPE REF TO zcl_dbbr_tabfield_list
+      CHANGING
+        cs_join      TYPE zdbbr_join_def.
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -58,9 +66,10 @@ CLASS zcl_dbbr_join_helper DEFINITION
     "! <p class="shorttext synchronized" lang="en">Fills missing operators, etc.</p>
     CLASS-METHODS repair_join_definition
       IMPORTING
-        !is_join_def       TYPE zdbbr_join_def
+        !is_join_def          TYPE zdbbr_join_def
+        if_use_ddl_for_select TYPE abap_bool OPTIONAL
       RETURNING
-        VALUE(rs_join_def) TYPE zdbbr_join_def .
+        VALUE(rs_join_def)    TYPE zdbbr_join_def .
     "! <p class="shorttext synchronized" lang="en">Prepares join table definitions for building FROM Strings</p>
     CLASS-METHODS prepare_tables
       IMPORTING
@@ -69,13 +78,28 @@ CLASS zcl_dbbr_join_helper DEFINITION
       RETURNING
         VALUE(rs_join)         TYPE ty_join .
 
+    "! <p class="shorttext synchronized" lang="en">Fill parameters for a certain entity in the join</p>
+    "!
+    CLASS-METHODS fill_entity_params
+      IMPORTING
+        iv_entity       TYPE zdbbr_entity_id
+        iv_entity_alias TYPE zdbbr_entity_alias
+      CHANGING
+        cs_join         TYPE zdbbr_join_def.
 
+    "! <p class="shorttext synchronized" lang="en">text</p>
+    CLASS-METHODS get_sql_name
+      CHANGING
+        cv_tabname TYPE tabname.
 ENDCLASS.
 
 
 
 CLASS zcl_dbbr_join_helper IMPLEMENTATION.
 
+  METHOD get_sql_name.
+
+  ENDMETHOD.
 
   METHOD build_from_clause_for_join_def.
     DATA(lt_table_to_alias_map) = it_table_alias_map.
@@ -85,7 +109,10 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
      ).
     ENDIF.
 
-    DATA(ls_join_def) = repair_join_definition( is_join_def ).
+    DATA(ls_join_def) = repair_join_definition(
+       if_use_ddl_for_select = if_use_ddl_for_select
+       is_join_def           = is_join_def
+    ).
 
 *.. parse join definition for building the FROM Clause string
     DATA(ls_join_enriched) = prepare_tables(
@@ -253,7 +280,7 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
                                        ls_filter_cond-tabname_alias
                                      WHEN ls_filter_cond-tabname = is_join_def-primary_table THEN
                                        is_join_def-primary_table_alias
-                                     when ls_filter_cond-tabname is not initial then
+                                     WHEN ls_filter_cond-tabname IS NOT INITIAL THEN
                                        is_join_def-tables[ add_table = ls_filter_cond-tabname ]-add_table_alias ).
         IF lv_reference_alias IS INITIAL.
           lv_reference_alias = it_table_to_alias_map[ tabname = ls_filter_cond-tabname ]-alias.
@@ -323,11 +350,42 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD prefill_parameters.
+    DATA: lo_cds_view TYPE REF TO zcl_dbbr_cds_view.
+
+*.. Read parameters for primary and join entities
+    DATA(lt_tables) = io_tabfields->get_table_list( ).
+
+    LOOP AT lt_tables ASSIGNING FIELD-SYMBOL(<ls_table>).
+      CHECK <ls_table>-has_params = abap_true.
+
+      fill_entity_params(
+        EXPORTING iv_entity       = <ls_table>-tabname
+                  iv_entity_alias = <ls_table>-tabname_alias
+        CHANGING  cs_join         = cs_join
+      ).
+
+    ENDLOOP.
+  ENDMETHOD.
+
 
   METHOD repair_join_definition.
     rs_join_def = is_join_def.
+    IF is_join_def-primary_table_entity_type = zif_dbbr_c_entity_type=>cds_view AND
+       ( if_use_ddl_for_select = abap_true OR sy-saprl < 750 ).
+      rs_join_def-primary_table = zcl_dbbr_cds_view_factory=>read_ddl_ddic_view(
+        zcl_dbbr_cds_view_factory=>get_ddl_for_entity_name( iv_cds_view_name = is_join_def-primary_table )
+      ).
+    ENDIF.
 
     LOOP AT rs_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_table>).
+      IF <ls_table>-entity_type = zif_dbbr_c_entity_type=>cds_view AND
+         ( if_use_ddl_for_select = abap_true OR sy-saprl < 750 ).
+        <ls_table>-add_table = zcl_dbbr_cds_view_factory=>read_ddl_ddic_view(
+          zcl_dbbr_cds_view_factory=>get_ddl_for_entity_name( iv_cds_view_name = <ls_table>-add_table )
+        ).
+      ENDIF.
+
       IF <ls_table>-join_type IS INITIAL.
         <ls_table>-join_type = zif_dbbr_c_join_types=>inner_join.
       ENDIF.
@@ -348,5 +406,34 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
+
+
+  METHOD fill_entity_params.
+    DATA: lr_params TYPE REF TO zdbbr_table_parameter_t.
+*.. Get the correct entity in the join to fill the parameter names
+
+    TRY.
+        IF cs_join-primary_table_alias = iv_entity_alias.
+          lr_params = REF #( cs_join-parameters ).
+        ELSE.
+          lr_params = REF #( cs_join-tables[ add_table_alias = iv_entity_alias ]-parameters ).
+        ENDIF.
+      CATCH cx_sy_itab_line_not_found.
+    ENDTRY.
+
+    IF lr_params IS NOT BOUND.
+      RETURN.
+    ENDIF.
+
+    TRY.
+        DATA(lo_cds_view) = zcl_dbbr_cds_view_factory=>read_cds_view( iv_entity ).
+        lr_params->* = VALUE #(
+          FOR <cds_param> IN lo_cds_view->get_parameters( )
+          ( param_name = <cds_param>-parametername )
+        ).
+      CATCH zcx_dbbr_data_read_error.
+    ENDTRY.
+
+  ENDMETHOD.
 
 ENDCLASS.

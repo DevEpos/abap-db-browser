@@ -9,7 +9,6 @@ CLASS ZCL_DBBR_PRE_SEL_VALIDATOR DEFINITION
         it_selection_fields   TYPE ZDBBR_selfield_itab
         ir_tabfields          TYPE REF TO ZCL_DBBR_tabfield_list
         is_join_definition    TYPE ZDBBR_join_def
-        it_table_to_alias_map TYPE ZDBBR_table_to_alias_map_itab
         is_technical_infos    TYPE ZDBBR_tech_info.
     METHODS validate.
   PROTECTED SECTION.
@@ -17,7 +16,6 @@ CLASS ZCL_DBBR_PRE_SEL_VALIDATOR DEFINITION
     DATA mt_selection_fields   TYPE ZDBBR_selfield_itab.
     DATA mr_tabfields          TYPE REF TO ZCL_DBBR_tabfield_list.
     DATA ms_join_definition    TYPE ZDBBR_join_def.
-    DATA mt_table_to_alias_map TYPE ZDBBR_table_to_alias_map_itab.
     DATA ms_technical_infos    TYPE ZDBBR_tech_info.
     DATA: mf_virtual_join TYPE xsdboolean,
           mf_group_by TYPE xsdboolean.
@@ -33,7 +31,6 @@ CLASS ZCL_DBBR_PRE_SEL_VALIDATOR IMPLEMENTATION.
     mt_selection_fields   = it_selection_fields.
     mr_tabfields          = ir_tabfields.
     ms_join_definition    = is_join_definition.
-    mt_table_to_alias_map = it_table_to_alias_map.
     ms_technical_infos    = is_technical_infos.
   ENDMETHOD.
 

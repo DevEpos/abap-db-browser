@@ -67,6 +67,12 @@
      <ENTRY>Are you sure you want to delete your full history?</ENTRY>
      <LENGTH>100</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>010</KEY>
+     <ENTRY>Show in Object Browser</ENTRY>
+     <LENGTH>44</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -152,6 +158,12 @@
      <CMPNAME>ON_TOOLBAR_BUTTON</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Handler for pressed toolbar button</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>
+     <CMPNAME>SHOW_IN_OBJECT_BROWSER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Shows history entry in object browser</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_HISTORY_TREE</CLSNAME>

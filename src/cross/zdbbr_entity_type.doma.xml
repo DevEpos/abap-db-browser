@@ -33,6 +33,11 @@
      <DOMVALUE_L>Q</DOMVALUE_L>
      <DDTEXT>Query</DDTEXT>
     </DD07V>
+    <DD07V>
+     <DOMNAME>ZDBBR_ENTITY_TYPE</DOMNAME>
+     <VALPOS>0004</VALPOS>
+     <DDLANGUAGE>E</DDLANGUAGE>
+    </DD07V>
    </DD07V_TAB>
   </asx:values>
  </asx:abap>

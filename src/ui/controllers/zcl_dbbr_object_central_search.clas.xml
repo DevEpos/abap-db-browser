@@ -16,38 +16,92 @@
     <item>
      <ID>I</ID>
      <KEY>001</KEY>
-     <ENTRY>Execute Function</ENTRY>
-     <LENGTH>26</LENGTH>
+     <ENTRY>DB Browser - Central Search</ENTRY>
+     <LENGTH>54</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>002</KEY>
-     <ENTRY>Find Tables</ENTRY>
-     <LENGTH>21</LENGTH>
+     <ENTRY>Object Category</ENTRY>
+     <LENGTH>25</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>003</KEY>
-     <ENTRY>Find CDS Views</ENTRY>
-     <LENGTH>24</LENGTH>
+     <ENTRY>CDS View</ENTRY>
+     <LENGTH>18</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>004</KEY>
-     <ENTRY>Toggle Function Tree</ENTRY>
-     <LENGTH>40</LENGTH>
+     <ENTRY>Database Table/View</ENTRY>
+     <LENGTH>29</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>005</KEY>
-     <ENTRY>Show Settings</ENTRY>
-     <LENGTH>23</LENGTH>
+     <ENTRY>Query</ENTRY>
+     <LENGTH>15</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>006</KEY>
-     <ENTRY>Settings</ENTRY>
-     <LENGTH>18</LENGTH>
+     <ENTRY>Enter name of Entity</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>007</KEY>
+     <ENTRY>Perform search</ENTRY>
+     <LENGTH>24</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>008</KEY>
+     <ENTRY>Show CDS Source</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>009</KEY>
+     <ENTRY>Open with ADT Tools</ENTRY>
+     <LENGTH>29</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>010</KEY>
+     <ENTRY>Open with DB Browser</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>011</KEY>
+     <ENTRY>Open with DB Browser (New Window)</ENTRY>
+     <LENGTH>66</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>012</KEY>
+     <ENTRY>Show Content</ENTRY>
+     <LENGTH>22</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>013</KEY>
+     <ENTRY>Show Content (New Window)</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>014</KEY>
+     <ENTRY>Customize Search Settings</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>015</KEY>
+     <ENTRY>Show Help</ENTRY>
+     <LENGTH>19</LENGTH>
     </item>
    </TPOOL>
    <DESCRIPTIONS>
@@ -59,45 +113,21 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>CREATE_SEARCH_CONTROL</CMPNAME>
+     <CMPNAME>CREATE_ALV_OUTPUT</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Creates the search control for the chosen function</DESCRIPT>
+     <DESCRIPT>Create ALV List output</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>CREATE_TREE</CMPNAME>
+     <CMPNAME>CREATE_DD_INPUT</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Creates function navigation tree</DESCRIPT>
+     <DESCRIPT>Create dynamic document for search input</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>C_CDS_SEARCH_NODE</CMPNAME>
+     <CMPNAME>FILL_TOOLBAR</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Tree Model: Node Key</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>C_QUERY_SEARCH_NODE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Tree Model: Node Key</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>C_TABLE_SEARCH_NODE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Tree Model: Node Key</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>DO_ON_FIRST_CALL</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Perform som initialization on first screen call</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>FREE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Frees registered Controls</DESCRIPT>
+     <DESCRIPT>Fill alv toolbar</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
@@ -107,9 +137,9 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>MR_SEARCH_CONTROL</CMPNAME>
+     <CMPNAME>GET_SELECTED_INDEX</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Search Control</DESCRIPT>
+     <DESCRIPT>Retrieve currently selected row in ALV</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
@@ -125,12 +155,6 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>MV_CURRENT_SEARCH_NODE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Tree Model: Node Key</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
      <CMPNAME>MV_NAV_TREE_VISIBLE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Single-Character Indicator</DESCRIPT>
@@ -143,39 +167,51 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>ON_EXIT</CMPNAME>
+     <CMPNAME>ON_ALV_CONTEXT_MENU</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Handler for Exit Event</DESCRIPT>
+     <DESCRIPT>Context menu handler for ALV</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>ON_ITEM_LINK_CLICK</CMPNAME>
+     <CMPNAME>ON_LINK_CLICK</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Handler for item link click Event</DESCRIPT>
+     <DESCRIPT>Link Click handler for ALV</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>ON_PAI</CMPNAME>
+     <CMPNAME>ON_PERFORM_SEARCH</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Handler for PAI Event</DESCRIPT>
+     <DESCRIPT>Handler for performing the search</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>ON_PBO</CMPNAME>
+     <CMPNAME>ON_SEARCH_INPUT_ENTER</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Handler for PBO Event</DESCRIPT>
+     <DESCRIPT>Enter Handler for serach input</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>ON_SEARCH_RESULT_CHOSEN</CMPNAME>
+     <CMPNAME>ON_SEARCH_TYPE_SELECTED</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Handler for when search result entry was chosen</DESCRIPT>
+     <DESCRIPT>Dropdown Selection changed handler</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>ON_TOOLBAR_FUNCTION</CMPNAME>
+     <CMPNAME>ON_USER_COMMAND</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Handler for Toolbar function</DESCRIPT>
+     <DESCRIPT>User command handerl for ALV action</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
+     <CMPNAME>OPEN_IN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Open selected result in various ways specified by action</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
+     <CMPNAME>SHOW_CONTENT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Show content of currently seleted result entry</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
@@ -185,9 +221,9 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
-     <CMPNAME>TOGGLE_NAV_TREE</CMPNAME>
+     <CMPNAME>TRIGGER_NEW_SEARCH</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Toggle visiblity of navigation tree</DESCRIPT>
+     <DESCRIPT>Trigger new entity search</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

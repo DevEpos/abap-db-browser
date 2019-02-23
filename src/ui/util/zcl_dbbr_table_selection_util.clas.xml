@@ -25,18 +25,6 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Maintain data for the selection criteria</DESCRIPT>
     </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_TABLE_SELECTION_UTIL</CLSNAME>
-     <CMPNAME>FILL_VIRTUAL_JOIN_FIELDS</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Fill virtual join field in the output table</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_TABLE_SELECTION_UTIL</CLSNAME>
-     <CMPNAME>MARK_VIRT_JOIN_SELFIELDS</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Marks virtual join fields for later processing</DESCRIPT>
-    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

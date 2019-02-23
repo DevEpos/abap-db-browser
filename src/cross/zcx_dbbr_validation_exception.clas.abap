@@ -152,10 +152,10 @@ endif.
         textid         = VALUE scx_t100key(
            msgid = sy-msgid
            msgno = sy-msgno
-           attr1 = 'ATTR1'
-           attr2 = 'ATTR2'
-           attr3 = 'ATTR3'
-           attr4 = 'ATTR4' )
+           attr1 = 'MSGV1'
+           attr2 = 'MSGV2'
+           attr3 = 'MSGV3'
+           attr4 = 'MSGV4' )
         msgv1          = sy-msgv1
         msgv2          = sy-msgv2
         msgv3          = sy-msgv3

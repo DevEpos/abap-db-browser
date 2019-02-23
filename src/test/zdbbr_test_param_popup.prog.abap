@@ -19,10 +19,11 @@ START-OF-SELECTION.
       it_parameters    = lr_cds_view->get_parameters( )
   ).
 
-  DATA(lt_entered_params) = NEW zcl_dbbr_cds_param_popup(
-      ir_cds_view  = lr_cds_view
-      ir_tabfields = lr_tabfields
-  )->show( ).
+  data(lo_param_popup) = NEW zcl_dbbr_cds_param_popup(
+      io_tabfields = lr_tabfields
+  ).
+  lo_param_popup->show( ).
+  data(lt_entered_params) = lo_param_popup->get_param_values( ).
 
   IF lt_entered_params IS INITIAL.
     WRITE: / |No Parameters were entered|.

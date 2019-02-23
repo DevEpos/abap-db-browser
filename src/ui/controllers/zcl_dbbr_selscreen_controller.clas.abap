@@ -16,7 +16,7 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
     ALIASES set_status
       FOR zif_uitb_screen_controller~set_status .
 
-    METHODS call_alv_variant_f4 .
+
     METHODS call_f4_help
       IMPORTING
         !if_for_low TYPE boolean .
@@ -25,7 +25,7 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
         !iv_dynp_field_name TYPE devparname
       CHANGING
         !cv_table           TYPE tabname .
-    METHODS check_alv_variant .
+
     METHODS check_edit_mode .
     "! <p class="shorttext synchronized" lang="en">Check the entered Entity</p>
     METHODS check_entity .
@@ -41,6 +41,7 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
       IMPORTING
         !iv_entity_id    TYPE zdbbr_entity_id OPTIONAL
         !iv_entity_type  TYPE zdbbr_entity_type OPTIONAL
+        if_force_load    TYPE abap_bool OPTIONAL
         !if_fill_history TYPE abap_bool DEFAULT abap_true .
     METHODS reset_flags .
     METHODS show_multi_select .
@@ -60,22 +61,23 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
     DATA mf_from_central_search TYPE abap_bool .
     DATA mf_group_fields_updated TYPE boolean .
     DATA mf_join_tables_updated TYPE boolean .
+    DATA mv_old_top_line TYPE i.
     DATA mf_search_successful TYPE boolean .
     DATA mf_skipped_start TYPE abap_bool .
     DATA mf_table_was_changed TYPE boolean .
-    DATA mr_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory .
+    DATA mo_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory .
     " attributes for data output
-    DATA mr_cursor TYPE REF TO zcl_uitb_cursor .
-    DATA mr_data TYPE REF TO zcl_dbbr_selscreen_data .
-    DATA mr_favmenu_f TYPE REF TO zcl_dbbr_favmenu_factory .
+    DATA mo_cursor TYPE REF TO zcl_uitb_cursor .
+    DATA mo_data TYPE REF TO zcl_dbbr_selscreen_data .
+    DATA mo_favmenu_f TYPE REF TO zcl_dbbr_favmenu_factory .
     "! <p class="shorttext synchronized" lang="en">History View for Selection Screen</p>
-    DATA mr_entity_history_view TYPE REF TO zcl_dbbr_selscreen_hist_view .
+    DATA mo_entity_history_view TYPE REF TO zcl_dbbr_selscreen_hist_view .
     "! <p class="shorttext synchronized" lang="en">Navigation Control in Selection Screen</p>
-    DATA mr_navigator TYPE REF TO zcl_dbbr_object_navigator .
-    DATA mr_selection_table TYPE REF TO zcl_dbbr_selscreen_table .
-    DATA mr_toolbar_cont TYPE REF TO cl_gui_custom_container .
-    DATA mr_usersettings_f TYPE REF TO zcl_dbbr_usersettings_factory .
-    DATA mr_util TYPE REF TO zcl_dbbr_selscreen_util .
+    DATA mo_navigator TYPE REF TO zcl_dbbr_object_navigator .
+    DATA mo_selection_table TYPE REF TO zcl_dbbr_selscreen_table .
+    DATA mo_toolbar_cont TYPE REF TO cl_gui_custom_container .
+    DATA mo_usersettings_f TYPE REF TO zcl_dbbr_usersettings_factory .
+    DATA mo_util TYPE REF TO zcl_dbbr_selscreen_util .
     DATA:
       BEGIN OF ms_entity_update,
         error_ref  TYPE REF TO zcx_dbbr_validation_exception,
@@ -106,9 +108,7 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
       IMPORTING
         !if_count_lines_only TYPE boolean OPTIONAL
         !if_no_grouping      TYPE boolean OPTIONAL .
-    METHODS get_variant_info
-      RETURNING
-        VALUE(rs_variant) TYPE disvariant .
+
     "! <p class="shorttext synchronized" lang="en">Handles pressed function for possible parameter field</p>
     METHODS handle_parameter_line
       RETURNING
@@ -147,7 +147,8 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
           FOR EVENT request_new_entity OF zcl_dbbr_selscreen_util
       IMPORTING
           !ev_id
-          !ev_type .
+          !ev_type
+          ef_force_loading.
     "! <p class="shorttext synchronized" lang="en">Event Handler for requesting new object search</p>
     "!
     "! @parameter ev_object_type | <p class="shorttext synchronized" lang="en"></p>
@@ -208,7 +209,7 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
         !iv_current_line TYPE sy-tabix
         !iv_option       TYPE char2
         !iv_sign         TYPE char1 .
-    METHODS show_formula_manager .
+    METHODS show_formula_editor .
     "! <p class="shorttext synchronized" lang="en">Shows/hides navigation history</p>
     METHODS show_history
       IMPORTING
@@ -220,10 +221,11 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
     "! <p class="shorttext synchronized" lang="en">Display/Hide Object navigator</p>
     METHODS show_object_navigator .
     METHODS update_aggrgtd_tabfield_list .
-    METHODS update_alv_variant .
+
     METHODS update_util
       IMPORTING
         !iv_mode TYPE zdbbr_selscreen_mode OPTIONAL .
+
 ENDCLASS.
 
 
@@ -231,55 +233,13 @@ ENDCLASS.
 CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
-  METHOD call_alv_variant_f4.
-*&---------------------------------------------------------------------*
-*& Description: Calls value help for alv variant
-*&---------------------------------------------------------------------*
-    DATA: lf_exit     TYPE abap_bool,
-          lt_dynpread TYPE TABLE OF dynpread
-          .
-
-    DATA(ls_variant) = get_variant_info( ).
-
-    CALL FUNCTION 'REUSE_ALV_VARIANT_F4'
-      EXPORTING
-        is_variant    = ls_variant
-        i_save        = 'A'
-      IMPORTING
-        e_exit        = lf_exit
-        es_variant    = ls_variant
-      EXCEPTIONS
-        not_found     = 1
-        program_error = 2
-        OTHERS        = 3.
-
-    IF sy-subrc = 0 AND lf_exit = abap_false.
-      mr_data->mr_s_global_data->alv_variant = ls_variant-variant.
-      mr_data->mr_s_global_data->alv_varianttext = ls_variant-text.
-
-      lt_dynpread = VALUE #( ( fieldname  = 'GS_DATA-VARIANTTEXT'
-                               fieldvalue = mr_data->mr_s_global_data->alv_varianttext ) ).
-      CALL FUNCTION 'DYNP_VALUES_UPDATE'
-        EXPORTING
-          dyname     = zif_dbbr_c_report_id=>main
-          dynumb     = sy-dynnr
-        TABLES
-          dynpfields = lt_dynpread.
-    ELSE.
-      IF sy-subrc = 1.
-        MESSAGE s073(0k).
-      ENDIF.
-    ENDIF.
-  ENDMETHOD.
-
-
   METHOD call_f4_help.
 *& Description: Calls value help for low/high values
 *&---------------------------------------------------------------------*
-    DATA(lv_current_line) = mr_selection_table->get_current_line( ).
+    DATA(lv_current_line) = mo_selection_table->get_current_line( ).
 
     TRY.
-        DATA(ls_selfield) = mr_data->mr_t_table_data->*[ lv_current_line ].
+        DATA(ls_selfield) = mo_data->mr_t_table_data->*[ lv_current_line ].
         DATA(ls_selfield_save) = ls_selfield.
 
         zcl_dbbr_f4_helper=>call_selfield_f4(
@@ -288,14 +248,14 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             iv_repid         = zif_dbbr_c_report_id=>main
             iv_selfield_name = 'GS_SELFIELDS'
             iv_current_line  = lv_current_line
-            ir_custom_f4_map = mr_data->mr_custom_f4_map
+            ir_custom_f4_map = mo_data->mo_custom_f4_map
           CHANGING
             cs_selfield      = ls_selfield
         ).
 
         IF ls_selfield_save-low <> ls_selfield-low OR
            ls_selfield_save-high <> ls_selfield-high.
-          mr_data->mr_s_current_line->* = ls_selfield.
+          mo_data->mr_s_current_line->* = ls_selfield.
         ENDIF.
       CATCH cx_sy_itab_line_not_found.
     ENDTRY.
@@ -337,56 +297,8 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD check_alv_variant.
-*&---------------------------------------------------------------------*
-*& Description: Validation of ALV variant.
-*&---------------------------------------------------------------------*
-    DATA: ls_variant TYPE disvariant.
-
-    ASSIGN mr_data->mr_s_global_data->* TO FIELD-SYMBOL(<ls_global_data>).
-
-    " Only check if there really is a variant
-    IF <ls_global_data>-alv_variant = space.
-      CLEAR <ls_global_data>-alv_varianttext.
-    ENDIF.
-
-    CHECK: <ls_global_data>-alv_variant <> space.
-
-    mr_util->get_entity_information(
-      IMPORTING
-        ev_entity      = DATA(lv_entity)
-        ev_type        = DATA(lv_type)
-    ).
-
-    ls_variant = VALUE disvariant(
-        report     = |{ zif_dbbr_c_report_id=>main }{ lv_type }{ lv_entity }|
-        handle     = abap_true
-        username   = sy-uname
-        variant    = <ls_global_data>-alv_variant
-        text       = <ls_global_data>-alv_varianttext
-    ).
-
-    CALL FUNCTION 'REUSE_ALV_VARIANT_EXISTENCE'
-      EXPORTING
-        i_save        = 'A'
-      CHANGING
-        cs_variant    = ls_variant
-      EXCEPTIONS
-        wrong_input   = 1
-        not_found     = 2
-        program_error = 3
-        OTHERS        = 4.
-    IF sy-subrc <> 0.
-      MESSAGE e213(ga).
-    ELSE.
-      <ls_global_data>-alv_variant = ls_variant-variant.
-      <ls_global_data>-alv_varianttext = ls_variant-text.
-    ENDIF.
-  ENDMETHOD.
-
-
   METHOD check_edit_mode.
-    mr_util->check_edit_mode( ).
+    mo_util->check_edit_mode( ).
   ENDMETHOD.
 
 
@@ -394,7 +306,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     DATA: lv_msg TYPE string.
     DATA(lv_entity_id_field) = CONV dynfnam( |{ zif_dbbr_main_report_var_ids=>c_s_entity_info }-ENTITY_ID| ).
 
-    ASSIGN mr_data->mr_s_entity_info->* TO FIELD-SYMBOL(<ls_entity_info>).
+    ASSIGN mo_data->mr_s_entity_info->* TO FIELD-SYMBOL(<ls_entity_info>).
 
     IF <ls_entity_info>-entity_id IS INITIAL.
       ms_entity_update-is_initial = abap_true.
@@ -449,33 +361,33 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
   METHOD choose_other_entity.
 
-    mr_cursor->set_field( |{ zif_dbbr_main_report_var_ids=>c_s_entity_info }-ENTITY_TYPE| ).
-    mr_cursor->request_update( ).
+    mo_cursor->set_field( |{ zif_dbbr_main_report_var_ids=>c_s_entity_info }-ENTITY_TYPE| ).
+    mo_cursor->request_update( ).
 
   ENDMETHOD.
 
 
   METHOD clear_edit_flags.
-    CLEAR: mr_data->mr_s_global_data->edit,
-           mr_data->mr_s_global_data->delete_mode.
+    CLEAR: mo_data->mr_s_global_data->edit,
+           mo_data->mr_s_global_data->delete_mode.
   ENDMETHOD.
 
 
   METHOD constructor.
-    mr_data = NEW zcl_dbbr_selscreen_data( ir_selection_table = ir_selection_table ).
-    mr_data->mr_f_from_central_search->* = if_from_central_search.
-    mr_selection_table = ir_selection_table.
+    mo_data = NEW zcl_dbbr_selscreen_data( ir_selection_table = ir_selection_table ).
+    mo_data->mr_f_from_central_search->* = if_from_central_search.
+    mo_selection_table = ir_selection_table.
 
     update_util( iv_mode ).
 
     mf_from_central_search = if_from_central_search.
-    mr_data->mr_s_settings->* = is_settings.
+    mo_data->mr_s_settings->* = is_settings.
 
-    mr_usersettings_f = NEW zcl_dbbr_usersettings_factory( ).
+    mo_usersettings_f = NEW zcl_dbbr_usersettings_factory( ).
 
 *... register for events of selection table
     SET HANDLER:
-      on_aggr_attr_changed FOR mr_selection_table,
+      on_aggr_attr_changed FOR mo_selection_table,
       on_history_navigation,
       on_toolbar_button_pressed,
       on_fav_tree_event,
@@ -483,8 +395,8 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       on_faventry_selected,
       on_request_object_search.
 
-    mr_favmenu_f = NEW #( ).
-    mr_altcoltext_f = NEW zcl_dbbr_altcoltext_factory( ).
+    mo_favmenu_f = NEW #( ).
+    mo_altcoltext_f = NEW zcl_dbbr_altcoltext_factory( ).
   ENDMETHOD.
 
 
@@ -499,20 +411,38 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD define_join_relations.
-    mr_data->mr_s_join_def->primary_table = mr_data->mr_s_global_data->primary_table.
+    mo_data->mr_s_join_def->primary_table = mo_data->mr_s_global_data->primary_table.
+    IF mo_data->mr_s_join_def->primary_table_alias IS INITIAL.
+      mo_data->mr_s_join_def->primary_table_alias = mo_data->mr_s_global_data->primary_table.
+    ENDIF.
 
     " cache current join definition
-    mr_data->store_old_join( ).
+    mo_data->store_old_join( ).
+
+    mo_util->get_entity_information(
+      IMPORTING
+        ev_entity      = DATA(lv_primary_entity)
+        ev_entity_raw  = DATA(lv_primary_entity_raw)
+        ev_type        = DATA(lv_entity_type)
+    ).
+
+    IF lv_entity_type = zif_dbbr_c_entity_type=>query.
+      lv_primary_entity = mo_data->mr_s_join_def->primary_table.
+*.... For CDS Views as main entity there has to be done something differently to get the raw name
+      lv_primary_entity_raw = mo_data->mr_s_join_def->primary_table.
+    ENDIF.
 
     DATA(lr_join_manager) = NEW zcl_dbbr_join_manager(
-      iv_primary_table = mr_data->mr_s_global_data->primary_table
-      ir_s_join_ref    = mr_data->mr_s_join_def
+      iv_primary_entity     = lv_primary_entity
+      iv_primary_entity_raw = lv_primary_entity_raw
+      iv_entity_type        = mo_util->get_entity_type_for_join( )
+      ir_join_ref           = mo_data->mr_s_join_def
     ).
-    lr_join_manager->zif_uitb_view~show( ).
+    lr_join_manager->show( ).
 
     CHECK lr_join_manager->was_updated( ).
     MESSAGE |Join Definitions were updated| TYPE 'S'.
-    mr_util->update_join_definition( ).
+    mo_util->update_join_definition( ).
   ENDMETHOD.
 
 
@@ -522,7 +452,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD delete_aggregations.
-    mr_selection_table->delete_aggregations( ).
+    mo_selection_table->delete_aggregations( ).
   ENDMETHOD.
 
 
@@ -536,10 +466,10 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     IF lv_field CP 'GS_SELFIELDS-*'.
 
       TRY.
-          DATA(lv_current_line_index) = mr_selection_table->get_current_line( ).
-          DATA(lr_current_line) = REF #( mr_data->mr_t_table_data->*[ lv_current_line_index ] ).
+          DATA(lv_current_line_index) = mo_selection_table->get_current_line( ).
+          DATA(lr_current_line) = REF #( mo_data->mr_t_table_data->*[ lv_current_line_index ] ).
           " only possible for field of primary table
-          IF lr_current_line->tabname <> mr_data->mr_s_global_data->primary_table.
+          IF lr_current_line->tabname <> mo_data->mr_s_global_data->primary_table.
             RETURN.
           ENDIF.
 ***          lcl_custom_f4_controller=>get_instance( )->delete_f4_from_field( lr_current_line ).
@@ -552,12 +482,12 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
   METHOD delete_variant.
     DATA(lr_variant_controller) = NEW zcl_dbbr_variant_controller(
-        iv_screen_mode    = mr_data->get_mode( )
+        iv_screen_mode    = mo_data->get_mode( )
         iv_mode           = zcl_dbbr_variant_controller=>mc_modes-delete
-        is_query_info    = mr_data->mr_s_query_info->*
+        is_query_info    = mo_data->mr_s_query_info->*
         ir_multi_or_itab  = REF #( mt_multi_or_all )
-        ir_tabfields      = mr_data->mr_tabfield_list
-        ir_tabfields_grpd = mr_data->mr_tabfield_aggr_list
+        ir_tabfields      = mo_data->mo_tabfield_list
+        ir_tabfields_grpd = mo_data->mo_tabfield_aggr_list
     ).
 
     lr_variant_controller->zif_uitb_screen_controller~call_screen( ).
@@ -570,7 +500,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 *& other tables.
 *&---------------------------------------------------------------------*
     DATA(lt_table_selopt) = zcl_dbbr_appl_util=>build_selopt_tab_from_table(
-        it_table_data       = mr_data->mr_tabfield_list->get_table_list( )
+        it_table_data       = mo_data->mo_tabfield_list->get_table_list( )
         iv_compname_for_low = 'TABNAME'
     ).
 
@@ -579,7 +509,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD edit_alternative_col_texts.
-    DATA(lr_tabfield_list) = mr_data->mr_tabfield_list.
+    DATA(lr_tabfield_list) = mo_data->mo_tabfield_list.
 
     DATA(lr_altcoltext_table) = NEW zcl_dbbr_altcoltext_table( ).
     DATA(lr_altcoltext_controller) = NEW zcl_dbbr_altcoltxt_controller(
@@ -597,7 +527,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     WHILE lr_tabfield_list->has_more_lines( ).
       DATA(lr_field) = lr_tabfield_list->get_next_entry( ).
 
-      ASSIGN mr_data->mr_t_table_data->*[ tabname   = lr_field->tabname
+      ASSIGN mo_data->mr_t_table_data->*[ tabname   = lr_field->tabname
                                           fieldname = lr_field->fieldname ] TO FIELD-SYMBOL(<ls_selfield>).
       IF sy-subrc = 0.
         IF lr_field->alt_long_text IS NOT INITIAL.
@@ -618,16 +548,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     FIELD-SYMBOLS: <lr_tabfields>     TYPE REF TO zcl_dbbr_tabfield_list,
                    <lr_tabfields_all> TYPE REF TO zcl_dbbr_tabfield_list.
 
-    DATA(lr_formula) = mr_data->get_formula( ).
+    DATA(lr_formula) = mo_data->get_formula( ).
 
-    refresh_alternative_texts( mr_data->mr_tabfield_list ).
-    ASSIGN mr_data->mr_tabfield_list TO <lr_tabfields_all>.
+    refresh_alternative_texts( mo_data->mo_tabfield_list ).
+    ASSIGN mo_data->mo_tabfield_list TO <lr_tabfields_all>.
 
-    IF mr_selection_table->aggregation_is_active( ) AND if_no_grouping = abap_false.
-      ASSIGN mr_data->mr_tabfield_aggr_list TO <lr_tabfields>.
+    IF mo_selection_table->aggregation_is_active( ) AND if_no_grouping = abap_false.
+      ASSIGN mo_data->mo_tabfield_aggr_list TO <lr_tabfields>.
       refresh_alternative_texts( <lr_tabfields> ).
     ELSE.
-      ASSIGN mr_data->mr_tabfield_list TO <lr_tabfields>.
+      ASSIGN mo_data->mo_tabfield_list TO <lr_tabfields>.
 
       " check if there is at least one formula field that will be shown
       DATA(lr_table_searcher) = NEW zcl_uitb_table_func_executor( ir_table = <lr_tabfields>->get_fields_ref( ) ).
@@ -646,41 +576,38 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
-    DATA(lt_selfields) = mr_selection_table->get_data( ).
+    DATA(lt_selfields) = mo_selection_table->get_data( ).
 
     TRY.
         NEW zcl_dbbr_pre_sel_validator(
             it_selection_fields   = lt_selfields
             ir_tabfields          = <lr_tabfields>
-            is_join_definition    = mr_data->mr_s_join_def->*
-            it_table_to_alias_map = mr_data->mr_t_table_to_alias_map->*
-            is_technical_infos    = CORRESPONDING #( mr_data->mr_s_global_data->* )
+            is_join_definition    = mo_data->mr_s_join_def->*
+            is_technical_infos    = CORRESPONDING #( mo_data->mr_s_global_data->* )
         )->validate( ).
       CATCH zcx_dbbr_validation_exception INTO DATA(lr_validation_exc).
         lr_validation_exc->zif_dbbr_exception_message~print( ).
         RETURN.
     ENDTRY.
 
-    mr_util->get_entity_information(
+    mo_util->get_entity_information(
       IMPORTING
         ev_entity      = DATA(lv_entity_id)
     ).
     TRY.
         DATA(lr_controller) = zcl_dbbr_selection_controller=>create_controller(
-            iv_entity_type        = mr_data->get_mode( )
+            iv_entity_type        = mo_data->get_mode( )
             iv_entity_id          = lv_entity_id
             it_selection_fields   = lt_selfields
             if_no_grouping        = if_no_grouping
             it_multi_or           = mt_multi_or_all
-            is_technical_infos    = CORRESPONDING #( mr_data->mr_s_global_data->* )
-            iv_alv_varianttext    = mr_data->mr_s_global_data->alv_varianttext
-            if_edit               = mr_data->mr_s_global_data->edit
-            if_delete_mode_active = mr_data->mr_s_global_data->delete_mode
-            it_selfields_multi    = mr_data->mr_t_selfields_multi->*
+            is_technical_infos    = CORRESPONDING #( mo_data->mr_s_global_data->* )
+            if_edit               = mo_data->mr_s_global_data->edit
+            if_delete_mode_active = mo_data->mr_s_global_data->delete_mode
+            it_selfields_multi    = mo_data->mr_t_selfields_multi->*
             ir_tabfields          = <lr_tabfields>->copy( )
             ir_tabfields_all      = <lr_tabfields_all>->copy( )
-            it_table_to_alias_map = mr_data->mr_t_table_to_alias_map->*
-            is_join_def           = mr_data->mr_s_join_def->*
+            is_join_def           = mo_data->mr_s_join_def->*
             ir_formula            = lr_valid_formula
         ).
 
@@ -697,32 +624,19 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_variant_info.
-    mr_util->get_entity_information(
-      IMPORTING
-        ev_entity      = DATA(lv_entity)
-        ev_type        = DATA(lv_type)
-    ).
-
-    rs_variant-username = sy-uname.
-    rs_variant-variant = mr_data->mr_s_global_data->alv_variant.
-    rs_variant-handle = abap_true.
-    rs_variant-report = |{ zif_dbbr_c_report_id=>main }{ lv_type }{ lv_entity }|.
-
-  ENDMETHOD.
-
-
   METHOD handle_option_selection.
-    DATA(lv_current_line) = mr_selection_table->get_current_line( ).
+    DATA(lv_current_line) = mo_selection_table->get_current_line( ).
 
     TRY .
-        DATA(ls_current_line) = mr_data->mr_t_table_data->*[ lv_current_line ].
+        DATA(ls_current_line) = mo_data->mr_t_table_data->*[ lv_current_line ].
       CATCH cx_sy_itab_line_not_found.
         RETURN.
     ENDTRY.
 
     " get user selection
-    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option( ).
+    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option(
+      if_allow_null = xsdbool( ls_current_line-is_parameter = abap_false )
+    ).
     IF ls_chosen_option IS INITIAL.
       RETURN.
     ENDIF.
@@ -732,31 +646,34 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     " GT_sel_init contains info if low and/or high are allowed for
     " the selected option
     TRY .
-        DATA(ls_sel_init) = mr_data->mr_t_sel_init_table->*[ option = ls_chosen_option-option ].
+        DATA(ls_sel_init) = mo_data->mr_t_sel_init_table->*[ option = ls_chosen_option-option ].
         IF ls_sel_init-high <> abap_true.
           CLEAR ls_current_line-high.
         ENDIF.
       CATCH cx_sy_itab_line_not_found.
     ENDTRY.
 
-    MODIFY mr_data->mr_t_table_data->* FROM ls_current_line INDEX lv_current_line.
+    MODIFY mo_data->mr_t_table_data->* FROM ls_current_line INDEX lv_current_line.
   ENDMETHOD.
 
 
   METHOD handle_parameter_line.
     rf_continue = abap_true.
-    DATA(lv_current_line) = mr_selection_table->get_current_line( ).
+    DATA(lv_current_line) = mo_selection_table->get_current_line( ).
     CHECK lv_current_line <> 0.
-    CHECK lv_current_line <= lines( mr_data->mr_t_table_data->* ).
+    CHECK lv_current_line <= lines( mo_data->mr_t_table_data->* ).
 
-    DATA(lr_current_line) = REF #( mr_data->mr_t_table_data->*[ lv_current_line ] ).
+    DATA(lr_current_line) = REF #( mo_data->mr_t_table_data->*[ lv_current_line ] ).
 
     CASE mv_current_function.
       WHEN zif_dbbr_c_selscreen_functions=>show_multi_select_dialog OR
            zif_dbbr_c_selscreen_functions=>show_option_dialog OR
            zif_dbbr_c_selscreen_functions=>select_option_equal OR
            zif_dbbr_c_selscreen_functions=>select_option_not_equal.
-        rf_continue = xsdbool( lr_current_line->is_parameter = abap_false ).
+        IF lr_current_line->is_parameter = abap_false OR
+           ( lr_current_line->is_parameter = abap_true AND lr_current_line->is_range_param = abap_true ).
+          rf_continue = abap_true.
+        ENDIF.
       WHEN OTHERS.
     ENDCASE.
   ENDMETHOD.
@@ -771,44 +688,44 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
     IF iv_entity_id IS NOT INITIAL AND
        iv_entity_type IS NOT INITIAL.
-      CHECK NOT mr_util->is_entity_loaded(
+      CHECK NOT mo_util->is_entity_loaded(
             iv_entity_id   = iv_entity_id
             iv_entity_type = iv_entity_type
-        ).
+      ) OR if_force_load = abap_true.
 
-      mr_util->clear( ).
+      mo_util->clear( ).
 
       CASE iv_entity_type.
         WHEN zif_dbbr_c_entity_type=>table OR
              zif_dbbr_c_entity_type=>view.
-          mr_data->mr_s_global_data->primary_table = iv_entity_id.
+          mo_data->mr_s_global_data->primary_table = iv_entity_id.
           update_util( zif_dbbr_c_selscreen_mode=>table ).
 
         WHEN zif_dbbr_c_entity_type=>cds_view.
-          mr_data->mr_s_global_data->primary_table = iv_entity_id.
+          mo_data->mr_s_global_data->primary_table = iv_entity_id.
           update_util( zif_dbbr_c_selscreen_mode=>cds_view ).
 
         WHEN zif_dbbr_c_entity_type=>query.
-          CLEAR: mr_data->mr_s_global_data->primary_table.
-          mr_data->mr_s_global_data->query_name = iv_entity_id.
+          CLEAR: mo_data->mr_s_global_data->primary_table.
+          mo_data->mr_s_global_data->query_name = iv_entity_id.
           update_util( zif_dbbr_c_selscreen_mode=>query ).
 
       ENDCASE.
 
-      mr_util->load_entity( ).
+      mo_util->load_entity( ).
 
-      mr_usersettings_f->update_start_settings(
+      mo_usersettings_f->update_start_settings(
         iv_entity_id   = iv_entity_id
         iv_entity_type = iv_entity_type
       ).
 
-      mr_util->get_entity_information(
+      mo_util->get_entity_information(
         IMPORTING ev_entity_raw = DATA(lv_entity_raw)
                   ev_type       = DATA(lv_entity_type)
                   ev_description = DATA(lv_entity_description)
       ).
 
-      mr_favmenu_f->refresh_most_used(
+      mo_favmenu_f->refresh_most_used(
           iv_entry     = iv_entity_id
           iv_entry_raw = lv_entity_raw
           iv_type      = lv_entity_type
@@ -816,16 +733,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ).
 
     ELSE.
-      CHECK mr_util->load_entity( ).
+      CHECK mo_util->load_entity( ).
     ENDIF.
 
 
 *... fill history entry
     CHECK if_fill_history = abap_true.
     CHECK iv_entity_id IS NOT INITIAL OR
-          mr_data->mr_s_entity_info->entity_id IS NOT INITIAL.
+          mo_data->mr_s_entity_info->entity_id IS NOT INITIAL.
 
-    mr_util->get_entity_information(
+    mo_util->get_entity_information(
       IMPORTING
         ev_entity      = DATA(lv_entity)
         ev_type        = DATA(lv_type)
@@ -851,12 +768,14 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
         iv_entity_id   = ev_entity_id
         iv_entity_type = ev_entity_type
     ).
+
+    ms_entity_update-is_new = abap_true.
   ENDMETHOD.
 
 
   METHOD on_fav_tree_event.
     " add the current entity to the favorite menu
-    mr_util->get_entity_information(
+    mo_util->get_entity_information(
       IMPORTING
         ev_entity      = DATA(lv_entity)
         ev_type        = DATA(lv_type)
@@ -883,6 +802,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     load_entity(
         iv_entity_id    = ev_id
         iv_entity_type  = ev_type
+        if_force_load   = ef_force_loading
     ).
   ENDMETHOD.
 
@@ -892,7 +812,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       show_object_navigator( ).
     ENDIF.
 
-    mr_navigator->update_view( zcl_dbbr_object_navigator=>c_view-object_browser ).
+    mo_navigator->update_view( zcl_dbbr_object_navigator=>c_view-object_browser ).
     zcl_dbbr_selscr_nav_events=>raise_object_search(
       iv_object_type  = ev_object_type
       iv_search_query = ev_search_query
@@ -917,14 +837,19 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
      ).
 
       lr_variant_starter->initialize( ).
-      lr_variant_starter->execute_variant( ).
+      TRY.
+          lr_variant_starter->execute_variant( ).
+        CATCH zcx_dbbr_variant_error INTO DATA(lx_variant_error).
+          lx_variant_error->show_message( ).
+          RETURN.
+      ENDTRY.
     ELSE.
 *... first check if entity is already loaded
-      IF NOT mr_util->is_entity_loaded( iv_entity_id   = CONV #( ev_entity_id )
+      IF NOT mo_util->is_entity_loaded( iv_entity_id   = ev_entity_id
                                         iv_entity_type = ev_entity_type ).
 **... Load the entity before loading the variant
         load_entity(
-            iv_entity_id   = CONV #( ev_entity_id )
+            iv_entity_id   = ev_entity_id
             iv_entity_type = ev_entity_type
         ).
       ENDIF.
@@ -933,22 +858,22 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       DATA(ls_variant) = NEW zcl_dbbr_variant_loader(
           iv_variant_id        = ev_variant_id
           iv_entity_type       = ev_entity_type
-          iv_entity_id         = CONV #( ev_entity_id )
+          iv_entity_id         = ev_entity_id
           ir_t_multi_or        = REF #( mt_multi_or_all )
-          ir_t_selfields       = mr_data->mr_t_table_data
-          ir_t_selfields_multi = mr_data->mr_t_selfields_multi
-          ir_tabfields         = mr_data->mr_tabfield_list
-          ir_s_global_data     = mr_data->mr_s_global_data
-          ir_tabfields_grouped = mr_data->mr_tabfield_aggr_list
+          ir_t_selfields       = mo_data->mr_t_table_data
+          ir_t_selfields_multi = mo_data->mr_t_selfields_multi
+          ir_tabfields         = mo_data->mo_tabfield_list
+          ir_s_global_data     = mo_data->mr_s_global_data
+          ir_tabfields_grouped = mo_data->mo_tabfield_aggr_list
       )->load_variant( ).
 
 *... fill the global parameters for the variant description
       IF ls_variant IS NOT INITIAL.
-        mr_data->mr_v_variant_name->* = ls_variant-variant_name.
-        mr_data->mr_v_variant_description->* = ls_variant-description.
+        mo_data->mr_v_variant_name->* = ls_variant-variant_name.
+        mo_data->mr_v_variant_description->* = ls_variant-description.
       ENDIF.
 *.... Check if aggregation fields were added from variant
-      IF mr_selection_table->aggregation_is_active( ).
+      IF mo_selection_table->aggregation_is_active( ).
         update_aggrgtd_tabfield_list( ).
       ENDIF.
     ENDIF.
@@ -957,17 +882,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD perform_extended_search.
-    DATA(lv_entity_type) = mr_data->get_mode( ).
-*.. There is no search control for querys yet
-    CHECK lv_entity_type <> zif_dbbr_c_entity_type=>query.
+    DATA(lv_entity_type) = mo_data->get_mode( ).
+
     DATA(lf_specific) = abap_true.
 
     DATA(lr_entity_browser) = NEW zcl_dbbr_object_central_search(
       if_specific_search      = abap_true
       iv_entity_type          = lv_entity_type
-      iv_initial_search_value = |{ mr_data->mr_s_entity_info->entity_id }|
+      iv_initial_search_value = |{ mo_data->mr_s_entity_info->entity_id }|
     ).
-    lr_entity_browser->zif_uitb_view~show( ).
+    lr_entity_browser->show( ).
     lr_entity_browser->get_chosen_entity(
       IMPORTING
         ev_entity_id   = DATA(lv_search_entity_id)
@@ -987,15 +911,15 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
           lf_entity_navigation TYPE abap_bool.
 
 
-    IF mr_cursor->get_field( ) = lif_selfield_names=>c_fieldname OR
-       mr_cursor->get_field( ) = lif_selfield_names=>c_fieldname_raw OR
-       mr_cursor->get_field( ) = lif_selfield_names=>c_scrtext_l OR
-       mr_cursor->get_field( ) = lif_selfield_names=>c_description OR
-       mr_cursor->get_field( ) = lif_selfield_names=>c_scrtext_m.
+    IF mo_cursor->get_field( ) = lif_selfield_names=>c_fieldname OR
+       mo_cursor->get_field( ) = lif_selfield_names=>c_fieldname_raw OR
+       mo_cursor->get_field( ) = lif_selfield_names=>c_scrtext_l OR
+       mo_cursor->get_field( ) = lif_selfield_names=>c_description OR
+       mo_cursor->get_field( ) = lif_selfield_names=>c_scrtext_m.
       lf_field_navigation = abap_true.
-    ELSEIF mr_cursor->get_field( ) = 'GS_ENTITY_INFO-ENTITY_ID' AND
-           ( mr_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>cds_view OR
-             mr_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>table ).
+    ELSEIF mo_cursor->get_field( ) = 'GS_ENTITY_INFO-ENTITY_ID' AND
+           ( mo_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>cds_view OR
+             mo_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>table ).
       lf_entity_navigation = abap_true.
     ENDIF.
 
@@ -1006,7 +930,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
     IF lf_field_navigation = abap_true.
-      DATA(lr_s_current_line) = CAST zdbbr_selfield( mr_selection_table->zif_uitb_table~get_current_line_ref( ) ).
+      DATA(lr_s_current_line) = CAST zdbbr_selfield( mo_selection_table->zif_uitb_table~get_current_line_ref( ) ).
 
       CALL FUNCTION 'RS_DD_DTEL_SHOW'
         EXPORTING
@@ -1016,16 +940,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     ENDIF.
 
     IF lf_entity_navigation = abap_true.
-      IF mr_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>cds_view.
+      IF mo_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>cds_view.
         TRY.
             zcl_dbbr_adt_util=>jump_adt(
-                iv_obj_name     = |{ mr_data->mr_s_entity_info->entity_id }|
+                iv_obj_name     = |{ mo_data->mr_s_entity_info->entity_id }|
                 iv_obj_type     = 'DDLS'
             ).
           CATCH zcx_dbbr_adt_error.
         ENDTRY.
       ELSE.
-        zcl_dbbr_dictionary_helper=>navigate_to_table( mr_data->mr_s_entity_info->entity_id ).
+        zcl_dbbr_dictionary_helper=>navigate_to_table( mo_data->mr_s_entity_info->entity_id ).
       ENDIF.
     ENDIF.
   ENDMETHOD.
@@ -1034,12 +958,12 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
   METHOD read_variant.
 
     DATA(lr_variant_controller) = NEW zcl_dbbr_variant_controller(
-        iv_screen_mode    = mr_data->get_mode( )
+        iv_screen_mode    = mo_data->get_mode( )
         iv_mode           = zcl_dbbr_variant_controller=>mc_modes-read
-        is_query_info    = mr_data->mr_s_query_info->*
+        is_query_info    = mo_data->mr_s_query_info->*
         ir_multi_or_itab  = REF #( mt_multi_or_all )
-        ir_tabfields      = mr_data->mr_tabfield_list
-        ir_tabfields_grpd = mr_data->mr_tabfield_aggr_list
+        ir_tabfields      = mo_data->mo_tabfield_list
+        ir_tabfields_grpd = mo_data->mo_tabfield_aggr_list
     ).
 
     lr_variant_controller->zif_uitb_screen_controller~call_screen( ).
@@ -1083,9 +1007,9 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     CASE lv_field.
       WHEN 'GS_SELFIELDS-LOW' OR 'GS_SELFIELDS-HIGH'.
         TRY.
-            DATA(ls_current_line) = mr_data->mr_t_table_data->*[ mr_selection_table->get_current_line( ) ].
+            DATA(ls_current_line) = mo_data->mr_t_table_data->*[ mo_selection_table->get_current_line( ) ].
             " only possible for field of primary table
-            IF ls_current_line-tabname <> mr_data->mr_s_global_data->primary_table.
+            IF ls_current_line-tabname <> mo_data->mr_s_global_data->primary_table.
               RETURN.
             ENDIF.
 
@@ -1105,31 +1029,31 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD save_query.
-    DATA(lr_formula) = mr_data->get_formula( ).
+    DATA(lr_formula) = mo_data->get_formula( ).
 
     IF lr_formula IS BOUND.
       TRY .
           NEW zcl_dbbr_fe_validator(
               iv_formula   = lr_formula->get_formula_string( )
-              ir_tabfields = mr_data->mr_tabfield_list
+              ir_tabfields = mo_data->mo_tabfield_list
           )->validate( ).
 
-          mr_data->mr_s_query_info->formula = lr_formula->get_formula_string( ).
+          mo_data->mr_s_query_info->formula = lr_formula->get_formula_string( ).
         CATCH zcx_dbbr_formula_exception.
           MESSAGE i043(zdbbr_exception) DISPLAY LIKE 'E'.
           RETURN.
       ENDTRY.
     ELSE.
-      CLEAR mr_data->mr_s_query_info->formula.
+      CLEAR mo_data->mr_s_query_info->formula.
     ENDIF.
 
     DATA(lr_save_query_controller) = NEW zcl_dbbr_save_query_ctrl(
-      ir_tabfield_list        = mr_data->mr_tabfield_list->copy( )
-      is_query_info          = mr_data->mr_s_query_info->*
-      is_join_def             = mr_data->mr_s_join_def->*
-      ir_t_multi_or           = mr_data->get_multi_or_all( )
-      ir_t_multi_selfields    = mr_data->mr_t_selfields_multi
-      ir_t_selfields          = mr_data->mr_t_table_data
+      ir_tabfield_list     = mo_data->mo_tabfield_list->copy( )
+      is_query_info        = mo_data->mr_s_query_info->*
+      is_join_def          = mo_data->mr_s_join_def->*
+      ir_t_multi_or        = mo_data->get_multi_or_all( )
+      ir_t_multi_selfields = mo_data->mr_t_selfields_multi
+      ir_t_selfields       = mo_data->mr_t_table_data
     ).
 
     lr_save_query_controller->show( ).
@@ -1149,19 +1073,19 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 *& Description: Saves the current layout
 *&---------------------------------------------------------------------*
 *...if there is an active join-saving is prevented
-    IF mr_data->get_mode( ) = zif_dbbr_c_selscreen_mode=>table AND
-       mr_data->is_join_active( ).
+    IF mo_data->get_mode( ) = zif_dbbr_c_selscreen_mode=>table AND
+       mo_data->is_join_active( ).
       MESSAGE e044(zdbbr_exception) DISPLAY LIKE 'I'.
       RETURN.
     ENDIF.
 
     DATA(lr_variant_controller) = NEW zcl_dbbr_variant_controller(
-        iv_screen_mode    = mr_data->get_mode( )
+        iv_screen_mode    = mo_data->get_mode( )
         iv_mode           = zcl_dbbr_variant_controller=>mc_modes-save
-        is_query_info    = mr_data->mr_s_query_info->*
+        is_query_info    = mo_data->mr_s_query_info->*
         ir_multi_or_itab  = REF #( mt_multi_or_all )
-        ir_tabfields      = mr_data->mr_tabfield_list
-        ir_tabfields_grpd = mr_data->mr_tabfield_aggr_list
+        ir_tabfields      = mo_data->mo_tabfield_list
+        ir_tabfields_grpd = mo_data->mo_tabfield_aggr_list
     ).
 
     lr_variant_controller->zif_uitb_screen_controller~call_screen( ).
@@ -1170,19 +1094,19 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD search.
-    IF mr_navigator IS BOUND AND mr_navigator->has_focus( ).
-      mr_navigator->search( ).
+    IF mo_navigator IS BOUND AND mo_navigator->has_focus( ).
+      mo_navigator->search( ).
     ELSE.
-      mf_search_successful = mr_selection_table->search_value( mv_current_function ).
+      mf_search_successful = mo_selection_table->search_value( mv_current_function ).
     ENDIF.
   ENDMETHOD.
 
 
   METHOD search_next.
-    IF mr_navigator IS BOUND AND mr_navigator->has_focus( ).
-      mr_navigator->search_next( ).
+    IF mo_navigator IS BOUND AND mo_navigator->has_focus( ).
+      mo_navigator->search_next( ).
     ELSE.
-      mf_search_successful = mr_selection_table->search_value( mv_current_function ).
+      mf_search_successful = mo_selection_table->search_value( mv_current_function ).
     ENDIF.
   ENDMETHOD.
 
@@ -1198,16 +1122,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
     DATA: lv_index TYPE sy-tabix.
 
-    CHECK NOT mr_cursor->is_updated( ).
+    CHECK: NOT mo_cursor->is_updated( ).
 
-    IF mr_cursor->is_update_requested( ).
+    IF mo_cursor->is_update_requested( ).
       zcl_uitb_cursor=>refresh_cursor( ).
       RETURN.
     ENDIF.
 
-    ASSIGN mr_data->mr_t_table_data->* TO FIELD-SYMBOL(<lt_selection_fields>).
+    ASSIGN mo_data->mr_t_table_data->* TO FIELD-SYMBOL(<lt_selection_fields>).
 
-    lv_index = mr_selection_table->zif_uitb_table~get_current_loop_line( ).
+    lv_index = mo_selection_table->zif_uitb_table~get_current_loop_line( ).
 
     IF mv_current_function = 'PAGE_UP' OR
        mv_current_function = 'PAGE_TOP' OR
@@ -1215,7 +1139,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
       zcl_uitb_cursor=>set_cursor(
         iv_field = |{ lc_low_field_name }|
-        iv_line  = COND syst_tabix( WHEN mr_data->is_join_active( ) THEN 2 ELSE 1 )
+        iv_line  = COND syst_tabix( WHEN mo_data->is_join_active( ) THEN 2 ELSE 1 )
       ).
 
       RETURN.
@@ -1223,7 +1147,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
     IF mv_current_function = 'PAGE_END'.
       " get max looplines of table
-      DATA(lv_lastindex) = mr_selection_table->get_loop_lines( ).
+      DATA(lv_lastindex) = mo_selection_table->get_loop_lines( ).
       IF lv_lastindex > lines( <lt_selection_fields> ).
         lv_lastindex = lines( <lt_selection_fields> ).
       ENDIF.
@@ -1238,9 +1162,9 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     ENDIF.
 
     " check if current cursor position is inside selection table
-    IF mr_cursor IS NOT INITIAL AND mr_cursor->get_field( ) CP 'GS_SELFIELDS*'.
+    IF mo_cursor IS NOT INITIAL AND mo_cursor->get_field( ) CP 'GS_SELFIELDS*'.
       IF lv_index > 0.
-        zcl_uitb_cursor=>set_cursor( iv_field = |{ mr_cursor->get_field( ) }| iv_line = lv_index ).
+        zcl_uitb_cursor=>set_cursor( iv_field = |{ mo_cursor->get_field( ) }| iv_line = lv_index ).
         RETURN.
       ENDIF.
     ENDIF.
@@ -1253,24 +1177,23 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
-*... set cursor to current field
-    mr_cursor->refresh( ).
+    mo_cursor->refresh( ).
 
   ENDMETHOD.
 
 
   METHOD set_focus_to_1st_selfield.
-    DATA(lv_top_line) = mr_data->mr_s_tableview->top_line.
-    LOOP AT mr_data->mr_t_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>) FROM lv_top_line WHERE is_table_header = abap_false.
-      mr_cursor->set_field( lif_selfield_names=>c_low ).
+    DATA(lv_top_line) = mo_data->mr_s_tableview->top_line.
+    LOOP AT mo_data->mr_t_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>) FROM lv_top_line WHERE is_table_header = abap_false.
+      mo_cursor->set_field( lif_selfield_names=>c_low ).
       IF lv_top_line > 1.
         DATA(lv_new_index) = sy-tabix - lv_top_line + 1.
-        mr_cursor->set_line( lv_new_index ).
+        mo_cursor->set_line( lv_new_index ).
       ELSE.
-        mr_cursor->set_line( sy-tabix ).
+        mo_cursor->set_line( sy-tabix ).
       ENDIF.
 
-      mr_cursor->request_update( ).
+      mo_cursor->request_update( ).
       EXIT.
     ENDLOOP.
   ENDMETHOD.
@@ -1279,73 +1202,73 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
   METHOD set_focus_to_navigator.
     CHECK mf_object_navigator = abap_true.
 
-    mr_navigator->focus( ).
-    mr_cursor->set_is_updated( ).
+    mo_navigator->focus( ).
+    mo_cursor->set_is_updated( ).
   ENDMETHOD.
 
 
   METHOD set_select_option.
     CHECK iv_current_line > 0.
 
-    mr_data->mr_t_table_data->*[ iv_current_line ]-option = iv_option.
-    mr_data->mr_t_table_data->*[ iv_current_line ]-sign = iv_sign.
+    mo_data->mr_t_table_data->*[ iv_current_line ]-option = iv_option.
+    mo_data->mr_t_table_data->*[ iv_current_line ]-sign = iv_sign.
   ENDMETHOD.
 
 
-  METHOD show_formula_manager.
+  METHOD show_formula_editor.
 
-    DATA(lr_tabfields) = mr_data->mr_tabfield_list.
-    lr_tabfields->update_tables( ).
-    DATA(lr_formula) = mr_data->get_formula( ).
+    DATA(lo_tabfields) = mo_data->mo_tabfield_list.
+    lo_tabfields->update_tables( ).
 
-    DATA(lr_formula_editor) = NEW zcl_dbbr_formula_editor(
-      ir_tabfield_list = lr_tabfields
-      is_join_def      = mr_data->mr_s_join_def->*
+    DATA(lo_formula) = mo_data->get_formula( ).
+
+    DATA(lo_formula_editor) = NEW zcl_dbbr_formula_editor(
+      io_tabfield_list = lo_tabfields
+      is_join_def      = mo_data->mr_s_join_def->*
       iv_display_mode  = zif_dbbr_global_consts=>gc_display_modes-edit
-      iv_formula       = COND #( WHEN lr_formula IS BOUND THEN lr_formula->get_formula_string( ) )
+      iv_formula       = COND #( WHEN lo_formula IS BOUND THEN lo_formula->get_formula_string( ) )
     ).
 
-    lr_formula_editor->zif_uitb_view~show( ).
+    lo_formula_editor->show( ).
 
-    IF lr_formula_editor->has_formula_been_activated( ).
-      lr_formula = lr_formula_editor->get_formula( ).
+    IF lo_formula_editor->has_formula_been_activated( ).
+      lo_formula = lo_formula_editor->get_formula( ).
       TRY.
           zcl_dbbr_formula_helper=>update_tabflds_from_formula(
-              ir_tabfields = lr_tabfields
-              ir_formula   = lr_formula
+              ir_tabfields = lo_tabfields
+              ir_formula   = lo_formula
           ).
         CATCH zcx_dbbr_formula_exception INTO DATA(lr_exception).
 *........ should not happen at this point at all because formula has just been activated
           lr_exception->zif_dbbr_exception_message~print( ).
       ENDTRY.
-    ELSEIF lr_formula_editor->has_formula_been_deleted( ).
-      CLEAR lr_formula.
-      lr_tabfields->delete_formula_fields( ).
-      lr_tabfields->clear_calculation_flag( ).
+    ELSEIF lo_formula_editor->has_formula_been_deleted( ).
+      CLEAR lo_formula.
+      lo_tabfields->delete_formula_fields( ).
+      lo_tabfields->clear_calculation_flag( ).
     ENDIF.
 
-    mr_data->set_formula( lr_formula ).
-
+    mo_data->set_formula( lo_formula ).
   ENDMETHOD.
 
 
   METHOD show_history.
     IF if_force_hide = abap_true.
-      IF mr_entity_history_view IS INITIAL.
+      IF mo_entity_history_view IS INITIAL.
         RETURN.
-      ELSEIF mr_entity_history_view->is_visible( ).
-        mr_entity_history_view->dispose( ).
+      ELSEIF mo_entity_history_view->is_visible( ).
+        mo_entity_history_view->dispose( ).
       ENDIF.
     ENDIF.
 
-    IF mr_entity_history_view IS INITIAL.
-      mr_entity_history_view = NEW #( ).
+    IF mo_entity_history_view IS INITIAL.
+      mo_entity_history_view = NEW #( ).
     ENDIF.
 
-    IF mr_entity_history_view->is_visible( ).
-      mr_entity_history_view->dispose( ).
+    IF mo_entity_history_view->is_visible( ).
+      mo_entity_history_view->dispose( ).
     ELSE.
-      mr_entity_history_view->show( ).
+      mo_entity_history_view->show( ).
     ENDIF.
   ENDMETHOD.
 
@@ -1355,8 +1278,8 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     DATA(lr_multi_or_table) = NEW zcl_dbbr_multi_or_table( ).
 
     DATA(lr_multi_or_controller) = NEW zcl_dbbr_multi_or_controller(
-        ir_custom_f4_map      = mr_data->mr_custom_f4_map
-        it_multi_selfield_all = mr_data->mr_t_selfields_multi->*
+        ir_custom_f4_map      = mo_data->mo_custom_f4_map
+        it_multi_selfield_all = mo_data->mr_t_selfields_multi->*
         ir_multi_or_table     = lr_multi_or_table
         it_multi_or_all       = mt_multi_or_all
     ).
@@ -1375,18 +1298,18 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
   METHOD show_multi_select.
     zcl_dbbr_app_starter=>show_multi_select(
       EXPORTING
-        iv_current_line   = mr_selection_table->get_current_line( )
-        ir_custom_f4_map  = mr_data->mr_custom_f4_map
+        iv_current_line   = mo_selection_table->get_current_line( )
+        ir_custom_f4_map  = mo_data->mo_custom_f4_map
       CHANGING
-        ct_selfield       = mr_data->mr_t_table_data->*
-        ct_selfield_multi = mr_data->mr_t_selfields_multi->*
+        ct_selfield       = mo_data->mr_t_table_data->*
+        ct_selfield_multi = mo_data->mr_t_selfields_multi->*
     ).
   ENDMETHOD.
 
 
   METHOD show_object_list.
 
-    mr_util->get_entity_information(
+    mo_util->get_entity_information(
       IMPORTING
         ev_entity      = DATA(lv_entity_id)
         ev_type        = DATA(lv_entity_type)
@@ -1400,13 +1323,13 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       show_object_navigator( ).
     ENDIF.
 
-    mr_navigator->update_view( zcl_dbbr_object_navigator=>c_view-object_browser ).
+    mo_navigator->update_view( zcl_dbbr_object_navigator=>c_view-object_browser ).
     zcl_dbbr_selscr_nav_events=>raise_display_object_list(
         iv_entity_id   = lv_entity_id
         iv_entity_type = lv_entity_type
     ).
 
-    mr_navigator->focus( ).
+    mo_navigator->focus( ).
   ENDMETHOD.
 
 
@@ -1414,16 +1337,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     mf_object_navigator = xsdbool( mf_object_navigator = abap_false ).
 
     IF mf_object_navigator = abap_true.
-      IF mr_navigator IS INITIAL.
-        mr_navigator = NEW #( ).
+      IF mo_navigator IS INITIAL.
+        mo_navigator = NEW #( ).
       ENDIF.
-      mr_navigator->show( ).
-      mr_cursor->set_is_updated( ).
+      mo_navigator->show( ).
+      mo_cursor->set_is_updated( ).
 
 *.... force navigation history to hide and then to show
       show_history( if_force_hide = abap_true ).
     ELSE.
-      mr_navigator->hide( ).
+      mo_navigator->hide( ).
     ENDIF.
   ENDMETHOD.
 
@@ -1431,16 +1354,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
   METHOD update_aggrgtd_tabfield_list.
     DATA: lt_tab_range TYPE zdbbr_tabname_range_itab.
 
-    mr_data->mr_tabfield_aggr_list->clear( ).
+    mo_data->mo_tabfield_aggr_list->clear( ).
 
 *.. Fetch table list from ungrouped tabfield list
-    DATA(lt_tables) = mr_data->mr_tabfield_list->get_table_list( ).
+    DATA(lt_tables) = mo_data->mo_tabfield_list->get_table_list( ).
 
-    LOOP AT mr_data->mr_t_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE group_by = abap_true
+    LOOP AT mo_data->mr_t_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE group_by = abap_true
                                                                               OR aggregation <> space.
 
       " get existing field in ungrouped tabfield list
-      DATA(ls_tabfield) = mr_data->mr_tabfield_list->get_field( iv_tabname   = <ls_selfield>-tabname
+      DATA(ls_tabfield) = mo_data->mo_tabfield_list->get_field( iv_tabname   = <ls_selfield>-tabname
                                                                 iv_fieldname = <ls_selfield>-fieldname ).
 
       IF ls_tabfield IS INITIAL.
@@ -1462,10 +1385,10 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
       lt_tab_range = VALUE #( BASE lt_tab_range ( sign = 'I' option = 'EQ' low = ls_tabfield-tabname ) ).
 
-      mr_data->mr_tabfield_aggr_list->add( REF #( ls_tabfield ) ).
+      mo_data->mo_tabfield_aggr_list->add( REF #( ls_tabfield ) ).
 
       IF ls_tabfield-has_text_field = abap_true.
-        DATA(lr_text_tabfield) = mr_data->mr_tabfield_list->get_field_ref(
+        DATA(lr_text_tabfield) = mo_data->mo_tabfield_list->get_field_ref(
            iv_tabname_alias       = <ls_selfield>-tabname
            iv_fieldname     = <ls_selfield>-fieldname
            if_is_text_field = abap_true
@@ -1474,7 +1397,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
         ls_text_tabfield-output_active = abap_false.
         ls_text_tabfield-output_order = 0.
 
-        mr_data->mr_tabfield_aggr_list->add( REF #( ls_text_tabfield ) ).
+        mo_data->mo_tabfield_aggr_list->add( REF #( ls_text_tabfield ) ).
       ENDIF.
     ENDLOOP.
 
@@ -1483,29 +1406,23 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
     DELETE lt_tables WHERE tabname NOT IN lt_tab_range.
 
-    mr_data->mr_tabfield_aggr_list->set_table_list( lt_tables ).
-  ENDMETHOD.
-
-
-  METHOD update_alv_variant.
-    CLEAR: mr_data->mr_s_global_data->alv_variant,
-           mr_data->mr_s_global_data->alv_varianttext.
+    mo_data->mo_tabfield_aggr_list->set_table_list( lt_tables ).
   ENDMETHOD.
 
 
   METHOD update_util.
     DATA(lv_mode) = COND #( WHEN iv_mode IS NOT INITIAL THEN iv_mode
-                                                        ELSE mr_data->mr_s_entity_info->entity_type ).
-    mr_data->set_mode( lv_mode ).
+                                                        ELSE mo_data->mr_s_entity_info->entity_type ).
+    mo_data->set_mode( lv_mode ).
 
-    IF mr_util IS BOUND.
-      mr_util->free_resources( ).
-      SET HANDLER: on_request_new_entity FOR mr_util ACTIVATION abap_false.
+    IF mo_util IS BOUND.
+      mo_util->free_resources( ).
+      SET HANDLER: on_request_new_entity FOR mo_util ACTIVATION abap_false.
     ENDIF.
 
-    mr_util = zcl_dbbr_selscreen_util_fac=>create_util_instance( mr_data ).
+    mo_util = zcl_dbbr_selscreen_util_fac=>create_util_instance( mo_data ).
 
-    SET HANDLER: on_request_new_entity FOR mr_util.
+    SET HANDLER: on_request_new_entity FOR mo_util.
   ENDMETHOD.
 
 
@@ -1531,18 +1448,18 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD zif_uitb_screen_controller~free_screen_resources.
-    IF mr_navigator IS BOUND.
-      mr_navigator->free( ).
-      CLEAR: mr_navigator.
+    IF mo_navigator IS BOUND.
+      mo_navigator->free( ).
+      CLEAR: mo_navigator.
     ENDIF.
 
-    IF mr_entity_history_view IS BOUND.
-      mr_entity_history_view->dispose( ).
-      CLEAR mr_entity_history_view.
+    IF mo_entity_history_view IS BOUND.
+      mo_entity_history_view->dispose( ).
+      CLEAR mo_entity_history_view.
     ENDIF.
 
-    mr_util->free_resources( ).
-    CLEAR mr_util.
+    mo_util->free_resources( ).
+    CLEAR mo_util.
 
     SET HANDLER:
       on_toolbar_button_pressed ACTIVATION abap_false,
@@ -1577,18 +1494,19 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
         ENDIF.
 
         " always get the current line in the selection table
-        DATA(lv_current_index) = mr_selection_table->get_current_line( ).
-        mr_cursor = zcl_uitb_cursor=>get_cursor( ).
+        DATA(lv_current_index) = mo_selection_table->get_current_line( ).
+
+        mo_cursor = zcl_uitb_cursor=>get_cursor( ).
 
 *...... Handle changed entity type
         IF mv_current_function = zif_dbbr_c_selscreen_functions=>change_entity_type.
-          CLEAR: mr_data->mr_s_entity_info->entity_id.
+          CLEAR: mo_data->mr_s_entity_info->entity_id.
           CLEAR ms_entity_update.
           ms_entity_update-is_initial = abap_true.
 *........ update the entity type in the entity id search help program
-          mr_util->update_entity_type_sh( ).
-          mr_cursor->set_field( |{ zif_dbbr_main_report_var_ids=>c_s_entity_info }-ENTITY_ID| ).
-          mr_cursor->request_update( ).
+          mo_util->update_entity_type_sh( ).
+          mo_cursor->set_field( |{ zif_dbbr_main_report_var_ids=>c_s_entity_info }-ENTITY_ID| ).
+          mo_cursor->request_update( ).
           update_util( ).
         ENDIF.
 
@@ -1596,12 +1514,12 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
         IF ms_entity_update-is_new = abap_true.
 *........ Load the new entity
           load_entity(
-              iv_entity_id    = mr_data->mr_s_entity_info->entity_id
-              iv_entity_type  = mr_data->mr_s_entity_info->entity_type
+              iv_entity_id    = mo_data->mr_s_entity_info->entity_id
+              iv_entity_type  = mo_data->mr_s_entity_info->entity_type
           ).
           CLEAR ms_entity_update.
         ELSEIF ms_entity_update-is_initial = abap_true.
-          mr_util->clear( ).
+          mo_util->clear( ).
           CLEAR ms_entity_update.
           RETURN.
         ELSEIF ms_entity_update-error_ref IS BOUND.
@@ -1617,8 +1535,8 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
            mv_current_function = zif_dbbr_c_selscreen_functions=>exec_selection_without_grp OR
            mv_current_function = zif_dbbr_c_selscreen_functions=>save_variant.
 
-          mr_selection_table->expand_all_table_fields( mr_data->mr_tabfield_list  ).
-          mr_util->check_mandatory_fields( ).
+          mo_selection_table->expand_all_table_fields( mo_data->mo_tabfield_list  ).
+          mo_util->check_mandatory_fields( ).
         ENDIF.
 
         CASE mv_current_function.
@@ -1636,19 +1554,19 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
                                iv_sign         = zif_dbbr_global_consts=>gc_options-i ).
 
           WHEN zif_dbbr_c_selscreen_functions=>show_formula_manager.
-            show_formula_manager( ).
+            show_formula_editor( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>multi_or_selection.
             show_multi_or( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>control_sort_fields.
-            mr_util->choose_sort_fields( ).
+            mo_util->choose_sort_fields( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>control_output_fields.
-            mr_util->choose_tabfields( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
+            mo_util->choose_tabfields( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
 
           WHEN zif_dbbr_c_selscreen_functions=>control_sel_fields.
-            IF mr_util->choose_tabfields( zif_dbbr_global_consts=>gc_field_chooser_modes-selection ).
+            IF mo_util->choose_tabfields( zif_dbbr_global_consts=>gc_field_chooser_modes-selection ).
               update_aggrgtd_tabfield_list( ).
             ENDIF.
 
@@ -1668,17 +1586,17 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             search_next( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_line_input.
-            mr_selection_table->zif_uitb_table~delete_current_line( ).
+            mo_selection_table->zif_uitb_table~delete_current_line( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>select_additional_texts.
             determine_optional_text_fields( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>activate_tech_view.
-            IF mr_data->mr_s_global_data->tech_view = abap_true.
-              mr_data->mr_s_global_data->tech_view = abap_false.
+            IF mo_data->mr_s_global_data->tech_view = abap_true.
+              mo_data->mr_s_global_data->tech_view = abap_false.
               MESSAGE s080(zdbbr_info) WITH 'off'(008).
             ELSE.
-              mr_data->mr_s_global_data->tech_view = abap_true.
+              mo_data->mr_s_global_data->tech_view = abap_true.
               MESSAGE s080(zdbbr_info) WITH 'on'(009).
             ENDIF.
 
@@ -1692,7 +1610,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             execute_selection( if_no_grouping = abap_true ).
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_joins.
-            mr_util->delete_join_definition( ).
+            mo_util->delete_join_definition( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>define_joins.
             define_join_relations( ).
@@ -1706,10 +1624,10 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             zcl_dbbr_screen_helper=>leave_screen( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>show_technical_settings.
-            DATA(lv_previous_language) = mr_data->mr_s_global_data->description_language.
-            zcl_dbbr_app_starter=>show_user_settings( CHANGING cs_settings = mr_data->mr_s_global_data->settings ).
+            DATA(lv_previous_language) = mo_data->mr_s_global_data->description_language.
+            zcl_dbbr_app_starter=>show_user_settings( CHANGING cs_settings = mo_data->mr_s_global_data->settings ).
             IF zcl_dbbr_appl_util=>get_description_language( ) <> lv_previous_language.
-              mr_util->update_description_texts( ).
+              mo_util->update_description_texts( ).
             ENDIF.
 
           WHEN zif_dbbr_c_selscreen_functions=>save_variant.
@@ -1722,18 +1640,18 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             delete_variant( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_all_input.
-            mr_selection_table->zif_uitb_table~delete_all( ).
+            mo_selection_table->zif_uitb_table~delete_all( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>go_to_next_table.
-            mr_selection_table->scroll_to_next_table( mr_data->mr_tabfield_list->get_table_list( if_include_only_active = abap_true ) ).
+            mo_selection_table->scroll_to_next_table( mo_data->mo_tabfield_list->get_table_list( if_include_only_active = abap_true ) ).
 
           WHEN zif_dbbr_c_selscreen_functions=>go_to_previous_table.
-            mr_selection_table->scroll_to_previous_table( mr_data->mr_tabfield_list->get_table_list( if_include_only_active = abap_true ) ).
+            mo_selection_table->scroll_to_previous_table( mo_data->mo_tabfield_list->get_table_list( if_include_only_active = abap_true ) ).
 
           WHEN zif_dbbr_c_selscreen_functions=>check_edit_option.
-            IF mr_data->mr_s_global_data->edit = abap_true.
-              CLEAR: mr_data->mr_s_global_data->delete_mode.
-              mr_util->delete_join_definition( ).
+            IF mo_data->mr_s_global_data->edit = abap_true.
+              CLEAR: mo_data->mr_s_global_data->delete_mode.
+              mo_util->delete_join_definition( ).
             ENDIF.
 
           WHEN zif_dbbr_c_selscreen_functions=>maintain_value_helps.
@@ -1746,16 +1664,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             delete_f4_helps( ).
 
           WHEN zif_dbbr_global_consts=>gc_function_codes-scroll_to_top.
-            mr_selection_table->zif_uitb_page_scroller~scroll_page_top( ).
+            mo_selection_table->zif_uitb_page_scroller~scroll_page_top( ).
 
           WHEN zif_dbbr_global_consts=>gc_function_codes-scroll_page_up.
-            mr_selection_table->zif_uitb_page_scroller~scroll_page_up( ).
+            mo_selection_table->zif_uitb_page_scroller~scroll_page_up( ).
 
           WHEN zif_dbbr_global_consts=>gc_function_codes-scroll_page_down.
-            mr_selection_table->zif_uitb_page_scroller~scroll_page_down( ).
+            mo_selection_table->zif_uitb_page_scroller~scroll_page_down( ).
 
           WHEN zif_dbbr_global_consts=>gc_function_codes-scroll_to_bottom.
-            mr_selection_table->zif_uitb_page_scroller~scroll_page_bottom( ).
+            mo_selection_table->zif_uitb_page_scroller~scroll_page_bottom( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_aggregations.
             delete_aggregations( ).
@@ -1767,22 +1685,22 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             define_subqueries( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>expand_collapse_table_fields.
-            mr_selection_table->expand_collapse_table_fields( mr_data->mr_tabfield_list ).
+            mo_selection_table->expand_collapse_table_fields( mo_data->mo_tabfield_list ).
 
           WHEN zif_dbbr_c_selscreen_functions=>expand_all_tables.
-            mr_selection_table->expand_all_table_fields( mr_data->mr_tabfield_list  ).
+            mo_selection_table->expand_all_table_fields( mo_data->mo_tabfield_list  ).
 
           WHEN zif_dbbr_c_selscreen_functions=>collapse_all_tables.
-            mr_selection_table->collapse_all_table_fields( mr_data->mr_tabfield_list ).
+            mo_selection_table->collapse_all_table_fields( mo_data->mo_tabfield_list ).
 
           WHEN zif_dbbr_c_selscreen_functions=>display_entity_navigator.
             show_object_navigator( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_mode.
-            IF mr_data->mr_s_global_data->delete_mode = abap_true.
-              CLEAR mr_data->mr_s_global_data->edit.
+            IF mo_data->mr_s_global_data->delete_mode = abap_true.
+              CLEAR mo_data->mr_s_global_data->edit.
               " delete existing join
-              mr_util->delete_join_definition( ).
+              mo_util->delete_join_definition( ).
             ENDIF.
 
           WHEN zif_dbbr_c_selscreen_functions=>pick_navigation.
@@ -1795,14 +1713,11 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             set_focus_to_1st_selfield( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>manage_associations.
-            CHECK mr_usersettings_f->is_experimental_mode_active( ).
+            CHECK mo_usersettings_f->is_experimental_mode_active( ).
             NEW zcl_dbbr_association_manager( )->zif_uitb_view~show( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>choose_different_entity.
             choose_other_entity( ).
-
-          WHEN zif_dbbr_c_selscreen_functions=>show_query_catalog.
-            CALL TRANSACTION 'ZDBBR_QUERYCATALOG'.
 
           WHEN zif_dbbr_c_selscreen_functions=>navigate_back.
             zcl_dbbr_selscreen_history=>navigate_back( ).
@@ -1819,16 +1734,14 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
           WHEN zif_dbbr_c_selscreen_functions=>export_favorites.
             NEW zcl_dbbr_export_favmenu_ctrl( )->zif_uitb_screen_controller~call_screen( ).
 
-          WHEN zif_dbbr_c_selscreen_functions=>open_specific_extended_search.
-            perform_extended_search( ).
-
           WHEN zif_dbbr_c_selscreen_functions=>set_field_lowercase.
-            mr_selection_table->set_lowercase_setting( ).
+            mo_selection_table->set_lowercase_setting( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>display_object_list.
             show_object_list( ).
 
-          WHEN zif_dbbr_c_selscreen_functions=>object_browser_search.
+          WHEN zif_dbbr_c_selscreen_functions=>object_browser_search OR
+               zif_dbbr_c_selscreen_functions=>open_specific_extended_search.
             search_objects( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>goto_next_obj_navigator_view.
@@ -1843,16 +1756,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 *........ if function code code not be found try the util for enitity specific
 *........ function handlers.
           WHEN OTHERS.
-            mr_util->zif_dbbr_screen_util~handle_ui_function( CHANGING cv_function = mv_current_function ).
+            mo_util->zif_dbbr_screen_util~handle_ui_function( CHANGING cv_function = mv_current_function ).
 
         ENDCASE.
 
       CATCH zcx_dbbr_validation_exception INTO DATA(lr_valid_exc).
 *        CLEAR ms_entity_update.
         IF lr_valid_exc->parameter_name IS NOT INITIAL.
-          mr_cursor->set_line( lr_valid_exc->loop_line ).
-          mr_cursor->set_field( lr_valid_exc->parameter_name ).
-          mr_cursor->request_update( ).
+          mo_cursor->set_line( lr_valid_exc->loop_line ).
+          mo_cursor->set_field( lr_valid_exc->parameter_name ).
+          mo_cursor->request_update( ).
         ENDIF.
         lr_valid_exc->print_message( iv_msg_type = 'S' iv_display_type = 'E' ).
     ENDTRY.
@@ -1868,11 +1781,11 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       menu    = ir_menu
     ).
 
-    mr_util->get_entity_information(
+    mo_util->get_entity_information(
       IMPORTING ev_type        = DATA(lv_entity_type)
     ).
 
-    DATA(lr_s_current_line) = CAST zdbbr_selfield( mr_selection_table->zif_uitb_table~get_current_line_ref( ) ).
+    DATA(lr_s_current_line) = CAST zdbbr_selfield( mo_selection_table->zif_uitb_table~get_current_line_ref( ) ).
 
     IF lr_s_current_line->convexit = space.
 
@@ -1893,19 +1806,19 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     DATA ls_screen TYPE screen.
 
     IF mf_first_call = abap_true.
-      mr_cursor = zcl_uitb_cursor=>get_cursor( ).
+      mo_cursor = zcl_uitb_cursor=>get_cursor( ).
       CLEAR: mf_first_call.
 
-      mr_navigator = NEW #( ).
+      mo_navigator = NEW #( ).
 
-      IF mr_data->mr_s_global_data->settings-object_navigator_open = abap_true.
+      IF mo_data->mr_s_global_data->settings-object_navigator_open = abap_true.
         show_object_navigator( ).
       ENDIF.
     ENDIF.
 
     IF mv_current_function = zif_dbbr_c_selscreen_functions=>goto_next_obj_navigator_view OR
        mv_current_function = zif_dbbr_c_selscreen_functions=>display_object_list.
-      mr_navigator->focus( ).
+      mo_navigator->focus( ).
     ELSE.
       set_cursor( ).
     ENDIF.
@@ -1920,7 +1833,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ENDIF.
 
       IF screen-group4 = 'EDT'.
-        screen-input = COND #( WHEN mr_data->is_join_active( ) OR mr_data->mr_s_settings->disable_edit = abap_true THEN
+        screen-input = COND #( WHEN mo_data->is_join_active( ) OR mo_data->mr_s_settings->disable_edit = abap_true THEN
                                     0
                                   ELSE
                                     1 ).
@@ -1928,7 +1841,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ENDIF.
 
       IF screen-name = 'GS_DATA-DELETE_MODE'.
-        IF mr_data->mr_s_global_data->advanced_mode = abap_false.
+        IF mo_data->mr_s_global_data->advanced_mode = abap_false.
           screen-active = 0.
         ELSE.
           screen-active = 1.
@@ -1937,48 +1850,49 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ENDIF.
     ENDLOOP.
 
-    mr_util->handle_pbo( ).
+    mo_util->handle_pbo( ).
 
-    DATA(lr_table_func_exec) = NEW zcl_uitb_table_func_executor( mr_data->mr_t_table_data ).
+    DATA(lr_table_func_exec) = NEW zcl_uitb_table_func_executor( mo_data->mr_t_table_data ).
 
     DATA(lv_count) = lr_table_func_exec->count_lines(
         it_field_selopts = VALUE #(
             ( fieldname = 'IS_TABLE_HEADER' selopt_itab = VALUE #( ( sign = 'I' option = 'EQ' low = abap_false ) ) )
         )
     ).
-    DATA(lv_current_index) = mr_selection_table->get_current_line( if_reset_index = abap_false ).
-    mr_data->mr_v_seltable_counter_text->* = COND #( WHEN lv_count > 0 THEN |{ mr_data->mr_s_tableview->top_line } / { lv_count }| ELSE '' ) .
+    DATA(lv_current_index) = mo_selection_table->get_current_line( if_reset_index = abap_false ).
+    mo_data->mr_v_seltable_counter_text->* = COND #( WHEN lv_count > 0 THEN |{ mo_data->mr_s_tableview->top_line } / { lv_count }| ELSE '' ) .
 
     zif_uitb_screen_controller~set_status( ).
+
   ENDMETHOD.
 
 
   METHOD zif_uitb_screen_controller~set_status.
     DATA: lt_func_codes TYPE TABLE OF sy-ucomm.
 
-    mr_util->set_custom_functions( ).
+    mo_util->set_custom_functions( ).
 
-    IF mr_data->mr_s_settings->disable_joins = abap_true.
+    IF mo_data->mr_s_settings->disable_joins = abap_true.
       lt_func_codes = VALUE #( BASE lt_func_codes ( zif_dbbr_c_selscreen_functions=>define_joins ) ).
     ENDIF.
 
     " set dynamic gui status texts
-    mr_data->mr_v_seltext_gui->text = 'Select Additional Fields'(001).
+    mo_data->mr_v_seltext_gui->text = 'Select Additional Fields'(001).
 
-    IF mr_data->mr_s_join_def->tables IS INITIAL.
+    IF mo_data->mr_s_join_def->tables IS INITIAL.
       APPEND zif_dbbr_c_selscreen_functions=>delete_joins TO lt_func_codes.
     ENDIF.
 
-    mr_data->mr_v_multi_or_icon->icon_text = 'More'(003).
-    mr_data->mr_v_multi_or_icon->quickinfo = 'Multiple Selection with OR Tuples'(002).
+    mo_data->mr_v_multi_or_icon->icon_text = 'More'(003).
+    mo_data->mr_v_multi_or_icon->quickinfo = 'Multiple Selection with OR Tuples'(002).
 
     IF mt_multi_or_all IS NOT INITIAL.
-      mr_data->mr_v_multi_or_icon->icon_id = zif_dbbr_c_icon=>display_more.
+      mo_data->mr_v_multi_or_icon->icon_id = zif_dbbr_c_icon=>display_more.
     ELSE.
-      mr_data->mr_v_multi_or_icon->icon_id = zif_dbbr_c_icon=>enter_more.
+      mo_data->mr_v_multi_or_icon->icon_id = zif_dbbr_c_icon=>enter_more.
     ENDIF.
 
-    IF NOT mr_selection_table->aggregation_is_active( ).
+    IF NOT mo_selection_table->aggregation_is_active( ).
       APPEND zif_dbbr_c_selscreen_functions=>exec_selection_without_grp TO lt_func_codes.
     ENDIF.
 
@@ -1999,11 +1913,11 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     ENDIF.
 
     " add deactivated functions depending on current entity type
-    lt_func_codes = VALUE #( BASE lt_func_codes ( LINES OF mr_util->get_deactivated_functions( ) ) ).
+    lt_func_codes = VALUE #( BASE lt_func_codes ( LINES OF mo_util->get_deactivated_functions( ) ) ).
 
     SET PF-STATUS '0100' EXCLUDING lt_func_codes OF PROGRAM zif_dbbr_c_report_id=>main.
 
-    DATA(lv_title) = mr_util->get_title( ).
+    DATA(lv_title) = mo_util->get_title( ).
 
     SET TITLEBAR 'PROGTITLE' OF PROGRAM zif_dbbr_c_report_id=>main WITH lv_title.
   ENDMETHOD.

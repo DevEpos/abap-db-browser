@@ -1,26 +1,26 @@
-class ZCL_DBBR_JUMPLIST_PARAM_TABLE definition
-  public
-  inheriting from ZCL_UITB_GENERIC_TABLE
-  final
-  create public .
+CLASS zcl_dbbr_jumplist_param_table DEFINITION
+  PUBLIC
+  INHERITING FROM zcl_uitb_generic_table
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  methods CONSTRUCTOR
-    importing
-      !IT_JUMP_PARAMS type ZDBBR_JUMPPARAM_DATA_UI_ITAB
-      !IR_query_FIELDS type ref to ZCL_DBBR_TABFIELD_LIST
-      !IT_TABLE_TO_ALIAS_MAP type ZDBBR_TABLE_TO_ALIAS_MAP_ITAB .
-  methods DELETE_SELECTED_PARAMS .
-  methods PARAM_ID_F4 .
-  methods PARAM_VALUE_F4 .
+    METHODS constructor
+      IMPORTING
+        !it_jump_params        TYPE zdbbr_jumpparam_data_ui_itab
+        !ir_query_fields       TYPE REF TO zcl_dbbr_tabfield_list
+        !it_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab .
+    METHODS delete_selected_params .
+    METHODS param_id_f4 .
+    METHODS param_value_f4 .
 
-  methods VALIDATE
-    redefinition .
-  methods ZIF_UITB_TABLE~ADD_LINE
-    redefinition .
-  methods ZIF_UITB_TABLE~UPDATE_SCREEN_ATTRIBUTES
-    redefinition .
+    METHODS validate
+        REDEFINITION .
+    METHODS zif_uitb_table~add_line
+        REDEFINITION .
+    METHODS zif_uitb_table~update_screen_attributes
+        REDEFINITION .
   PROTECTED SECTION.
   PRIVATE SECTION.
     CONSTANTS:
@@ -35,7 +35,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_JUMPLIST_PARAM_TABLE IMPLEMENTATION.
+CLASS zcl_dbbr_jumplist_param_table IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -47,7 +47,7 @@ CLASS ZCL_DBBR_JUMPLIST_PARAM_TABLE IMPLEMENTATION.
     mt_table_to_alias_map = it_table_to_alias_map.
 
     " init some global data references from ui
-    DATA(lr_data_cache) = ZCL_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>jump_list_manager ).
+    DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>jump_list_manager ).
 
     mr_table_data = lr_data_cache->get_data_ref( zif_dbbr_jumplist_var_ids=>c_t_params ).
     mr_current_line = lr_data_cache->get_data_ref( zif_dbbr_jumplist_var_ids=>c_s_param ).
@@ -60,10 +60,11 @@ CLASS ZCL_DBBR_JUMPLIST_PARAM_TABLE IMPLEMENTATION.
 *... build alias fieldnames if needed
     LOOP AT CAST zdbbr_jumpparam_data_ui_itab( mr_table_data )->* ASSIGNING <ls_jump_param>.
       IF <ls_jump_param>-param_field <> space.
-        <ls_jump_param>-value = mr_query_fields->get_field(
-            iv_tabname   = <ls_jump_param>-param_table
-            iv_fieldname = <ls_jump_param>-param_field
-        )-sql_fieldname.
+        DATA(lr_param_field) = mr_query_fields->get_field_ref(
+            iv_tabname_alias = <ls_jump_param>-param_table
+            iv_fieldname     = <ls_jump_param>-param_field
+        ).
+        <ls_jump_param>-value = lr_param_field->sql_fieldname.
       ELSE.
         <ls_jump_param>-value = <ls_jump_param>-param_value.
       ENDIF.
@@ -109,21 +110,21 @@ CLASS ZCL_DBBR_JUMPLIST_PARAM_TABLE IMPLEMENTATION.
 
     DATA(lr_join_field_f4) = NEW zcl_dbbr_tabfield_tree_f4(
       iv_screen_title     = 'Value help for query Field'
-      ir_tree_node_filler = NEW zcl_dbbr_tabf_treeno_fill(
+      io_tree_node_filler = NEW zcl_dbbr_tabf_treeno_fill(
           ir_tabfield_list      = mr_query_fields
       )
     ).
 
     lr_join_field_f4->display_value_help(
       IMPORTING ev_chosen_field            = DATA(lv_field)
-                ev_chosen_table            = DATA(lv_tabname)
+                ev_chosen_table_alias      = data(lv_tabname_alias)
                 ev_chosen_field_with_alias = DATA(lv_field_with_alias) ).
 
     IF lv_field IS NOT INITIAL.
       ASSIGN mr_current_line->* TO <ls_current_line>.
       <ls_current_line>-value = lv_field_with_alias.
       <ls_current_line>-param_field = lv_field.
-      <ls_current_line>-param_table = lv_tabname.
+      <ls_current_line>-param_table = lv_tabname_alias.
     ENDIF.
   ENDMETHOD.
 
@@ -173,7 +174,7 @@ CLASS ZCL_DBBR_JUMPLIST_PARAM_TABLE IMPLEMENTATION.
           TRY.
               DATA(ls_param_field) = mr_query_fields->get_field_by_sql_name( CONV #( <ls_current_line>-value ) ).
               <ls_current_line>-param_field = ls_param_field-fieldname.
-              <ls_current_line>-param_table = ls_param_field-tabname.
+              <ls_current_line>-param_table = ls_param_field-tabname_alias.
             CATCH cx_sy_itab_line_not_found.
               CLEAR cv_function_code.
               MESSAGE s014(zdbbr_exception) WITH <ls_current_line>-param_value DISPLAY LIKE 'E'.
@@ -219,7 +220,7 @@ CLASS ZCL_DBBR_JUMPLIST_PARAM_TABLE IMPLEMENTATION.
       LOOP AT SCREEN INTO ls_screen.
         IF ls_screen-name = mc_table_fields-param_id.
           ls_screen-input = 0.
-          MODIFY screen FROM ls_screen.
+          MODIFY SCREEN FROM ls_screen.
         ENDIF.
       ENDLOOP.
     ENDIF.

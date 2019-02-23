@@ -1,30 +1,30 @@
-class ZCL_DBBR_APP_STARTER definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_app_starter DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  class-methods SHOW_USER_SETTINGS
-    changing
-      !CS_SETTINGS type ZDBBR_USER_SETTINGS_A .
-  class-methods SHOW_MULTI_SELECT
-    importing
-      !IV_CURRENT_LINE type SY-TABIX
-      !IR_CUSTOM_F4_MAP type ref to ZCL_DBBR_CUSTOM_F4_MAP
-    changing
-      !CT_SELFIELD type ZDBBR_SELFIELD_ITAB
-      !CT_SELFIELD_MULTI type ZDBBR_SELFIELD_ITAB .
-  class-methods START_SELECTION_FROM_MEMORY
-    returning
-      value(RESULT) type ref to ZCL_DBBR_SELECTION_CONTROLLER .
+    CLASS-METHODS show_user_settings
+      CHANGING
+        !cs_settings TYPE zdbbr_user_settings_a .
+    CLASS-METHODS show_multi_select
+      IMPORTING
+        !iv_current_line   TYPE sy-tabix
+        !ir_custom_f4_map  TYPE REF TO zcl_dbbr_custom_f4_map
+      CHANGING
+        !ct_selfield       TYPE zdbbr_selfield_itab
+        !ct_selfield_multi TYPE zdbbr_selfield_itab .
+    CLASS-METHODS start_selection_from_memory
+      RETURNING
+        VALUE(result) TYPE REF TO zcl_dbbr_selection_controller .
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_APP_STARTER IMPLEMENTATION.
+CLASS zcl_dbbr_app_starter IMPLEMENTATION.
 
 
   METHOD show_multi_select.
@@ -33,6 +33,10 @@ CLASS ZCL_DBBR_APP_STARTER IMPLEMENTATION.
     IF sy-subrc <> 0. " line was not found
       RETURN.
     ENDIF.
+
+    CHECK <ls_selfield>-is_parameter = abap_false OR
+          ( <ls_selfield>-is_parameter = abap_true AND
+            <ls_selfield>-is_range_param = abap_true ).
 
     DATA(lr_multi_select_table) = NEW zcl_dbbr_multi_select_table( ).
     lr_multi_select_table->init_table(
@@ -56,10 +60,10 @@ CLASS ZCL_DBBR_APP_STARTER IMPLEMENTATION.
 
 
   METHOD show_user_settings.
-    DATA(lr_user_settings) = NEW ZCL_DBBR_user_settings_sc( is_user_settings = cs_settings ).
-    lr_user_settings->ZIF_UITB_SCREEN_CONTROLLER~call_screen( ).
+    DATA(lr_user_settings) = NEW zcl_dbbr_user_settings_sc( is_user_settings = cs_settings ).
+    lr_user_settings->zif_uitb_screen_controller~call_screen( ).
 
-    IF lr_user_settings->ZIF_UITB_SCREEN_CONTROLLER~was_not_cancelled( ).
+    IF lr_user_settings->zif_uitb_screen_controller~was_not_cancelled( ).
       cs_settings = lr_user_settings->get_settings( ).
     ENDIF.
   ENDMETHOD.

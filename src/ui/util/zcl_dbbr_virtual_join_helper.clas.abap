@@ -1,116 +1,152 @@
-class ZCL_DBBR_VIRTUAL_JOIN_HELPER definition
-  public
-  create private .
+"! <p class="shorttext synchronized" lang="en">Helper for virtual joins</p>
+CLASS zcl_dbbr_virtual_join_helper DEFINITION
+  PUBLIC
+  CREATE PRIVATE .
 
-public section.
+  PUBLIC SECTION.
 
-  class-methods CREATE
-    importing
-      !IS_JOIN_DEF type ZDBBR_JOIN_DEF
-      !IR_FIELDS type ref to ZCL_DBBR_TABFIELD_LIST
-      !IR_FIELDS_ALL type ref to ZCL_DBBR_TABFIELD_LIST
-    returning
-      value(RESULT) type ref to ZCL_DBBR_VIRTUAL_JOIN_HELPER .
-  methods FILL_CACHE_TABLES
-    importing
-      !IT_TABLE type STANDARD TABLE
-    raising
-      ZCX_DBBR_SELECTION_COMMON .
-  methods POST_JOIN_EXISTS
-    returning
-      value(RESULT) type ABAP_BOOL .
-  methods PROCESS_TABLE
-    importing
-      !IR_TABLE type ref to DATA
-    returning
-      value(RESULT) type ABAP_BOOL .
+    "! <p class="shorttext synchronized" lang="en">Creates new instance of virtual join helper</p>
+    "!
+    CLASS-METHODS create
+      IMPORTING
+        !is_join_def   TYPE zdbbr_join_def
+        !ir_fields     TYPE REF TO zcl_dbbr_tabfield_list
+        !ir_fields_all TYPE REF TO zcl_dbbr_tabfield_list
+      RETURNING
+        VALUE(result)  TYPE REF TO zcl_dbbr_virtual_join_helper .
+    "! <p class="shorttext synchronized" lang="en">Fills the cache tables with values</p>
+    "!
+    METHODS fill_cache_tables
+      IMPORTING
+        !it_table TYPE STANDARD TABLE
+      RAISING
+        zcx_dbbr_selection_common .
+    "! <p class="shorttext synchronized" lang="en">Checks if post SQL Join exists</p>
+    "!
+    METHODS post_join_exists
+      RETURNING
+        VALUE(result) TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Process the the virtual joins for each line</p>
+    "!
+    METHODS process_table
+      IMPORTING
+        !ir_table     TYPE REF TO data
+      RETURNING
+        VALUE(result) TYPE abap_bool .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  data MT_POST_JOIN_DATA type ZDBBR_POST_JOIN_DATA_ITAB .
-  data MR_FIELDS type ref to ZCL_DBBR_TABFIELD_LIST .
-  data MR_FIELDS_ALL type ref to ZCL_DBBR_TABFIELD_LIST .
-  data MT_CONDITIONAL_FIELDS type ZDBBR_TABFIELD_INFO_UI_ITAB .
-  data MV_PRIMARY_TABLE type ZDBBR_JOIN_DATA_UI-PRIMARY_TABLE .
-  data MV_AND_STRING type STRING .
-  data MV_OR_STRING type STRING .
+    DATA mt_post_join_data TYPE zdbbr_post_join_data_itab .
+    DATA mr_fields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mr_fields_all TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mt_conditional_fields TYPE zdbbr_tabfield_info_ui_itab .
+    DATA mv_primary_table TYPE zdbbr_join_data_ui-primary_table .
+    DATA mv_and_string TYPE string .
+    DATA mv_or_string TYPE string .
 
-  methods BUILD_FOR_ALL_WHERE_CLAUSE
-    importing
-      !IS_POST_JOIN type ZDBBR_POST_JOIN_DATA
-    returning
-      value(RT_WHERE) type ZDBBR_STRING_T .
-  methods BUILD_WHERE_CLAUSE
-    importing
-      !IS_POST_JOIN type ZDBBR_POST_JOIN_DATA
-    returning
-      value(RT_WHERE) type ZDBBR_STRING_T .
-  methods BUILD_WHERE_FOR_CACHE_QUERY
-    importing
-      !IS_VIRTUAL_JOIN type ZDBBR_POST_JOIN_DATA
-      !IS_LINE type ANY
-    returning
-      value(RT_WHERE) type ZDBBR_STRING_T .
-  methods CONSTRUCTOR
-    importing
-      !IS_JOIN_DEF type ZDBBR_JOIN_DEF
-      !IR_FIELDS type ref to ZCL_DBBR_TABFIELD_LIST
-      !IR_FIELDS_ALL type ref to ZCL_DBBR_TABFIELD_LIST .
-  methods CREATE_CACHE_TABLES .
-  methods FILL_CACHE_FOR_ALL_SELECT
-    importing
-      !IT_TABLE type STANDARD TABLE
-    changing
-      !CS_POST_JOIN type ZDBBR_POST_JOIN_DATA
-    raising
-      ZCX_DBBR_SELECTION_COMMON .
-  methods FILL_CACHE_SINGLE_SELECT
-    importing
-      !IT_TABLE type STANDARD TABLE
-    changing
-      !CS_POST_JOIN type ZDBBR_POST_JOIN_DATA
-    raising
-      ZCX_DBBR_SELECTION_COMMON .
-  methods FILL_CACHE_TABLE
-    importing
-      !IT_TABLE type STANDARD TABLE
-    changing
-      !CS_POST_JOIN type ZDBBR_POST_JOIN_DATA
-    raising
-      ZCX_DBBR_SELECTION_COMMON .
-  methods FILL_OUTPUT_FIELDS
-    importing
-      !IS_VIRTUAL_JOIN type ZDBBR_POST_JOIN_DATA
-      !IT_CACHE type ANY TABLE
-    changing
-      !CS_LINE type ANY
-      !CR_T_NEW_LINES type ref to DATA .
-  methods GET_VALUE_FOR_WHERE
-    importing
-      !IV_VALUE type ANY
-      !IS_FIELD_COND type ZDBBR_JOIN_FIELD_COND_UI
-    returning
-      value(RESULT) type STRING .
-  methods PARSE_VIRTJTAB_FILTER_COND
-    importing
-      !IT_FILTER_COND type ZDBBR_JOIN_FILTER_COND_UI_T
-    returning
-      value(RT_CONDITIONS) type ZCL_DBBR_JOIN_HELPER=>TT_JOIN_CONDITIONS .
-  methods PARST_VIRTJTAB_FIELD_COND
-    importing
-      !IT_FIELD_COND type ZDBBR_JOIN_FIELD_COND_UI_T
-      !IS_LINE type ANY
-    returning
-      value(RT_CONDITIONS) type ZCL_DBBR_JOIN_HELPER=>TT_JOIN_CONDITIONS .
-  methods PROCESS_LINE
-    changing
-      !CS_LINE type ANY
-      !CR_T_NEW_LINES type ref to DATA .
+    "! <p class="shorttext synchronized" lang="en">Builds where clause for all entries cache select</p>
+    "!
+    METHODS build_for_all_where_clause
+      IMPORTING
+        !is_post_join   TYPE zdbbr_post_join_data
+      RETURNING
+        VALUE(rt_where) TYPE zdbbr_string_t .
+    "! <p class="shorttext synchronized" lang="en">Builds where clause for cache select</p>
+    "!
+    METHODS build_where_clause
+      IMPORTING
+        !is_post_join   TYPE zdbbr_post_join_data
+      RETURNING
+        VALUE(rt_where) TYPE zdbbr_string_t .
+    "! <p class="shorttext synchronized" lang="en">Builds where condition out of join and current output line</p>
+    "!
+    METHODS build_where_for_cache_query
+      IMPORTING
+        !is_virtual_join TYPE zdbbr_post_join_data
+        !is_line         TYPE any
+      RETURNING
+        VALUE(rt_where)  TYPE zdbbr_string_t .
+    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    "!
+    METHODS constructor
+      IMPORTING
+        !is_join_def   TYPE zdbbr_join_def
+        !ir_fields     TYPE REF TO zcl_dbbr_tabfield_list
+        !ir_fields_all TYPE REF TO zcl_dbbr_tabfield_list .
+    "! <p class="shorttext synchronized" lang="en">Creates all needed cache tables</p>
+    "!
+    METHODS create_cache_tables .
+    "! <p class="shorttext synchronized" lang="en">Fills cache with FOR ALL ENTRIES Select</p>
+    "!
+    METHODS fill_cache_for_all_select
+      IMPORTING
+        !it_table     TYPE STANDARD TABLE
+      CHANGING
+        !cs_post_join TYPE zdbbr_post_join_data
+      RAISING
+        zcx_dbbr_selection_common .
+    "! <p class="shorttext synchronized" lang="en">Fills cache with normal SELECT due to needed conversion</p>
+    "!
+    METHODS fill_cache_single_select
+      IMPORTING
+        !it_table     TYPE STANDARD TABLE
+      CHANGING
+        !cs_post_join TYPE zdbbr_post_join_data
+      RAISING
+        zcx_dbbr_selection_common .
+    "! <p class="shorttext synchronized" lang="en">Fills a single cache table with values</p>
+    "!
+    METHODS fill_cache_table
+      IMPORTING
+        !it_table     TYPE STANDARD TABLE
+      CHANGING
+        !cs_post_join TYPE zdbbr_post_join_data
+      RAISING
+        zcx_dbbr_selection_common .
+    "! <p class="shorttext synchronized" lang="en">Fills all the virtual output fields for a single line</p>
+    "!
+    "!
+    METHODS fill_output_fields
+      IMPORTING
+        !is_virtual_join TYPE zdbbr_post_join_data
+        !it_cache        TYPE ANY TABLE
+      CHANGING
+        !cs_line         TYPE any
+        !cr_t_new_lines  TYPE REF TO data .
+    "! <p class="shorttext synchronized" lang="en">Get correct value for condition for WHERE Clause</p>
+    "!
+    METHODS get_value_for_where
+      IMPORTING
+        !iv_value      TYPE any
+        !is_field_cond TYPE zdbbr_join_field_cond_ui
+      RETURNING
+        VALUE(result)  TYPE string .
+    "! <p class="shorttext synchronized" lang="en">Parse filter conditions for virtual join table</p>
+    "!
+    METHODS parse_virtjtab_filter_cond
+      IMPORTING
+        !it_filter_cond      TYPE zdbbr_join_filter_cond_ui_t
+      RETURNING
+        VALUE(rt_conditions) TYPE zcl_dbbr_join_helper=>tt_join_conditions .
+    "! <p class="shorttext synchronized" lang="en">Parse field conditions for virtual join table</p>
+    "!
+    METHODS parst_virtjtab_field_cond
+      IMPORTING
+        !it_field_cond       TYPE zdbbr_join_field_cond_ui_t
+        !is_line             TYPE any
+      RETURNING
+        VALUE(rt_conditions) TYPE zcl_dbbr_join_helper=>tt_join_conditions .
+    "! <p class="shorttext synchronized" lang="en">Processes a single line in the output table</p>
+    "!
+    METHODS process_line
+      CHANGING
+        !cs_line        TYPE any
+        !cr_t_new_lines TYPE REF TO data .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_VIRTUAL_JOIN_HELPER IMPLEMENTATION.
+CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
 
 
   METHOD build_for_all_where_clause.
@@ -175,7 +211,7 @@ CLASS ZCL_DBBR_VIRTUAL_JOIN_HELPER IMPLEMENTATION.
 
 
   METHOD build_where_for_cache_query.
-    data: lt_conditions type zcl_dbbr_join_helper=>tt_join_conditions.
+    DATA: lt_conditions TYPE zcl_dbbr_join_helper=>tt_join_conditions.
 
 *.. parse field conditions
     LOOP AT is_virtual_join-field_cond ASSIGNING FIELD-SYMBOL(<ls_field_cond>).
@@ -659,7 +695,7 @@ CLASS ZCL_DBBR_VIRTUAL_JOIN_HELPER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD PROCESS_TABLE.
+  METHOD process_table.
     DATA: lr_t_temp TYPE REF TO data.
 
     FIELD-SYMBOLS: <lt_data> TYPE STANDARD TABLE,

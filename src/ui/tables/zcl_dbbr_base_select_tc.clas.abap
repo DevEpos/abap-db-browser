@@ -69,7 +69,7 @@ CLASS zcl_dbbr_base_select_tc IMPLEMENTATION.
     rf_custom_timst_conv = xsdbool(
        ( mr_selfield_line->domname = zif_dbbr_global_consts=>c_domain_names-timestamp OR
          mr_selfield_line->domname = zif_dbbr_global_consts=>c_domain_names-timestamp_long ) AND
-       get_util( )->mr_data->mr_s_global_data->settings-disable_date_to_times_conv = abap_false
+       get_util( )->mo_data->mr_s_global_data->settings-disable_date_to_times_conv = abap_false
     ).
 
   ENDMETHOD.
@@ -197,7 +197,7 @@ CLASS zcl_dbbr_base_select_tc IMPLEMENTATION.
     IF ( is_selfield-datatype = 'DATS' OR
        ( is_selfield-domname = zif_dbbr_global_consts=>c_domain_names-timestamp OR
          is_selfield-domname = zif_dbbr_global_consts=>c_domain_names-timestamp_long ) AND
-       get_util( )->mr_data->mr_s_global_data->settings-disable_date_to_times_conv = abap_false )
+       get_util( )->mo_data->mr_s_global_data->settings-disable_date_to_times_conv = abap_false )
          AND cv_value = 'SY-DATUM'.
       cv_value = |{ sy-datum DATE = USER }|.
     ENDIF.

@@ -336,7 +336,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    IF ev_fieldname = 'TABNAME'.
+    IF ev_fieldname = 'ENTITY_ID'.
 *... Call other object name chooser to get the table name
     ELSE.
       zcl_dbbr_dictionary_helper=>get_table_field_infos(
@@ -344,9 +344,12 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
         IMPORTING et_table_fields = DATA(lt_table_fields)
       ).
 
-      lt_values = VALUE #( FOR dfies IN lt_table_fields ( fieldname = dfies-fieldname
-                                                          key       = dfies-keyflag
-                                                          fieldtext = dfies-fieldtext ) ).
+      lt_values = VALUE #( FOR dfies IN lt_table_fields
+                           where ( fieldname <> '.NODE1' and
+                                   rollname  <> 'MANDT' )
+                           ( fieldname = dfies-fieldname
+                             key       = dfies-keyflag
+                             fieldtext = dfies-fieldtext ) ).
 
       DATA(lv_chosen_field) = zcl_dbbr_f4_helper=>call_int_table_f4(
           it_table_search      = lt_values

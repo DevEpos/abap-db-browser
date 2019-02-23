@@ -4,11 +4,11 @@ CLASS zcl_dbbr_selscr_nav_events DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-
     CLASS-EVENTS entity_chosen
       EXPORTING
         VALUE(ev_entity_id) TYPE tabname
-        VALUE(ev_entity_type) TYPE zdbbr_entity_type .
+        VALUE(ev_entity_type) TYPE zdbbr_entity_type
+        VALUE(ef_force_loading) TYPE abap_bool.
     CLASS-EVENTS variant_entry_chosen
       EXPORTING
         VALUE(ev_entity_id) TYPE tabname
@@ -22,7 +22,7 @@ CLASS zcl_dbbr_selscr_nav_events DEFINITION
       EXPORTING
         VALUE(ev_object_type) TYPE zdbbr_obj_browser_mode
         VALUE(ev_search_query) TYPE string
-        value(ef_close_popup) type abap_bool.
+        VALUE(ef_close_popup) TYPE abap_bool.
     CLASS-EVENTS request_object_search
       EXPORTING
         VALUE(ev_object_type) TYPE zdbbr_obj_browser_mode
@@ -38,8 +38,9 @@ CLASS zcl_dbbr_selscr_nav_events DEFINITION
     "! <p class="shorttext synchronized" lang="en">Raise ENTITY_CHOSEN event</p>
     CLASS-METHODS raise_entity_chosen
       IMPORTING
-        iv_entity_id   TYPE tabname
-        iv_entity_type TYPE zdbbr_entity_type .
+        iv_entity_id     TYPE tabname
+        iv_entity_type   TYPE zdbbr_entity_type
+        if_force_loading TYPE abap_bool OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Raise VARIANT_ENTRY_CHOSEN event</p>
     CLASS-METHODS raise_variant_entry_chosen
       IMPORTING
@@ -67,7 +68,7 @@ CLASS zcl_dbbr_selscr_nav_events DEFINITION
       IMPORTING
         iv_object_type  TYPE zdbbr_obj_browser_mode
         iv_search_query TYPE string
-        if_close_popup  type abap_bool default abap_true.
+        if_close_popup  TYPE abap_bool DEFAULT abap_true.
     "! <p class="shorttext synchronized" lang="en">Raise event REQUEST_OBJECT_SEARCH</p>
     "!
     "! @parameter iv_object_type | <p class="shorttext synchronized" lang="en"></p>
@@ -98,7 +99,8 @@ CLASS zcl_dbbr_selscr_nav_events IMPLEMENTATION.
     RAISE EVENT entity_chosen
       EXPORTING
         ev_entity_id   = iv_entity_id
-        ev_entity_type = iv_entity_type.
+        ev_entity_type = iv_entity_type
+        ef_force_loading = if_force_loading.
   ENDMETHOD.
 
 

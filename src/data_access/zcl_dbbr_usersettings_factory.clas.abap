@@ -64,9 +64,9 @@ CLASS zcl_dbbr_usersettings_factory IMPLEMENTATION.
 
     IF sy-subrc <> 0.
       rs_settings = VALUE #(
-        max_hits              = 500
-        link_mode             = zif_dbbr_c_eb_link_mode=>open_in_db_browser_new_task
-        entry_search_function = zif_dbbr_c_search_function=>find_tables
+        max_hits        = 500
+        link_mode       = zif_dbbr_c_eb_link_mode=>open_in_db_browser_new_task
+        search_function = zif_dbbr_c_object_browser_mode=>cds_view
       ).
     ENDIF.
   ENDMETHOD.

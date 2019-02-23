@@ -22,12 +22,8 @@ CLASS zcl_dbbr_table_selection_util DEFINITION
         REDEFINITION .
   PROTECTED SECTION.
 
-    "! <p class="shorttext synchronized" lang="en">Marks virtual join fields for later processing</p>
-    METHODS mark_virt_join_selfields .
-    "! <p class="shorttext synchronized" lang="en">Fill virtual join field in the output table</p>
-    METHODS fill_virtual_join_fields
-      RETURNING
-        VALUE(result) TYPE abap_bool .
+
+
     "! <p class="shorttext synchronized" lang="en">Maintain data for the selection criteria</p>
     METHODS edit_data
       IMPORTING
@@ -96,8 +92,8 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
         ( field = output_field-fieldname )
       ).
     ELSE.
-      mr_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
-      DATA(lr_iterator) = mr_tabfields->get_iterator( if_for_active = abap_true ).
+      mo_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
+      DATA(lr_iterator) = mo_tabfields->get_iterator( if_for_active = abap_true ).
 
       WHILE lr_iterator->has_next( ).
         DATA(lr_field) = CAST zdbbr_tabfield_info_ui( lr_iterator->get_next( ) ).
@@ -118,7 +114,6 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
         i_sapedit        = abap_true
         i_max_lines      = ms_technical_info-max_lines
         i_clnt_dep       = ms_control_info-client_dependent
-        i_variant        = ms_technical_info-alv_variant
         i_tech_names     = ms_technical_info-tech_names
         i_uname          = sy-uname
       TABLES
@@ -139,13 +134,14 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
     determine_group_by_state( ).
     determine_aggregation_state( ).
-    mark_virt_join_selfields( ).
 
     """ only count lines for current selection and display result
     IF mf_count_lines = abap_true.
       count_lines( ).
       RETURN.
     ENDIF.
+
+    build_full_fieldnames( ).
 
     """ go into edit mode for given table - SE16N is used for this
     IF ms_control_info-edit = abap_true.
@@ -161,21 +157,10 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
     read_entity_infos( ).
 
-    build_full_fieldnames( ).
-
-    IF mf_join_is_active = abap_true AND
-       line_exists( ms_join_def-tables[ is_virtual = abap_true ] ).
-      mr_post_join_helper = zcl_dbbr_virtual_join_helper=>create(
-        is_join_def   = ms_join_def
-        ir_fields     = mr_tabfields
-        ir_fields_all = mr_tabfields_all
-      ).
-    ENDIF.
-
-    mr_tabfields->update_text_field_status( ).
+    mo_tabfields->update_text_field_status( ).
 
     zcl_dbbr_addtext_helper=>prepare_text_fields(
-      EXPORTING ir_fields    = mr_tabfields
+      EXPORTING ir_fields    = mo_tabfields
       CHANGING  ct_add_texts = mt_add_texts
     ).
 
@@ -193,11 +178,11 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
     create_dynamic_table( ).
 
-    IF mr_formula IS BOUND.
+    IF mo_formula IS BOUND.
       TRY.
-          mr_formula_calculator = zcl_dbbr_formula_calculator=>create(
-              ir_formula            = mr_formula
-              ir_tabfields          = mr_tabfields
+          mo_formula_calculator = zcl_dbbr_formula_calculator=>create(
+              ir_formula            = mo_formula
+              ir_tabfields          = mo_tabfields
               it_tab_components     = mt_dyntab_components
           ).
         CATCH zcx_dbbr_exception INTO DATA(lr_exception).
@@ -213,8 +198,6 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    CHECK fill_virtual_join_fields( ).
-
     execute_formula_for_lines( ).
 
     set_miscinfo_for_selected_data( ).
@@ -222,26 +205,6 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
     RAISE EVENT selection_finished
       EXPORTING
          ef_first_select = abap_true.
-  ENDMETHOD.
-
-
-  METHOD fill_virtual_join_fields.
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
-
-    result = abap_true.
-
-*.. only continue if virtual join helper is bound
-    CHECK mr_post_join_helper IS BOUND.
-
-    ASSIGN mr_t_data->* TO <lt_table>.
-
-    TRY.
-        mr_post_join_helper->fill_cache_tables( <lt_table> ).
-        result = mr_post_join_helper->process_table( mr_t_data ).
-      CATCH zcx_dbbr_selection_common INTO DATA(lx_sql_error).
-        CLEAR result.
-        MESSAGE lx_sql_error->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
-    ENDTRY.
   ENDMETHOD.
 
 
@@ -258,41 +221,7 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD mark_virt_join_selfields.
-    CHECK mf_join_is_active = abap_true.
-    CHECK line_exists( ms_join_def-tables[ is_virtual = abap_true ] ).
-
-
-    LOOP AT ms_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_join_table>) WHERE is_virtual = abap_true.
-      LOOP AT <ls_join_table>-field_conditions ASSIGNING FIELD-SYMBOL(<ls_join_field>).
-
-        " update field
-        DATA(lr_s_field) = mr_tabfields->get_field_ref(
-           iv_tabname_alias   = <ls_join_field>-ref_table
-           iv_fieldname = <ls_join_field>-ref_field
-        ).
-
-        lr_s_field->needed_for_virtual_join = abap_true.
-      ENDLOOP.
-    ENDLOOP.
-
-    mt_virtual_join_table_range = VALUE #(
-      LET sign = 'I' option = 'EQ' IN
-      FOR <ls_join_tab> IN ms_join_def-tables
-      WHERE ( is_virtual = abap_true )
-      ( sign   = sign
-        option = option
-        low    = <ls_join_tab>-add_table )
-    ).
-
-    LOOP AT mt_selection_fields ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE tabname IN mt_virtual_join_table_range.
-      <ls_selfield>-virtual_join_field = abap_true.
-    ENDLOOP.
-  ENDMETHOD.
-
-
   METHOD read_entity_infos.
-    DATA(lv_special_group_count) = 1.
 
     DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( ms_control_info-primary_table ).
 
@@ -300,36 +229,6 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
     ms_control_info-client_dependent = ls_table_info-clidep.
     ms_control_info-primary_table_tabclass = ls_table_info-tabclass.
 
-    DATA(lv_sp_group) = CONV lvc_spgrp( c_col_group_prefix && lv_special_group_count ).
-    mt_column_groups = VALUE #(
-      ( sp_group = lv_sp_group
-        text     = `Table - ` && ms_control_info-primary_table )
-    ).
-
-    mt_group_tab_map = VALUE #( ( sp_group = lv_sp_group tabname = ms_control_info-primary_table ) ).
-
-    ADD 1 TO lv_special_group_count.
-
-    " update join table names
-    IF ms_join_def-tables IS NOT INITIAL.
-      LOOP AT ms_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_join_table>) WHERE table_name IS INITIAL.
-        <ls_join_table>-table_name = zcl_dbbr_dictionary_helper=>get_table_info( <ls_join_table>-add_table )-ddtext.
-        lv_sp_group = c_col_group_prefix && lv_special_group_count.
-        mt_column_groups = VALUE #(
-          BASE mt_column_groups
-          ( sp_group = lv_sp_group
-            text     = `Table - ` && <ls_join_table>-add_table )
-        ).
-        mt_group_tab_map = VALUE #(
-          BASE mt_group_tab_map
-          ( sp_group = lv_sp_group
-            tabname  = <ls_join_table>-add_table )
-        ).
-        ADD 1 TO lv_special_group_count.
-      ENDLOOP.
-    ELSE.
-      CLEAR mt_column_groups.
-    ENDIF.
   ENDMETHOD.
 
 
@@ -340,8 +239,6 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
       RAISE EVENT no_data.
       RETURN.
     ENDIF.
-
-    CHECK fill_virtual_join_fields( ).
 
     execute_formula_for_lines( ).
 
@@ -357,10 +254,9 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
       ( zif_dbbr_c_selection_functions=>navigate_association )
     ).
 
-    IF mf_join_is_active = abap_false AND
-       mf_group_by = abap_false AND
+    IF mf_group_by = abap_false AND
        mf_aggregation = abap_false AND
-       ms_control_info-primary_table_tabclass = 'TRANSP' and
+       ms_control_info-primary_table_tabclass = 'TRANSP' AND
        ms_technical_info-advanced_mode = abap_true.
       DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>edit_data.
     ENDIF.

@@ -278,7 +278,7 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     METHODS show_hidden_rows
       IMPORTING
         !if_refresh TYPE boolean DEFAULT abap_true .
-    METHODS show_hide_side_toolbar .
+
     METHODS show_line_detail
       IMPORTING
         !is_line TYPE any .
@@ -458,13 +458,13 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     " column is automatically a jump field
     " 1) get jumpfield definition
     DATA(ls_field) = mr_util->mt_fieldcat[ fieldname = iv_fieldname ].
-    DATA(lr_tabfield) = mr_util->mr_tabfields->get_field_ref_by_alv_name( iv_fieldname ).
+    DATA(lr_tabfield) = mr_util->mo_tabfields->get_field_ref_by_alv_name( iv_fieldname ).
 
     LOOP AT mr_util->mt_jumpdest INTO DATA(ls_jumpfield) WHERE jump_source_field = lr_tabfield->fieldname
                                                   AND jump_source_table = lr_tabfield->tabname.
       " 2) check if conditions are met
       IF ls_jumpfield-crit_field IS NOT INITIAL.
-        DATA(ls_crit_field) = mr_util->mr_tabfields->get_field(
+        DATA(ls_crit_field) = mr_util->mo_tabfields->get_field(
             iv_tabname   = ls_jumpfield-crit_table
             iv_fieldname = ls_jumpfield-crit_field
         ).
@@ -489,10 +489,15 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       LOOP AT ls_jumpfield-parameters ASSIGNING FIELD-SYMBOL(<ls_param>) WHERE active = abap_true.
         IF <ls_param>-param_field IS NOT INITIAL.
           " read crit field
-          DATA(lr_param_field) = mr_util->mr_tabfields->get_field_ref(
-              iv_tabname_alias   = <ls_param>-param_table
-              iv_fieldname = <ls_param>-param_field
-          ).
+          TRY.
+              DATA(lr_param_field) = mr_util->mo_tabfields->get_field_ref(
+                  iv_tabname_alias = <ls_param>-param_table
+                  iv_fieldname     = <ls_param>-param_field
+              ).
+            CATCH cx_sy_itab_line_not_found.
+              MESSAGE |Parameter Field { <ls_param>-param_table }-{ <ls_param>-param_field } was not found. Jump was aborted!| TYPE 'S' DISPLAY LIKE 'E'.
+              RETURN.
+          ENDTRY.
           ASSIGN COMPONENT lr_param_field->alv_fieldname OF STRUCTURE <ls_line> TO FIELD-SYMBOL(<lv_param_val>).
           <ls_param>-param_value = <lv_param_val>.
         ENDIF.
@@ -604,9 +609,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
             CONTINUE.
           ENDIF.
 
-          IF ls_field-fieldname = zif_dbbr_c_special_out_columns=>external_data_icon.
-            lr_compare_alv->get_columns( )->set_column_position( columnname = ls_field-fieldname position = 1 ).
-          ENDIF.
         ENDLOOP.
 
         lr_compare_alv->get_columns( )->set_optimize( ).
@@ -667,7 +669,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
              <ls_fcat>-reptext,
              <ls_fcat>-tooltip.
       TRY .
-          DATA(lr_field) = mr_util->mr_tabfields_all->get_field_ref_by_alv_name( <ls_fcat>-fieldname ).
+          DATA(lr_field) = mr_util->mo_tabfields_all->get_field_ref_by_alv_name( <ls_fcat>-fieldname ).
           mr_util->set_fieldcat_coltexts(
             EXPORTING ir_field    = lr_field
             CHANGING  cs_fieldcat = <ls_fcat>
@@ -689,9 +691,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD create_alv_header.
-*&---------------------------------------------------------------------*
-*& Author:    stockbal     Date: 2016/12/02
-*&---------------------------------------------------------------------*
     mr_alv_grid->set_gridtitle( i_gridtitle = mr_util->build_simple_alv_title( )  ).
   ENDMETHOD.
 
@@ -710,7 +709,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         it_selfields_multi    = it_selfields_multi
         ir_tabfields          = ir_tabfields
         ir_tabfields_all      = ir_tabfields_all
-        it_table_to_alias_map = it_table_to_alias_map
         is_join_definition    = is_join_definition
         is_join_def           = is_join_def
         it_exclude_function   = it_exclude_function
@@ -741,7 +739,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         it_multi_or               = is_controller_serialized-selection_fields_or
         ir_tabfields              = lr_tabfields
         ir_tabfields_all          = lr_tabfields_all
-        it_table_to_alias_map     = is_controller_serialized-table_to_alias_map
         is_join_definition        = is_controller_serialized-join_definition
         is_join_def               = is_controller_serialized-join_def
         it_nav_breadcrumbs        = is_controller_serialized-navigation_breadcrumbs
@@ -1108,7 +1105,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD get_updated_tabfields.
-    rr_tabfields = mr_util->mr_tabfields_original.
+    rr_tabfields = mr_util->mo_tabfields_original.
   ENDMETHOD.
 
 
@@ -1224,8 +1221,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         report     = zif_dbbr_c_report_id=>main && mr_util->get_entity_name( )
         handle     = abap_true
         username   = sy-uname
-        variant    = mr_util->ms_technical_info-alv_variant
-        text       = mr_util->ms_control_info-alv_varianttext
     ).
 
     " coloring of sort fields
@@ -1899,7 +1894,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     LOOP AT lt_field_catalog ASSIGNING FIELD-SYMBOL(<ls_field_cat>).
 
       TRY.
-          DATA(lr_field) = mr_util->mr_tabfields_all->get_field_ref_by_alv_name( <ls_field_cat>-fieldname ).
+          DATA(lr_field) = mr_util->mo_tabfields_all->get_field_ref_by_alv_name( <ls_field_cat>-fieldname ).
           lt_columns = VALUE #( BASE lt_columns
             ( tech_fieldname = lr_field->alv_fieldname
               fieldname      = lr_field->sql_fieldname
@@ -1961,80 +1956,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD show_hide_side_toolbar.
-    IF mr_side_toolbar_dock IS NOT INITIAL.
-      mr_side_toolbar_dock->free( ).
-      cl_gui_cfw=>flush( ).
-      CLEAR: mr_side_toolbar_dock,
-             mr_side_toolbar.
-      RETURN.
-    ENDIF.
-
-    IF mr_side_toolbar_dock IS INITIAL.
-      mr_side_toolbar_dock = NEW cl_gui_docking_container(
-          side  = cl_gui_docking_container=>dock_at_left
-          lifetime = cl_gui_control=>lifetime_dynpro
-          ratio = 10
-      ).
-    ENDIF.
-
-    IF mr_side_toolbar IS INITIAL.
-      mr_side_toolbar = NEW cl_gui_toolbar(
-          parent             = mr_side_toolbar_dock
-          display_mode       = cl_gui_toolbar=>m_mode_vertical
-      ).
-
-      mr_side_toolbar->add_button(
-          icon      = zif_dbbr_c_icon=>no_icon
-          fcode     = 'COLUMN_SETTINGS'
-          butn_type = cntb_btype_menu
-          text      = 'Column Settings'
-          quickinfo = 'Menu with Column Settings'
-      ).
-      mr_side_toolbar->add_button(
-          fcode     = space
-          icon      = zif_dbbr_c_icon=>no_icon
-          butn_type = cntb_btype_sep
-      ).
-
-      mr_side_toolbar->add_button(
-          icon      = zif_dbbr_c_icon=>no_icon
-          fcode     = 'COLOR_SETTINGS'
-          butn_type = cntb_btype_menu
-          text      = 'Color'
-          quickinfo = 'Color Settings'
-      ).
-
-      DATA(lr_col_menu) = NEW cl_ctmenu( ).
-      lr_col_menu->add_function(
-          fcode = 'FUNC'
-          text  = 'Group'
-      ).
-      DATA(lr_accentuation_menu) = build_accentuation_submenu( ).
-      lr_accentuation_menu->add_separator( ).
-      lr_accentuation_menu->add_function(
-          fcode = zif_dbbr_c_selection_functions=>no_emphasize_cells
-          text  = 'Remove Colors'
-      ).
-
-      mr_side_toolbar->assign_static_ctxmenu_table(
-          table_ctxmenu        = VALUE ttb_btnmnu(
-             ( function = 'COLUMN_SETTINGS' ctmenu = lr_col_menu )
-             ( function = 'COLOR_SETTINGS'  ctmenu = lr_accentuation_menu )
-          )
-      ).
-
-      " register events for toolbar
-      DATA: lt_events TYPE cntl_simple_events.
-
-      lt_events = VALUE #( ( eventid = cl_gui_toolbar=>m_id_function_selected ) ).
-      mr_side_toolbar->set_registered_events( lt_events ).
-
-      SET HANDLER on_toolbar_clicked FOR mr_side_toolbar.
-
-    ENDIF.
-  ENDMETHOD.
-
 
   METHOD show_line_detail.
     TYPES: BEGIN OF lty_selfield,
@@ -2072,7 +1993,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       ENDIF.
 
       TRY.
-          DATA(lr_s_field) = mr_util->mr_tabfields_all->get_field_ref_by_alv_name( <ls_fieldcat>-fieldname ).
+          DATA(lr_s_field) = mr_util->mo_tabfields_all->get_field_ref_by_alv_name( <ls_fieldcat>-fieldname ).
           ls_detail-tech_fieldname = lr_s_field->fieldname_raw.
         CATCH cx_sy_itab_line_not_found.
           ls_detail-tech_fieldname = <ls_fieldcat>-fieldname.
@@ -2268,7 +2189,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       ADD 1 TO lv_pos.
     ENDLOOP.
 
-    DATA(lr_original_tabfields) = mr_util->mr_tabfields_original.
+    DATA(lr_original_tabfields) = mr_util->mo_tabfields_original.
 
     " fill information into original tabfield list
     lr_original_tabfields->clear_active_flag( if_clear_output = abap_true
@@ -2419,12 +2340,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         emphasize_negative_values( ).
         RETURN.
 
-      WHEN zif_dbbr_c_selection_functions=>control_side_header_visiblity.
+      WHEN zif_dbbr_c_selection_functions=>toggle_entity_info_header.
         display_top_header( ).
-        RETURN.
-
-      WHEN zif_dbbr_c_selection_functions=>show_hide_side_toolbar.
-        show_hide_side_toolbar( ).
         RETURN.
 
       WHEN zif_dbbr_c_selection_functions=>hide_columns.
@@ -2448,7 +2365,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selection_functions=>control_tech_view.
         control_tech_view( ).
-        return.
+        RETURN.
 
       WHEN zif_dbbr_c_selection_functions=>set_focus_to_list.
         cl_gui_control=>set_focus( mr_alv_grid ).
@@ -2539,8 +2456,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
                                            ELSE
                                              current_line_count( ) - lv_alv_filtered_entries ).
 
-    " differentiate headers of join and default selection
-    IF mr_util->is_join_active( ).
+    " differentiate headers of join and default/custom query selection
+    IF mr_util->is_join_active( ) or mr_util->mf_custom_query_active = abap_true.
       DATA(lv_selection_count_text) = |{ lv_filtered_line_count NUMBER = USER } Entries|.
     ELSE.
       lv_selection_count_text = |{ lv_filtered_line_count NUMBER = USER } of { mr_util->mv_max_lines_existing NUMBER = USER } Entries|.

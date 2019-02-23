@@ -91,6 +91,12 @@
      <ENTRY>Import from Clipboard</ENTRY>
      <LENGTH>42</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>014</KEY>
+     <ENTRY>Show in Object Browser</ENTRY>
+     <LENGTH>44</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -176,12 +182,6 @@
      <CMPNAME>FILL_TOOLBAR</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Fill the toolbar with functions</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
-     <CMPNAME>FREE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Frees all used controls and removes the tree from the screen</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>

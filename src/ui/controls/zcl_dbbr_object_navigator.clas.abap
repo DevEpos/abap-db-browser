@@ -6,7 +6,8 @@ CLASS zcl_dbbr_object_navigator DEFINITION
 
   PUBLIC SECTION.
 
-    INTERFACES zif_uitb_view .
+    INTERFACES zif_uitb_view.
+    INTERFACES zif_uitb_gui_composite_view .
     INTERFACES zif_uitb_gui_control .
     INTERFACES zif_uitb_content_searcher .
 
@@ -34,6 +35,10 @@ CLASS zcl_dbbr_object_navigator DEFINITION
         object_browser TYPE ui_func VALUE 'REPOSITORY' ##NO_TEXT,
       END OF c_view.
 
+    CONSTANTS:
+      BEGIN OF c_command_id,
+        show_object_list TYPE ui_func VALUE 'SHOW_OBJ_LIST',
+      END OF c_command_id.
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor .
     "! <p class="shorttext synchronized" lang="en">Updates the content view of the navigator</p>
@@ -64,14 +69,14 @@ CLASS zcl_dbbr_object_navigator DEFINITION
     CONSTANTS c_max_views TYPE i VALUE 3 ##NO_TEXT.
     CONSTANTS c_first_view_id TYPE i VALUE 2.
     "! <p class="shorttext synchronized" lang="en">Docking Control Container</p>
-    DATA mr_dock TYPE REF TO cl_gui_docking_container .
-    DATA mr_favorites_tree TYPE REF TO zcl_dbbr_favorites_tree .
+    DATA mo_dock TYPE REF TO cl_gui_docking_container .
+    DATA mo_favorites_tree TYPE REF TO zcl_dbbr_favorites_tree .
     "! <p class="shorttext synchronized" lang="en">Toolbar Control</p>
-    DATA mr_mode_toolbar TYPE REF TO cl_gui_toolbar .
-    DATA mr_object_browser TYPE REF TO zcl_dbbr_object_browser_tree .
+    DATA mo_mode_toolbar TYPE REF TO cl_gui_toolbar .
+    DATA mo_object_browser TYPE REF TO zcl_dbbr_object_browser_tree .
     "! <p class="shorttext synchronized" lang="en">Splitter Control</p>
-    DATA mr_splitter TYPE REF TO cl_gui_splitter_container .
-    DATA mr_history TYPE REF TO zcl_dbbr_object_history_tree .
+    DATA mo_splitter TYPE REF TO cl_gui_splitter_container .
+    DATA mo_history TYPE REF TO zcl_dbbr_object_history_tree .
     DATA:
       mt_view_info      TYPE STANDARD TABLE OF ty_view_info .
     DATA mv_dock_extension TYPE i .
@@ -131,16 +136,24 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
   METHOD adapt_view_and_toolbar.
 
     IF iv_active_view_id <> -1.
-      DATA(lr_s_old_active_cell) = REF #( mt_view_info[ cell_id = iv_active_view_id ] OPTIONAL ).
-      lr_s_old_active_cell->is_active = abap_false.
-      mr_mode_toolbar->set_button_state( checked = abap_false fcode = lr_s_old_active_cell->function ).
-      mr_splitter->set_row_height( id = iv_active_view_id height = 0 ).
+      DATA(lo_s_old_active_cell) = REF #( mt_view_info[ cell_id = iv_active_view_id ] OPTIONAL ).
+      lo_s_old_active_cell->is_active = abap_false.
+      mo_mode_toolbar->set_button_state( EXPORTING checked = abap_false
+                                                   fcode   = lo_s_old_active_cell->function
+                                         EXCEPTIONS OTHERS = 1 ).
+      mo_splitter->set_row_height( EXPORTING id      = iv_active_view_id
+                                             height  = 0
+                                   EXCEPTIONS OTHERS = 1 ).
     ENDIF.
 
-    DATA(lr_s_new_active_cell) = REF #( mt_view_info[ cell_id = iv_new_view_id ] ).
-    lr_s_new_active_cell->is_active = abap_true.
-    mr_mode_toolbar->set_button_state( checked = abap_true fcode = lr_s_new_active_cell->function ).
-    mr_splitter->set_row_height( id = iv_new_view_id height = -1 ).
+    DATA(lo_s_new_active_cell) = REF #( mt_view_info[ cell_id = iv_new_view_id ] ).
+    lo_s_new_active_cell->is_active = abap_true.
+    mo_mode_toolbar->set_button_state( EXPORTING  checked = abap_true
+                                                  fcode   = lo_s_new_active_cell->function
+                                       EXCEPTIONS OTHERS  = 1 ).
+    mo_splitter->set_row_height( EXPORTING  id     = iv_new_view_id
+                                            height = -1
+                                 EXCEPTIONS OTHERS = 1 ).
   ENDMETHOD.
 
 
@@ -177,49 +190,49 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
 
 
   METHOD create_dock.
-    CHECK mr_dock IS INITIAL.
+    CHECK mo_dock IS INITIAL.
 
-    mr_dock = NEW cl_gui_docking_container(
+    mo_dock = NEW cl_gui_docking_container(
         side      = cl_gui_docking_container=>dock_at_left
         dynnr     = zif_dbbr_screen_ids=>c_selection_screen
         repid     = zif_dbbr_c_report_id=>main
         extension = 460
     ).
 
-    mr_dock->set_visible( abap_false ).
+    mo_dock->set_visible( abap_false ).
   ENDMETHOD.
 
 
   METHOD create_splitter.
-    CHECK: mr_splitter IS INITIAL,
-           mr_dock IS BOUND.
+    CHECK: mo_splitter IS INITIAL,
+           mo_dock IS BOUND.
 
     DATA(lv_max_views) = c_max_views.
 
-    mr_splitter = NEW cl_gui_splitter_container(
-        parent                  = mr_dock
+    mo_splitter = NEW cl_gui_splitter_container(
+        parent                  = mo_dock
         rows                    = lv_max_views + 1
         columns                 = 1
     ).
 
-    mr_splitter->set_row_mode( cl_gui_splitter_container=>mode_absolute ).
-    mr_splitter->set_border( EXPORTING border = abap_false EXCEPTIONS OTHERS = 0 ).
+    mo_splitter->set_row_mode( cl_gui_splitter_container=>mode_absolute ).
+    mo_splitter->set_border( EXPORTING border = abap_false EXCEPTIONS OTHERS = 0 ).
 
     DO lv_max_views + 1 TIMES.
-      mr_splitter->set_row_sash(
+      mo_splitter->set_row_sash(
           id     = sy-index
           type   = cl_gui_splitter_container=>type_movable
           value  = cl_gui_splitter_container=>false
       ).
 
-      mr_splitter->set_row_sash(
+      mo_splitter->set_row_sash(
           id     = sy-index
           type   = cl_gui_splitter_container=>type_sashvisible
           value  = cl_gui_splitter_container=>false
       ).
 
       IF sy-index > 1.
-        mr_splitter->set_row_height(
+        mo_splitter->set_row_height(
             id     = sy-index
             height = 0
         ).
@@ -227,7 +240,7 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
     ENDDO.
 
 *.. Set height of toolbar panel
-    mr_splitter->set_row_height(
+    mo_splitter->set_row_height(
         id     = 1
         height = cl_gui_cfw=>compute_metric_from_dynp(
            metric = cl_gui_control=>metric_pixel
@@ -242,24 +255,24 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
   METHOD create_toolbar.
     DATA: lt_events TYPE cntl_simple_events.
 
-    CHECK mr_mode_toolbar IS INITIAL.
+    CHECK mo_mode_toolbar IS INITIAL.
 
-    DATA(lr_container) = mr_splitter->get_container( row = 1 column = 1 ).
-    mr_mode_toolbar = NEW #(
-      parent       = lr_container
+    DATA(lo_container) = mo_splitter->get_container( row = 1 column = 1 ).
+    mo_mode_toolbar = NEW #(
+      parent       = lo_container
       display_mode = cl_gui_toolbar=>m_mode_vertical
     ).
 
     lt_events = VALUE #( ( eventid = cl_gui_toolbar=>m_id_function_selected appl_event = abap_true )
                          ( eventid = cl_gui_toolbar=>m_id_dropdown_clicked  appl_event = abap_true ) ).
 
-    mr_mode_toolbar->set_registered_events( events = lt_events ).
+    mo_mode_toolbar->set_registered_events( events = lt_events ).
 
     SET HANDLER:
-      on_toolbar_button FOR mr_mode_toolbar.
+      on_toolbar_button FOR mo_mode_toolbar.
 
     LOOP AT mt_view_info ASSIGNING FIELD-SYMBOL(<ls_view_info>).
-      mr_mode_toolbar->add_button(
+      mo_mode_toolbar->add_button(
         fcode      = <ls_view_info>-function
         icon       = <ls_view_info>-caption-icon
         butn_type  = cntb_btype_check
@@ -272,19 +285,19 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
 
 
   METHOD get_active_content_searcher.
-    DATA(lr_s_view_info) = REF #( mt_view_info[ is_active = abap_true ] OPTIONAL ).
-    CHECK lr_s_view_info IS NOT INITIAL.
+    DATA(lr_view_info) = REF #( mt_view_info[ is_active = abap_true ] OPTIONAL ).
+    CHECK lr_view_info IS NOT INITIAL.
 
-    CASE lr_s_view_info->function.
+    CASE lr_view_info->function.
 
       WHEN c_view-favorites.
-        rr_control = mr_favorites_tree.
+        rr_control = mo_favorites_tree.
 
       WHEN c_view-object_browser.
-        rr_control = mr_object_browser.
+        rr_control = mo_object_browser.
 
       WHEN c_view-history.
-        rr_control = mr_history.
+        rr_control = mo_history.
 
       WHEN OTHERS.
     ENDCASE.
@@ -293,19 +306,19 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
 
 
   METHOD get_active_control.
-    DATA(lr_s_view_info) = REF #( mt_view_info[ is_active = abap_true ] OPTIONAL ).
-    CHECK lr_s_view_info IS NOT INITIAL.
+    DATA(lr_view_info) = REF #( mt_view_info[ is_active = abap_true ] OPTIONAL ).
+    CHECK lr_view_info IS NOT INITIAL.
 
-    CASE lr_s_view_info->function.
+    CASE lr_view_info->function.
 
       WHEN c_view-favorites.
-        rr_control = mr_favorites_tree.
+        rr_control = mo_favorites_tree.
 
       WHEN c_view-object_browser.
-        rr_control = mr_object_browser.
+        rr_control = mo_object_browser.
 
       WHEN c_view-history.
-        rr_control = mr_history.
+        rr_control = mo_history.
 
       WHEN OTHERS.
     ENDCASE.
@@ -317,9 +330,9 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
     DATA(lv_default_func) = mt_view_info[ cell_id = c_first_view_id ]-function.
 
 *.. Retrieve active cell
-    DATA(lr_s_active_view) = REF #( mt_view_info[ is_active = abap_true ] OPTIONAL ).
-    IF lr_s_active_view IS NOT INITIAL.
-      rv_next_view_func = VALUE #( mt_view_info[ cell_id = lr_s_active_view->cell_id + 1 ]-function DEFAULT lv_default_func ).
+    DATA(lo_s_active_view) = REF #( mt_view_info[ is_active = abap_true ] OPTIONAL ).
+    IF lo_s_active_view IS NOT INITIAL.
+      rv_next_view_func = VALUE #( mt_view_info[ cell_id = lo_s_active_view->cell_id + 1 ]-function DEFAULT lv_default_func ).
     ELSE.
       rv_next_view_func = lv_default_func.
     ENDIF.
@@ -337,13 +350,16 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
 
   METHOD show_favorites.
 
-    CHECK mr_favorites_tree IS INITIAL.
+    CHECK mo_favorites_tree IS INITIAL.
 
-    DATA(lr_s_global_data) = CAST zdbbr_global_data( zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main )->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
-    mr_favorites_tree = NEW #( ir_parent = ir_container ).
+    DATA(lo_s_global_data) = CAST zdbbr_global_data( zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main )->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
+    mo_favorites_tree = NEW #(
+        io_parent      = ir_container
+        io_parent_view = me
+    ).
     TRY.
-        mr_favorites_tree->show(
-            if_global = xsdbool( lr_s_global_data->fav_user_mode = zif_dbbr_global_consts=>gc_fav_user_modes-global )
+        mo_favorites_tree->show(
+            if_global = xsdbool( lo_s_global_data->fav_user_mode = zif_dbbr_global_consts=>gc_fav_user_modes-global )
         ).
       CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
         MESSAGE s055(zdbbr_exception) DISPLAY LIKE 'E'.
@@ -352,16 +368,22 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
 
 
   METHOD show_history.
-    CHECK mr_history IS INITIAL.
+    CHECK mo_history IS INITIAL.
 
-    mr_history = NEW zcl_dbbr_object_history_tree( ir_parent_container = ir_container ).
+    mo_history = NEW zcl_dbbr_object_history_tree(
+      io_parent_container = ir_container
+      io_parent_view      = me
+    ).
   ENDMETHOD.
 
 
   METHOD show_repo_browser.
-    CHECK mr_object_browser IS INITIAL.
+    CHECK mo_object_browser IS INITIAL.
 
-    mr_object_browser = NEW zcl_dbbr_object_browser_tree( ir_parent = ir_container ).
+    mo_object_browser = NEW zcl_dbbr_object_browser_tree(
+        io_parent      = ir_container
+        io_parent_view = me
+    ).
   ENDMETHOD.
 
 
@@ -369,86 +391,86 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
     DATA: lv_active_view_id TYPE i VALUE -1.
 
 *.. Retrieve active cell
-    DATA(lr_s_active_view) = REF #( mt_view_info[ is_active = abap_true ] OPTIONAL ).
-    IF lr_s_active_view IS NOT INITIAL.
-      IF lr_s_active_view->function = iv_function.
+    DATA(lr_active_view) = REF #( mt_view_info[ is_active = abap_true ] OPTIONAL ).
+    IF lr_active_view IS NOT INITIAL.
+      IF lr_active_view->function = iv_function.
         RETURN.
       ENDIF.
-      lv_active_view_id = lr_s_active_view->cell_id.
+      lv_active_view_id = lr_active_view->cell_id.
     ENDIF.
 
-    DATA(lr_s_new_view) = REF #( mt_view_info[ function = iv_function ] ).
+    DATA(lr_new_view) = REF #( mt_view_info[ function = iv_function ] ).
 
-    DATA(lr_container) = mr_splitter->get_container( row = lr_s_new_view->cell_id column = 1 ).
+    DATA(lo_container) = mo_splitter->get_container( row = lr_new_view->cell_id column = 1 ).
 
     CASE iv_function.
       WHEN c_view-favorites.
-        show_favorites( lr_container ).
+        show_favorites( lo_container ).
 
       WHEN c_view-history.
-        show_history( lr_container ).
+        show_history( lo_container ).
 
       WHEN c_view-object_browser.
-        show_repo_browser( lr_container ).
+        show_repo_browser( lo_container ).
 
       WHEN OTHERS.
     ENDCASE.
 
     adapt_view_and_toolbar(
         iv_active_view_id = lv_active_view_id
-        iv_new_view_id    = lr_s_new_view->cell_id
+        iv_new_view_id    = lr_new_view->cell_id
     ).
   ENDMETHOD.
 
 
   METHOD zif_uitb_content_searcher~search.
-    DATA(lr_active_control) = get_active_content_searcher( ).
+    DATA(lo_active_control) = get_active_content_searcher( ).
 
-    IF lr_active_control IS INITIAL.
+    IF lo_active_control IS INITIAL.
       RETURN.
     ENDIF.
 
-    lr_active_control->search( ).
+    lo_active_control->search( ).
 
   ENDMETHOD.
 
 
   METHOD zif_uitb_content_searcher~search_next.
-    DATA(lr_active_control) = get_active_content_searcher( ).
+    DATA(lo_active_control) = get_active_content_searcher( ).
 
-    IF lr_active_control IS INITIAL.
+    IF lo_active_control IS INITIAL.
       RETURN.
     ENDIF.
 
-    lr_active_control->search_next( ).
+    lo_active_control->search_next( ).
   ENDMETHOD.
 
 
   METHOD zif_uitb_gui_control~focus.
-    DATA(lr_active_control) = get_active_control( ).
+    DATA(lo_active_control) = get_active_control( ).
 
-    IF lr_active_control IS INITIAL.
+    IF lo_active_control IS INITIAL.
       RETURN.
     ENDIF.
 
-    lr_active_control->focus( ).
+    lo_active_control->focus( ).
   ENDMETHOD.
 
 
   METHOD zif_uitb_gui_control~has_focus.
-    DATA(lr_active_control) = get_active_control( ).
+    DATA(lo_active_control) = get_active_control( ).
 
-    IF lr_active_control IS INITIAL.
+    IF lo_active_control IS INITIAL.
       RETURN.
     ENDIF.
 
-    rf_has_focus = lr_active_control->has_focus( ).
+    rf_has_focus = lo_active_control->has_focus( ).
   ENDMETHOD.
 
 
   METHOD zif_uitb_view~free.
-    IF mr_dock IS BOUND.
-      mr_dock->free( ).
+    IF mo_dock IS BOUND.
+      mo_dock->free( ).
     ENDIF.
 
     CLEAR: mf_visible.
@@ -456,9 +478,9 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
 
 
   METHOD zif_uitb_view~hide.
-    CHECK: mr_dock IS BOUND.
+    CHECK: mo_dock IS BOUND.
 
-    mr_dock->set_visible( abap_false ).
+    mo_dock->set_visible( abap_false ).
     cl_gui_cfw=>flush( ).
     CLEAR mf_visible.
 
@@ -472,22 +494,20 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
 
 
   METHOD zif_uitb_view~show.
-    IF mr_splitter IS INITIAL.
-*    IF mr_dock IS INITIAL.
-*      create_dock( ).
+    IF mo_splitter IS INITIAL.
       create_splitter( ).
       create_toolbar( ).
 *.... Get global DATA for setting some initial values
-      DATA(lr_s_global_data) = CAST zdbbr_global_data( zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main )->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
-      update_view( iv_function = SWITCH #( lr_s_global_data->initial_obj_nav_mode
+      DATA(lr_global_data) = CAST zdbbr_global_data( zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main )->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
+      update_view( iv_function = SWITCH #( lr_global_data->initial_obj_nav_mode
                                            WHEN zif_dbbr_c_obj_navigator_mode=>favorites      THEN c_view-favorites
                                            WHEN zif_dbbr_c_obj_navigator_mode=>object_browser THEN c_view-object_browser
                                            WHEN zif_dbbr_c_obj_navigator_mode=>history        THEN c_view-history
                                            ELSE c_view-history
                                          ) ).
-      mr_dock->set_visible( abap_true ).
+      mo_dock->set_visible( abap_true ).
     ELSE.
-      mr_dock->set_visible( abap_true ).
+      mo_dock->set_visible( abap_true ).
       cl_gui_cfw=>flush( ).
     ENDIF.
 
@@ -496,5 +516,37 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
     SET HANDLER: on_goto_next_objnav_view.
   ENDMETHOD.
 
+
+  METHOD zif_uitb_gui_composite_view~set_child_visibility.
+*.. Currently only the object browser control requests visibility
+    DATA(lr_view_info) = REF #( mt_view_info[ is_active = abap_true ] OPTIONAL ).
+    IF lr_view_info->function <> zif_dbbr_c_obj_navigator_mode=>object_browser.
+      update_view( c_view-object_browser ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD zif_uitb_gui_composite_view~execute_command.
+    CHECK io_command IS BOUND.
+
+    CASE io_command->mv_function.
+
+      WHEN c_command_id-show_object_list.
+        CHECK io_command->mr_params IS BOUND.
+
+        TRY.
+            DATA(lr_entity_info) = CAST zdbbr_entity( io_command->mr_params ).
+          CATCH cx_sy_move_cast_error.
+            RETURN.
+        ENDTRY.
+
+        update_view( c_view-object_browser ).
+        zcl_dbbr_selscr_nav_events=>raise_display_object_list(
+            iv_entity_id   = lr_entity_info->entity_id
+            iv_entity_type = lr_entity_info->entity_type
+        ).
+      WHEN OTHERS.
+
+    ENDCASE.
+  ENDMETHOD.
 
 ENDCLASS.

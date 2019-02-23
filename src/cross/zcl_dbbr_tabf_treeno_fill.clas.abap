@@ -55,15 +55,16 @@ CLASS zcl_dbbr_tabf_treeno_fill IMPLEMENTATION.
       ir_nodes->add_node(
           iv_node_key          = lv_table_node_key
           if_folder            = abap_true
-          iv_image             = |{ icon_database_table }|
-          iv_expanded_image    = |{ icon_database_table }|
+          iv_image             = zcl_dbbr_tree_helper=>get_tree_node_icon( <ls_table>-type )
+          iv_expanded_image    = zcl_dbbr_tree_helper=>get_tree_node_icon( <ls_table>-type )
           it_item_table        = VALUE #(
             ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
               font      = cl_item_tree_model=>item_font_prop
               class     = cl_item_tree_model=>item_class_text
-              text      = |{ lv_alias_prefix } Table { <ls_table>-tabname }| )
-            ( item_name = 'DESC'
+              text      = |{ lv_alias_prefix } { <ls_table>-tabname }| )
+            ( item_name = zcl_dbbr_tabfield_tree_f4=>c_hier_col2
               font      = cl_item_tree_model=>item_font_prop
+              style     = zif_uitb_c_ctm_style=>inverted_gray
               class     = cl_item_tree_model=>item_class_text
               text      = <ls_table>-description )
           )
@@ -106,8 +107,9 @@ CLASS zcl_dbbr_tabf_treeno_fill IMPLEMENTATION.
                 font      = cl_item_tree_model=>item_font_prop
                 class     = cl_item_tree_model=>item_class_text
                 text      = |{ <ls_table_field>-sql_fieldname }| )
-              ( item_name = 'DESC'
+              ( item_name = zcl_dbbr_tabfield_tree_f4=>c_hier_col2
                 font      = cl_item_tree_model=>item_font_prop
+                style     = zif_uitb_c_ctm_style=>inverted_gray
                 class     = cl_item_tree_model=>item_class_text
                 text      = <ls_table_field>-std_medium_text )
             )

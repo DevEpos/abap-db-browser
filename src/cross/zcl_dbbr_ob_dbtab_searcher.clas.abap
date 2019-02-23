@@ -100,17 +100,20 @@ CLASS zcl_dbbr_ob_dbtab_searcher IMPLEMENTATION.
     ENDLOOP.
 
     IF mr_search_query->has_search_string( ).
-      add_filter( VALUE #( field  = |{ c_base_table }~{ lv_entity_fieldname }|
-                           option = mr_search_query->mv_search_option
-                           sign   = 'I'
-                           low    = mr_search_query->mv_search_string ) ).
+      add_filter( VALUE #( sqlfieldname = |{ c_base_table }~{ lv_entity_fieldname }|
+                           option       = mr_search_query->mv_search_option
+                           sign         = 'I'
+                           low          = mr_search_query->mv_search_string ) ).
     ENDIF.
 
     add_select_field( iv_fieldname = lv_entity_fieldname iv_fieldname_alias = 'entity_id' iv_entity = c_base_table ).
     add_select_field( iv_fieldname = lv_raw_entity_fieldname iv_fieldname_alias = 'entity_id_raw' iv_entity = c_base_table ).
     add_select_field( iv_fieldname = 'description' iv_entity = c_base_table ).
+    add_select_field( iv_fieldname = 'createdby' iv_fieldname_alias = 'created_by' iv_entity = c_base_table ).
     add_select_field( iv_fieldname = 'developmentpackage' iv_fieldname_alias = 'devclass' iv_entity = c_base_table ).
     add_select_field( iv_fieldname = 'type' iv_fieldname_alias = 'entity_type' iv_entity = c_base_table ).
+
+    add_order_by( iv_fieldname = lv_entity_fieldname iv_entity = c_base_table  ).
 
     new_and_cond_list( ).
 
@@ -172,7 +175,7 @@ CLASS zcl_dbbr_ob_dbtab_searcher IMPLEMENTATION.
       ev_base_table = get_cds_sql_name( |{ zif_dbbr_c_select_source_id=>zdbbr_i_databaseentity }| ).
       ev_entity_fieldname = 'entity'.
       ev_raw_entity_fieldname = 'entityraw'.
-      add_filter( VALUE #( field = 'type' sign = 'E' low = zif_dbbr_c_entity_type=>cds_view ) ).
+      add_filter( VALUE #( sqlfieldname = 'type' sign = 'E' low = zif_dbbr_c_entity_type=>cds_view ) ).
     ENDIF.
   ENDMETHOD.
 

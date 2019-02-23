@@ -15,70 +15,66 @@ CLASS zcl_dbbr_variant_starter DEFINITION
 
     DATA mv_variant_id TYPE zdbbr_variant_id .
     DATA ms_global_data TYPE zdbbr_global_data .
-    DATA mr_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list .
-    DATA mr_tabfield_list_grouped TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_tabfield_list_grouped TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mt_selfields TYPE zdbbr_selfield_itab .
     DATA mt_selfields_multi TYPE zdbbr_selfield_itab .
     DATA mt_selfields_or TYPE zdbbr_or_seltab_itab .
     DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab .
-    DATA mr_variant_f TYPE REF TO zcl_dbbr_variant_factory .
+    DATA mo_variant_f TYPE REF TO zcl_dbbr_variant_factory .
     DATA ms_variant TYPE zdbbr_variant_data .
     "! Factory for alternative column texts
-    DATA mr_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory .
+    DATA mo_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory .
 
     "! <p class="shorttext synchronized" lang="en">Create table field</p>
-    "! @parameter IS_DFIES | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter IF_CONDITIONAL_TABLE | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter IF_MARK_FOR_OUTPUT | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter IF_SELECTION_ACTIVE | <p class="shorttext synchronized" lang="en"></p>
+    "!
     METHODS create_table_field
       IMPORTING
-        !is_dfies             TYPE dfies
-        !if_conditional_table TYPE abap_bool
-        !if_mark_for_output   TYPE boolean
-        !if_selection_active  TYPE boolean .
+        is_entity              TYPE zdbbr_entity_info
+        is_field               TYPE dfies
+        if_first_non_key_field TYPE abap_bool OPTIONAL.
+    "! <p class="shorttext synchronized" lang="en">Create Table fields</p>
+    "!
+    METHODS create_cds_fields
+      IMPORTING
+        is_entity_info        TYPE zdbbr_entity_info
+      RETURNING
+        VALUE(rs_entity_info) TYPE zdbbr_entity_info .
     "! <p class="shorttext synchronized" lang="en">Create table fields</p>
-    "! @parameter IV_TABLENAME | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter IF_IS_PRIMARY | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter IF_CONDITIONAL_TABLE | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter IF_MARK_FOR_OUTPUT | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter IF_SELECTION_ACTIVE | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter IV_SELECTION_ORDER | <p class="shorttext synchronized" lang="en"></p>
+    "!
     METHODS create_table_fields
       IMPORTING
-        !iv_tablename         TYPE tabname
-        !if_is_primary        TYPE abap_bool OPTIONAL
-        !if_conditional_table TYPE abap_bool OPTIONAL
-        !if_mark_for_output   TYPE boolean OPTIONAL
-        !if_selection_active  TYPE boolean OPTIONAL
-        !iv_selection_order   TYPE tabfdpos OPTIONAL .
+        is_entity_info TYPE zdbbr_entity_info.
     "! <p class="shorttext synchronized" lang="en">Fills data from variant</p>
-    "! @raising zcx_dbbr_variant_error | <p class="shorttext synchronized" lang="en"></p>
+    "!
     METHODS fill_data_from_variant
       RAISING
         zcx_dbbr_variant_error.
     "! <p class="shorttext synchronized" lang="en">Fill selection screen with tuple data</p>
-    "! @parameter IT_VARIANT_DATA | <p class="shorttext synchronized" lang="en"></p>
+    "!
     METHODS fill_selscreen_with_tupledata
       IMPORTING
         !it_variant_data TYPE zdbbr_vardata_itab .
     "! <p class="shorttext synchronized" lang="en">Fill selection screen with normal variant data</p>
-    "! @parameter IT_VARIANT_DATA | <p class="shorttext synchronized" lang="en"></p>
+    "!
     METHODS fill_selscreen_with_vardata
       IMPORTING
         !it_variant_data TYPE zdbbr_vardata_itab .
     "! <p class="shorttext synchronized" lang="en">Fill selection screen table</p>
-    METHODS fill_table .
+    "!
+    METHODS fill_primary_entity
+        ABSTRACT.
     "! <p class="shorttext synchronized" lang="en">Retrieve table field references for execution</p>
-    "! @parameter ER_TABFIELDS | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter ER_TABFIELDS_ALL | <p class="shorttext synchronized" lang="en"></p>
+    "!
     METHODS get_tabfields
       EXPORTING
         !er_tabfields     TYPE REF TO zcl_dbbr_tabfield_list
         !er_tabfields_all TYPE REF TO zcl_dbbr_tabfield_list .
     "! <p class="shorttext synchronized" lang="en">Loads the variant</p>
+    "!
     METHODS load_variant .
     "! <p class="shorttext synchronized" lang="en">Shows progress text during execution</p>
+    "!
     METHODS show_start_progress_text .
   PRIVATE SECTION.
 ENDCLASS.
@@ -90,66 +86,67 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
 
   METHOD constructor.
     mv_variant_id = iv_variant_id.
-    mr_tabfield_list = NEW #( ).
-    mr_tabfield_list_grouped = NEW #( ).
-    mr_variant_f = NEW #( ).
-    mr_altcoltext_f = NEW #( ).
+    mo_tabfield_list = NEW #( ).
+    mo_tabfield_list_grouped = NEW #( ).
+    mo_variant_f = NEW #( ).
+    mo_altcoltext_f = NEW #( ).
   ENDMETHOD.
 
 
   METHOD create_table_field.
     DATA(lr_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
 
-    DATA(ls_altcoltext) = mr_altcoltext_f->find_alternative_text( iv_tabname   = is_dfies-tabname
-                                                                        iv_fieldname = is_dfies-fieldname ).
+    DATA(ls_altcoltext) = mo_altcoltext_f->find_alternative_text(
+        iv_tabname   = is_field-tabname
+        iv_fieldname = is_field-fieldname ).
 
     DATA(ls_tabfield) = VALUE zdbbr_tabfield_info_ui(
-      fieldname_raw         = is_dfies-fieldname
-      selection_active      = if_selection_active
-      output_active         = xsdbool( ms_global_data-primary_table = is_dfies-tabname )
-      ddic_order            = is_dfies-position
-      is_lowercase          = is_dfies-lowercase
+      fieldname_raw         = is_field-fieldname
+      selection_active      = is_entity-active_selection
+      output_active         = xsdbool( is_entity-no_output = abap_false )
+      ddic_order            = is_field-position
+      is_lowercase          = is_field-lowercase
 *... check if field is numeric
-      is_numeric            = zcl_dbbr_dictionary_helper=>is_type_numeric( is_dfies-inttype )
+      is_numeric            = zcl_dbbr_dictionary_helper=>is_type_numeric( is_field-inttype )
 *... is there an F4-help for this table field
-      f4_available          = is_dfies-f4availabl
-      field_ddtext          = COND #( WHEN is_dfies-scrtext_l IS INITIAL THEN
-                                  is_dfies-fieldtext
+      f4_available          = is_field-f4availabl
+      field_ddtext          = COND #( WHEN is_field-scrtext_l IS INITIAL THEN
+                                  is_field-fieldtext
                                 ELSE
-                                  is_dfies-scrtext_l )
-      is_key                = xsdbool( is_dfies-keyflag = abap_true )
+                                  is_field-scrtext_l )
+      is_key                = is_field-keyflag
 *... default sign is inclusive
       default_sign          = zif_dbbr_global_consts=>gc_options-i
-      is_virtual_join_field = if_conditional_table
-      is_foreign_key        = xsdbool( is_dfies-checktable IS NOT INITIAL )
-      std_short_text        = is_dfies-scrtext_s
-      std_medium_text       = is_dfies-scrtext_m
-      std_long_text         = is_dfies-scrtext_l
+      is_virtual_join_field = is_entity-virtual_join_table
+      is_foreign_key        = xsdbool( is_field-checktable IS NOT INITIAL )
+      std_short_text        = is_field-scrtext_s
+      std_medium_text       = is_field-scrtext_m
+      std_long_text         = is_field-scrtext_l
       alt_long_text         = ls_altcoltext-alt_long_text
       alt_medium_text       = ls_altcoltext-alt_short_text
-      length                = is_dfies-leng
-      header_text           = is_dfies-reptext
-      ref_field             = is_dfies-reffield
-      ref_tab               = is_dfies-reftable
+      length                = is_field-leng
+      header_text           = is_field-reptext
+      ref_field             = is_field-reffield
+      ref_tab               = is_field-reftable
     ).
 
-    ls_tabfield = CORRESPONDING #( BASE ( ls_tabfield ) is_dfies ).
+    ls_tabfield = CORRESPONDING #( BASE ( ls_tabfield ) is_field ).
 
-    lr_addtext_bl->determine_t_fields_for_tab( is_tabfield_info = is_dfies ).
+    lr_addtext_bl->determine_t_fields_for_tab( is_tabfield_info = is_field ).
 
-    DATA(lr_new_field) = CAST zdbbr_tabfield_info_ui( mr_tabfield_list->add( REF #( ls_tabfield ) ) ).
+    DATA(lr_new_field) = CAST zdbbr_tabfield_info_ui( mo_tabfield_list->add( REF #( ls_tabfield ) ) ).
 
     " only continue if normal field did not already exist
     IF lr_new_field IS NOT INITIAL.
       " there is an existing text field for the current table field
-      IF lr_addtext_bl->text_exists( is_data_element_info = is_dfies ).
+      IF lr_addtext_bl->text_exists( is_data_element_info = is_field ).
 
         lr_addtext_bl->add_text_fields_to_list(
-          ir_tabfields  = mr_tabfield_list
+          ir_tabfields    = mo_tabfield_list
           is_ref_tabfield = ls_tabfield
-          if_post_select = if_conditional_table
-          iv_position   = is_dfies-position
-          is_altcoltext = ls_altcoltext
+          if_post_select  = is_entity-virtual_join_table
+          iv_position     = is_field-position
+          is_altcoltext   = ls_altcoltext
         ).
 
         " connect text field and key field
@@ -158,34 +155,57 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+  METHOD create_cds_fields.
+    TRY.
+        DATA(lo_cds_view) = zcl_dbbr_cds_view_factory=>read_cds_view( iv_cds_view = is_entity_info-tabname ).
+
+*...... create parameters
+        zcl_dbbr_cds_tabfield_util=>add_parameters(
+            ir_tabfield_list = mo_tabfield_list
+            it_parameters    = lo_cds_view->get_parameters( )
+        ).
+*...... create table fields for cds view
+        DATA(ls_header) = lo_cds_view->get_header( ).
+
+        rs_entity_info = zcl_dbbr_cds_tabfield_util=>add_view_colums(
+            ir_tabfield_list = mo_tabfield_list
+            it_columns       = lo_cds_view->get_columns( )
+            iv_name          = is_entity_info-tabname
+            iv_alias         = is_entity_info-tabname_alias
+            iv_raw_name      = ls_header-entityname_raw
+            iv_description   = ls_header-description
+            if_is_primary    = is_entity_info-is_primary
+        ).
+      CATCH zcx_dbbr_data_read_error.
+        "handle exception
+    ENDTRY.
+  ENDMETHOD.
 
   METHOD create_table_fields.
-    DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( iv_tablename ).
+    DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( is_entity_info-tabname ).
     CHECK ls_table_info IS NOT INITIAL.
 
-    zcl_dbbr_dictionary_helper=>get_table_field_infos( EXPORTING iv_tablename    = iv_tablename
+    zcl_dbbr_dictionary_helper=>get_table_field_infos( EXPORTING iv_tablename    = is_entity_info-tabname
                                                        IMPORTING et_table_fields = DATA(lt_dfies) ).
 
     " build tablefield table
     LOOP AT lt_dfies ASSIGNING FIELD-SYMBOL(<ls_data_element_field>) WHERE datatype <> 'CLNT'.
       create_table_field(
-          is_dfies             = <ls_data_element_field>
-          if_conditional_table = if_conditional_table
-          if_mark_for_output   = if_mark_for_output
-          if_selection_active  = if_selection_active
+          is_field  = <ls_data_element_field>
+          is_entity = is_entity_info
       ).
     ENDLOOP.
 
-    mr_tabfield_list->add_table(
+    mo_tabfield_list->add_table(
       VALUE zdbbr_entity_info(
-        active_selection     = if_selection_active
-        tabname              = iv_tablename
-        tabname_alias        = iv_tablename
-        index                = iv_selection_order
-        selection_order      = iv_selection_order
+        active_selection     = is_entity_info-active_selection
+        tabname              = is_entity_info-tabname
+        tabname_alias        = is_entity_info-tabname_alias
+        index                = is_entity_info-selection_order
+        selection_order      = is_entity_info-selection_order
         description          = ls_table_info-ddtext
         fields_are_loaded    = abap_true
-        is_primary           = if_is_primary
+        is_primary           = is_entity_info-is_primary
       )
     ).
 
@@ -223,7 +243,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
     IF lf_grouping_is_active = abap_false AND
        ( ms_variant-has_output_fields = abap_true OR
          ms_variant-has_sort_fields = abap_true ).
-      mr_tabfield_list->clear_active_flag(
+      mo_tabfield_list->clear_active_flag(
         if_clear_output = ms_variant-has_output_fields
         if_clear_sort   = ms_variant-has_sort_fields
       ).
@@ -236,7 +256,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
       LOOP AT ms_variant-fields ASSIGNING FIELD-SYMBOL(<ls_tabfield>).
 
         TRY .
-            DATA(lr_field_stru) = mr_tabfield_list->get_field_ref(
+            DATA(lr_field_stru) = mo_tabfield_list->get_field_ref(
                iv_tabname_alias           = <ls_tabfield>-tabname
                iv_fieldname         = <ls_tabfield>-fieldname
                if_is_text_field     = <ls_tabfield>-is_text_field
@@ -266,7 +286,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
         ENDIF.
 
         IF lf_grouping_is_active = abap_true.
-          mr_tabfield_list_grouped->append_tabfield_info( <ls_field> ).
+          mo_tabfield_list_grouped->append_tabfield_info( <ls_field> ).
         ENDIF.
       ENDLOOP.
     ENDIF.
@@ -331,11 +351,11 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
                            fieldname = <ls_vardata_group>-fieldname ] TO FIELD-SYMBOL(<ls_selfield>).
       IF sy-subrc <> 0.
 *...... Get alias name of table
-        DATA(lv_tabname_alias) = mr_tabfield_list->get_table_alias_name( <ls_vardata_group>-tablename ).
+        DATA(lv_tabname_alias) = mo_tabfield_list->get_table_alias_name( <ls_vardata_group>-tablename ).
 
 *...... find the table field to get general information about selfield
         TRY.
-            DATA(lr_field_ref) = mr_tabfield_list->get_field_ref(
+            DATA(lr_field_ref) = mo_tabfield_list->get_field_ref(
                iv_tabname_alias = lv_tabname_alias
                iv_fieldname     = <ls_vardata_group>-fieldname
             ).
@@ -389,32 +409,13 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD fill_table.
-    DATA: ls_table_info TYPE dd02v.
-
-    ls_table_info = zcl_dbbr_dictionary_helper=>get_table_info( ms_global_data-primary_table ).
-    IF ls_table_info IS INITIAL.
-      RETURN.
-    ENDIF.
-
-    ms_global_data-client_dependent = ls_table_info-clidep.
-
-*... create selection fields for primary table
-    create_table_fields( iv_tablename        = ms_global_data-primary_table
-                         if_is_primary       = abap_true
-                         if_mark_for_output  = abap_true
-                         if_selection_active = abap_true ).
-
-  ENDMETHOD.
-
-
   METHOD get_tabfields.
-    IF mr_tabfield_list_grouped->zif_uitb_data_ref_list~is_empty( ).
-      er_tabfields = mr_tabfield_list.
-      er_tabfields_all = mr_tabfield_list.
+    IF mo_tabfield_list_grouped->zif_uitb_data_ref_list~is_empty( ).
+      er_tabfields = mo_tabfield_list.
+      er_tabfields_all = mo_tabfield_list.
     ELSE.
-      er_tabfields = mr_tabfield_list_grouped.
-      er_tabfields_all = mr_tabfield_list.
+      er_tabfields = mo_tabfield_list_grouped.
+      er_tabfields_all = mo_tabfield_list.
     ENDIF.
   ENDMETHOD.
 
@@ -423,7 +424,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
     IF mv_variant_id = zif_dbbr_global_consts=>c_dummy_variant.
       DATA(lv_tabname) = ms_global_data-primary_table.
     ELSE.
-      mr_variant_f->get_variant(
+      mo_variant_f->get_variant(
         EXPORTING iv_variant_id = mv_variant_id
         IMPORTING es_variant    = ms_variant
       ).

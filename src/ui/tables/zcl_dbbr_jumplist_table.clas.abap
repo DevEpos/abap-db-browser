@@ -129,7 +129,7 @@ CLASS ZCL_DBBR_JUMPLIST_TABLE IMPLEMENTATION.
 
     DATA(lr_join_field_f4) = NEW zcl_dbbr_tabfield_tree_f4(
       iv_screen_title     = 'Value help for query Field'
-      ir_tree_node_filler = NEW zcl_dbbr_tabf_treeno_fill(
+      io_tree_node_filler = NEW zcl_dbbr_tabf_treeno_fill(
           ir_tabfield_list      = mr_query_tabfields
       )
     ).
@@ -151,7 +151,7 @@ CLASS ZCL_DBBR_JUMPLIST_TABLE IMPLEMENTATION.
 
     DATA(lr_join_field_f4) = NEW zcl_dbbr_tabfield_tree_f4(
       iv_screen_title     = 'Value help for query Field'
-      ir_tree_node_filler = NEW zcl_dbbr_tabf_treeno_fill(
+      io_tree_node_filler = NEW zcl_dbbr_tabf_treeno_fill(
           ir_tabfield_list      = mr_query_tabfields
       )
     ).
@@ -262,7 +262,7 @@ CLASS ZCL_DBBR_JUMPLIST_TABLE IMPLEMENTATION.
       TRY.
           DATA(ls_jump_field) = mr_query_tabfields->get_field_by_sql_name( iv_sql_fieldname = <ls_jump_field>-jump_field ).
           <ls_jump_field>-jump_source_field = ls_jump_field-fieldname.
-          <ls_jump_field>-jump_source_table = ls_jump_field-tabname.
+          <ls_jump_field>-jump_source_table = ls_jump_field-tabname_alias.
         CATCH cx_sy_itab_line_not_found.
           lr_cursor->set_line( lv_index ).
           lr_cursor->set_field( mc_table_fields-jump_field ).
@@ -276,7 +276,7 @@ CLASS ZCL_DBBR_JUMPLIST_TABLE IMPLEMENTATION.
         TRY.
             DATA(ls_crit_field) = mr_query_tabfields->get_field_by_sql_name( iv_sql_fieldname = <ls_jump_field>-criterion ).
             <ls_jump_field>-crit_field = ls_crit_field-fieldname.
-            <ls_jump_field>-crit_table = ls_crit_field-tabname.
+            <ls_jump_field>-crit_table = ls_crit_field-tabname_alias.
           CATCH cx_sy_itab_line_not_found.
             lr_cursor->set_line( lv_index ).
             lr_cursor->set_field( mc_table_fields-jump_field ).

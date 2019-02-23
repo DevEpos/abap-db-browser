@@ -348,6 +348,12 @@
     </item>
     <item>
      <ID>I</ID>
+     <KEY>T26</KEY>
+     <ENTRY>Save SQL Query</ENTRY>
+     <LENGTH>24</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
      <KEY>TAB</KEY>
      <ENTRY>Table</ENTRY>
      <LENGTH>17</LENGTH>
@@ -427,9 +433,16 @@
     </item>
     <item>
      <ID>S</ID>
+     <KEY>P_JOINTA</KEY>
+     <ENTRY>.</ENTRY>
+     <LENGTH>13</LENGTH>
+     <SPLIT>D</SPLIT>
+    </item>
+    <item>
+     <ID>S</ID>
      <KEY>P_JOINTB</KEY>
-     <ENTRY>Join Table</ENTRY>
-     <LENGTH>18</LENGTH>
+     <ENTRY>Name of Entity</ENTRY>
+     <LENGTH>22</LENGTH>
     </item>
     <item>
      <ID>S</ID>
@@ -488,8 +501,8 @@
     <item>
      <ID>S</ID>
      <KEY>P_SRCTAB</KEY>
-     <ENTRY>Tabname</ENTRY>
-     <LENGTH>15</LENGTH>
+     <ENTRY>Entity Alias</ENTRY>
+     <LENGTH>20</LENGTH>
     </item>
     <item>
      <ID>S</ID>
@@ -530,8 +543,8 @@
     <item>
      <ID>S</ID>
      <KEY>P_TRGTAB</KEY>
-     <ENTRY>Tabname</ENTRY>
-     <LENGTH>15</LENGTH>
+     <ENTRY>Entity Alias</ENTRY>
+     <LENGTH>23</LENGTH>
     </item>
     <item>
      <ID>S</ID>

@@ -336,7 +336,7 @@ CLASS ZCL_DBBR_CUSTOM_F4_FACTORY IMPLEMENTATION.
     COMMIT WORK.
 
     IF if_no_message = abap_false.
-      MESSAGE |{ 'Value help'(003) } '{ is_f4_data-description }' { 'was'(004) }| &&
+      MESSAGE |{ 'Value help'(003) } '{ is_f4_data-description }' { 'was'(004) } | &&
               COND string( WHEN is_f4_data-f4_id IS NOT INITIAL THEN 'updated'(002) ELSE 'saved'(001) ) &&
               |!|
               TYPE 'S'.

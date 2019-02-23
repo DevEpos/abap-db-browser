@@ -128,13 +128,14 @@ DATA: gr_tabfield_manager           TYPE REF TO zcl_dbbr_tabfield_manager,
       gr_selscreen_table            TYPE REF TO zcl_dbbr_selscreen_table,
       gr_sort_controller            TYPE REF TO zcl_dbbr_field_sorter_ctrl,
       gr_save_query_controller      TYPE REF TO zcl_dbbr_save_query_ctrl,
+      gr_save_sql_query_controller  TYPE REF TO zcl_dbbr_save_sql_query_ctrl,
       gr_variant_controller         TYPE REF TO zcl_dbbr_variant_controller,
       gr_multi_or_table             TYPE REF TO zcl_dbbr_multi_or_table,
       gr_multi_or_controller        TYPE REF TO zcl_dbbr_multi_or_controller,
       gr_addtextfield_controller    TYPE REF TO zcl_dbbr_addtextfield_ctrl,
       gr_copy_query_controller      TYPE REF TO zcl_dbbr_copy_query_ctrl,
       gr_altcoltext_controller      TYPE REF TO zcl_dbbr_altcoltxt_controller,
-      gr_obj_brws_search_enter_ctrl type ref to zcl_dbbr_obj_brws_search_sc,
+      gr_obj_brws_search_enter_ctrl TYPE REF TO zcl_dbbr_obj_brws_search_sc,
       gr_altcoltext_table           TYPE REF TO zcl_dbbr_altcoltext_table.
 
 **********************************************************************
@@ -199,7 +200,7 @@ SELECTION-SCREEN SKIP.
 SELECTION-SCREEN INCLUDE BLOCKS user_param.
 SELECTION-SCREEN END OF SCREEN 1201.
 
-" Selection screen for defingin / reading / deleting variant for cds view
+" Selection screen for defining / reading / deleting variant for cds view
 SELECTION-SCREEN BEGIN OF SCREEN 1202 TITLE cvar_t.
 SELECTION-SCREEN BEGIN OF LINE.
 SELECTION-SCREEN COMMENT 1(10) TEXT-t23 FOR FIELD p_cdsnam.
@@ -276,12 +277,13 @@ SELECTION-SCREEN END OF SCREEN 1600.
 *... Choose/Edit Table for Join definition
 SELECTION-SCREEN BEGIN OF SCREEN 1700 TITLE TEXT-t24 AS WINDOW.
 
-SELECTION-SCREEN BEGIN OF BLOCK jointab WITH FRAME TITLE TEXT-b01 NO INTERVALS.
-PARAMETERS: p_jointb TYPE tabname MATCHCODE OBJECT zdbbr_dbtab_sh OBLIGATORY.
-***PARAMETERS: p_jointb TYPE tabname MATCHCODE OBJECT ZDBBR_DBENTITY_SH OBLIGATORY.
+SELECTION-SCREEN BEGIN OF BLOCK jointab WITH FRAME TITLE TEXT-b01. " NO INTERVALS.
+PARAMETERS: p_jointb TYPE tabname MATCHCODE OBJECT zdbbr_dbentity_sh OBLIGATORY.
+***PARAMETERS: p_jointb TYPE tabname MATCHCODE OBJECT zdbbr_dbtab_sh OBLIGATORY.
+PARAMETERS: p_jointa TYPE zdbbr_entity_alias MODIF ID exp.
 SELECTION-SCREEN END OF BLOCK jointab.
 
-SELECTION-SCREEN BEGIN OF BLOCK jointabdef WITH FRAME TITLE TEXT-b02 NO INTERVALS.
+SELECTION-SCREEN BEGIN OF BLOCK jointabdef WITH FRAME TITLE TEXT-b02. " NO INTERVALS.
 PARAMETERS: p_jointy TYPE zdbbr_jointype AS LISTBOX VISIBLE LENGTH 20 OBLIGATORY DEFAULT zif_dbbr_c_join_types=>inner_join,
             p_xjvirt TYPE abap_bool AS CHECKBOX.
 SELECTION-SCREEN END OF BLOCK jointabdef.
@@ -291,34 +293,41 @@ SELECTION-SCREEN END OF SCREEN 1700.
 *... Create/Edit Join Condition (Field or Value condition)
 SELECTION-SCREEN BEGIN OF SCREEN 1701 TITLE joincond AS WINDOW.
 
-SELECTION-SCREEN BEGIN OF BLOCK sourcefield WITH FRAME TITLE TEXT-b03 NO INTERVALS.
+SELECTION-SCREEN BEGIN OF BLOCK sourcefield WITH FRAME TITLE TEXT-b03. " NO INTERVALS.
 PARAMETERS: p_srcfld TYPE fieldname.
-PARAMETERS: p_srctab TYPE tabname16.
+PARAMETERS: p_srctab TYPE zdbbr_entity_alias.
 PARAMETERS: p_srcdtp TYPE datatype_d MODIF ID off.
 PARAMETERS: p_srclng TYPE ddleng MODIF ID off.
 SELECTION-SCREEN END OF BLOCK sourcefield.
 
-SELECTION-SCREEN BEGIN OF BLOCK compare1 WITH FRAME TITLE TEXT-b04 NO INTERVALS.
+SELECTION-SCREEN BEGIN OF BLOCK compare1 WITH FRAME TITLE TEXT-b04. " NO INTERVALS.
 PARAMETERS: p_comp1 TYPE voperator AS LISTBOX VISIBLE LENGTH 25 USER-COMMAND cmp1chng OBLIGATORY.
 SELECTION-SCREEN END OF BLOCK compare1.
 
-SELECTION-SCREEN BEGIN OF BLOCK values WITH FRAME TITLE TEXT-b05 NO INTERVALS.
+SELECTION-SCREEN BEGIN OF BLOCK values WITH FRAME TITLE TEXT-b05. " NO INTERVALS.
 PARAMETERS: p_valty TYPE zdbbr_join_cond_value_type AS LISTBOX VISIBLE LENGTH 20 MODIF ID val USER-COMMAND valtypchanged.
 PARAMETERS: p_val1 TYPE zdbbr_value MODIF ID val.
 SELECTION-SCREEN COMMENT /5(20) TEXT-t25 MODIF ID vl2.
 PARAMETERS: p_val2 TYPE zdbbr_value MODIF ID vl2.
 SELECTION-SCREEN END OF BLOCK values.
 
-SELECTION-SCREEN BEGIN OF BLOCK targetfield WITH FRAME TITLE TEXT-b06 NO INTERVALS.
+SELECTION-SCREEN BEGIN OF BLOCK targetfield WITH FRAME TITLE TEXT-b06. " NO INTERVALS.
 PARAMETERS: p_trgfld TYPE fieldname MODIF ID trg.
-PARAMETERS: p_trgtab TYPE tabname16 MODIF ID trg.
+PARAMETERS: p_trgtab TYPE zdbbr_entity_alias MODIF ID trg.
 PARAMETERS: p_trgdtp TYPE datatype_d MODIF ID off.
 PARAMETERS: p_trglng TYPE ddleng MODIF ID off.
 SELECTION-SCREEN END OF BLOCK targetfield.
 
-SELECTION-SCREEN BEGIN OF BLOCK offset_to_source WITH FRAME TITLE TEXT-b07 NO INTERVALS.
+SELECTION-SCREEN BEGIN OF BLOCK offset_to_source WITH FRAME TITLE TEXT-b07. " NO INTERVALS.
 PARAMETERS: p_tfldof TYPE doffset MODIF ID off.
 PARAMETERS: p_tfldol TYPE ddleng MODIF ID off.
 SELECTION-SCREEN END OF BLOCK offset_to_source.
 
 SELECTION-SCREEN END OF SCREEN 1701.
+
+*... Create SQL Query
+" selection screen for saving a query
+SELECTION-SCREEN BEGIN OF SCREEN 1800 TITLE TEXT-t26 AS WINDOW.
+SELECTION-SCREEN INCLUDE BLOCKS query.
+SELECTION-SCREEN INCLUDE BLOCKS query_descr.
+SELECTION-SCREEN END OF SCREEN 1800.

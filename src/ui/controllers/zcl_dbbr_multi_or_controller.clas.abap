@@ -351,7 +351,9 @@ CLASS zcl_dbbr_multi_or_controller IMPLEMENTATION.
     ENDIF.
 
     " get user selection
-    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option( ).
+    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option(
+       if_allow_null = xsdbool( ls_current_line-is_parameter = abap_false )
+    ).
     IF ls_chosen_option IS INITIAL.
       RETURN.
     ENDIF.

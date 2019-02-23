@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_JOIN_SELECTION_UTIL</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Util Class to handle Selection Requests with join</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_SELECTION_UTIL</CLSNAME>
+     <CMPNAME>CHANGE_PARAMETERS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Change CDS parameter values</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_SELECTION_UTIL</CLSNAME>
+     <CMPNAME>FILL_VIRTUAL_JOIN_FIELDS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fill virtual join field in the output table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_SELECTION_UTIL</CLSNAME>
+     <CMPNAME>MARK_VIRT_JOIN_SELFIELDS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Marks virtual join fields for later processing</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_SELECTION_UTIL</CLSNAME>
+     <CMPNAME>UPDATE_TABLE_PARAMETERS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Update parameters of entities with the given parameter</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

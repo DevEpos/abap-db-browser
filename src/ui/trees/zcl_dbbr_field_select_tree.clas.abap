@@ -183,7 +183,6 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
 
 
   METHOD create_nodes.
-*&---------------------------------------------------------------------*
 *& Description: Creates nodes and items for the tree model
 *&---------------------------------------------------------------------*
     FIELD-SYMBOLS: <lt_fields> TYPE zdbbr_tabfield_info_ui_itab.
@@ -195,12 +194,8 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
 
 
     LOOP AT lt_table_list ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE no_output = abap_false
+                                                               and tabname <> zif_dbbr_global_consts=>c_parameter_dummy_table
                                                                and fields_are_loaded = abap_true.
-*... no alias for cds views
-      IF mv_entity_type = zif_dbbr_c_entity_type=>cds_view.
-        CLEAR: <ls_table>-alias.
-      ENDIF.
-
       IF <ls_table>-tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
         create_table_node(
             iv_tablename  = <ls_table>-tabname_alias
@@ -233,14 +228,14 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
     DATA: lr_text_field_info TYPE REF TO zdbbr_tabfield_info_ui,
           lv_node_key        TYPE tm_nodekey.
 
-    IF mv_entity_type = zif_dbbr_c_entity_type=>cds_view.
-      lv_node_key = ir_tabfield_info->fieldname_raw.
-    ELSE.
+*    IF mv_entity_type = zif_dbbr_c_entity_type=>cds_view.
+*      lv_node_key = ir_tabfield_info->fieldname_raw.
+*    ELSE.
       lv_node_key = COND #( WHEN ir_tabfield_info->alias IS NOT INITIAL THEN
                               ir_tabfield_info->alias && '~' && ir_tabfield_info->fieldname_raw
                             ELSE
                               |{ ir_tabfield_info->fieldname_raw }| ).
-    ENDIF.
+*    ENDIF.
 
 
 
@@ -258,10 +253,12 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
         )
       )
       ( item_name  = mc_column_names-fieldname_column
+        font       = cl_list_tree_model=>item_font_prop
         class      = cl_list_tree_model=>item_class_text
         text       = lv_node_key
       )
       ( item_name  = mc_column_names-key_column
+        font       = cl_list_tree_model=>item_font_prop
         class      = cl_list_tree_model=>item_class_text
         text       = ir_tabfield_info->is_key
       )
@@ -333,6 +330,7 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
                                  ELSE
                                    cl_list_tree_model=>style_emphasized_c )
             text       = iv_alias
+            font       = cl_list_tree_model=>item_font_prop
           )
           ( item_name  = mc_column_names-sel_all_column
             class      = cl_list_tree_model=>item_class_button
@@ -348,6 +346,7 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
           )
           ( item_name  = mc_column_names-tablename_column
             class      = cl_list_tree_model=>item_class_text
+            font       = cl_list_tree_model=>item_font_prop
             text       = iv_tablename
           )
           ( item_name  = mc_column_names-description_column

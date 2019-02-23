@@ -68,10 +68,10 @@ CLASS zcl_dbbr_selscreen_table DEFINITION
   PROTECTED SECTION.
 
 
-private section.
+  PRIVATE SECTION.
 
-  constants:
-    BEGIN OF c_fields,
+    CONSTANTS:
+      BEGIN OF c_fields,
         system_value_type TYPE string VALUE 'GS_SELFIELDS-SYSTEM_VALUE_TYPE' ##NO_TEXT,
         high_value        TYPE string VALUE 'GS_SELFIELDS-HIGH' ##NO_TEXT,
         low_value         TYPE string VALUE 'GS_SELFIELDS-LOW' ##NO_TEXT,
@@ -80,59 +80,59 @@ private section.
         push              TYPE string VALUE 'PUSH' ##NO_TEXT,
         option            TYPE string VALUE 'OPTION' ##NO_TEXT,
       END OF c_fields .
-  data MR_EXPAND_BUTTON type ref to ZDBBR_BUTTON .
-  data MR_GLOBAL_DATA type ref to ZDBBR_GLOBAL_DATA .
-  data MR_OPTION_ICON type ref to ZDBBR_BUTTON .
-  data MR_PUSH_ICON type ref to ZDBBR_BUTTON .
-  data MR_SELFIELDS_MULTI type ref to ZDBBR_SELFIELD_ITAB .
-  data MR_SEL_INIT_TABLE type ref to ZDBBR_SELOPT_CONTROL_ITAB .
-  data MR_SUBQUERY_ICON type ref to ZDBBR_BUTTON .
-  data MR_TABLEVIEW type ref to CXTAB_CONTROL .
-  data MR_TABLE_DATA type ref to ZDBBR_SELFIELD_ITAB .
-  data MS_SELSCREEN_SETTINGS type ZDBBR_SELSCREEN_SETTINGS .
-  data MT_SELECTION_FIELDS_HIDDEN type ZDBBR_SELFIELD_ITAB .
-  data MV_CURRENT_LINE like SY-TABIX .
-  data MV_LINECOUNT like SY-TABIX .
-  data MV_LOOPLINES type SY-LOOPC .
-  data MV_SEARCH type STRING .
+    DATA mr_expand_button TYPE REF TO zdbbr_button .
+    DATA mr_global_data TYPE REF TO zdbbr_global_data .
+    DATA mr_option_icon TYPE REF TO zdbbr_button .
+    DATA mr_push_icon TYPE REF TO zdbbr_button .
+    DATA mr_selfields_multi TYPE REF TO zdbbr_selfield_itab .
+    DATA mr_sel_init_table TYPE REF TO zdbbr_selopt_control_itab .
+    DATA mr_subquery_icon TYPE REF TO zdbbr_button .
+    DATA mr_table_data TYPE REF TO zdbbr_selfield_itab .
+    DATA ms_selscreen_settings TYPE zdbbr_selscreen_settings .
+    DATA mt_selection_fields_hidden TYPE zdbbr_selfield_itab .
+    DATA mv_current_line LIKE sy-tabix .
+    DATA mv_linecount LIKE sy-tabix .
+    DATA mv_looplines TYPE sy-loopc .
+    DATA mv_search TYPE string .
+    DATA mr_tableview TYPE REF TO cxtab_control.
 
-  methods CHECK_AGGREGATION_VALIDITY .
-  methods CHECK_ENTERED_SYSTEM_VALUE .
+    METHODS check_aggregation_validity .
+    METHODS check_entered_system_value .
     "! <p class="shorttext synchronized" lang="en">Delete values of current line</p>
     "!
     "! @parameter cs_selfields | <p class="shorttext synchronized" lang="en"></p>
-  methods DELETE_LINE_VALUES
-    changing
-      !CS_SELFIELDS type ZDBBR_SELFIELD .
+    METHODS delete_line_values
+      CHANGING
+        !cs_selfields TYPE zdbbr_selfield .
     "! <p class="shorttext synchronized" lang="en">Handle fields in advanced mode</p>
     "!
-  methods HANDLE_ADVANCED_MODE .
+    METHODS handle_advanced_mode .
     "! <p class="shorttext synchronized" lang="en">Optimize columns</p>
     "!
-  methods HANDLE_COLUMN_OPTIMIZATION .
+    METHODS handle_column_optimization .
     "! <p class="shorttext synchronized" lang="en">Expand/Collapse columns</p>
     "!
-  methods HANDLE_EXPAND_COLUMN .
+    METHODS handle_expand_column .
     "! <p class="shorttext synchronized" lang="en">Special handling of a table header row</p>
     "!
-  methods HANDLE_TABLE_HEADER_ROW .
+    METHODS handle_table_header_row .
     "! <p class="shorttext synchronized" lang="en">Handle option to display tech fields first</p>
     "!
-  methods HANDLE_TECH_FIRST_SETTING .
+    METHODS handle_tech_first_setting .
     "! <p class="shorttext synchronized" lang="en">Scroll to to first field in the table</p>
     "!
     "! @parameter iv_tabname | <p class="shorttext synchronized" lang="en"></p>
-  methods SCROLL_TO_FIRST_FIELD_OF_TABLE
-    importing
-      !IV_TABNAME type TABNAME .
+    METHODS scroll_to_first_field_of_table
+      IMPORTING
+        !iv_tabname TYPE tabname .
     "! <p class="shorttext synchronized" lang="en">Update status for input field</p>
     "!
-  methods UPDATE_INPUT_FIELD_STATUS .
+    METHODS update_input_field_status .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_SELSCREEN_TABLE IMPLEMENTATION.
+CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
 
 
   METHOD aggregation_is_active.
@@ -252,9 +252,11 @@ CLASS ZCL_DBBR_SELSCREEN_TABLE IMPLEMENTATION.
            cs_selfields-system_value_type.
 
     IF cs_selfields-is_parameter = abap_true.
-      cs_selfields-option = zif_dbbr_c_options=>equals.
+      IF cs_selfields-is_range_param = abap_false.
+        cs_selfields-option = zif_dbbr_c_options=>equals.
+      ENDIF.
       TRY.
-          DATA(lr_tabfield) = get_util( )->mr_data->mr_tabfield_list->get_field_ref(
+          DATA(lr_tabfield) = get_util( )->mo_data->mo_tabfield_list->get_field_ref(
             iv_tabname_alias       = cs_selfields-tabname
             iv_fieldname     = cs_selfields-fieldname
           ).
@@ -329,7 +331,9 @@ CLASS ZCL_DBBR_SELSCREEN_TABLE IMPLEMENTATION.
       <ls_table_header>-tree_collapsed = abap_false.
     ENDLOOP.
 
-    zif_uitb_page_scroller~scroll_page_top( ).
+    IF sy-subrc = 0.
+      zif_uitb_page_scroller~scroll_page_top( ).
+    ENDIF.
   ENDMETHOD.
 
 
@@ -492,7 +496,7 @@ CLASS ZCL_DBBR_SELSCREEN_TABLE IMPLEMENTATION.
     " mark join table headers
     IF mr_selfield_line->is_table_header = abap_true.
       " create correct icon for expansion/compression of table node
-      IF get_util( )->mr_data->is_multi_table_mode( ).
+      IF get_util( )->mo_data->is_multi_table_mode( ).
         IF mr_selfield_line->tree_collapsed = abap_false.
           DATA(lv_info) = CONV iconquick( 'Collapse Fields' ).
           DATA(lv_icon) = CONV iconname( 'ICON_COLLAPSE' ).
@@ -724,17 +728,25 @@ CLASS ZCL_DBBR_SELSCREEN_TABLE IMPLEMENTATION.
     IF mr_selfield_line->is_parameter = abap_true.
       LOOP AT SCREEN.
         IF screen-name = c_fields-high_value OR
-           screen-name = c_fields-group_by OR
-           screen-name = c_fields-aggregation OR
            screen-name = c_fields-push.
+          IF mr_selfield_line->is_range_param = abap_false.
+            screen-active = 0.
+            MODIFY SCREEN.
+          ENDIF.
+        ELSEIF screen-name = c_fields-group_by OR
+               screen-name = c_fields-aggregation.
           screen-active = 0.
           MODIFY SCREEN.
         ELSEIF screen-name = c_fields-low_value.
-          screen-required = 2.
-          MODIFY SCREEN.
+          IF mr_selfield_line->is_range_param = abap_false.
+            screen-required = 2.
+            MODIFY SCREEN.
+          ENDIF.
         ELSEIF screen-name = c_fields-option.
-          screen-input = 0.
-          MODIFY SCREEN.
+          IF mr_selfield_line->is_range_param = abap_false.
+            screen-input = 0.
+            MODIFY SCREEN.
+          ENDIF.
         ENDIF.
       ENDLOOP.
     ENDIF.
@@ -832,7 +844,6 @@ CLASS ZCL_DBBR_SELSCREEN_TABLE IMPLEMENTATION.
   METHOD zif_uitb_table~get_current_loop_line.
     rv_current_loop_line = mv_current_line - mr_tableview->top_line + 1.
   ENDMETHOD.
-
 
   METHOD zif_uitb_table~pbo.
     DATA: ls_screen TYPE screen.
@@ -951,7 +962,7 @@ CLASS ZCL_DBBR_SELSCREEN_TABLE IMPLEMENTATION.
     DATA(ls_selfield_old) = mr_table_data->*[ mr_tableview->current_line ].
 
 *.. Check if uppercase conversion should be performed
-    data(lf_no_uppercase_conversion) = is_uppercase_conv_disabled( ).
+    DATA(lf_no_uppercase_conversion) = is_uppercase_conv_disabled( ).
 
     " handle calculated system values at first
     IF mr_selfield_line->system_value_type <> space.
@@ -1017,7 +1028,7 @@ CLASS ZCL_DBBR_SELSCREEN_TABLE IMPLEMENTATION.
     handle_tech_first_setting( ).
 
 *.. disable aggrations if not asked for
-    IF get_util( )->mr_data->mr_s_settings->disable_aggregations = abap_true.
+    IF get_util( )->mo_data->mr_s_settings->disable_aggregations = abap_true.
       LOOP AT mr_tableview->cols ASSIGNING <ls_table_column>.
         IF <ls_table_column>-screen-group4 = 'GRP'.
           <ls_table_column>-invisible = 1.
@@ -1026,7 +1037,7 @@ CLASS ZCL_DBBR_SELSCREEN_TABLE IMPLEMENTATION.
     ENDIF.
 
 *.. disable intervals
-    IF get_util( )->mr_data->mr_s_settings->disable_interval = abap_true.
+    IF get_util( )->mo_data->mr_s_settings->disable_interval = abap_true.
       LOOP AT mr_tableview->cols ASSIGNING <ls_table_column>.
         IF <ls_table_column>-screen-group3 = 'IVA'.
           <ls_table_column>-invisible = 1.

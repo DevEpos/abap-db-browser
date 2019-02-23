@@ -4,6 +4,8 @@ INTERFACE zif_dbbr_c_select_source_id
   CONSTANTS:
     ddddlsrc                     TYPE string VALUE 'DDDDLSRC',
     ddldependency                TYPE string VALUE 'DDLDEPENDENCY',
+    zdbbr_queryh                 TYPE string VALUE 'ZDBBR_QUERYH',
+    zdbbr_queryt                 TYPE string VALUE 'ZDBBR_QUERYT',
     zdbbr_i_associatedincds      TYPE string VALUE 'ZDBBR_I_ASSOCIATEDINCDS',
     zdbbr_i_cdsfrompartentity    TYPE string VALUE 'ZDBBR_I_CDSFROMPARTENTITY',
     zdbbr_i_databasetable        TYPE string VALUE 'ZDBBR_I_DATABASETABLE',

@@ -151,6 +151,7 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
 
   METHOD delete_related_by_query_id.
     DELETE FROM zdbbr_queryt WHERE ref_query_id = iv_query_id.
+    DELETE FROM zdbbr_queryp WHERE ref_query_id = iv_query_id.
     DELETE FROM zdbbr_tabf WHERE ref_id = iv_query_id.
 
     IF if_delete_all = abap_true.
@@ -209,6 +210,17 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     " 1) read join?
     IF cs_query_data-ref_join_id IS NOT INITIAL.
       cs_query_data-join_def = NEW zcl_dbbr_join_factory( )->read_join( iv_join_id = cs_query_data-ref_join_id ).
+
+      IF cs_query_data-primary_table_alias IS INITIAL.
+        cs_query_data-primary_table_alias = cs_query_data-join_def-primary_table_alias.
+      ENDIF.
+
+      IF cs_query_data-entity_type IS INITIAL.
+        SELECT SINGLE type
+          FROM zdbbr_i_databaseentity( p_language = @sy-langu )
+          WHERE entity = @cs_query_data-primary_table
+        INTO @cs_query_data-entity_type.
+      ENDIF.
     ENDIF.
 
     " 2) read tables
@@ -219,6 +231,10 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     " 3) read table fields
     SELECT * FROM zdbbr_tabf INTO CORRESPONDING FIELDS OF TABLE cs_query_data-fields
       WHERE ref_id = cs_query_data-query_id.
+
+    " read existing parameters
+    SELECT * FROM zdbbr_queryp INTO CORRESPONDING FIELDS OF TABLE cs_query_data-parameters
+      WHERE ref_query_id = cs_query_data-query_id.
 
     " 4) read existing variants
     IF if_load_variants = abap_true.
@@ -311,14 +327,16 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
 
 
   METHOD save_query.
-    DATA: lt_query_fields TYPE STANDARD TABLE OF zdbbr_tabf.
+    DATA: lt_query_fields     TYPE STANDARD TABLE OF zdbbr_tabf,
+          lt_query_parameters TYPE TABLE OF zdbbr_queryp.
 
     DATA(ls_join_def) = is_query-join_def.
     DATA(lt_query_tables) = is_query-tables.
+    lt_query_parameters = CORRESPONDING #( is_query-parameters ).
     lt_query_fields = CORRESPONDING #( is_query-fields ).
     DATA(ls_query) = CORRESPONDING zdbbr_query_info( is_query ).
 
-    ls_query-has_jump_fields = xsdbool( is_query-jump_fields is not INITIAL ).
+    ls_query-has_jump_fields = xsdbool( is_query-jump_fields IS NOT INITIAL ).
 
     DATA(lr_join_factory) = NEW zcl_dbbr_join_factory( ).
 
@@ -347,7 +365,9 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
 
 *.. save query
     MODIFY zdbbr_queryh FROM ls_query.
-    rv_query_id = ls_query-query_id.
+    IF sy-subrc = 0.
+      rv_query_id = ls_query-query_id.
+    ENDIF.
 
 *.. > save query tables
     LOOP AT lt_query_tables ASSIGNING FIELD-SYMBOL(<ls_query_table>).
@@ -364,6 +384,14 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     ENDLOOP.
 
     INSERT zdbbr_tabf FROM TABLE lt_query_fields.
+
+*.. > Save query parameters
+    LOOP AT lt_query_parameters ASSIGNING FIELD-SYMBOL(<ls_param>).
+      <ls_param>-ref_query_id = ls_query-query_id.
+    ENDLOOP.
+
+
+    INSERT zdbbr_queryp FROM TABLE lt_query_parameters.
 
     COMMIT WORK.
 
@@ -432,16 +460,14 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     WHERE ref_query_id = @ls_query-query_id
     INTO TABLE @DATA(lt_join_tables).
 
-    data(lt_range) = value zif_dbbr_global_types=>ty_tabname_range(
+    DATA(lt_range) = VALUE zif_dbbr_global_types=>ty_tabname_range(
       ( sign = 'I' option = 'EQ' low = ls_query-tabname )
-      ( lines of value #( for table in lt_join_tables ( sign = 'I' option = 'EQ' low = table-tabname ) ) )
+      ( LINES OF VALUE #( FOR table IN lt_join_tables ( sign = 'I' option = 'EQ' low = table-tabname ) ) )
     ).
 
-    check lt_range is not INITIAL.
+    CHECK lt_range IS NOT INITIAL.
 
-    rt_entities = zcl_dbbr_dictionary_helper=>find_database_tab_view(
-       it_tabname_range = lt_range
-    ).
+    rt_entities = zcl_dbbr_dictionary_helper=>get_entity_by_range( EXPORTING it_entity_range = lt_range ).
   ENDMETHOD.
 
 ENDCLASS.

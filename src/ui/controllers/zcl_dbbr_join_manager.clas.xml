@@ -127,6 +127,72 @@
      <ENTRY>Show SQL</ENTRY>
      <LENGTH>18</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>020</KEY>
+     <ENTRY>DB Browser - Joins for</ENTRY>
+     <LENGTH>44</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>021</KEY>
+     <ENTRY>Show Application Help</ENTRY>
+     <LENGTH>42</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>022</KEY>
+     <ENTRY>Prim. Table Alias</ENTRY>
+     <LENGTH>27</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>023</KEY>
+     <ENTRY>Change Alias of Primary Table</ENTRY>
+     <LENGTH>58</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>024</KEY>
+     <ENTRY>Create AND Condition</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>025</KEY>
+     <ENTRY>Create OR Condition</ENTRY>
+     <LENGTH>29</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>026</KEY>
+     <ENTRY>Condition</ENTRY>
+     <LENGTH>19</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>027</KEY>
+     <ENTRY>Help</ENTRY>
+     <LENGTH>14</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>028</KEY>
+     <ENTRY>New Join Table</ENTRY>
+     <LENGTH>24</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>029</KEY>
+     <ENTRY>New AND Condition</ENTRY>
+     <LENGTH>27</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>030</KEY>
+     <ENTRY>New OR Condition</ENTRY>
+     <LENGTH>26</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -173,6 +239,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>CHANGE_PRIMARY_TABLE_ALIAS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Changes the alias of the primary table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
      <CMPNAME>CLASS_CONSTRUCTOR</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>CLASS_CONSTRUCTOR</DESCRIPT>
@@ -197,12 +269,6 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>CREATE_HEADER</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Create header document to hold some information</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
      <CMPNAME>CREATE_JOIN_TABLE_NODE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Create node for join table</DESCRIPT>
@@ -212,24 +278,6 @@
      <CMPNAME>CREATE_OR_GROUP_NODE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Create OR Group Node</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>CREATE_SPLITTER</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Create splitter container</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>CREATE_STATUS_FUNCTIONS</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Create GUI Status functions for Join Manager</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>CREATE_TOOLBAR</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Creates toolbar for Tree</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
@@ -299,19 +347,19 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>MR_JOIN_TREE</CMPNAME>
+     <CMPNAME>MO_JOIN_TREE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Tree for storing join definition</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>MR_RELAT_NODE</CMPNAME>
+     <CMPNAME>MO_RELAT_NODE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Node of a column tree model</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>MR_S_JOIN_DEF</CMPNAME>
+     <CMPNAME>MR_JOIN_DEF</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Definition of a Join</DESCRIPT>
     </SEOCOMPOTX>
@@ -332,18 +380,6 @@
      <CMPNAME>MV_CURRENT_KEY_COUNT</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Tree Model: Node Key</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>ON_BEFORE_OUTPUT</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Handler for PBO of program</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>ON_BUTTON_CLICK</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Handler for Button press in tree</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
@@ -371,12 +407,6 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>ON_EXIT</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Handler for when screen should be left</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
      <CMPNAME>ON_NODE_CTX_MENU_REQUEST</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Handler for node context menu request</DESCRIPT>
@@ -401,18 +431,6 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>ON_TOOLBAR_FUNCTION</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Handler for Toolbar function click</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
-     <CMPNAME>ON_USER_COMMAND</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Handler for user command of program</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
      <CMPNAME>ST_JOIN_TYPE_FIXVALS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Description of Domain Fixed Values</DESCRIPT>
@@ -431,9 +449,21 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>UPDATE_NODE_VALUES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Updates node/item values in the table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
      <CMPNAME>UPDATE_OR_GROUP_OF_FILTER</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Updates the OR Group node key for this filter node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>UPDATE_TABLE_ALIAS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Update alias of join table and all dependent entities</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>

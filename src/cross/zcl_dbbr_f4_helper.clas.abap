@@ -107,7 +107,7 @@ ENDCLASS.
 CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
 
   METHOD get_cds_field_f4_infos.
-     " TODO: read cds view field foreignkey and valuehelp association
+    " TODO: read cds view field foreignkey and valuehelp association
   ENDMETHOD.
 
   METHOD get_f4_infos.
@@ -261,19 +261,20 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
 *& Description: Call built in f4 method with multi selection option and
 *& return the selected value(s)
 *&---------------------------------------------------------------------*
-
-    FIELD-SYMBOLS: <lv_selvalue> TYPE zdbbr_value.
-
-    DATA: lv_selvalue   TYPE dynfieldvalue,
-          lt_return_tab TYPE TABLE OF ddshretval.
-
     TYPES: BEGIN OF f4_dummy,
              tab      TYPE dbnam,
              minus(1),
              field    TYPE fdnam,
            END OF f4_dummy.
 
-    DATA: ls_f4_dummy TYPE f4_dummy.
+    DATA: lv_tabname    TYPE tabname,
+          lv_fieldname  TYPE fieldname,
+          lv_selvalue   TYPE dynfieldvalue,
+          lt_return_tab TYPE TABLE OF ddshretval,
+
+          ls_f4_dummy   TYPE f4_dummy.
+
+    FIELD-SYMBOLS: <lv_selvalue> TYPE zdbbr_value.
 
     IF if_low = abap_true.
       ASSIGN cs_selfield-low TO <lv_selvalue>.
@@ -281,10 +282,18 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
       ASSIGN cs_selfield-high TO <lv_selvalue>.
     ENDIF.
 
+
+    IF cs_selfield-is_parameter = abap_true.
+      lv_tabname = cs_selfield-rollname.
+    ELSE.
+      lv_tabname = cs_selfield-tabname.
+      lv_fieldname = cs_selfield-fieldname.
+    ENDIF.
+
     CALL FUNCTION 'F4IF_FIELD_VALUE_REQUEST'
       EXPORTING
-        tabname           = iv_tablename
-        fieldname         = iv_fieldname
+        tabname           = lv_tabname
+        fieldname         = lv_fieldname
         multiple_choice   = abap_true
         selection_screen  = abap_true
       TABLES
@@ -297,9 +306,9 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
         OTHERS            = 5.
     IF sy-subrc = 0.
       ls_f4_dummy = VALUE #(
-         tab = iv_tablename
+         tab = lv_tabname
          minus = '-'
-         field = iv_fieldname
+         field = lv_fieldname
       ).
       CONDENSE ls_f4_dummy NO-GAPS.
 
@@ -310,10 +319,10 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
         " perform alpha conversion if necessary
         IF if_do_not_convert_alpha = abap_false AND
            cs_selfield-fieldname <> iv_fieldname.
-          zcl_dbbr_data_converter=>perform_alpha_conversion_input( EXPORTING iv_tabname   = iv_tablename
-                                                                              iv_fieldname = iv_fieldname
-                                                                              iv_value     = <ls_return_value>-fieldval
-                                                                    IMPORTING ev_output    = <ls_return_value>-fieldval ).
+          zcl_dbbr_data_converter=>perform_alpha_conversion_input( EXPORTING iv_tabname   = lv_tabname
+                                                                             iv_fieldname = lv_fieldname
+                                                                             iv_value     = <ls_return_value>-fieldval
+                                                                   IMPORTING ev_output    = <ls_return_value>-fieldval ).
         ENDIF.
         <lv_selvalue> = <ls_return_value>-fieldval.
         " in case of multi-f4 PBO will be called afterwards, without
@@ -325,12 +334,21 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
             TRANSLATE cs_selfield-low TO UPPER CASE.     "#EC TRANSLANG
           ENDIF.
 
-          zcl_dbbr_data_converter=>convert_selopt_to_int_format(
-            EXPORTING iv_tabname   = cs_selfield-tabname
-                      iv_fieldname = cs_selfield-fieldname
-            CHANGING  cv_value1    = <lv_selvalue>
-          ).
-
+          IF cs_selfield-is_parameter = abap_true.
+            zcl_dbbr_data_converter=>convert_values_to_int_format(
+              EXPORTING iv_rollname  = cs_selfield-rollname
+                        iv_type      = cs_selfield-inttype
+                        iv_decimals  = CONV #( cs_selfield-decimals )
+                        iv_length    = CONV #( cs_selfield-intlen )
+              CHANGING  cv_value1    = <lv_selvalue>
+            ).
+          ELSE.
+            zcl_dbbr_data_converter=>convert_selopt_to_int_format(
+              EXPORTING iv_tabname   = cs_selfield-tabname
+                        iv_fieldname = cs_selfield-fieldname
+              CHANGING  cv_value1    = <lv_selvalue>
+            ).
+          ENDIF.
         ENDIF.
 
         IF lv_tabix = 1 OR if_low = abap_false.
@@ -600,9 +618,11 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
       IMPORTING et_table_fields = DATA(lt_table_fields)
     ).
 
-    lt_values = VALUE #( FOR dfies IN lt_table_fields ( fieldname = dfies-fieldname
-                                                        key       = dfies-keyflag
-                                                        fieldtext = dfies-fieldtext ) ).
+    lt_values = VALUE #( FOR dfies IN lt_table_fields
+                         WHERE ( fieldname <> '.NODE1' )
+                         ( fieldname = dfies-fieldname
+                           key       = dfies-keyflag
+                           fieldtext = dfies-fieldtext ) ).
 
     CALL FUNCTION 'F4IF_INT_TABLE_VALUE_REQUEST'
       EXPORTING

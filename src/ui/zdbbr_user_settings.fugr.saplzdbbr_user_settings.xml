@@ -245,6 +245,12 @@
      <LENGTH>72</LENGTH>
     </item>
     <item>
+     <ID>I</ID>
+     <KEY>T28</KEY>
+     <ENTRY>Use DDL View instead of CDS View for Selection</ENTRY>
+     <LENGTH>92</LENGTH>
+    </item>
+    <item>
      <ID>S</ID>
      <KEY>P_ASNVMO</KEY>
      <ENTRY>Selection Mode for Association</ENTRY>

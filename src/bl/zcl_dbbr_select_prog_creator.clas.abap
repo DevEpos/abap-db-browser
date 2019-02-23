@@ -40,6 +40,11 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
         VALUE(rv_size) TYPE i
       RAISING
         zcx_dbbr_selection_common .
+    "! <p class="shorttext synchronized" lang="en">Returns SQL String for current select</p>
+    "!
+    METHODS get_select_sql
+      RETURNING
+        VALUE(rv_select_sql) TYPE string.
     "! <p class="shorttext synchronized" lang="en">Selects data</p>
     "!
     METHODS select_data
@@ -221,9 +226,9 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     LOOP AT mt_from ASSIGNING FIELD-SYMBOL(<lv_from>).
       CLEAR: lv_from.
       IF sy-tabix = 1.
-        lv_from = |          FROM { <lv_from> }|.
+        lv_from = |  FROM { <lv_from> }|.
       ELSE.
-        lv_from = |               { <lv_from> }|.
+        lv_from = |       { <lv_from> }|.
       ENDIF.
 
       ct_lines = VALUE #( BASE ct_lines ( lv_from ) ).
@@ -237,9 +242,9 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     LOOP AT mt_group_by ASSIGNING FIELD-SYMBOL(<lv_group_by>).
       CLEAR: lv_group_by.
       IF sy-tabix = 1.
-        lv_group_by = |          GROUP BY { <lv_group_by> }|.
+        lv_group_by = |  GROUP BY { <lv_group_by> }|.
       ELSE.
-        lv_group_by = |                   { <lv_group_by> }|.
+        lv_group_by = |           { <lv_group_by> }|.
       ENDIF.
 
       ct_lines = VALUE #( BASE ct_lines ( lv_group_by ) ).
@@ -253,9 +258,9 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     LOOP AT mt_order_by ASSIGNING FIELD-SYMBOL(<lv_order_by>).
       CLEAR: lv_order_by.
       IF sy-tabix = 1.
-        lv_order_by = |          ORDER BY { <lv_order_by> }|.
+        lv_order_by = |  ORDER BY { <lv_order_by> }|.
       ELSE.
-        lv_order_by = |                   { <lv_order_by> }|.
+        lv_order_by = |           { <lv_order_by> }|.
       ENDIF.
 
       ct_lines = VALUE #( BASE ct_lines ( lv_order_by ) ).
@@ -269,9 +274,9 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     LOOP AT mt_select ASSIGNING FIELD-SYMBOL(<lv_select>).
       CLEAR: lv_select.
       IF sy-tabix = 1.
-        lv_select = |        SELECT { <lv_select> }|.
+        lv_select = |SELECT { <lv_select> }|.
       ELSE.
-        lv_select = |               { <lv_select> }|.
+        lv_select = |       { <lv_select> }|.
       ENDIF.
 
       ct_lines = VALUE #( BASE ct_lines ( lv_select ) ).
@@ -285,9 +290,9 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     LOOP AT mt_where ASSIGNING FIELD-SYMBOL(<lv_where>).
       CLEAR: lv_where.
       IF sy-tabix = 1.
-        lv_where = |          WHERE { <lv_where> }|.
+        lv_where = |WHERE { <lv_where> }|.
       ELSE.
-        lv_where = |                { <lv_where> }|.
+        lv_where = |   { <lv_where> }|.
       ENDIF.
 
       ct_lines = VALUE #( BASE ct_lines ( lv_where ) ).
@@ -518,4 +523,17 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
   METHOD update_from.
     mt_from = it_from.
   ENDMETHOD.
+
+  METHOD get_select_sql.
+    DATA: lt_sql_lines TYPE string_table.
+
+    fill_select( CHANGING ct_lines = lt_sql_lines ).
+    fill_from( CHANGING ct_lines = lt_sql_lines ).
+    fill_where( CHANGING ct_lines = lt_sql_lines ).
+    fill_group_by( CHANGING ct_lines = lt_sql_lines ).
+    fill_order_by( CHANGING ct_lines = lt_sql_lines ).
+
+    CONCATENATE LINES OF lt_sql_lines INTO rv_select_sql SEPARATED BY cl_abap_char_utilities=>cr_lf.
+  ENDMETHOD.
+
 ENDCLASS.

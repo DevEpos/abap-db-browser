@@ -20,7 +20,6 @@ CLASS zcl_dbbr_association_manager DEFINITION
     DATA: mr_main_split              TYPE REF TO cl_gui_splitter_container,
           mr_association_tree_model  TYPE REF TO zcl_uitb_column_tree_model,
           mr_db_table_tree           TYPE REF TO zcl_uitb_column_tree_model,
-          mr_db_table_search_control TYPE REF TO zcl_dbbr_db_search_control,
           mr_query_alv              TYPE REF TO zcl_uitb_alv.
 
     METHODS on_before_output
@@ -216,10 +215,6 @@ CLASS ZCL_DBBR_ASSOCIATION_MANAGER IMPLEMENTATION.
 
 
   METHOD create_db_table_search.
-
-    mr_db_table_search_control = zcl_dbbr_db_search_control=>create(
-        ir_parent = ir_container
-    ).
   ENDMETHOD.
 
 

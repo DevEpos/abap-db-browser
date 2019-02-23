@@ -157,11 +157,13 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mt_fieldcat TYPE lvc_t_fcat .
     DATA mt_jumpdest TYPE zdbbr_jumpdest_data_ui_itab .
     DATA mt_selection_fields TYPE zdbbr_selfield_itab .
+    DATA mt_param_values TYPE zdbbr_selfield_itab .
     DATA mt_multi_or TYPE zdbbr_or_seltab_itab .
     DATA mt_selfields_multi TYPE zdbbr_selfield_itab .
-    DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
-    DATA mr_tabfields_all TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_tabfields_all TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab .
+    data mf_custom_query_active type abap_bool.
     "! <p class="shorttext synchronized" lang="en">List of FROM clauses</p>
     DATA mt_from TYPE zdbbr_string_t .
     "! <p class="shorttext synchronized" lang="en">List of SELECT clauses</p>
@@ -191,12 +193,12 @@ CLASS zcl_dbbr_selection_util DEFINITION
         delete_mode            TYPE sap_bool,
       END OF ms_control_info .
     DATA ms_technical_info TYPE zdbbr_tech_info .
-    DATA mr_tabfields_original TYPE REF TO zcl_dbbr_tabfield_list .
-    DATA mr_tabfields_all_original TYPE REF TO zcl_dbbr_tabfield_list .
-    DATA mr_post_join_helper TYPE REF TO zcl_dbbr_virtual_join_helper .
+    DATA mo_tabfields_original TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_tabfields_all_original TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_post_join_helper TYPE REF TO zcl_dbbr_virtual_join_helper .
     DATA mt_exclude_function TYPE ucomm_it .
-    DATA mr_formula TYPE REF TO zcl_dbbr_formula .
-    DATA mr_formula_calculator TYPE REF TO zcl_dbbr_formula_calculator .
+    DATA mo_formula TYPE REF TO zcl_dbbr_formula .
+    DATA mo_formula_calculator TYPE REF TO zcl_dbbr_formula_calculator .
     DATA mt_dyntab_components TYPE zdbbr_abap_comp_type_itab .
     DATA:
       mt_virtual_join_table_range TYPE RANGE OF tabname .
@@ -216,8 +218,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Abstract ALV Filter for Output Grid</p>
     DATA mr_alv_util TYPE REF TO zcl_dbbr_output_alv_util .
 
-    "! <p class="shorttext synchronized" lang="en">Add columns to display external data origin</p>
-    METHODS add_external_data_column .
+
     "! <p class="shorttext synchronized" lang="en">Adds column for hiding rows</p>
     METHODS add_hide_flag_column .
     "! <p class="shorttext synchronized" lang="en">Adds Column for a line index / group count</p>
@@ -317,8 +318,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
         !ir_container TYPE REF TO cl_gui_container .
     "! <p class="shorttext synchronized" lang="en">Read information about all entities in the selection</p>
     "!
-    METHODS read_entity_infos
-        ABSTRACT .
+    METHODS read_entity_infos.
     "! <p class="shorttext synchronized" lang="en">Select the actual data</p>
     "!
     METHODS select_data
@@ -353,33 +353,6 @@ ENDCLASS.
 
 
 CLASS zcl_dbbr_selection_util IMPLEMENTATION.
-
-
-  METHOD add_external_data_column.
-    DATA(ls_field) = VALUE lvc_s_fcat(
-        fieldname = zif_dbbr_c_special_out_columns=>external_data_icon
-        ref_table = 'ZDBBR_ALV_SPECIAL_CELLS'
-        ref_field = zif_dbbr_c_special_out_columns=>external_data_icon
-        tech      = abap_true
-        icon      = abap_true
-    ).
-
-    IF ms_technical_info-tech_names = abap_true.
-      ls_field-reptext   =
-      ls_field-scrtext_s =
-      ls_field-scrtext_m =
-      ls_field-scrtext_l =
-      ls_field-coltext   = 'EXT. Data'.
-    ELSE.
-      ls_field-reptext   =
-      ls_field-scrtext_s =
-      ls_field-scrtext_m =
-      ls_field-scrtext_l =
-      ls_field-coltext   = 'Type Ext. Data'.
-    ENDIF.
-
-    APPEND ls_field TO mt_fieldcat.
-  ENDMETHOD.
 
 
   METHOD add_hide_flag_column.
@@ -503,10 +476,10 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 
   METHOD build_full_fieldnames.
-    mr_tabfields->build_complete_fieldnames( ).
-    mr_tabfields_original->build_complete_fieldnames( ).
-    mr_tabfields_all->build_complete_fieldnames( ).
-    mr_tabfields_all_original->build_complete_fieldnames( ).
+    mo_tabfields->build_complete_fieldnames( ).
+    mo_tabfields_original->build_complete_fieldnames( ).
+    mo_tabfields_all->build_complete_fieldnames( ).
+    mo_tabfields_all_original->build_complete_fieldnames( ).
   ENDMETHOD.
 
 
@@ -514,11 +487,11 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     DATA: lv_title TYPE lvc_title.
 
     IF is_join_active( ).
-      lv_title = `Join of ` && ms_control_info-primary_table && `(` && mt_table_to_alias_map[ tabname = ms_control_info-primary_table ]-alias && `)`.
+      lv_title = `Join of ` && ms_control_info-primary_table && `(` && ms_join_def-primary_table_alias_alv && `)`.
 
       LOOP AT ms_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_join_table>).
         DATA(lv_current_index) = sy-tabix.
-        DATA(lv_tabname) = <ls_join_table>-add_table && `(` && mt_table_to_alias_map[ tabname = <ls_join_table>-add_table ]-alias && `)`.
+        DATA(lv_tabname) = <ls_join_table>-add_table && `(` && <ls_join_table>-add_table_alias_alv && `)`.
 
         IF lv_current_index = lines( ms_join_def-tables ).
           lv_title = lv_title && ` and ` && lv_tabname.
@@ -560,7 +533,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     mt_nav_breadcrumbs  = it_nav_breadcrumbs.
     mv_navigation_count = iv_navigation_count.
 
-    mr_formula            = ir_formula.
+    mo_formula            = ir_formula.
     ms_join_def           = is_join_def.
     mv_entity_id          = iv_entity_id.
     mv_entity_type        = iv_entity_type.
@@ -569,16 +542,26 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ms_association_target = is_association_target.
     ms_technical_info     = is_technical_infos.
     mf_case_insensitive_search = is_technical_infos-search_ignore_case.
-    mt_selection_fields   = it_selection_fields.
+    mt_selection_fields   = VALUE #( FOR selfield IN it_selection_fields WHERE ( is_parameter = abap_false ) ( selfield ) ).
+    mt_param_values       = VALUE #( ( LINES OF VALUE #( FOR param IN it_selection_fields WHERE ( is_parameter = abap_true AND
+                                                                                                  low IS NOT INITIAL OR
+                                                                                                  high IS NOT INITIAL OR
+                                                                                                  option IS NOT INITIAL )
+                                                                                                ( param ) ) )
+                                     ( LINES OF VALUE #( FOR multi_param IN it_selfields_multi WHERE ( is_parameter = abap_true AND
+                                                                                                       low IS NOT INITIAL OR
+                                                                                                       high IS NOT INITIAL OR
+                                                                                                       option IS NOT INITIAL )
+                                                                                                     ( multi_param ) ) ) ).
     mt_selfields_multi    = it_selfields_multi.
     mt_multi_or           = it_multi_or.
 
-    mr_tabfields          = ir_tabfields->copy( ).
-    mr_tabfields_original = ir_tabfields.
-    mr_tabfields_all      = ir_tabfields_all->copy( ).
-    mr_tabfields_all_original = ir_tabfields_all.
+    mo_tabfields          = ir_tabfields->copy( ).
+    mo_tabfields_original = ir_tabfields.
+    mo_tabfields_all      = ir_tabfields_all->copy( ).
+    mo_tabfields_all_original = ir_tabfields_all.
 
-    mt_table_to_alias_map = mr_tabfields_all->build_table_to_alias_map( ).
+    mt_table_to_alias_map = mo_tabfields_all->build_table_to_alias_map( ).
     mt_exclude_function   = it_exclude_function.
 
     IF ms_join_def-tables IS NOT INITIAL.
@@ -642,9 +625,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD create_default_where_clause.
     FIELD-SYMBOLS: <ls_selfield> TYPE zdbbr_selfield.
 
-    DATA: lt_selfields             TYPE zdbbr_seltab_t,
-          lt_check_for_null_fields TYPE zdbbr_seltab_t,
-          lt_selfields_and         LIKE lt_selfields.
+    DATA: lt_selfields     TYPE zdbbr_seltab_t,
+          lt_selfields_and LIKE lt_selfields.
 
     CLEAR: mt_where,
            mt_or.
@@ -658,7 +640,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 *..... get table field to get alias name
       TRY.
-          DATA(lr_selection_field) = mr_tabfields_all->get_field_ref(
+          DATA(lr_selection_field) = mo_tabfields_all->get_field_ref(
               iv_tabname_alias = <ls_selfield>-tabname_alias
               iv_fieldname     = <ls_selfield>-fieldname
           ).
@@ -666,25 +648,21 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
           CONTINUE.
       ENDTRY.
 
+      DATA(lv_fieldname_sql) = lr_selection_field->sql_fieldname_long.
+      DATA(lv_fieldname) = lr_selection_field->fieldname.
 
-      DATA(lv_fieldname) = lr_selection_field->sql_fieldname.
       IF lr_selection_field->inttype = cl_abap_typedescr=>typekind_hex.
         DATA(lf_is_raw) = abap_true.
         DATA(lv_initial_value) = zcl_dbbr_dictionary_helper=>create_initial_raw_value( lr_selection_field->length ).
       ENDIF.
 
-      IF <ls_selfield>-option = zif_dbbr_c_options=>is_not_null OR
-         <ls_selfield>-option = zif_dbbr_c_options=>is_null.
-        lt_check_for_null_fields = VALUE #( BASE lt_check_for_null_fields ( field = lv_fieldname option = <ls_selfield>-option ) ).
-        CONTINUE.
-      ENDIF.
-
       APPEND VALUE #(
-        field  = lv_fieldname
-        low    = <ls_selfield>-low
-        high   = <ls_selfield>-high
-        sign   = <ls_selfield>-sign
-        option = <ls_selfield>-option
+        sqlfieldname = lv_fieldname_sql
+        field        = lv_fieldname
+        low          = <ls_selfield>-low
+        high         = <ls_selfield>-high
+        sign         = <ls_selfield>-sign
+        option       = <ls_selfield>-option
       ) TO lt_selfields ASSIGNING FIELD-SYMBOL(<ls_selfield_where>).
 
       IF lf_is_raw = abap_true.
@@ -705,27 +683,29 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
       " Search for multiple input
       LOOP AT mt_selfields_multi ASSIGNING FIELD-SYMBOL(<ls_selfield_multi>)
-          WHERE fieldname = <ls_selfield>-fieldname AND
-                tabname   = <ls_selfield>-tabname AND
+          WHERE fieldname     = <ls_selfield>-fieldname AND
+                tabname_alias = <ls_selfield>-tabname_alias AND
                 ( low  IS NOT INITIAL OR
                   high IS NOT INITIAL OR
                   option IS NOT INITIAL ).
 
         IF <ls_selfield_multi>-low = '#' AND <ls_selfield_multi>-option <> '#'.
           APPEND VALUE #(
-            field  = lv_fieldname
-            low    = COND #( WHEN lf_is_raw = abap_true AND <ls_selfield_multi>-low IS INITIAL THEN lv_initial_value ELSE space )
-            high   = space
-            sign   = <ls_selfield_multi>-sign
-            option = <ls_selfield_multi>-option
+            sqlfieldname = lv_fieldname_sql
+            field        = lv_fieldname
+            low          = COND #( WHEN lf_is_raw = abap_true AND <ls_selfield_multi>-low IS INITIAL THEN lv_initial_value ELSE space )
+            high         = space
+            sign         = <ls_selfield_multi>-sign
+            option       = <ls_selfield_multi>-option
           ) TO lt_selfields.
         ELSE.
           APPEND VALUE #(
-            field  = lv_fieldname
-            low    = COND #( WHEN lf_is_raw = abap_true AND <ls_selfield_multi>-low IS INITIAL THEN lv_initial_value ELSE <ls_selfield_multi>-low )
-            high   = <ls_selfield_multi>-high
-            sign   = <ls_selfield_multi>-sign
-            option = <ls_selfield_multi>-option
+            sqlfieldname = lv_fieldname_sql
+            field        = lv_fieldname
+            low          = COND #( WHEN lf_is_raw = abap_true AND <ls_selfield_multi>-low IS INITIAL THEN lv_initial_value ELSE <ls_selfield_multi>-low )
+            high         = <ls_selfield_multi>-high
+            sign         = <ls_selfield_multi>-sign
+            option       = <ls_selfield_multi>-option
           ) TO lt_selfields.
         ENDIF.
       ENDLOOP.
@@ -754,19 +734,20 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 *...... get table field to get alias name
         TRY.
-            lr_selection_field = mr_tabfields_all->get_field_ref(
-                iv_tabname_alias = mr_tabfields_all->get_table_alias_name( iv_tabname = <ls_or_tuple_value>-tabname )
+            lr_selection_field = mo_tabfields_all->get_field_ref(
+                iv_tabname_alias = <ls_or_tuple_value>-tabname_alias
                 iv_fieldname     = <ls_or_tuple_value>-fieldname
             ).
           CATCH cx_sy_itab_line_not_found.
             CONTINUE.
         ENDTRY.
 
-        <ls_or_selfield>-field = lr_selection_field->sql_fieldname.
+        <ls_or_selfield>-field = lr_selection_field->sql_fieldname_long.
 
         " include multi values
         LOOP AT <ls_or_tuple_value>-multi_values ASSIGNING FIELD-SYMBOL(<ls_or_tuple_multi_value>).
-          DATA(ls_multi_value) = CORRESPONDING se16n_seltab( <ls_or_tuple_value> ).
+          DATA(ls_multi_value) = CORRESPONDING zdbbr_seltab( <ls_or_tuple_multi_value> ).
+          ls_multi_value-sqlfieldname = <ls_or_selfield>-sqlfieldname.
           ls_multi_value-field = <ls_or_selfield>-field.
           APPEND ls_multi_value TO <ls_or_selfields>-values.
         ENDLOOP.
@@ -780,38 +761,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       it_or_seltab = mt_or
     ).
 
-*.. prepend checks for null/not null
-    IF lt_check_for_null_fields IS NOT INITIAL.
-      DATA(lt_check_for_null_where) = VALUE zdbbr_string_t( ( |(| ) ).
-      LOOP AT lt_check_for_null_fields ASSIGNING FIELD-SYMBOL(<ls_check_for_null>).
-        IF sy-tabix <> 1.
-          lt_check_for_null_where = VALUE #( BASE lt_check_for_null_where ( | AND | ) ).
-        ENDIF.
-        lt_check_for_null_where = VALUE #(
-            BASE lt_check_for_null_where
-            ( |{ <ls_check_for_null>-field } IS| &&
-              COND #( WHEN <ls_check_for_null>-option = zif_dbbr_c_options=>is_not_null THEN | NOT | ELSE | | ) &&
-              |NULL|
-            )
-        ).
-      ENDLOOP.
-
-      IF mt_where IS NOT INITIAL.
-        DATA(lt_where_copy) = mt_where.
-        mt_where = VALUE #(
-          ( LINES OF lt_check_for_null_where )
-          ( |) AND (| )
-          ( LINES OF lt_where_copy )
-          ( |) | )
-        ).
-      ELSE.
-        mt_where = VALUE #(
-          ( LINES OF lt_check_for_null_where )
-          ( |)| )
-        ).
-      ENDIF.
-
-    ENDIF.
   ENDMETHOD.
 
 
@@ -833,7 +782,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     " create components for dynamic table
     mt_dyntab_components = CORRESPONDING #( zcl_dbbr_output_tab_builder=>create_dyn_comp_tab(
-        ir_tabfields       = mr_tabfields
+        ir_tabfields       = mo_tabfields
         if_active_grouping = mf_group_by
         it_add_texts       = mt_add_texts
         is_tech_info       = ms_technical_info )
@@ -873,16 +822,16 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 *...create fieldcatalog / `select`-part from output fields
 *...1) update mode of tabfield list to `output`.
-    mr_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
-    mr_tabfields->sort( ).
+    mo_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
+    mo_tabfields->sort( ).
 
-    mr_tabfields->initialize_iterator( ).
+    mo_tabfields->initialize_iterator( ).
 
-    WHILE mr_tabfields->has_more_lines( ).
+    WHILE mo_tabfields->has_more_lines( ).
       CLEAR: lf_create_fieldcat_entry,
              lf_use_num_conversion.
 
-      DATA(lr_current_field) = mr_tabfields->get_next_entry( ).
+      DATA(lr_current_field) = mo_tabfields->get_next_entry( ).
 
 *...exclude some fields right away from the field catalog
       CHECK lr_current_field->is_parameter = abap_false.
@@ -980,7 +929,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         IF lf_use_num_conversion = abap_false.
           fill_fcat_quan_curr_field(
             EXPORTING ir_tabfield       = lr_current_field
-                      ir_tabfields      = mr_tabfields
+                      ir_tabfields      = mo_tabfields
             CHANGING  cv_quantity_field = ls_field-qfieldname
                       cv_currency_field = ls_field-cfieldname
           ).
@@ -1017,7 +966,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     add_line_index_column( ).
     add_hide_flag_column( ).
-    add_external_data_column( ).
 
   ENDMETHOD.
 
@@ -1038,15 +986,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 
   METHOD create_from_clause.
-    IF mf_join_is_active = abap_true.
-      " first fill from clause with primary table and its alias
-      mt_from = zcl_dbbr_join_helper=>build_from_clause_for_join_def(
-        is_join_def        = ms_join_def
-        it_table_alias_map = mt_table_to_alias_map
-      ).
-    ELSE.
-      APPEND ms_control_info-primary_table TO mt_from.
-    ENDIF.
+    mt_from = VALUE #( ( |{ ms_control_info-primary_table }| ) ).
   ENDMETHOD.
 
 
@@ -1069,12 +1009,12 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       IF mf_join_is_active = abap_true.
 *.... retrieve correct table field to get alias
         TRY.
-            DATA(lr_group_by_field) = mr_tabfields->get_field_ref(
-                iv_tabname_alias   = <ls_group_by>-tabname
-                iv_fieldname = <ls_group_by>-fieldname
+            DATA(lr_group_by_field) = mo_tabfields->get_field_ref(
+                iv_tabname_alias = <ls_group_by>-tabname_alias
+                iv_fieldname     = <ls_group_by>-fieldname
             ).
             mt_group_by = VALUE #( BASE mt_group_by
-              ( |{ lr_group_by_field->sql_fieldname }| )
+              ( |{ lr_group_by_field->sql_fieldname_long }| )
             ).
           CATCH cx_sy_itab_line_not_found.
         ENDTRY.
@@ -1096,16 +1036,16 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD create_order_by_clause.
     """ create fieldcatalog / `order by`-part from output fields
     " 1) update mode of tabfield list to `sort`.
-    mr_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-sort ).
+    mo_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-sort ).
 
     " check if there is at least one `sort`-field
-    CHECK mr_tabfields->checked_field_exists( ).
+    CHECK mo_tabfields->checked_field_exists( ).
 
-    mr_tabfields->sort( ).
-    mr_tabfields->initialize_iterator( if_for_active = abap_true ).
+    mo_tabfields->sort( ).
+    mo_tabfields->initialize_iterator( if_for_active = abap_true ).
 
-    WHILE mr_tabfields->has_more_lines( ).
-      DATA(lr_field) = mr_tabfields->get_next_entry( ).
+    WHILE mo_tabfields->has_more_lines( ).
+      DATA(lr_field) = mo_tabfields->get_next_entry( ).
 
       CHECK lr_field->is_virtual_join_field = abap_false.
 
@@ -1114,7 +1054,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         WHEN zif_dbbr_global_consts=>gc_sort_direction-ascending THEN 'ASCENDING'
         WHEN zif_dbbr_global_consts=>gc_sort_direction-descending THEN 'DESCENDING'
       ).
-      mt_order_by = VALUE #( BASE mt_order_by ( |{ lr_field->sql_fieldname } { lv_order_by_type }, | ) ).
+      mt_order_by = VALUE #( BASE mt_order_by ( |{ lr_field->sql_fieldname_long } { lv_order_by_type }, | ) ).
 
       " if field will not be displayed prevent sorting in ALV -> not possible as this field does not exist in the fieldcatalog
       CHECK lr_field->output_active = abap_true.
@@ -1147,12 +1087,12 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    mr_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
+    mo_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
 
-    mr_tabfields->initialize_iterator( ).
+    mo_tabfields->initialize_iterator( ).
 
-    WHILE mr_tabfields->has_more_lines( ).
-      DATA(lr_current_entry) = mr_tabfields->get_next_entry( ).
+    WHILE mo_tabfields->has_more_lines( ).
+      DATA(lr_current_entry) = mo_tabfields->get_next_entry( ).
 
 *...ignore formula fields - they have to be calculated
 *...also to be ignored are text fields and parameters
@@ -1174,13 +1114,13 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
           DATA(lr_selfield) = REF #( mt_selection_fields[ tabname   = lr_current_entry->tabname
                                                           fieldname = lr_current_entry->fieldname ] ).
           IF lr_selfield->aggregation <> space.
-            APPEND |{ lr_selfield->aggregation }( { lr_current_entry->sql_fieldname } ) AS { lr_current_entry->alv_fieldname }, | TO mt_select.
+            APPEND |{ lr_selfield->aggregation }( { lr_current_entry->sql_fieldname_long } ) AS { lr_current_entry->alv_fieldname }, | TO mt_select.
           ELSE.
-            APPEND |{ lr_current_entry->sql_fieldname } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
+            APPEND |{ lr_current_entry->sql_fieldname_long } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
           ENDIF.
         CATCH cx_sy_itab_line_not_found.
 *... safety check: is this field an output field?
-          APPEND |{ lr_current_entry->sql_fieldname } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
+          APPEND |{ lr_current_entry->sql_fieldname_long } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
       ENDTRY.
     ENDWHILE.
 
@@ -1198,17 +1138,34 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD create_util.
     DATA: lv_typename TYPE seoclsname.
 
-    CASE iv_entity_type.
+    IF is_join_def-tables IS NOT INITIAL AND
+       iv_entity_type <> zif_dbbr_c_selscreen_mode=>query.
+      lv_typename = 'ZCL_DBBR_JOIN_SELECTION_UTIL'.
+    ELSE.
+      CASE iv_entity_type.
 
-      WHEN zif_dbbr_c_selscreen_mode=>table.
-        lv_typename = 'ZCL_DBBR_TABLE_SELECTION_UTIL'.
+        WHEN zif_dbbr_c_selscreen_mode=>table.
+          lv_typename = 'ZCL_DBBR_TABLE_SELECTION_UTIL'.
 
-      WHEN zif_dbbr_c_selscreen_mode=>cds_view.
-        lv_typename = 'ZCL_DBBR_CDS_SELECTION_UTIL'.
+        WHEN zif_dbbr_c_selscreen_mode=>cds_view.
+          lv_typename = 'ZCL_DBBR_CDS_SELECTION_UTIL'.
 
-      WHEN zif_dbbr_c_selscreen_mode=>query.
-        lv_typename = 'ZCL_DBBR_QUERY_SELECTION_UTIL'.
-    ENDCASE.
+        WHEN zif_dbbr_c_selscreen_mode=>query.
+*........ SQL queries need a different kind of processing
+          SELECT SINGLE @abap_true
+            FROM zdbbr_queryh
+            WHERE query_name  = @iv_entity_id
+              AND is_sql_query = @abap_true
+          INTO @DATA(lf_sql_query).
+
+          IF lf_sql_query = abap_true.
+            lv_typename = 'ZCL_DBBR_SQL_QUERY_SELCTN_UTIL'.
+          ELSE.
+            lv_typename = 'ZCL_DBBR_QUERY_SELECTION_UTIL'.
+          ENDIF.
+      ENDCASE.
+    ENDIF.
+
 
     IF lv_typename IS NOT INITIAL.
       CREATE OBJECT result TYPE (lv_typename)
@@ -1290,7 +1247,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD execute_formula_for_lines.
     FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
 
-    CHECK mr_formula_calculator IS NOT INITIAL.
+    CHECK mo_formula_calculator IS NOT INITIAL.
 
     zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-005 }| iv_progress = 25 ).
 
@@ -1299,7 +1256,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     LOOP AT <lt_table> ASSIGNING FIELD-SYMBOL(<ls_row>).
       DATA(lr_row) = REF data( <ls_row> ).
 
-      mr_formula_calculator->calculate_row( CHANGING cr_row = lr_row ).
+      mo_formula_calculator->calculate_row( CHANGING cr_row = lr_row ).
 
     ENDLOOP.
   ENDMETHOD.
@@ -1337,52 +1294,59 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     cr_dd_doc->add_table(
       EXPORTING no_of_columns = 2
                 border        = '0'
-                width         = '40%'
+                width         = '60%'
       IMPORTING table         = DATA(lr_table)
     ).
 
     lr_table->add_column( IMPORTING column = DATA(lr_col1) ).
     lr_table->add_column( IMPORTING column = DATA(lr_col2) ).
-    lr_table->add_column( IMPORTING column = DATA(lr_col3) ).
+    IF is_join_active( ).
+      lr_table->add_column( IMPORTING column = DATA(lr_col3) ).
+    ENDIF.
 
-    " add table content
+*.. add table content
     lr_table->span_columns( col_start_span = lr_col1 no_of_cols = 2 ).
     lr_table->new_row( ).
     lr_col1->add_text(
-        text          = 'Primary Table'
+        text          = |{ 'Primary Entity' }|
         sap_emphasis  = cl_dd_document=>strong
     ).
     lr_table->new_row( ).
 
-    DATA(lt_tables) = mr_tabfields->get_table_list( ).
+    DATA(lt_tables) = mo_tabfields->get_table_list( ).
     DATA(ls_primary_table) = lt_tables[ is_primary = abap_true ].
-    DELETE lt_tables WHERE is_primary = abap_true.
+    DELETE lt_tables WHERE is_primary = abap_true
+                        OR tabname = zif_dbbr_global_consts=>gc_formula_dummy_table
+                        OR tabname = zif_dbbr_global_consts=>c_parameter_dummy_table.
 
-    " add primary table and number of lines
+*.. add primary table and number of lines
     IF is_join_active( ).
       DATA(lv_primtab_name) = '(' && ls_primary_table-alias  && `) ` &&
-                              ls_primary_table-tabname.
+                              ls_primary_table-tabname_alias.
+      lr_col2->add_text( text = |{ ls_primary_table-tabname }| ).
+      lr_col3->add_text( text = |{ ls_primary_table-description }| ).
     ELSE.
-      lv_primtab_name = ls_primary_table.
+      lv_primtab_name = ls_primary_table-tabname.
+      lr_col2->add_text( text = |{ ls_primary_table-description }| ).
     ENDIF.
 
     lr_col1->add_text( text = |{ lv_primtab_name }| ).
-    lr_col2->add_text( text = |{ ls_primary_table-description }| ).
 
     " create header lines for secondary tables
     IF is_join_active( ).
       lr_table->new_row( ).
       lr_table->span_columns( col_start_span = lr_col1 no_of_cols = 2 ).
-      lr_col1->add_text( text = 'Secundary Tables' sap_emphasis  = cl_dd_document=>strong ).
+      lr_col1->add_text( text = 'Secondary Tables' sap_emphasis  = cl_dd_document=>strong ).
       lr_table->new_row( ).
 
       " print secondary table if available
       LOOP AT lt_tables ASSIGNING FIELD-SYMBOL(<ls_table>).
         DATA(lv_tabname) = '(' && <ls_table>-alias  && `) ` &&
-                            <ls_table>-tabname.
+                            <ls_table>-tabname_alias.
 
         lr_col1->add_text( text = |{ lv_tabname }| ).
-        lr_col2->add_text( text = |{ <ls_table>-description }| ).
+        lr_col2->add_text( text = |{ <ls_table>-tabname }| ).
+        lr_col3->add_text( text = |{ <ls_table>-description }| ).
 
         lr_table->new_row( ).
       ENDLOOP.
@@ -1407,7 +1371,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
           if_use_live_filter = ms_technical_info-activate_alv_live_filter
           ir_alv_grid        = mr_alv_grid
           ir_t_data          = mr_t_data
-          ir_tabfields       = mr_tabfields_all
+          ir_tabfields       = mo_tabfields_all
           ir_t_fieldcat      = REF #( mt_fieldcat )
       ).
     ENDIF.
@@ -1497,6 +1461,9 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     result = mf_join_is_active.
   ENDMETHOD.
 
+  METHOD read_entity_infos.
+    RETURN.
+  ENDMETHOD.
 
   METHOD select_data.
     FIELD-SYMBOLS: <lt_table>     TYPE table,
@@ -1792,7 +1759,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
       result = VALUE #(
        BASE result
-       ( zif_dbbr_c_selection_functions=>control_side_header_visiblity )
+       ( zif_dbbr_c_selection_functions=>toggle_entity_info_header )
        ( zif_dbbr_c_selection_functions=>group_by_selected_columns     )
       ).
     ENDIF.
@@ -1819,6 +1786,19 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 *...... Update max row count and trigger reselection
         ms_technical_info-max_lines = lv_max_rows_number.
         zcl_uitb_screen_util=>set_function_code( zif_dbbr_c_selection_functions=>refresh ).
+
+      WHEN zif_dbbr_c_selection_functions=>show_sql_of_select.
+        IF mr_select_program IS BOUND.
+          DATA(lv_sql) = mr_select_program->get_select_sql( ).
+          IF lv_sql IS NOT INITIAL.
+            zcl_uitb_abap_code_viewer=>show_code(
+                iv_title  = 'SQL for Current Select'
+                iv_code   = lv_sql
+                iv_width  = 900
+                iv_height = 500
+            ).
+          ENDIF.
+        ENDIF.
     ENDCASE.
   ENDMETHOD.
 

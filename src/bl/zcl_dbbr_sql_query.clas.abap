@@ -1,81 +1,52 @@
-CLASS ZCL_DBBR_sql_query DEFINITION
+"! <p class="shorttext synchronized" lang="en">Database query</p>
+CLASS zcl_dbbr_sql_query DEFINITION
   PUBLIC
   FINAL
-  CREATE PROTECTED.
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-    CLASS-METHODS create_query
-      IMPORTING
-        ir_table_fields TYPE REF TO ZCL_DBBR_tablefield_list
-        it_selection    TYPE ZDBBR_selfield_info_itab OPTIONAL
-        it_selection_or TYPE ZDBBR_or_seltab_itab OPTIONAL.
-    METHODS execute_single
-      EXPORTING
-        ev_result TYPE any.
-    METHODS execute
-      IMPORTING
-        if_determine_max_count TYPE boolean OPTIONAL
-      EXPORTING
-        er_result              TYPE REF TO data.
-    METHODS determine_line_count
-      RETURNING
-        VALUE(rv_count) TYPE sy-tabix.
-  PROTECTED SECTION.
-    METHODS constructor.
-  PRIVATE SECTION.
-    DATA mt_select TYPE STANDARD TABLE OF string.
-    DATA mt_from TYPE STANDARD TABLE OF string.
-    DATA mt_where TYPE STANDARD TABLE OF string.
-    DATA mt_group_by TYPE STANDARD TABLE OF string.
-    DATA mt_order_by TYPE STANDARD TABLE OF string.
+    "! <p class="shorttext synchronized" lang="en">SQL Query information</p>
+    DATA ms_data TYPE zdbbr_sql_query READ-ONLY.
 
-    METHODS create_select_part.
-    METHODS create_where_part.
-    METHODS create_group_by_part.
-    METHODS create_order_by_part.
-    METHODS create_from_part.
+    "! <p class="shorttext synchronized" lang="en">List of parameter definitions</p>
+    DATA mt_parameters TYPE zdbbr_query_parameter_t READ-ONLY.
+
+    "! <p class="shorttext synchronized" lang="en">Create new query instance</p>
+    METHODS constructor
+      IMPORTING
+        is_query      TYPE zdbbr_sql_query
+        it_parameters TYPE zdbbr_query_parameter_t.
+    "! <p class="shorttext synchronized" lang="en">Set value for a certain parameter</p>
+    "!
+    METHODS set_parameter_value
+      IMPORTING
+        iv_name        TYPE fieldname
+        iv_value       TYPE zdbbr_value OPTIONAL
+        it_value_range TYPE zuitb_generic_range_itab OPTIONAL.
+
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_sql_query IMPLEMENTATION.
-  METHOD create_query.
-
-  ENDMETHOD.
+CLASS zcl_dbbr_sql_query IMPLEMENTATION.
 
   METHOD constructor.
-
+    ms_data = is_query.
+    mt_parameters = it_parameters.
   ENDMETHOD.
 
-  METHOD create_select_part.
 
-  ENDMETHOD.
+  METHOD set_parameter_value.
+    ASSIGN mt_parameters[ name = iv_name ] TO FIELD-SYMBOL(<ls_param>).
+    CHECK sy-subrc = 0.
 
-  METHOD create_where_part.
-
-  ENDMETHOD.
-
-  METHOD create_group_by_part.
-
-  ENDMETHOD.
-
-  METHOD create_order_by_part.
-
-  ENDMETHOD.
-
-  METHOD create_from_part.
-
-  ENDMETHOD.
-
-  METHOD execute_single.
-
-  ENDMETHOD.
-
-  METHOD execute.
-
-  ENDMETHOD.
-
-  METHOD determine_line_count.
+    IF iv_value IS SUPPLIED.
+      <ls_param>-value = iv_value.
+    ELSEIF it_value_range IS SUPPLIED.
+      <ls_param>-value_list = it_value_range.
+    ENDIF.
 
   ENDMETHOD.
 

@@ -40,3 +40,10 @@ INHERITING FROM cl_query_option_validator.
     METHODS: validate REDEFINITION.
 
 ENDCLASS.
+
+CLASS cl_qov_package DEFINITION
+INHERITING FROM cl_query_option_validator.
+  PUBLIC SECTION.
+    METHODS: validate REDEFINITION.
+
+ENDCLASS.

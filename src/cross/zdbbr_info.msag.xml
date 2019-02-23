@@ -536,6 +536,18 @@
      <MSGNR>087</MSGNR>
      <TEXT>&amp;1 Results</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>088</MSGNR>
+     <TEXT>Field Condition was updated</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>089</MSGNR>
+     <TEXT>Alias for primary table was updated successfully</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

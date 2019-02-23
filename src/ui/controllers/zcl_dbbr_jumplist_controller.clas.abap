@@ -1,68 +1,68 @@
-class ZCL_DBBR_JUMPLIST_CONTROLLER definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_jumplist_controller DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_UITB_SCREEN_CONTROLLER .
+    INTERFACES zif_uitb_screen_controller .
 
-  methods CONSTRUCTOR
-    importing
-      !IV_query_ID type ZDBBR_query_ID
-      !IR_TABLE type ref to ZCL_DBBR_JUMPLIST_TABLE .
-  methods JUMP_FIELD_F4 .
-  methods HAS_JUMP_DESTINATIONS
-    returning
-      value(RESULT) type ABAP_BOOL .
+    METHODS constructor
+      IMPORTING
+        !iv_query_id TYPE zdbbr_query_id
+        !ir_table    TYPE REF TO zcl_dbbr_jumplist_table .
+    METHODS jump_field_f4 .
+    METHODS has_jump_destinations
+      RETURNING
+        VALUE(result) TYPE abap_bool .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  aliases GET_REPORT_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_REPORT_ID .
-  aliases GET_SCREEN_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_SCREEN_ID .
+    ALIASES get_report_id
+      FOR zif_uitb_screen_controller~get_report_id .
+    ALIASES get_screen_id
+      FOR zif_uitb_screen_controller~get_screen_id .
 
-  constants:
-    BEGIN OF mc_function_codes,
+    CONSTANTS:
+      BEGIN OF mc_function_codes,
         save_jump_fields      TYPE sy-ucomm VALUE 'SAVE',
         select_all_fields     TYPE sy-ucomm VALUE 'SELECT_ALL',
         unselect_all_fields   TYPE sy-ucomm VALUE 'UNSLCT_ALL',
         create_new_jump_field TYPE sy-ucomm VALUE 'CREATE',
         delete_jump_fields    TYPE sy-ucomm VALUE 'DELETE',
-        maDBBRin_parameters   TYPE sy-ucomm VALUE 'PARAM_DETAILS',
+        madbbrin_parameters   TYPE sy-ucomm VALUE 'PARAM_DETAILS',
         copy_jump_destination TYPE sy-ucomm VALUE 'COPY',
       END OF mc_function_codes .
-  data MR_TABLE type ref to ZCL_DBBR_JUMPLIST_TABLE .
-  data MV_query_ID type ZDBBR_query_ID .
-  data MR_query_TABFIELDS type ref to ZCL_DBBR_TABFIELD_LIST .
-  data MS_query_INFO type ZDBBR_query_INFO .
-  data MT_TABLE_TO_ALIAS_MAP type ZDBBR_TABLE_TO_ALIAS_MAP_ITAB .
-  data MF_JOIN_IS_ACTIVE type XSDBOOLEAN .
+    DATA mr_table TYPE REF TO zcl_dbbr_jumplist_table .
+    DATA mv_query_id TYPE zdbbr_query_id .
+    DATA mr_query_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA ms_query_info TYPE zdbbr_query_info .
+    DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab .
+    DATA mf_join_is_active TYPE xsdboolean .
 
-  methods MAINTAIN_PARAMETERS .
-  methods INITIALIZE .
-  methods LOAD_query .
-  methods SAVE_JUMP_FIELDS .
-  methods ADD_NEW_JUMP_FIELD .
-  methods COPY_JUMP_FIELD .
+    METHODS maintain_parameters .
+    METHODS initialize .
+    METHODS load_query .
+    METHODS save_jump_fields .
+    METHODS add_new_jump_field .
+    METHODS copy_jump_field .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
+CLASS zcl_dbbr_jumplist_controller IMPLEMENTATION.
 
 
   METHOD add_new_jump_field.
-    FIELD-SYMBOLS: <lt_table> TYPE ZDBBR_jumpdest_data_ui_itab.
+    FIELD-SYMBOLS: <lt_table> TYPE zdbbr_jumpdest_data_ui_itab.
 
-    DATA(lv_new_line_index) = mr_table->ZIF_UITB_TABLE~add_line( ).
+    DATA(lv_new_line_index) = mr_table->zif_uitb_table~add_line( ).
 
     IF lv_new_line_index <= 0.
       RETURN.
     ENDIF.
 
-    DATA(lr_table_data_itab) = mr_table->ZIF_UITB_TABLE~get_table_data( ).
+    DATA(lr_table_data_itab) = mr_table->zif_uitb_table~get_table_data( ).
 
     ASSIGN lr_table_data_itab->* TO <lt_table>.
 
@@ -70,7 +70,7 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
     DATA(lr_new_line) = REF #( <lt_table>[ lv_new_line_index ] ).
     lr_new_line->ref_query_id = mv_query_id.
     lr_new_line->is_active = abap_true.
-    lr_new_line->jump_target_type = ZIF_DBBR_global_consts=>gc_jump_call_types-normal.
+    lr_new_line->jump_target_type = zif_dbbr_global_consts=>gc_jump_call_types-normal.
     lr_new_line->is_hotspot = abap_true.
     lr_new_line->skip_1st_screen = abap_true.
   ENDMETHOD.
@@ -87,20 +87,20 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method HAS_JUMP_DESTINATIONS.
-    FIELD-SYMBOLS: <lt_data> type STANDARD TABLE.
-    data(lr_t_data) = mr_table->zif_uitb_table~get_table_data( ).
-    ASSIGN lr_t_data->* to <lt_data>.
+  METHOD has_jump_destinations.
+    FIELD-SYMBOLS: <lt_data> TYPE STANDARD TABLE.
+    DATA(lr_t_data) = mr_table->zif_uitb_table~get_table_data( ).
+    ASSIGN lr_t_data->* TO <lt_data>.
 
-    result = xsdbool( <lt_data> is ASSIGNED and <lt_data> is not INITIAL ).
-  endmethod.
+    result = xsdbool( <lt_data> IS ASSIGNED AND <lt_data> IS NOT INITIAL ).
+  ENDMETHOD.
 
 
   METHOD initialize.
     " read the query from the database
     load_query( ).
 
-    DATA(lr_jumpdest_f) = NEW ZCL_DBBR_jump_destination_f( ).
+    DATA(lr_jumpdest_f) = NEW zcl_dbbr_jump_destination_f( ).
     " load existing jump fields
     mr_table->set_jump_destinations( lr_jumpdest_f->get_jump_destinations( mv_query_id ) ).
   ENDMETHOD.
@@ -109,7 +109,7 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
   METHOD jump_field_f4.
     DATA(lr_join_field_f4) = NEW zcl_dbbr_tabfield_tree_f4(
       iv_screen_title     = 'Value help for query Field'
-      ir_tree_node_filler = NEW zcl_dbbr_tabf_treeno_fill(
+      io_tree_node_filler = NEW zcl_dbbr_tabf_treeno_fill(
           ir_tabfield_list      = mr_query_tabfields
       )
     ).
@@ -130,7 +130,6 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
 
     ms_query_info = CORRESPONDING #( ls_query_data ).
 
-
     DATA(ls_join_def) = ls_query_data-join_def.
     mf_join_is_active = xsdbool( ls_join_def-tables IS NOT INITIAL ).
     DATA(lt_query_selfields) = ls_query_data-fields.
@@ -139,14 +138,23 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
 
     LOOP AT lt_table_list ASSIGNING FIELD-SYMBOL(<ls_table>).
       DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( iv_tablename = <ls_table>-tabname ).
+
       <ls_table>-is_primary = xsdbool( <ls_table>-tabname = ls_query_data-primary_table ).
       <ls_table>-index = sy-tabix.
       <ls_table>-description = ls_table_info-ddtext.
+*.... Fetch short alias for table from the join definition
+      IF mf_join_is_active = abap_true.
+        IF <ls_table>-is_primary = abap_true.
+          <ls_table>-alias = ls_join_def-primary_table_alias_alv.
+        ELSE.
+          <ls_table>-alias = VALUE #( ls_join_def-tables[ add_table_alias = <ls_table>-tabname_alias ]-add_table_alias_alv OPTIONAL ).
+        ENDIF.
+      ENDIF.
 
-*... create tabfield list entries for output fields
-      LOOP AT lt_query_selfields ASSIGNING FIELD-SYMBOL(<ls_query_field>) WHERE tabname = <ls_table>-tabname
-                                                                              AND output_active = abap_true
-                                                                              AND is_formula_field = abap_false.
+*.... create tabfield list entries for output fields
+      LOOP AT lt_query_selfields ASSIGNING FIELD-SYMBOL(<ls_query_field>) WHERE tabname_alias    = <ls_table>-tabname_alias
+                                                                            AND output_active    = abap_true
+                                                                            AND is_formula_field = abap_false.
         DATA(ls_fieldinfo) = zcl_dbbr_dictionary_helper=>get_table_field_info(
           iv_tablename = <ls_query_field>-tabname
           iv_fieldname = <ls_query_field>-fieldname
@@ -163,7 +171,8 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
                   std_long_text   = scrtext_l
                   header_text     = reptext
         ).
-        ls_tabfield-tabname_alias   = ls_tabfield-tabname.
+        ls_tabfield-fieldname_raw   = ls_tabfield-fieldname.
+        ls_tabfield-tabname_alias   = <ls_query_field>-tabname_alias.
         ls_tabfield-is_foreign_key  = xsdbool( ls_fieldinfo-checktable IS NOT INITIAL ).
         ls_tabfield-field_ddtext    = COND #( WHEN ls_fieldinfo-scrtext_l IS INITIAL THEN
                                                 ls_fieldinfo-fieldtext
@@ -227,12 +236,12 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
 
 
   METHOD save_jump_fields.
-    FIELD-SYMBOLS: <lt_jump_definitions> TYPE ZDBBR_jumpdest_data_ui_itab.
+    FIELD-SYMBOLS: <lt_jump_definitions> TYPE zdbbr_jumpdest_data_ui_itab.
 
-    DATA(lr_jump_destinations) = mr_table->ZIF_UITB_TABLE~get_table_data( ).
+    DATA(lr_jump_destinations) = mr_table->zif_uitb_table~get_table_data( ).
     ASSIGN lr_jump_destinations->* TO <lt_jump_definitions>.
 
-    NEW ZCL_DBBR_jump_destination_f( )->save_jump_destinations(
+    NEW zcl_dbbr_jump_destination_f( )->save_jump_destinations(
       EXPORTING
         iv_query_id          = mv_query_id
         if_update_query_flag = abap_true
@@ -240,7 +249,7 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
         ct_jump_destinations = <lt_jump_definitions>
     ).
 
-    ZCL_DBBR_screen_helper=>leave_screen( ).
+    zcl_dbbr_screen_helper=>leave_screen( ).
   ENDMETHOD.
 
 
@@ -260,12 +269,12 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~cancel.
-    ZCL_DBBR_screen_helper=>leave_screen( ).
+  METHOD zif_uitb_screen_controller~cancel.
+    zcl_dbbr_screen_helper=>leave_screen( ).
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~determine_cursor.
+  METHOD zif_uitb_screen_controller~determine_cursor.
     zcl_uitb_cursor=>get_cursor( ).
   ENDMETHOD.
 
@@ -280,16 +289,16 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~handle_user_command.
+  METHOD zif_uitb_screen_controller~handle_user_command.
     DATA(lv_function) = cv_function_code.
     CLEAR cv_function_code.
 
     " clear copy attributes from table lines
-    mr_table->clear_Is_copied_flags( ).
+    mr_table->clear_is_copied_flags( ).
 
     CASE lv_function.
-      WHEN ZIF_DBBR_global_consts=>gc_function_codes-leave_screen.
-        ZCL_DBBR_screen_helper=>leave_screen( ).
+      WHEN zif_dbbr_global_consts=>gc_function_codes-leave_screen.
+        zcl_dbbr_screen_helper=>leave_screen( ).
 
       WHEN mc_function_codes-save_jump_fields.
         save_jump_fields( ).
@@ -300,7 +309,7 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
       WHEN mc_function_codes-create_new_jump_field.
         add_new_jump_field( ).
 
-      WHEN mc_function_codes-maDBBRin_parameters.
+      WHEN mc_function_codes-madbbrin_parameters.
         maintain_parameters( ).
 
       WHEN mc_function_codes-delete_jump_fields.
@@ -313,15 +322,15 @@ CLASS ZCL_DBBR_JUMPLIST_CONTROLLER IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~pbo.
-    ZIF_UITB_SCREEN_CONTROLLER~set_status( ).
+  METHOD zif_uitb_screen_controller~pbo.
+    zif_uitb_screen_controller~set_status( ).
 
     " update cursor
     zcl_uitb_cursor=>refresh_cursor( ).
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~set_status.
+  METHOD zif_uitb_screen_controller~set_status.
     SET PF-STATUS 'JUMP_LIST_STATUS' OF PROGRAM zif_dbbr_c_report_id=>jump_list_manager.
     SET TITLEBAR 'JUMP_LIST' OF PROGRAM zif_dbbr_c_report_id=>jump_list_manager WITH ms_query_info-query_name.
   ENDMETHOD.

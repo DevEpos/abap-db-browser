@@ -98,6 +98,7 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
 
 
   METHOD save_query.
+    DATA: lv_primary_entity_type TYPE zdbbr_entity_type.
 
 *.. validate query name
     TRY .
@@ -129,6 +130,14 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
 
       " get information of existing query
       DATA(ls_query_existing) = lr_query_factory->get_query( iv_query_name = mr_ui_query_name->* ).
+      lv_primary_entity_type = ls_query_existing-entity_type.
+    ENDIF.
+
+    IF lv_primary_entity_type IS INITIAL.
+      SELECT SINGLE type
+        FROM zdbbr_i_databaseentity( p_language = @sy-langu )
+        WHERE entity = @ms_query_info-primary_table
+      INTO @lv_primary_entity_type.
     ENDIF.
 
     " 3) save the query
@@ -146,6 +155,7 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
 
     DATA(ls_query_data) = VALUE zdbbr_query_data(
         query_id         = ls_query_existing-query_id
+        entity_type      = lv_primary_entity_type
         ref_join_id       = ls_query_existing-ref_join_id
         is_global         = mr_ui_is_global->*
         created_by        = COND #( WHEN ls_query_existing-created_by IS NOT INITIAL THEN ls_query_existing-created_by ELSE sy-uname )
@@ -153,6 +163,7 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
         changed_date      = COND #( WHEN ls_query_existing IS NOT INITIAL THEN sy-datum )
         query_name       = mr_ui_query_name->*
         primary_table     = mr_ui_global_data->primary_table
+        primary_table_alias = COND #( WHEN ms_join_def-tables IS NOT INITIAL THEN ms_join_def-primary_table_alias )
         description       = mr_ui_query_desc->*
         has_output_fields = mr_ui_use_output_fields->*
         has_sort_fields   = mr_ui_use_sort_fields->*

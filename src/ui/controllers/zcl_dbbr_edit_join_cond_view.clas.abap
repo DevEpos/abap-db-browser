@@ -1,157 +1,260 @@
-class ZCL_DBBR_EDIT_JOIN_COND_VIEW definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_edit_join_cond_view DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_UITB_SCREEN_CONTROLLER .
+    INTERFACES zif_uitb_screen_controller .
 
-  aliases SHOW
-    for ZIF_UITB_SCREEN_CONTROLLER~CALL_SCREEN .
-  aliases WAS_NOT_CANCELLED
-    for ZIF_UITB_SCREEN_CONTROLLER~WAS_NOT_CANCELLED .
+    ALIASES show
+      FOR zif_uitb_screen_controller~call_screen .
+    ALIASES was_not_cancelled
+      FOR zif_uitb_screen_controller~was_not_cancelled .
 
-  constants C_FIELD_MODE type I value 1 ##NO_TEXT.
-  constants C_VALUE_MODE type I value 2 ##NO_TEXT.
+    CONSTANTS c_field_mode TYPE i VALUE 1 ##NO_TEXT.
+    CONSTANTS c_value_mode TYPE i VALUE 2 ##NO_TEXT.
 
-  events CREATED_FILTER_CONDITION
-    exporting
-      value(ES_FILTER) type ZDBBR_JOINFIL .
-  events CREATED_FIELD_CONDITION
-    exporting
-      value(ES_FIELD) type ZDBBR_JOINFLD .
+    EVENTS created_filter_condition
+      EXPORTING
+        VALUE(es_filter) TYPE zdbbr_joinfil .
+    EVENTS created_field_condition
+      EXPORTING
+        VALUE(es_field) TYPE zdbbr_joinfld .
 
-  class-methods CLASS_CONSTRUCTOR .
-  methods CALL_SOURCE_FIELD_F4 .
-  methods CALL_TARGET_FIELD_F4 .
-  methods CALL_VALUE1_F4 .
-  methods CALL_VALUE2_F4 .
-  methods CONSTRUCTOR
-    importing
-      !IF_IS_NEW type ABAP_BOOL default ABAP_TRUE
-      !IS_FILTER_CONDITION type ZDBBR_JOINFIL optional
-      !IS_FIELD_CONDITION type ZDBBR_JOINFLD optional
-      !IV_MODE type I default C_FIELD_MODE
-      !IF_ALLOW_OFFSET type ABAP_BOOL optional
-      !IV_SOURCE_TABLE type TABNAME optional
-      !IT_TARGET_TABLE_LIST type ZDBBR_TABNAME_RANGE_ITAB optional .
-  methods GET_UPDATED_CONDITION
-    exporting
-      !ES_FIELD_CONDITION type ZDBBR_JOINFLD
-      !ES_FILTER_CONDITION type ZDBBR_JOINFIL .
+    CLASS-METHODS class_constructor .
+    METHODS call_source_field_f4 .
+    METHODS call_target_field_f4 .
+    METHODS call_value1_f4 .
+    METHODS call_value2_f4 .
+    METHODS constructor
+      IMPORTING
+        !if_is_new             TYPE abap_bool DEFAULT abap_true
+        !is_filter_condition   TYPE zdbbr_joinfil OPTIONAL
+        !is_field_condition    TYPE zdbbr_joinfld OPTIONAL
+        !iv_mode               TYPE i DEFAULT c_field_mode
+        !if_allow_offset       TYPE abap_bool OPTIONAL
+        !iv_source_table       TYPE tabname OPTIONAL
+        is_source_entity       TYPE zdbbr_joint OPTIONAL
+        !it_target_entity_list TYPE zdbbr_entity_t OPTIONAL .
+    METHODS get_updated_condition
+      EXPORTING
+        !es_field_condition  TYPE zdbbr_joinfld
+        !es_filter_condition TYPE zdbbr_joinfil .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  aliases MF_FIRST_CALL
-    for ZIF_UITB_SCREEN_CONTROLLER~MF_FIRST_CALL .
-  aliases GET_REPORT_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_REPORT_ID .
-  aliases GET_SCREEN_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_SCREEN_ID .
+    ALIASES mf_first_call
+      FOR zif_uitb_screen_controller~mf_first_call .
+    ALIASES get_report_id
+      FOR zif_uitb_screen_controller~get_report_id .
+    ALIASES get_screen_id
+      FOR zif_uitb_screen_controller~get_screen_id .
 
     "! type - syst_title
-  constants C_V_JOIN_CONDITION_TITLE type DYNFNAM value 'JOINCOND' ##NO_TEXT.
+    CONSTANTS c_v_join_condition_title TYPE dynfnam VALUE 'JOINCOND' ##NO_TEXT.
     "! Type - fieldname
-  constants C_P_JOIN_SRC_FIELD type DYNFNAM value 'P_SRCFLD' ##NO_TEXT.
-    "! Type - tabname16
-  constants C_P_JOIN_SRC_TAB type DYNFNAM value 'P_SRCTAB' ##NO_TEXT.
+    CONSTANTS c_p_join_src_field TYPE dynfnam VALUE 'P_SRCFLD' ##NO_TEXT.
+    "! Type - zdbbr_entity_id
+    CONSTANTS c_p_join_src_tab TYPE dynfnam VALUE 'P_SRCTAB' ##NO_TEXT.
     "! Type - voperator
-  constants C_P_JOIN_COND_COMPARATOR1 type DYNFNAM value 'P_COMP1' ##NO_TEXT.
+    CONSTANTS c_p_join_cond_comparator1 TYPE dynfnam VALUE 'P_COMP1' ##NO_TEXT.
     "! Type - char length 60
-  constants C_V_TYPE_FOR_JOIN_COND_VAL type DYNFNAM value 'GV_TYPE_OF_VALUE' ##NO_TEXT.
+    CONSTANTS c_v_type_for_join_cond_val TYPE dynfnam VALUE 'GV_TYPE_OF_VALUE' ##NO_TEXT.
     "! Type - dynamic from gv_type_of_value
-  constants C_P_JOIN_COND_VALUE1 type DYNFNAM value 'P_VAL1' ##NO_TEXT.
+    CONSTANTS c_p_join_cond_value1 TYPE dynfnam VALUE 'P_VAL1' ##NO_TEXT.
     "! Type - dynamic from gv_type_of_value
-  constants C_P_JOIN_COND_VALUE2 type DYNFNAM value 'P_VAL2' ##NO_TEXT.
+    CONSTANTS c_p_join_cond_value2 TYPE dynfnam VALUE 'P_VAL2' ##NO_TEXT.
     "! Type - fieldname
-  constants C_P_JOIN_TRGT_FIELD type DYNFNAM value 'P_TRGFLD' ##NO_TEXT.
+    CONSTANTS c_p_join_trgt_field TYPE dynfnam VALUE 'P_TRGFLD' ##NO_TEXT.
     "! Type - doffset
-  constants C_P_JOIN_TRGT_OFFSET type DYNFNAM value 'P_TFLDOF' ##NO_TEXT.
+    CONSTANTS c_p_join_trgt_offset TYPE dynfnam VALUE 'P_TFLDOF' ##NO_TEXT.
     "! Type - ddleng
-  constants C_P_JOIN_TRGT_OFFSET_LENGTH type DYNFNAM value 'P_TFLDOL' ##NO_TEXT.
+    CONSTANTS c_p_join_trgt_offset_length TYPE dynfnam VALUE 'P_TFLDOL' ##NO_TEXT.
     "! Type datatype_d
-  constants C_P_JOIN_TRGT_FLD_DATATYPE type DYNFNAM value 'P_TRGDTP' ##NO_TEXT.
+    CONSTANTS c_p_join_trgt_fld_datatype TYPE dynfnam VALUE 'P_TRGDTP' ##NO_TEXT.
     "! Type datatype_d
-  constants C_P_JOIN_SOURCE_FLD_DATATYPE type DYNFNAM value 'P_SRCDTP' ##NO_TEXT.
+    CONSTANTS c_p_join_source_fld_datatype TYPE dynfnam VALUE 'P_SRCDTP' ##NO_TEXT.
     "! Type ddleng
-  constants C_P_JOIN_TRGT_FLD_LENGTH type DYNFNAM value 'P_TRGLNG' ##NO_TEXT.
+    CONSTANTS c_p_join_trgt_fld_length TYPE dynfnam VALUE 'P_TRGLNG' ##NO_TEXT.
     "! Type ddleng
-  constants C_P_JOIN_SOURCE_FLD_LENGTH type DYNFNAM value 'P_SRCLNG' ##NO_TEXT.
-    "! Type - tabname16
-  constants C_P_JOIN_TRGT_TAB type DYNFNAM value 'P_TRGTAB' ##NO_TEXT.
-  constants C_P_JOIN_COND_VALUE_TYPE type DYNFNAM value 'P_VALTY' ##NO_TEXT.
-  constants C_R_EDIT_JOIN_COND_VIEW type DYNFNAM value 'GR_EDIT_JOIN_COND_VIEW' ##NO_TEXT.
-  data MF_SAVED type ABAP_BOOL .
-  data MF_IS_NEW type ABAP_BOOL .
-  data MR_V_JOIN_SOURCE_FIELD type ref to FIELDNAME .
-  data MR_V_JOIN_SOURCE_TAB type ref to TABNAME16 .
-  data MR_V_JOIN_COND_COMP1 type ref to VOPERATOR .
-  data MR_V_JOIN_COND_VAL_TYPE type ref to ZDBBR_JOIN_COND_VALUE_TYPE .
-  data MR_V_JOIN_COND_VALUE1 type ref to ZDBBR_VALUE .
-  data MR_V_JOIN_COND_VALUE2 type ref to ZDBBR_VALUE .
-  data MR_V_JOIN_TARGET_FIELD type ref to FIELDNAME .
-  data MR_V_JOIN_TARGET_TAB type ref to TABNAME16 .
-  data MR_V_JOIN_TARGET_OFFSET type ref to DOFFSET .
-  data MR_V_JOIN_TARGET_OFFSET_LENGTH type ref to DDLENG .
-  data MV_MODE type I .
-  class-data ST_COMPARATOR_FIX_VALS type VRM_VALUES .
-  data MF_VALUE2_VISIBLE type ABAP_BOOL .
-  data MR_V_TITLE type ref to SYST_TITLE .
-  data MV_VALUE_FIELD_LENGTH type I .
-  data MV_VALUE_FIELD_ROLLNAME type ROLLNAME .
-  data MT_TARGET_TABLE_LIST type ZDBBR_TABNAME_RANGE_ITAB .
-  data MF_ALLOW_OFFSET type ABAP_BOOL .
-  data MR_V_JOIN_TRGT_FIELD_DATATYPE type ref to DATATYPE_D .
-  data MR_V_JOIN_SOURCE_FLD_DATATYPE type ref to DATATYPE_D .
-  data MR_V_JOIN_TRGT_FLD_LENGTH type ref to DDLENG .
-  data MR_V_JOIN_SOURCE_FLD_LENGTH type ref to DDLENG .
-  data MS_FIELD_CONDITION type ZDBBR_JOINFLD .
-  data MS_FILTER_CONDITION type ZDBBR_JOINFIL .
-  data MR_CURSOR type ref to ZCL_UITB_CURSOR .
-  data MR_S_SAVE_FUNC type ref to SMP_DYNTXT .
-  data MR_S_SAVE_NEW_FUNC type ref to SMP_DYNTXT .
-  data MF_ERROR type ABAP_BOOL .
+    CONSTANTS c_p_join_source_fld_length TYPE dynfnam VALUE 'P_SRCLNG' ##NO_TEXT.
+    "! Type - zdbbr_entity_id
+    CONSTANTS c_p_join_trgt_tab TYPE dynfnam VALUE 'P_TRGTAB' ##NO_TEXT.
+    CONSTANTS c_p_join_cond_value_type TYPE dynfnam VALUE 'P_VALTY' ##NO_TEXT.
+    CONSTANTS c_r_edit_join_cond_view TYPE dynfnam VALUE 'GR_EDIT_JOIN_COND_VIEW' ##NO_TEXT.
+    CONSTANTS:
+      BEGIN OF c_functions,
+        comparator1_changed TYPE ui_func VALUE 'CMP1CHNG' ##NO_TEXT,
+        value_type_changed  TYPE ui_func VALUE 'VALTYPCHANGED' ##NO_TEXT,
+        save_and_continue   TYPE ui_func VALUE 'SAVENEW' ##NO_TEXT,
+        save                TYPE ui_func VALUE 'SAVE' ##NO_TEXT,
+      END OF c_functions.
 
-  methods VALIDATE_PARAMETER .
-  methods CALL_BUILT_IN_F4_FOR_VALUE
-    importing
-      !IV_DYNP_FIELDNAME type DYNFNAM
-    changing
-      !CV_VALUE type ZDBBR_VALUE .
-  methods CLEAR_FIELD_ATTRIBUTES .
-  methods CONVERT_VALUES_TO_INTERNAL .
-  methods CONVERT_VALUES_TO_DISPLAY .
-  methods FILL_COMPARATOR_LIST .
-  methods FILL_FIELD_ATTRIBUTE_FIELDS
-    importing
-      !IF_SOURCE type ABAP_BOOL optional
-      !IR_SCREEN_FIELD_MANAGER type ref to ZCL_UITB_SCREEN_FIELD_MANAGER optional
-      !IV_FIELDNAME type FIELDNAME optional
-      !IV_TABNAME type TABNAME16 optional .
-  methods SEND_NEW_CONDITION_VIA_EVENT .
-  methods SET_FUNCTIONS .
-  methods TRANSFER_VALUES .
-  methods TRANSFER_VALUES_TO_SCREEN .
-  methods VALIDATE .
-  methods VALIDATE_SYSTEM_FIELD .
+    DATA ms_source_entity TYPE zdbbr_joint.
+    DATA mf_saved TYPE abap_bool .
+    DATA mf_is_new TYPE abap_bool .
+    DATA mr_join_source_field TYPE REF TO fieldname .
+    DATA mr_join_source_tab TYPE REF TO zdbbr_entity_id .
+    DATA mr_join_cond_comp1 TYPE REF TO voperator .
+    DATA mr_join_cond_val_type TYPE REF TO zdbbr_join_cond_value_type .
+    DATA mr_join_cond_value1 TYPE REF TO zdbbr_value .
+    DATA mr_join_cond_value2 TYPE REF TO zdbbr_value .
+    DATA mr_join_target_field TYPE REF TO fieldname .
+    DATA mr_join_target_tab TYPE REF TO zdbbr_entity_id .
+    DATA mr_join_target_offset TYPE REF TO doffset .
+    DATA mr_join_target_offset_length TYPE REF TO ddleng .
+    DATA mv_source_entity TYPE zdbbr_entity_id.
+    DATA mv_mode TYPE i .
+    CLASS-DATA st_comparator_fix_vals TYPE vrm_values .
+    DATA mf_value2_visible TYPE abap_bool .
+    DATA mr_title TYPE REF TO syst_title .
+    DATA mv_value_field_length TYPE i .
+    DATA mv_value_field_rollname TYPE rollname .
+    DATA mt_target_entity_list TYPE zdbbr_entity_t .
+    DATA mf_allow_offset TYPE abap_bool .
+    DATA mr_join_trgt_field_datatype TYPE REF TO datatype_d .
+    DATA mr_join_source_fld_datatype TYPE REF TO datatype_d .
+    DATA mr_join_trgt_fld_length TYPE REF TO ddleng .
+    DATA mr_join_source_fld_length TYPE REF TO ddleng .
+    DATA ms_field_condition TYPE zdbbr_joinfld .
+    DATA ms_filter_condition TYPE zdbbr_joinfil .
+    DATA mo_cursor TYPE REF TO zcl_uitb_cursor .
+    DATA mr_save_func TYPE REF TO smp_dyntxt .
+    DATA mr_save_new_func TYPE REF TO smp_dyntxt .
+    DATA mf_error TYPE abap_bool .
+
+    METHODS validate_parameter .
+    METHODS call_built_in_f4_for_value
+      IMPORTING
+        !iv_dynp_fieldname TYPE dynfnam
+      CHANGING
+        !cv_value          TYPE zdbbr_value .
+    METHODS clear_field_attributes .
+    METHODS convert_values_to_internal .
+    METHODS convert_values_to_display .
+    METHODS fill_comparator_list .
+    METHODS fill_field_attribute_fields
+      IMPORTING
+        !if_source               TYPE abap_bool OPTIONAL
+        !io_screen_field_manager TYPE REF TO zcl_uitb_screen_field_manager OPTIONAL
+        !iv_fieldname            TYPE fieldname OPTIONAL
+        !iv_tabname              TYPE zdbbr_entity_id OPTIONAL .
+    METHODS send_new_condition_via_event .
+    METHODS set_functions .
+    METHODS transfer_values .
+    METHODS transfer_values_to_screen .
+    METHODS validate .
+    METHODS validate_system_field .
+    METHODS get_entity_for_alias
+      IMPORTING
+        iv_alias            TYPE zdbbr_entity_alias
+      RETURNING
+        VALUE(rv_entity_id) TYPE zdbbr_entity_id
+      RAISING
+        cx_sy_itab_line_not_found.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
+CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
+  METHOD constructor.
+    DEFINE read_cached_field.
+      &1 = CAST #( lr_data_cache->get_data_ref( |{ &2 }| ) ).
+    END-OF-DEFINITION.
+
+    mv_mode = iv_mode.
+    mf_is_new = if_is_new.
+    mt_target_entity_list = it_target_entity_list.
+    mf_allow_offset = if_allow_offset.
+    ms_source_entity = is_source_entity.
+    mo_cursor = zcl_uitb_cursor=>get_cursor( ).
+
+    " init global data references from cache
+    DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
+
+    read_cached_field:
+      mr_join_source_field          c_p_join_src_field,
+      mr_join_source_tab            c_p_join_src_tab,
+      mr_join_cond_comp1            c_p_join_cond_comparator1,
+      mr_join_cond_value1           c_p_join_cond_value1,
+      mr_join_cond_value2           c_p_join_cond_value2,
+      mr_join_target_field          c_p_join_trgt_field,
+      mr_join_target_tab            c_p_join_trgt_tab,
+      mr_title                      c_v_join_condition_title,
+      mr_join_cond_val_type         c_p_join_cond_value_type,
+      mr_join_target_offset         c_p_join_trgt_offset,
+      mr_join_target_offset_length  c_p_join_trgt_offset_length,
+      mr_join_trgt_field_datatype   c_p_join_trgt_fld_datatype,
+      mr_join_source_fld_datatype   c_p_join_source_fld_datatype,
+      mr_join_trgt_fld_length       c_p_join_trgt_fld_length,
+      mr_join_source_fld_length     c_p_join_source_fld_length,
+      mr_save_func                  zif_dbbr_main_report_var_ids=>c_s_save_function,
+      mr_save_new_func              zif_dbbr_main_report_var_ids=>c_s_save_and_stay_function.
+
+*.. clear all screen values first
+    CLEAR: mr_join_source_field->*,
+           mr_join_source_tab->*,
+           mr_join_cond_comp1->*,
+           mr_join_cond_value1->*,
+           mr_join_cond_value2->*,
+           mr_join_target_field->*,
+           mr_join_target_tab->*,
+           mr_title->*,
+           mr_join_cond_val_type->*,
+           mr_join_target_offset->*,
+           mr_join_target_offset_length->*.
+
+    mo_cursor->set_field( c_p_join_src_field ).
+    mo_cursor->request_update( ).
+
+    IF mv_mode = c_field_mode.
+      IF if_is_new = abap_true.
+        mr_title->* = 'Create new Field Condition'(001).
+      ELSE.
+        mr_title->* = 'Change Field Condition'(002).
+      ENDIF.
+    ELSE.
+      IF if_is_new = abap_true.
+        mr_title->* = 'Create new Filter Condition'(003).
+      ELSE.
+        mr_title->* = 'Change Filter Condition'(004).
+      ENDIF.
+    ENDIF.
+
+*... update current screen fields
+    IF mf_is_new = abap_true.
+      IF mv_mode = c_value_mode.
+        mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
+      ELSE.
+        mr_join_source_tab->* = is_source_entity-add_table_alias.
+        mv_source_entity = is_source_entity-add_table.
+      ENDIF.
+      mr_join_cond_comp1->* = '='.
+    ELSE.
+      ms_field_condition = is_field_condition.
+      ms_filter_condition = is_filter_condition.
+      IF mv_mode = c_field_mode.
+        mr_join_source_tab->* = is_source_entity-add_table_alias.
+        mv_source_entity = is_source_entity-add_table.
+      ENDIF.
+      transfer_values_to_screen( ).
+*.... Call validate to fill additional values
+      validate( ).
+    ENDIF.
+  ENDMETHOD.
 
   METHOD call_built_in_f4_for_value.
     DATA: lv_tabname   TYPE tabname,
           lv_value     TYPE zdbbr_value,
           lv_fieldname TYPE fieldname.
 
-    DATA(lr_screen_field_manager) = NEW zcl_uitb_screen_field_manager(
+    DATA(lo_screen_field_manager) = NEW zcl_uitb_screen_field_manager(
         iv_repid = zif_dbbr_c_report_id=>main
     ).
 
-    lr_screen_field_manager->read_values(
+    lo_screen_field_manager->read_values(
       IMPORTING et_field_values     = DATA(lt_field_values)
     ).
 
@@ -163,7 +266,7 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
 
     zcl_dbbr_f4_helper=>call_built_in_f4(
       EXPORTING
-        iv_tablename            = lv_tabname
+        iv_tablename            = get_entity_for_alias( lv_tabname )
         iv_fieldname            = lv_fieldname
         iv_selfield_name        = iv_dynp_fieldname
         iv_repid                = zif_dbbr_c_report_id=>main
@@ -184,43 +287,44 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
       zcl_dbbr_f4_helper=>call_table_field_f4(
         EXPORTING
           iv_repid              = zif_dbbr_c_report_id=>main
-          iv_dynpname_tablename = |{ c_p_join_src_tab }|
+          iv_tablename          = mv_source_entity
           iv_dynpname_fieldname = |{ c_p_join_src_field }|
         CHANGING
-          cv_fieldname          = mr_v_join_source_field->*
+          cv_fieldname          = mr_join_source_field->*
       ).
       IF mf_allow_offset = abap_true.
         fill_field_attribute_fields(
           if_source    = abap_true
-          iv_tabname   = mr_v_join_source_tab->*
-          iv_fieldname = mr_v_join_source_field->*
+          iv_tabname   = mv_source_entity
+          iv_fieldname = mr_join_source_field->*
         ).
       ENDIF.
     ELSE.
 *.... call join f4 field value help like in old join definition screen
       DATA(lr_join_field_f4) = NEW zcl_dbbr_tabfield_tree_f4(
         iv_screen_title     = 'Field F4 for Source'
-        ir_tree_node_filler = NEW zcl_dbbr_table_treeno_fill(
-           it_join_tables     = CORRESPONDING #( mt_target_table_list )
+        io_tree_node_filler = NEW zcl_dbbr_table_treeno_fill(
+           it_join_tables = mt_target_entity_list
         )
       ).
 
       lr_join_field_f4->display_value_help(
         IMPORTING ev_chosen_field            = DATA(lv_field)
-                  ev_chosen_table            = DATA(lv_table) ).
+                  ev_chosen_table            = DATA(lv_table)
+                  ev_chosen_table_alias      = DATA(lv_table_alias) ).
 
       IF lv_field IS NOT INITIAL AND
          lv_table IS NOT INITIAL.
-        mr_v_join_source_field->* = lv_field.
+        mr_join_source_field->* = lv_field.
 *...... update target field via screen field manager
         DATA(lr_screen_field_manager) = NEW zcl_uitb_screen_field_manager( get_report_id( ) ).
         lr_screen_field_manager->read_values( ).
         lr_screen_field_manager->set_field_value(
             iv_name             = |{ c_p_join_src_tab }|
-            iv_value            = lv_table
+            iv_value            = lv_table_alias
             if_immediate_update = abap_true
         ).
-        mr_v_join_source_tab->* = lv_table.
+        mr_join_source_tab->* = lv_table_alias.
 
         IF mf_allow_offset = abap_true.
           fill_field_attribute_fields(
@@ -239,25 +343,32 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
     DATA: lv_source_tab   TYPE tabname,
           lv_source_field TYPE fieldname.
 
-    DATA(lr_screen_field_manager) = NEW zcl_uitb_screen_field_manager( get_report_id( ) ).
-    lr_screen_field_manager->read_values( ).
-    lr_screen_field_manager->get_value( EXPORTING iv_fieldname = c_p_join_src_field
+    DATA(lo_screen_field_manager) = NEW zcl_uitb_screen_field_manager( get_report_id( ) ).
+    lo_screen_field_manager->read_values( ).
+    lo_screen_field_manager->get_value( EXPORTING iv_fieldname = c_p_join_src_field
                                         IMPORTING ev_value     = lv_source_field    ).
-    lr_screen_field_manager->get_value( EXPORTING iv_fieldname = c_p_join_src_tab
+    lo_screen_field_manager->get_value( EXPORTING iv_fieldname = c_p_join_src_tab
                                         IMPORTING ev_value     = lv_source_tab    ).
 
     IF lv_source_field IS NOT INITIAL AND
        lv_source_tab   IS NOT INITIAL.
+
+      IF mv_mode = c_field_mode.
+        lv_source_tab = mv_source_entity.
+      ELSE.
+        lv_source_tab = get_entity_for_alias( lv_source_tab ).
+      ENDIF.
+
       DATA(ls_source_field_dfies) = zcl_dbbr_dictionary_helper=>get_table_field_info(
           iv_tablename = lv_source_tab
           iv_fieldname = to_upper( lv_source_field )
       ).
     ENDIF.
 
-    data(lr_join_field_f4) = new zcl_dbbr_tabfield_tree_f4(
+    DATA(lr_join_field_f4) = NEW zcl_dbbr_tabfield_tree_f4(
         iv_screen_title     = 'Field F4 for Target'
-        ir_tree_node_filler = NEW zcl_dbbr_table_treeno_fill(
-          it_join_tables     = CORRESPONDING #( mt_target_table_list )
+        io_tree_node_filler = NEW zcl_dbbr_table_treeno_fill(
+          it_join_tables     = mt_target_entity_list
           is_join_field_info = ls_source_field_dfies
         )
     ).
@@ -266,45 +377,46 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
       IMPORTING
         ev_chosen_field            = DATA(lv_field)
         ev_chosen_table            = DATA(lv_table)
-        ev_chosen_field_with_alias = DATA(lv_field_with_alias)
+        ev_chosen_table_alias      = DATA(lv_alias)
     ).
     IF lv_field IS NOT INITIAL AND
        lv_table IS NOT INITIAL.
-      mr_v_join_target_field->* = lv_field.
+      mr_join_target_field->* = lv_field.
 *.... update target field via screen field manager
-      lr_screen_field_manager->set_field_value(
+      lo_screen_field_manager->set_field_value(
           iv_name             = |{ c_p_join_trgt_tab }|
-          iv_value            = lv_table
+          iv_value            = lv_alias
       ).
-      mr_v_join_target_tab->* = lv_table.
+      mr_join_target_tab->* = lv_alias.
+
       IF mf_allow_offset = abap_true.
         fill_field_attribute_fields(
           iv_tabname              = |{ lv_table }|
-          ir_screen_field_manager = lr_screen_field_manager
+          io_screen_field_manager = lo_screen_field_manager
           iv_fieldname            = lv_field
         ).
       ELSE.
-        lr_screen_field_manager->update_fields( ).
+        lo_screen_field_manager->update_fields( ).
       ENDIF.
     ENDIF.
   ENDMETHOD.
 
 
   METHOD call_value1_f4.
-    IF mr_v_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
+    IF mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
       call_built_in_f4_for_value(
         EXPORTING iv_dynp_fieldname = |{ c_p_join_cond_value1 }|
-        CHANGING  cv_value          = mr_v_join_cond_value1->*
+        CHANGING  cv_value          = mr_join_cond_value1->*
       ).
     ENDIF.
   ENDMETHOD.
 
 
   METHOD call_value2_f4.
-    IF mr_v_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
+    IF mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
       call_built_in_f4_for_value(
         EXPORTING iv_dynp_fieldname = |{ c_p_join_cond_value2 }|
-        CHANGING  cv_value          = mr_v_join_cond_value2->*
+        CHANGING  cv_value          = mr_join_cond_value2->*
       ).
     ENDIF.
   ENDMETHOD.
@@ -330,109 +442,25 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD constructor.
-    DEFINE read_cached_field.
-      &1 = cast #( lr_data_cache->get_data_ref( |{ &2 }| ) ).
-    END-OF-DEFINITION.
-
-    mv_mode = iv_mode.
-    mf_is_new = if_is_new.
-    mt_target_table_list = it_target_table_list.
-    mf_allow_offset = if_allow_offset.
-    mr_cursor = zcl_uitb_cursor=>get_cursor( ).
-
-    " init global data references from cache
-    DATA(lr_data_cache) = ZCL_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
-
-    read_cached_field:
-      mr_v_join_source_field          c_p_join_src_field,
-      mr_v_join_source_tab            c_p_join_src_tab,
-      mr_v_join_cond_comp1            c_p_join_cond_comparator1,
-      mr_v_join_cond_value1           c_p_join_cond_value1,
-      mr_v_join_cond_value2           c_p_join_cond_value2,
-      mr_v_join_target_field          c_p_join_trgt_field,
-      mr_v_join_target_tab            c_p_join_trgt_tab,
-      mr_v_title                      c_v_join_condition_title,
-      mr_v_join_cond_val_type         c_p_join_cond_value_type,
-      mr_v_join_target_offset         c_p_join_trgt_offset,
-      mr_v_join_target_offset_length  c_p_join_trgt_offset_length,
-      mr_v_join_trgt_field_datatype   c_p_join_trgt_fld_datatype,
-      mr_v_join_source_fld_datatype   c_p_join_source_fld_datatype,
-      mr_v_join_trgt_fld_length       c_p_join_trgt_fld_length,
-      mr_v_join_source_fld_length     c_p_join_source_fld_length,
-      mr_s_save_func                  zif_dbbr_main_report_var_ids=>c_s_save_function,
-      mr_s_save_new_func              zif_dbbr_main_report_var_ids=>c_s_save_and_stay_function.
-
-*.. clear all screen values first
-    CLEAR: mr_v_join_source_field->*,
-           mr_v_join_source_tab->*,
-           mr_v_join_cond_comp1->*,
-           mr_v_join_cond_value1->*,
-           mr_v_join_cond_value2->*,
-           mr_v_join_target_field->*,
-           mr_v_join_target_tab->*,
-           mr_v_title->*,
-           mr_v_join_cond_val_type->*,
-           mr_v_join_target_offset->*,
-           mr_v_join_target_offset_length->*.
-
-    mr_cursor->set_field( c_p_join_src_field ).
-    mr_cursor->request_update( ).
-
-    IF mv_mode = c_field_mode.
-      IF if_is_new = abap_true.
-        mr_v_title->* = 'Create new Field Condition'(001).
-      ELSE.
-        mr_v_title->* = 'Change Field Condition'(002).
-      ENDIF.
-    ELSE.
-      IF if_is_new = abap_true.
-        mr_v_title->* = 'Create new Filter Condition'(003).
-      ELSE.
-        mr_v_title->* = 'Change Filter Condition'(004).
-      ENDIF.
-    ENDIF.
-
-*... update current screen fields
-    IF mf_is_new = abap_true.
-      IF mv_mode = c_value_mode.
-        mr_v_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
-      ELSE.
-        mr_v_join_source_tab->* = iv_source_table.
-      ENDIF.
-      mr_v_join_cond_comp1->* = '='.
-    ELSE.
-      ms_field_condition = is_field_condition.
-      ms_filter_condition = is_filter_condition.
-      IF mv_mode = c_field_mode.
-        mr_v_join_source_tab->* = iv_source_table.
-      ENDIF.
-      transfer_values_to_screen( ).
-*.... Call validate to fill additional values
-      validate( ).
-    ENDIF.
-  ENDMETHOD.
-
-
   METHOD convert_values_to_display.
     CHECK: mv_mode = c_value_mode,
            mf_error = abap_false,
-           mr_v_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input,
-           mr_v_join_source_tab->* IS NOT INITIAL,
-           mr_v_join_source_field->* IS NOT INITIAL.
+           mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input,
+           mr_join_source_tab->* IS NOT INITIAL,
+           mr_join_source_field->* IS NOT INITIAL.
 
 *.. Try to convert entered value to internal format
     TRY.
-        IF mr_v_join_cond_value1->* IS NOT INITIAL OR
-           mr_v_join_cond_value2->* IS NOT INITIAL.
+        IF mr_join_cond_value1->* IS NOT INITIAL OR
+           mr_join_cond_value2->* IS NOT INITIAL.
 
           zcl_dbbr_data_converter=>convert_selopt_to_disp_format(
             EXPORTING
-              iv_tabname             = |{ mr_v_join_source_tab->* }|
-              iv_fieldname           = mr_v_join_source_field->*
+              iv_tabname             = get_entity_for_alias( mr_join_source_tab->* )
+              iv_fieldname           = mr_join_source_field->*
             CHANGING
-              cv_value1              = mr_v_join_cond_value1->*
-              cv_value2              = mr_v_join_cond_value2->*
+              cv_value1              = mr_join_cond_value1->*
+              cv_value2              = mr_join_cond_value2->*
           ).
         ENDIF.
       CATCH zcx_dbbr_conversion_exc INTO DATA(lx_conv_error).
@@ -449,25 +477,25 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
 
   METHOD convert_values_to_internal.
     CHECK mv_mode = c_value_mode.
-    CHECK mr_v_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input OR
-          mr_v_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>system_value_input.
+    CHECK mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input OR
+          mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>system_value_input.
 
 
-    IF mr_v_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
+    IF mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
 
 *.... Try to convert entered value to internal format
       TRY.
-          IF mr_v_join_cond_value1->* IS NOT INITIAL OR
-             mr_v_join_cond_value2->* IS NOT INITIAL.
+          IF mr_join_cond_value1->* IS NOT INITIAL OR
+             mr_join_cond_value2->* IS NOT INITIAL.
 
             zcl_dbbr_data_converter=>convert_selopt_to_int_format(
               EXPORTING
-                iv_tabname             = |{ mr_v_join_source_tab->* }|
-                iv_fieldname           = mr_v_join_source_field->*
+                iv_tabname             = get_entity_for_alias( mr_join_source_tab->* )
+                iv_fieldname           = mr_join_source_field->*
                 if_print_error_message = abap_false
               CHANGING
-                cv_value1              = mr_v_join_cond_value1->*
-                cv_value2              = mr_v_join_cond_value2->*
+                cv_value1              = mr_join_cond_value1->*
+                cv_value2              = mr_join_cond_value2->*
             ).
           ENDIF.
         CATCH zcx_dbbr_conversion_exc INTO DATA(lx_conv_error).
@@ -481,8 +509,8 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
       ENDTRY.
 
     ELSE.
-      TRANSLATE mr_v_join_cond_value1->* to UPPER CASE.
-      TRANSLATE mr_v_join_cond_value2->* to UPPER CASE.
+      TRANSLATE mr_join_cond_value1->* TO UPPER CASE.
+      TRANSLATE mr_join_cond_value2->* TO UPPER CASE.
     ENDIF.
   ENDMETHOD.
 
@@ -497,7 +525,7 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
 *                        OR key = zif_dbbr_c_operator=>not_like
 *                        OR key = zif_dbbr_c_operator=>between.
     ELSE.
-      CASE mr_v_join_cond_val_type->*.
+      CASE mr_join_cond_val_type->*.
 
         WHEN zif_dbbr_c_join_cond_val_type=>typed_input.
 
@@ -517,9 +545,9 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
                            AND key <> zif_dbbr_c_operator=>equals.
 
 *........ current operator value has to be updated as well
-          IF mr_v_join_cond_comp1->* <> zif_dbbr_c_operator=>equals AND
-             mr_v_join_cond_comp1->* <> zif_dbbr_c_operator=>not_equals.
-            mr_v_join_cond_comp1->* = zif_dbbr_c_operator=>equals.
+          IF mr_join_cond_comp1->* <> zif_dbbr_c_operator=>equals AND
+             mr_join_cond_comp1->* <> zif_dbbr_c_operator=>not_equals.
+            mr_join_cond_comp1->* = zif_dbbr_c_operator=>equals.
           ENDIF.
 
       ENDCASE.
@@ -542,23 +570,23 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
                    <lv_datatype> TYPE datatype_d.
 
     IF if_source = abap_true.
-      ASSIGN mr_v_join_source_fld_datatype->* TO <lv_datatype>.
-      ASSIGN mr_v_join_source_fld_length->* TO <lv_length>.
+      ASSIGN mr_join_source_fld_datatype->* TO <lv_datatype>.
+      ASSIGN mr_join_source_fld_length->* TO <lv_length>.
       lv_length_fieldname = c_p_join_source_fld_length.
       lv_datatype_fieldname = c_p_join_source_fld_datatype.
     ELSE.
-      ASSIGN mr_v_join_trgt_field_datatype->* TO <lv_datatype>.
-      ASSIGN mr_v_join_trgt_fld_length->* TO <lv_length>.
+      ASSIGN mr_join_trgt_field_datatype->* TO <lv_datatype>.
+      ASSIGN mr_join_trgt_fld_length->* TO <lv_length>.
       lv_length_fieldname = c_p_join_trgt_fld_length.
       lv_datatype_fieldname = c_p_join_trgt_fld_datatype.
     ENDIF.
 
-    DATA(lr_screen_field_manager) = COND #( WHEN ir_screen_field_manager IS BOUND THEN
-                                                ir_screen_field_manager
+    DATA(lr_screen_field_manager) = COND #( WHEN io_screen_field_manager IS BOUND THEN
+                                                io_screen_field_manager
                                             ELSE
                                                 NEW zcl_uitb_screen_field_manager( get_report_id( ) ) ).
 
-    IF ir_screen_field_manager IS INITIAL.
+    IF io_screen_field_manager IS INITIAL.
       lr_screen_field_manager->read_values( ).
     ENDIF.
 
@@ -586,7 +614,12 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
       CLEAR: <lv_datatype>,
              <lv_length>.
     ELSE.
-
+*.... Use table instead of alias to get field information
+      IF if_source = abap_true AND mv_mode = c_field_mode.
+        lv_tabname = mv_source_entity.
+      ELSE.
+        lv_tabname = get_entity_for_alias( lv_tabname ).
+      ENDIF.
 *.... Read field information
       DATA(ls_field_info) = zcl_dbbr_dictionary_helper=>get_table_field_info(
         iv_tablename = lv_tabname
@@ -608,6 +641,10 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
     lr_screen_field_manager->update_fields( ).
   ENDMETHOD.
 
+  METHOD get_entity_for_alias.
+    rv_entity_id = mt_target_entity_list[ entity_alias = to_upper( iv_alias ) ]-entity_id.
+  ENDMETHOD.
+
 
   METHOD get_updated_condition.
     IF mv_mode = c_field_mode.
@@ -624,25 +661,25 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
         EXPORTING
           es_field = ms_field_condition.
 
-      CLEAR: mr_v_join_source_field->*,
-             mr_v_join_source_fld_datatype->*,
-             mr_v_join_source_fld_length->*,
-             mr_v_join_target_field->*,
-             mr_v_join_target_tab->*,
-             mr_v_join_target_offset->*,
-             mr_v_join_target_offset_length->*.
+      CLEAR: mr_join_source_field->*,
+             mr_join_source_fld_datatype->*,
+             mr_join_source_fld_length->*,
+             mr_join_target_field->*,
+             mr_join_target_tab->*,
+             mr_join_target_offset->*,
+             mr_join_target_offset_length->*.
     ELSE.
       RAISE EVENT created_filter_condition
         EXPORTING
           es_filter = ms_filter_condition.
 
-      CLEAR: mr_v_join_source_field->*,
-             mr_v_join_source_tab->*,
-             mr_v_join_cond_value1->*,
-             mr_v_join_cond_value2->*.
+      CLEAR: mr_join_source_field->*,
+             mr_join_source_tab->*,
+             mr_join_cond_value1->*,
+             mr_join_cond_value2->*.
 
-      mr_v_join_cond_comp1->* = '='.
-      mr_v_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
+      mr_join_cond_comp1->* = '='.
+      mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
     ENDIF.
 
     CLEAR: mf_saved,
@@ -650,23 +687,23 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
            ms_filter_condition.
 
 *... Reset cursor
-    mr_cursor->set_field( c_p_join_src_field ).
-    mr_cursor->request_update( ).
+    mo_cursor->set_field( c_p_join_src_field ).
+    mo_cursor->request_update( ).
   ENDMETHOD.
 
 
   METHOD set_functions.
     IF mf_is_new = abap_true.
-      mr_s_save_func->icon_id = icon_create.
-      mr_s_save_func->icon_text = 'Create'.
-      mr_s_save_func->text = 'Create and close'.
+      mr_save_func->icon_id = icon_create.
+      mr_save_func->icon_text = |{ 'Create'(014) }|.
+      mr_save_func->text = |{ 'Create and close'(015) }|.
 
-      mr_s_save_new_func->icon_id = icon_create.
-      mr_s_save_new_func->icon_text = 'Create +'.
-      mr_s_save_new_func->text = 'Create and continue with another entry'.
+      mr_save_new_func->icon_id = icon_create.
+      mr_save_new_func->icon_text = |{ 'Create +'(016) }|.
+      mr_save_new_func->text = |{ 'Create and continue with another entry'(017) }|.
     ELSE.
-      mr_s_save_func->icon_id = icon_system_save.
-      mr_s_save_func->icon_text = 'Save'.
+      mr_save_func->icon_id = icon_system_save.
+      mr_save_func->icon_text = |{ 'Save'(018) }|.
     ENDIF.
   ENDMETHOD.
 
@@ -674,21 +711,23 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
   METHOD transfer_values.
     IF mv_mode = c_field_mode.
       ms_field_condition = VALUE zdbbr_joinfld(
-          field             = mr_v_join_source_field->*
-          ref_field         = mr_v_join_target_field->*
-          ref_table         = mr_v_join_target_tab->*
-          operator          = mr_v_join_cond_comp1->*
-          off_offset        = mr_v_join_target_offset->*
-          off_length        = mr_v_join_target_offset_length->*
+          field             = mr_join_source_field->*
+          ref_field         = mr_join_target_field->*
+          ref_table_alias   = mr_join_target_tab->*
+          ref_table         = get_entity_for_alias( mr_join_target_tab->* )
+          operator          = mr_join_cond_comp1->*
+          off_offset        = mr_join_target_offset->*
+          off_length        = mr_join_target_offset_length->*
       ).
     ELSE.
       ms_filter_condition = VALUE zdbbr_joinfil(
-          tabname           = mr_v_join_source_tab->*
-          fieldname         = mr_v_join_source_field->*
-          operator          = mr_v_join_cond_comp1->*
-          value_type        = mr_v_join_cond_val_type->*
-          value             = mr_v_join_cond_value1->*
-          value2            = mr_v_join_cond_value2->*
+          tabname           = get_entity_for_alias( mr_join_source_tab->* )
+          tabname_alias     = mr_join_source_tab->*
+          fieldname         = mr_join_source_field->*
+          operator          = mr_join_cond_comp1->*
+          value_type        = mr_join_cond_val_type->*
+          value             = mr_join_cond_value1->*
+          value2            = mr_join_cond_value2->*
       ).
     ENDIF.
   ENDMETHOD.
@@ -696,19 +735,19 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
 
   METHOD transfer_values_to_screen.
     IF mv_mode = c_field_mode.
-      mr_v_join_source_field->*         = ms_field_condition-field.
-      mr_v_join_target_field->*         = ms_field_condition-ref_field.
-      mr_v_join_target_tab->*           = ms_field_condition-ref_table.
-      mr_v_join_cond_comp1->*           = ms_field_condition-operator.
-      mr_v_join_target_offset->*        = ms_field_condition-off_offset.
-      mr_v_join_target_offset_length->* = ms_field_condition-off_length.
+      mr_join_source_field->*         = ms_field_condition-field.
+      mr_join_target_field->*         = ms_field_condition-ref_field.
+      mr_join_target_tab->*           = ms_field_condition-ref_table_alias.
+      mr_join_cond_comp1->*           = ms_field_condition-operator.
+      mr_join_target_offset->*        = ms_field_condition-off_offset.
+      mr_join_target_offset_length->* = ms_field_condition-off_length.
     ELSE.
-      mr_v_join_source_tab->*   = ms_filter_condition-tabname.
-      mr_v_join_source_field->* = ms_filter_condition-fieldname.
-      mr_v_join_cond_comp1->*   = ms_filter_condition-operator.
-      mr_v_join_cond_val_type->* = ms_filter_condition-value_type.
-      mr_v_join_cond_value1->*  = ms_filter_condition-value.
-      mr_v_join_cond_value2->*  = ms_filter_condition-value2.
+      mr_join_source_tab->*   = ms_filter_condition-tabname_alias.
+      mr_join_source_field->* = ms_filter_condition-fieldname.
+      mr_join_cond_comp1->*   = ms_filter_condition-operator.
+      mr_join_cond_val_type->* = ms_filter_condition-value_type.
+      mr_join_cond_value1->*  = ms_filter_condition-value.
+      mr_join_cond_value2->*  = ms_filter_condition-value2.
     ENDIF.
   ENDMETHOD.
 
@@ -717,90 +756,111 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
     DATA: lv_value1 TYPE zdbbr_value,
           lv_value2 TYPE zdbbr_value.
 
-    IF mr_v_join_source_field->* IS INITIAL.
+    IF mr_join_source_field->* IS INITIAL.
       zcx_dbbr_validation_exception=>raise_with_text(
-        iv_text      = |Source Field must have a value|
+        iv_text      = |{ 'Source Field must have a value'(019) }|
         iv_parameter = c_p_join_src_field
       ).
     ENDIF.
 
-    TRANSLATE mr_v_join_source_field->* TO UPPER CASE.
-    TRANSLATE mr_v_join_source_tab->* TO UPPER CASE.
+    TRANSLATE mr_join_source_field->* TO UPPER CASE.
+    TRANSLATE mr_join_source_tab->* TO UPPER CASE.
 
     CASE mv_mode.
 
       WHEN c_field_mode.
-        TRANSLATE mr_v_join_target_tab->* TO UPPER CASE.
-        TRANSLATE mr_v_join_target_field->* TO UPPER CASE.
+        TRANSLATE mr_join_target_tab->* TO UPPER CASE.
+        TRANSLATE mr_join_target_field->* TO UPPER CASE.
 
 *...... Validate that the source field exists in the current join table
         DATA(ls_source) = zcl_dbbr_dictionary_helper=>validate_table_field(
-            iv_table_field = mr_v_join_source_field->*
-            iv_table_name  = |{ mr_v_join_source_tab->* }|
+            iv_table_field = mr_join_source_field->*
+            iv_table_name  = |{ mv_source_entity }|
             iv_dynfname    = c_p_join_src_field
         ).
         IF mf_allow_offset = abap_true.
-          mr_v_join_source_fld_datatype->* = ls_source-datatype.
-          mr_v_join_source_fld_length->* = ls_source-leng.
+          mr_join_source_fld_datatype->* = ls_source-datatype.
+          mr_join_source_fld_length->* = ls_source-leng.
         ENDIF.
 
 *...... Target field and table have to be filled as well
-        IF mr_v_join_target_tab->* IS INITIAL.
+        IF mr_join_target_tab->* IS INITIAL.
           zcx_dbbr_validation_exception=>raise_with_text(
-            iv_text      = |Target Table/Field must be filled (Use F4 for Target Field|
+            iv_text      = |{ 'Target Table/Field must be filled (Use F4 for Target Field'(020) }|
             iv_parameter = c_p_join_trgt_field
           ).
         ELSE.
-          IF mr_v_join_target_tab->* NOT IN mt_target_table_list.
-            zcx_dbbr_validation_exception=>raise_with_text(
-                iv_text      = |Target Table { mr_v_join_target_tab->* } is not in list of valid tables.|
-              iv_parameter = c_p_join_trgt_tab
-            ).
-          ENDIF.
+***          IF mr_join_target_tab->* NOT IN mt_target_table_list.
+***            zcx_dbbr_validation_exception=>raise_with_text(
+***                iv_text      = |Target Table { mr_join_target_tab->* } is not in list of valid tables.|
+***              iv_parameter = c_p_join_trgt_tab
+***            ).
+***          ENDIF.
         ENDIF.
 
-        IF mr_v_join_target_field->* IS INITIAL.
+        IF mr_join_target_field->* IS INITIAL.
           zcx_dbbr_validation_exception=>raise_with_text(
             iv_text      = |Target Field must be filled|
             iv_parameter = c_p_join_trgt_field
           ).
         ENDIF.
 
+*...... Retrieve alias of target entity
+        TRY.
+            DATA(lv_target_entity) = get_entity_for_alias( mr_join_target_tab->* ).
+          CATCH cx_sy_itab_line_not_found.
+            zcx_dbbr_validation_exception=>raise_with_text(
+                iv_text      = |There is no entity with the alias { mr_join_target_tab->* }|
+                iv_parameter = c_p_join_trgt_tab
+            ).
+        ENDTRY.
+
 *...... Both fields are filled, now check if the field and tables match
         DATA(ls_target) = zcl_dbbr_dictionary_helper=>validate_table_field(
-            iv_table_field = mr_v_join_target_field->*
-            iv_table_name  = |{ mr_v_join_target_tab->* }|
+            iv_table_field = mr_join_target_field->*
+            iv_table_name  = lv_target_entity
             iv_dynfname    = c_p_join_trgt_field
         ).
         IF mf_allow_offset = abap_true.
-          mr_v_join_trgt_field_datatype->* = ls_target-datatype.
-          mr_v_join_trgt_fld_length->* = ls_target-leng.
+          mr_join_trgt_field_datatype->* = ls_target-datatype.
+          mr_join_trgt_fld_length->* = ls_target-leng.
         ENDIF.
 
       WHEN c_value_mode.
 
 *...... Source Table has to be filled as well
-        IF mr_v_join_source_tab->* IS INITIAL.
+        IF mr_join_source_tab->* IS INITIAL.
           zcx_dbbr_validation_exception=>raise_with_text(
-            iv_text      = |Source Table/Field must be filled (Use F4 for Source Field|
+            iv_text      = |Source Table/Field must be filled (Use F4 for Source Field)|
             iv_parameter = c_p_join_src_field
           ).
         ELSE.
-          IF mr_v_join_source_tab->* NOT IN mt_target_table_list.
-            zcx_dbbr_validation_exception=>raise_with_text(
-              iv_text      = |Source Table { mr_v_join_source_tab->* } is not in list of valid tables.|
-              iv_parameter = c_p_join_src_tab
-            ).
-          ENDIF.
+***          IF mr_join_source_tab->* NOT IN mt_target_table_list.
+***            zcx_dbbr_validation_exception=>raise_with_text(
+***              iv_text      = |Source Table { mr_join_source_tab->* } is not in list of valid tables.|
+***              iv_parameter = c_p_join_src_tab
+***            ).
+***          ENDIF.
         ENDIF.
+
+*...... Retrieve alias of source entity
+        TRY.
+            DATA(lv_source_entity) = get_entity_for_alias( mr_join_source_tab->* ).
+          CATCH cx_sy_itab_line_not_found.
+            zcx_dbbr_validation_exception=>raise_with_text(
+                iv_text      = |There is no entity with the alias { mr_join_source_tab->* }|
+                iv_parameter = c_p_join_src_tab
+            ).
+        ENDTRY.
+
 *...... Validate that the source field exists in the current join table
         zcl_dbbr_dictionary_helper=>validate_table_field(
-            iv_table_field = mr_v_join_source_field->*
-            iv_table_name  = |{ mr_v_join_source_tab->* }|
+            iv_table_field = mr_join_source_field->*
+            iv_table_name  = lv_source_entity
             iv_dynfname    = c_p_join_src_field
         ).
 
-        CASE mr_v_join_cond_val_type->*..
+        CASE mr_join_cond_val_type->*..
 
           WHEN zif_dbbr_c_join_cond_val_type=>system_value_input.
             validate_system_field( ).
@@ -818,8 +878,8 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
   ENDMETHOD.
 
 
-  method VALIDATE_PARAMETER.
-  endmethod.
+  METHOD validate_parameter.
+  ENDMETHOD.
 
 
   METHOD validate_system_field.
@@ -833,18 +893,18 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
 
     FIELD-SYMBOLS: <lv_system_value> TYPE any.
 
-    CHECK mr_v_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>system_value_input.
+    CHECK mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>system_value_input.
 
-    clear mr_v_join_cond_value2->*.
-    TRANSLATE mr_v_join_cond_value1->* to UPPER CASE.
+    CLEAR mr_join_cond_value2->*.
+    TRANSLATE mr_join_cond_value1->* TO UPPER CASE.
 
     lt_values = VALUE #(
-      ( value     = mr_v_join_cond_value1->*
+      ( value     = mr_join_cond_value1->*
         fieldname = c_p_join_cond_value1 )
     ).
-    IF mr_v_join_cond_comp1->* = zif_dbbr_c_operator=>between.
+    IF mr_join_cond_comp1->* = zif_dbbr_c_operator=>between.
       lt_values = VALUE #( BASE lt_values
-       ( value     = mr_v_join_cond_value2->*
+       ( value     = mr_join_cond_value2->*
          fieldname = c_p_join_cond_value2 )
       ).
     ENDIF.
@@ -876,7 +936,6 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
 
     ENDLOOP.
   ENDMETHOD.
-
 
   METHOD zif_uitb_screen_controller~call_screen.
     mf_first_call = abap_true.
@@ -924,40 +983,39 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
     DATA(lv_function) = cv_function_code.
     CLEAR cv_function_code.
 
-    mr_cursor = zcl_uitb_cursor=>get_cursor( ).
-
+    mo_cursor = zcl_uitb_cursor=>get_cursor( ).
 
     TRY.
 *...... convert values to internal format
-        IF lv_function <> 'CMP1CHNG' AND
-           lv_function <> 'VALTYPCHANGED'.
+        IF lv_function <> c_functions-comparator1_changed AND
+           lv_function <> c_functions-value_type_changed.
           validate( ).
         ENDIF.
 
         CASE lv_function.
 
-          WHEN 'VALTYPCHANGED'.
-            IF mr_v_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>system_value_input.
-              clear mf_value2_visible.
+          WHEN c_functions-value_type_changed.
+            IF mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>system_value_input.
+              CLEAR mf_value2_visible.
             ENDIF.
             fill_comparator_list( ).
 
-          WHEN 'SAVE' OR 'SAVENEW'.
+          WHEN c_functions-save OR c_functions-save_and_continue.
 *.......... transfer the entered values
             transfer_values( ).
             mf_saved = abap_true.
-            IF lv_function = 'SAVE'.
+            IF lv_function = c_functions-save.
               zcl_dbbr_screen_helper=>leave_screen( ).
             ELSE.
               send_new_condition_via_event( ).
             ENDIF.
 
-          WHEN 'CMP1CHNG'.
+          WHEN c_functions-comparator1_changed.
 *.......... The comparison operator changed
-            mf_value2_visible = xsdbool( mr_v_join_cond_comp1->* = zif_dbbr_c_operator=>between ).
+            mf_value2_visible = xsdbool( mr_join_cond_comp1->* = zif_dbbr_c_operator=>between ).
             IF mf_value2_visible = abap_false.
 *............ clear value2 if between is no longer chosen
-              CLEAR: mr_v_join_cond_value2->*.
+              CLEAR: mr_join_cond_value2->*.
             ENDIF.
 
         ENDCASE.
@@ -966,8 +1024,8 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
       CATCH zcx_dbbr_validation_exception INTO DATA(lx_valid).
         mf_error = abap_true.
         IF lx_valid->parameter_name IS NOT INITIAL.
-          mr_cursor->set_field( lx_valid->parameter_name ).
-          mr_cursor->refresh( ).
+          mo_cursor->set_field( lx_valid->parameter_name ).
+          mo_cursor->refresh( ).
         ENDIF.
         lx_valid->print_message( iv_msg_type = 'E' ).
     ENDTRY.
@@ -982,8 +1040,8 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
 
     zif_uitb_screen_controller~set_status( ).
 
-    IF mr_cursor IS BOUND AND mr_cursor->is_update_requested( ).
-      mr_cursor->refresh( ).
+    IF mo_cursor IS BOUND AND mo_cursor->is_update_requested( ).
+      mo_cursor->refresh( ).
     ENDIF.
 
     convert_values_to_display( ).
@@ -1077,9 +1135,9 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
     zcl_dbbr_screen_helper=>set_selscreen_status(
         iv_status              = 'EDIT_DIALOG_STATUS'
         iv_repid               = zif_dbbr_c_report_id=>main
-        it_excluding_functions = cond #(
-          when mf_is_new = abap_false then
-             value #( ( 'SAVENEW' ) )
+        it_excluding_functions = COND #(
+          WHEN mf_is_new = abap_false THEN
+             VALUE #( ( c_functions-save_and_continue ) )
         )
     ).
   ENDMETHOD.
@@ -1088,4 +1146,5 @@ CLASS ZCL_DBBR_EDIT_JOIN_COND_VIEW IMPLEMENTATION.
   METHOD zif_uitb_screen_controller~was_not_cancelled.
     rf_not_cancelled = mf_saved.
   ENDMETHOD.
+
 ENDCLASS.

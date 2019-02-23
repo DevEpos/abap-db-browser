@@ -208,9 +208,13 @@
      <SHORT_TEXT>Execute SQL Query</SHORT_TEXT>
      <IMPORT>
       <RSIMP>
-       <PARAMETER>IV_QUERY</PARAMETER>
+       <PARAMETER>IS_QUERY</PARAMETER>
+       <TYP>ZDBBR_SQL_QUERY</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>IT_PARAMETERS</PARAMETER>
        <OPTIONAL>X</OPTIONAL>
-       <TYP>STRING</TYP>
+       <TYP>ZDBBR_QUERY_PARAMETER_T</TYP>
       </RSIMP>
       <RSIMP>
        <PARAMETER>IV_ROW_COUNT</PARAMETER>
@@ -223,70 +227,38 @@
        <OPTIONAL>X</OPTIONAL>
        <TYP>SAP_BOOL</TYP>
       </RSIMP>
-      <RSIMP>
-       <PARAMETER>IF_SYNTAX_CHECK</PARAMETER>
-       <OPTIONAL>X</OPTIONAL>
-       <TYP>SAP_BOOL</TYP>
-      </RSIMP>
      </IMPORT>
      <EXPORT>
-      <RSEXP>
-       <PARAMETER>EV_ERROR_MESSAGE</PARAMETER>
-       <TYP>STRING</TYP>
-      </RSEXP>
-      <RSEXP>
-       <PARAMETER>EV_EXECUTION_TIME</PARAMETER>
-       <TYP>I</TYP>
-      </RSEXP>
       <RSEXP>
        <PARAMETER>ES_QUERY_RESULT</PARAMETER>
        <TYP>ZDBBR_DP_TABLE_DATA</TYP>
       </RSEXP>
-      <RSEXP>
-       <PARAMETER>ES_CHECK_RESULT</PARAMETER>
-       <TYP>ZDBBR_DP_CHECK_RESULT</TYP>
-      </RSEXP>
      </EXPORT>
      <DOCUMENTATION>
       <RSFDO>
-       <PARAMETER>IV_QUERY</PARAMETER>
+       <PARAMETER>IS_QUERY</PARAMETER>
        <KIND>P</KIND>
        <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
-       <PARAMETER>IV_ROW_COUNT</PARAMETER>
+       <PARAMETER>IT_PARAMETERS</PARAMETER>
        <KIND>P</KIND>
        <INDEX> 002</INDEX>
       </RSFDO>
       <RSFDO>
-       <PARAMETER>IF_COUNT_ONLY</PARAMETER>
+       <PARAMETER>IV_ROW_COUNT</PARAMETER>
        <KIND>P</KIND>
        <INDEX> 003</INDEX>
       </RSFDO>
       <RSFDO>
-       <PARAMETER>IF_SYNTAX_CHECK</PARAMETER>
+       <PARAMETER>IF_COUNT_ONLY</PARAMETER>
        <KIND>P</KIND>
        <INDEX> 004</INDEX>
       </RSFDO>
       <RSFDO>
-       <PARAMETER>EV_ERROR_MESSAGE</PARAMETER>
-       <KIND>P</KIND>
-       <INDEX> 005</INDEX>
-      </RSFDO>
-      <RSFDO>
-       <PARAMETER>EV_EXECUTION_TIME</PARAMETER>
-       <KIND>P</KIND>
-       <INDEX> 006</INDEX>
-      </RSFDO>
-      <RSFDO>
        <PARAMETER>ES_QUERY_RESULT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 007</INDEX>
-      </RSFDO>
-      <RSFDO>
-       <PARAMETER>ES_CHECK_RESULT</PARAMETER>
-       <KIND>P</KIND>
-       <INDEX> 008</INDEX>
+       <INDEX> 005</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -797,7 +769,7 @@
       <PROGRAM>SAPLZDBBR</PROGRAM>
       <SCREEN>0100</SCREEN>
       <LANGUAGE>E</LANGUAGE>
-      <DESCRIPT>Einstieg Databrowser</DESCRIPT>
+      <DESCRIPT>Main Screen of DB Browser</DESCRIPT>
       <TYPE>N</TYPE>
       <NEXTSCREEN>0100</NEXTSCREEN>
       <LINES>199</LINES>
@@ -814,7 +786,7 @@
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
        <LINE>002</LINE>
        <COLUMN>054</COLUMN>
-       <LENGTH>013</LENGTH>
+       <LENGTH>019</LENGTH>
        <HEIGHT>001</HEIGHT>
        <C_RESIZE_V>X</C_RESIZE_V>
        <C_LINE_MIN>001</C_LINE_MIN>
@@ -921,30 +893,13 @@
       <RPY_DYFATC>
        <CONT_TYPE>SCREEN</CONT_TYPE>
        <CONT_NAME>SCREEN</CONT_NAME>
-       <TYPE>TEMPLATE</TYPE>
-       <NAME>GV_SELMASK_ENTITY_TEXT</NAME>
-       <TEXT>____________________________________________________________</TEXT>
-       <ROLLING>X</ROLLING>
-       <LINE>002</LINE>
-       <COLUMN>071</COLUMN>
-       <LENGTH>060</LENGTH>
-       <VISLENGTH>040</VISLENGTH>
-       <HEIGHT>001</HEIGHT>
-       <FORMAT>CHAR</FORMAT>
-       <OUTPUT_FLD>X</OUTPUT_FLD>
-       <OUTPUTONLY>X</OUTPUTONLY>
-       <REQU_ENTRY>N</REQU_ENTRY>
-      </RPY_DYFATC>
-      <RPY_DYFATC>
-       <CONT_TYPE>SCREEN</CONT_TYPE>
-       <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
-       <NAME>TEXTANZ</NAME>
-       <TEXT>Display_Variant</TEXT>
+       <NAME>TXT_DESCRIPTION</NAME>
+       <TEXT>Description</TEXT>
        <LINE>003</LINE>
        <COLUMN>001</COLUMN>
-       <LENGTH>015</LENGTH>
-       <VISLENGTH>015</VISLENGTH>
+       <LENGTH>011</LENGTH>
+       <VISLENGTH>011</VISLENGTH>
        <HEIGHT>001</HEIGHT>
        <FORMAT>CHAR</FORMAT>
        <REQU_ENTRY>N</REQU_ENTRY>
@@ -954,29 +909,14 @@
        <CONT_TYPE>SCREEN</CONT_TYPE>
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
-       <NAME>GS_DATA-ALV_VARIANT</NAME>
-       <TEXT>____________</TEXT>
+       <NAME>GV_SELMASK_ENTITY_TEXT</NAME>
+       <TEXT>____________________________________________________________</TEXT>
+       <ROLLING>X</ROLLING>
        <LINE>003</LINE>
        <COLUMN>020</COLUMN>
-       <LENGTH>012</LENGTH>
-       <VISLENGTH>012</VISLENGTH>
-       <HEIGHT>001</HEIGHT>
-       <FORMAT>CHAR</FORMAT>
-       <INPUT_FLD>X</INPUT_FLD>
-       <OUTPUT_FLD>X</OUTPUT_FLD>
-      </RPY_DYFATC>
-      <RPY_DYFATC>
-       <CONT_TYPE>SCREEN</CONT_TYPE>
-       <CONT_NAME>SCREEN</CONT_NAME>
-       <TYPE>TEMPLATE</TYPE>
-       <NAME>GS_DATA-ALV_VARIANTTEXT</NAME>
-       <TEXT>____________________________________________________________</TEXT>
-       <LINE>003</LINE>
-       <COLUMN>037</COLUMN>
        <LENGTH>060</LENGTH>
-       <VISLENGTH>060</VISLENGTH>
+       <VISLENGTH>040</VISLENGTH>
        <HEIGHT>001</HEIGHT>
-       <GROUP2>STD</GROUP2>
        <FORMAT>CHAR</FORMAT>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <OUTPUTONLY>X</OUTPUTONLY>
@@ -1659,9 +1599,6 @@
       <RPY_DYFLOW>
        <LINE>FIELD gs_data-edit MODULE check_edit_mode.</LINE>
       </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_data-alv_variant MODULE check_alv_variant.</LINE>
-      </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>MODULE reset_flags.</LINE>
@@ -1706,9 +1643,6 @@
        <LINE>PROCESS ON VALUE-REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_data-alv_variant MODULE alv_variant_f4.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
        <LINE>FIELD gs_selfields-low MODULE field_f4_low.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
@@ -1741,7 +1675,6 @@
       <item>2</item>
       <item>0</item>
       <item>2</item>
-      <item>2</item>
       <item>0</item>
       <item>2</item>
       <item>0</item>
@@ -1759,7 +1692,6 @@
       <item>2</item>
       <item>0</item>
       <item>0</item>
-      <item>2</item>
       <item>2</item>
       <item>2</item>
      </SPACES>
@@ -6268,7 +6200,7 @@
       <CODE>000001</CODE>
       <NO>06</NO>
       <REF_TYPE>F</REF_TYPE>
-      <REF_CODE>QUERYCAT</REF_CODE>
+      <REF_CODE>SHOWVERSIO</REF_CODE>
       <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
@@ -6279,18 +6211,6 @@
      <RSMPE_MEN>
       <CODE>000001</CODE>
       <NO>08</NO>
-      <REF_TYPE>F</REF_TYPE>
-      <REF_CODE>SHOWVERSIO</REF_CODE>
-      <REF_NO>001</REF_NO>
-     </RSMPE_MEN>
-     <RSMPE_MEN>
-      <CODE>000001</CODE>
-      <NO>09</NO>
-      <REF_TYPE>S</REF_TYPE>
-     </RSMPE_MEN>
-     <RSMPE_MEN>
-      <CODE>000001</CODE>
-      <NO>10</NO>
       <REF_TYPE>F</REF_TYPE>
       <REF_CODE>&amp;F15</REF_CODE>
       <REF_NO>001</REF_NO>

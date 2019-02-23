@@ -31,7 +31,7 @@ CLASS zcl_dbbr_multi_select_ctlr DEFINITION
       FOR zif_uitb_screen_controller~get_screen_id .
 
     DATA mr_custom_f4_map TYPE REF TO zcl_dbbr_custom_f4_map .
-    DATA mr_table TYPE REF TO zcl_dbbr_multi_select_table .
+    DATA mo_table TYPE REF TO zcl_dbbr_multi_select_table .
     DATA mf_transfer TYPE boolean .
     DATA mr_ui_multi_select_field TYPE REF TO zdbbr_selfield .
     DATA mr_ui_option_templ_button TYPE REF TO zdbbr_button .
@@ -60,7 +60,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
   METHOD call_f4_help.
 *& Description: Calls value help for low/high values
 *&---------------------------------------------------------------------*
-    DATA(lv_current_line) = mr_table->get_current_line( ).
+    DATA(lv_current_line) = mo_table->get_current_line( ).
     TRY.
         DATA(ls_selfield) = mr_ui_multi_select_fields->*[ lv_current_line ].
         DATA(ls_selfield_save) = ls_selfield.
@@ -133,7 +133,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
 *&---------------------------------------------------------------------*
 
     " get the current line
-    DATA(lv_current_line) = mr_table->get_current_line( ).
+    DATA(lv_current_line) = mo_table->get_current_line( ).
 
     IF mr_ui_multi_select_field->has_cust_f4_help = abap_true.
       call_selfield_f4_custom_multi(
@@ -158,7 +158,9 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
 
 
   METHOD choose_option_template.
-    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option( ).
+    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option(
+      if_allow_null = xsdbool( mo_table->get_template_line( )-is_parameter = abap_false )
+    ).
 
     IF ls_chosen_option IS INITIAL.
       RETURN.
@@ -166,15 +168,15 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
 
     ms_option_template = ls_chosen_option.
 
-    mr_table->update_option_template( is_option_template = ms_option_template ).
+    mo_table->update_option_template( is_option_template = ms_option_template ).
   ENDMETHOD.
 
 
   METHOD constructor.
 
     mr_custom_f4_map = ir_custom_f4_map.
-    mr_table = ir_selection_table.
-    mr_table->update_option_template( ms_option_template ).
+    mo_table = ir_selection_table.
+    mo_table->update_option_template( ms_option_template ).
 
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
@@ -185,7 +187,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
     DATA(lr_v_fieldname) = CAST fieldname( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_fieldname ) ).
     DATA(lr_v_field_descr) = CAST scrtext_m( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_field_descr ) ).
 
-    DATA(ls_template) = mr_table->get_template_line( ).
+    DATA(ls_template) = mo_table->get_template_line( ).
     lr_v_fieldname->* = ls_template-fieldname.
     lr_v_field_descr->* = ls_template-scrtext_l.
   ENDMETHOD.
@@ -194,7 +196,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
   METHOD determine_line_count.
 *& Description: Determines the line count of the multi select tables
 *&---------------------------------------------------------------------*
-    mr_table->determine_line_count( ).
+    mo_table->determine_line_count( ).
 
   ENDMETHOD.
 
@@ -211,7 +213,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
                                           AND high IS INITIAL
                                           AND option IS INITIAL.
 
-    mr_ui_multi_select_field->* = mr_table->get_template_line( ).
+    mr_ui_multi_select_field->* = mo_table->get_template_line( ).
 
     " set sign/option from template
     mr_ui_multi_select_field->sign = ms_option_template-sign.
@@ -300,7 +302,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
           ( variable_name = zif_dbbr_main_report_var_ids=>c_r_multi_select_controller
             global_ref    = me )
           ( variable_name = zif_dbbr_main_report_var_ids=>c_r_multi_select_table
-            global_ref    = mr_table )
+            global_ref    = mo_table )
         )
         iv_start_column = 10
         iv_start_line   = 2
@@ -342,14 +344,14 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
       WHEN '&F12'.
         zcl_uitb_screen_util=>leave_screen( ).
       WHEN 'APPEND'.
-        mr_table->append_new_lines( ).
+        mo_table->append_new_lines( ).
       WHEN 'OPTION'.
-        mr_table->handle_option_selection( ).
+        mo_table->handle_option_selection( ).
       WHEN 'DELETE'.
-        mr_table->delete_line( ).
+        mo_table->delete_line( ).
       WHEN 'DELETE_ALL'.
         " delete all lines
-        mr_table->delete_lines( ).
+        mo_table->delete_lines( ).
       WHEN 'MULTI_F4'.
         " call multi f4 selection
         DATA lv_field(60).

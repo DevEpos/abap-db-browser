@@ -11,6 +11,7 @@ MODULE determine_cursor_0202 INPUT.
 ENDMODULE.
 
 MODULE user_command_0100 INPUT.
+  zcl_uitb_screen_util=>handle_gui_command( CHANGING cv_ok_code = ok_code ).
   gr_selscreen_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = ok_code ).
 ENDMODULE.
 
@@ -36,14 +37,6 @@ ENDMODULE.
 
 MODULE field_f4_high INPUT.
   gr_selscreen_controller->call_f4_help( abap_false ).
-ENDMODULE.
-
-MODULE alv_variant_f4 INPUT.
-  gr_selscreen_controller->call_alv_variant_f4( ).
-ENDMODULE.
-
-MODULE check_alv_variant INPUT.
-  gr_selscreen_controller->check_alv_variant( ).
 ENDMODULE.
 
 MODULE check_edit_mode INPUT.

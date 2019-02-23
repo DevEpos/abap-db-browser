@@ -33,9 +33,21 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_TABFIELD_LIST</CLSNAME>
+     <CMPNAME>DELETE_CUSTOM</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Deletion of tables/fields by custom criteria</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_TABFIELD_LIST</CLSNAME>
      <CMPNAME>GET_ITERATOR</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Get iterator instance for list</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_TABFIELD_LIST</CLSNAME>
+     <CMPNAME>GET_TABLES_REF</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve reference to all tables in the list</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_TABFIELD_LIST</CLSNAME>
@@ -48,6 +60,12 @@
      <CMPNAME>HAS_MULTIPLE_TABLES</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Checks if this list has multiple tables</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_TABFIELD_LIST</CLSNAME>
+     <CMPNAME>HAS_TABLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks if the given table exists in the list</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_TABFIELD_LIST</CLSNAME>
@@ -72,6 +90,12 @@
      <CMPNAME>OVERWRITE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Overwrite current data with data from passed list</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_TABFIELD_LIST</CLSNAME>
+     <CMPNAME>REPLACE_TABLE_ALIAS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Replace table alias and update fields</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_TABFIELD_LIST</CLSNAME>

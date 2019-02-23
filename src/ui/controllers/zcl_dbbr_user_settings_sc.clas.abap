@@ -56,6 +56,7 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
         initial_obj_brws_mode      TYPE REF TO zdbbr_user_settings_a-initial_obj_brws_mode,
         initial_obj_nav_mode       TYPE REF TO zdbbr_user_settings_a-initial_obj_nav_mode,
         disable_date_to_times_conv TYPE REF TO zdbbr_user_settings_a-disable_date_to_times_conv,
+        use_ddl_view_for_select    TYPE REF TO zdbbr_user_settings_a-use_ddl_view_for_select,
       END OF ms_user_settings_refs .
     DATA mf_data_changed TYPE abap_bool .
 
@@ -111,7 +112,8 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
         assoc_sel_mode              c_assocation_sel_mode,
         show_assoc_brws_at_start    c_show_assoc_sel_at_start,
         activate_alv_live_filter    c_activate_alv_live_filter,
-        disable_date_to_times_conv  c_disable_date_to_timest_conv.
+        disable_date_to_times_conv  c_disable_date_to_timest_conv,
+        use_ddl_view_for_select     c_use_ddl_view_for_select.
   ENDMETHOD.
 
 

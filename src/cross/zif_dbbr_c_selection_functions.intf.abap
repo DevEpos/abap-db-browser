@@ -1,6 +1,7 @@
 INTERFACE zif_dbbr_c_selection_functions
   PUBLIC .
 
+  CONSTANTS show_sql_of_select TYPE sy-ucomm VALUE 'SHOWSQL' ##no_text.
   CONSTANTS display_db_browser_version TYPE sy-ucomm VALUE 'SHOWVERSIO' ##no_text.
   CONSTANTS edit_data TYPE sy-ucomm VALUE 'EDITDATA' ##no_text.
   CONSTANTS change_cds_parameters TYPE sy-ucomm VALUE 'CHGPARAMS' ##no_text.
@@ -42,8 +43,7 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS delete_colors_of_rows TYPE sy-ucomm VALUE 'DEL_EMPROW' ##NO_TEXT.
   CONSTANTS delete_colors_of_columns TYPE sy-ucomm VALUE 'DEL_EMPCOL' ##NO_TEXT.
   CONSTANTS emphasize_negative_values TYPE sy-ucomm VALUE 'EMPH_NEGAT' ##NO_TEXT.
-  CONSTANTS control_side_header_visiblity TYPE sy-ucomm VALUE 'HDR_VSBLTY' ##NO_TEXT.
-  CONSTANTS show_hide_side_toolbar TYPE sy-ucomm VALUE 'SIDETOOLB' ##NO_TEXT.
+  CONSTANTS toggle_entity_info_header TYPE sy-ucomm VALUE 'HDR_VSBLTY' ##NO_TEXT.
   CONSTANTS calc_sum_of_chosen_cells TYPE sy-ucomm VALUE 'CALC_SUM_OF_CELLS' ##NO_TEXT.
   CONSTANTS hide_columns TYPE sy-ucomm VALUE '&COL_INV' ##NO_TEXT.
   CONSTANTS transfer_filter_values TYPE sy-ucomm VALUE 'TRNSFFILT' ##NO_TEXT.

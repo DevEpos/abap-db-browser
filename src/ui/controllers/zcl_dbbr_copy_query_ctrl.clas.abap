@@ -1,49 +1,49 @@
-class ZCL_DBBR_COPY_query_CTRL definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_copy_query_ctrl DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_UITB_SCREEN_CONTROLLER .
+    INTERFACES zif_uitb_screen_controller .
 
-  aliases SHOW
-    for ZIF_UITB_SCREEN_CONTROLLER~CALL_SCREEN .
-  aliases WAS_COPIED
-    for ZIF_UITB_SCREEN_CONTROLLER~WAS_NOT_CANCELLED .
+    ALIASES show
+      FOR zif_uitb_screen_controller~call_screen .
+    ALIASES was_copied
+      FOR zif_uitb_screen_controller~was_not_cancelled .
 
-  methods CONSTRUCTOR
-    importing
-      !IS_query_INFO type ZDBBR_query_INFO_UI .
-  methods GET_NEW_query
-    returning
-      value(RS_NEW_query) type ZDBBR_query_INFO_UI .
+    METHODS constructor
+      IMPORTING
+        !is_query_info TYPE zdbbr_query_info_ui .
+    METHODS get_new_query
+      RETURNING
+        VALUE(rs_new_query) TYPE zdbbr_query_info_ui .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  aliases GET_REPORT_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_REPORT_ID .
-  aliases GET_SCREEN_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_SCREEN_ID .
+    ALIASES get_report_id
+      FOR zif_uitb_screen_controller~get_report_id .
+    ALIASES get_screen_id
+      FOR zif_uitb_screen_controller~get_screen_id .
 
-  data MF_NEW_query_CREATED type BOOLEAN .
+    DATA mf_new_query_created TYPE boolean .
 *   DATA mr_ui_global_data     TYPE REF TO ZDBBR_global_data.
-  data MS_NEW_query type ZDBBR_query_INFO_UI .
-  data MR_UI_query_NAME type ref to ZDBBR_query_NAME .
-  data MR_UI_query_DESC type ref to DDTEXT .
-  data MR_UI_IS_GLOBAL type ref to BOOLEAN .
-  data MR_UI_query_NAME_TARGET type ref to ZDBBR_query_NAME .
-  data MR_UI_query_DESC_TARGET type ref to DDTEXT .
-  data MR_UI_IS_GLOBAL_TARGET type ref to BOOLEAN .
-  data MR_UI_COPY_VARIANTS type ref to BOOLEAN .
-  data MV_query_ID type ZDBBR_query_ID .
+    DATA ms_new_query TYPE zdbbr_query_info_ui .
+    DATA mr_ui_query_name TYPE REF TO zdbbr_query_name .
+    DATA mr_ui_query_desc TYPE REF TO ddtext .
+    DATA mr_ui_is_global TYPE REF TO boolean .
+    DATA mr_ui_query_name_target TYPE REF TO zdbbr_query_name .
+    DATA mr_ui_query_desc_target TYPE REF TO ddtext .
+    DATA mr_ui_is_global_target TYPE REF TO boolean .
+    DATA mr_ui_copy_variants TYPE REF TO boolean .
+    DATA mv_query_id TYPE zdbbr_query_id .
 
-  methods CREATE_COPY .
+    METHODS create_copy .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_COPY_query_CTRL IMPLEMENTATION.
+CLASS zcl_dbbr_copy_query_ctrl IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -51,7 +51,7 @@ CLASS ZCL_DBBR_COPY_query_CTRL IMPLEMENTATION.
     mv_query_id = is_query_info-query_id.
 
     " init some global data references from ui
-    DATA(lr_data_cache) = ZCL_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
+    DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
     mr_ui_is_global = CAST #( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_p_xglob ) ).
     mr_ui_copy_variants = CAST #( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_p_copyv ) ).
@@ -68,7 +68,7 @@ CLASS ZCL_DBBR_COPY_query_CTRL IMPLEMENTATION.
 
 
   METHOD create_copy.
-    DATA(lr_query_copier) = NEW ZCL_DBBR_query_copier(
+    DATA(lr_query_copier) = NEW zcl_dbbr_query_copier(
         iv_src_query_name = mr_ui_query_name->*
         iv_src_query_desc = mr_ui_query_desc->*
         iv_src_query_id   = mv_query_id
@@ -82,8 +82,8 @@ CLASS ZCL_DBBR_COPY_query_CTRL IMPLEMENTATION.
         ms_new_query = lr_query_copier->copy_query( ).
         " copy successful
         mf_new_query_created = abap_true.
-        ZCL_DBBR_screen_helper=>leave_screen( ).
-      CATCH ZCX_DBBR_exception INTO DATA(lr_exception).
+        zcl_dbbr_screen_helper=>leave_screen( ).
+      CATCH zcx_dbbr_exception INTO DATA(lr_exception).
         lr_exception->show_message(
             iv_message_type = 'S'
         ).
@@ -113,8 +113,8 @@ CLASS ZCL_DBBR_COPY_query_CTRL IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~cancel.
-    ZCL_DBBR_screen_helper=>leave_screen( ).
+  METHOD zif_uitb_screen_controller~cancel.
+    zcl_dbbr_screen_helper=>leave_screen( ).
   ENDMETHOD.
 
 
@@ -128,7 +128,7 @@ CLASS ZCL_DBBR_COPY_query_CTRL IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~handle_user_command.
+  METHOD zif_uitb_screen_controller~handle_user_command.
     DATA(lv_function_code) = cv_function_code.
     CLEAR cv_function_code.
 
@@ -139,32 +139,31 @@ CLASS ZCL_DBBR_COPY_query_CTRL IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~pbo.
-    ZIF_UITB_SCREEN_CONTROLLER~set_status( ).
+  METHOD zif_uitb_screen_controller~pbo.
+    zif_uitb_screen_controller~set_status( ).
 
     LOOP AT SCREEN INTO DATA(ls_screen).
-      IF ls_screen-name = ZIF_DBBR_main_report_var_ids=>c_p_scrnam OR
-         ls_screen-name = ZIF_DBBR_main_report_var_ids=>c_p_scrdec OR
-         ls_screen-name = ZIF_DBBR_main_report_var_ids=>c_p_xglob.
+      IF ls_screen-name = zif_dbbr_main_report_var_ids=>c_p_scrnam OR
+         ls_screen-name = zif_dbbr_main_report_var_ids=>c_p_scrdec OR
+         ls_screen-name = zif_dbbr_main_report_var_ids=>c_p_xglob.
         ls_screen-input = 0.
-        MODIFY screen FROM ls_screen.
+        MODIFY SCREEN FROM ls_screen.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~set_status.
-    DATA: lt_excl TYPE TABLE OF sy-ucomm.
+  METHOD zif_uitb_screen_controller~set_status.
 
-    CALL FUNCTION 'RS_SET_SELSCREEN_STATUS'
-      EXPORTING
-        p_status  = '0600'
-      TABLES
-        p_exclude = lt_excl.
+    zcl_uitb_screen_util=>set_selscreen_status(
+        iv_status = '0600'
+        iv_repid  = zif_dbbr_c_report_id=>main
+    ).
+
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~was_not_cancelled.
+  METHOD zif_uitb_screen_controller~was_not_cancelled.
     rf_not_cancelled = mf_new_query_created.
   ENDMETHOD.
 ENDCLASS.

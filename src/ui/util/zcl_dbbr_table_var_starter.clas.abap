@@ -10,6 +10,8 @@ CLASS zcl_dbbr_table_var_starter DEFINITION
         iv_tabname    TYPE tabname
         iv_variant_id TYPE zdbbr_variant_id.
   PROTECTED SECTION.
+    METHODS fill_primary_entity
+        REDEFINITION.
   PRIVATE SECTION.
     DATA mv_tabname TYPE tabname.
 ENDCLASS.
@@ -61,7 +63,7 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
   METHOD zif_dbbr_variant_starter~initialize.
     ms_global_data-primary_table = mv_tabname.
 
-    fill_table( ).
+    fill_primary_entity( ).
     load_variant( ).
 
     CHECK mv_variant_id <> zif_dbbr_global_consts=>c_dummy_variant.
@@ -73,4 +75,24 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
         iv_text      = zcl_dbbr_dictionary_helper=>get_table_info( mv_tabname )-ddtext
     ).
   ENDMETHOD.
+
+  METHOD fill_primary_entity.
+    DATA: ls_table_info TYPE dd02v.
+
+    ls_table_info = zcl_dbbr_dictionary_helper=>get_table_info( ms_global_data-primary_table ).
+    IF ls_table_info IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    ms_global_data-client_dependent = ls_table_info-clidep.
+
+    create_table_fields( VALUE #(
+      tabname          = mv_tabname
+      tabname_alias    = mv_tabname
+      is_primary       = abap_true
+      active_selection = abap_true
+    ) ).
+
+  ENDMETHOD.
+
 ENDCLASS.

@@ -16,14 +16,20 @@
     <item>
      <ID>I</ID>
      <KEY>001</KEY>
-     <ENTRY>Find Tables</ENTRY>
+     <ENTRY>Find CDS Views</ENTRY>
      <LENGTH>21</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>002</KEY>
-     <ENTRY>Find CDS Views</ENTRY>
-     <LENGTH>24</LENGTH>
+     <ENTRY>Find Database Tables/Views</ENTRY>
+     <LENGTH>52</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>003</KEY>
+     <ENTRY>Find Queries</ENTRY>
+     <LENGTH>22</LENGTH>
     </item>
    </TPOOL>
    <DESCRIPTIONS>

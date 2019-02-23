@@ -622,10 +622,10 @@
       <CODE>CTRLTECHVW</CODE>
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
-      <TEXT_NAME>ICON_DISPLAY_NOTE</TEXT_NAME>
-      <ICON_ID>@0L@</ICON_ID>
+      <TEXT_NAME>ICON_ACTIVE_INACTIVE</TEXT_NAME>
+      <ICON_ID>@9B@</ICON_ID>
       <FUN_TEXT>Technical Column Names on/off</FUN_TEXT>
-      <ICON_TEXT>Techn.Col. Names on/off</ICON_TEXT>
+      <ICON_TEXT>Column Headers</ICON_TEXT>
       <PATH>T</PATH>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
@@ -920,10 +920,17 @@
       <PATH>S</PATH>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
+      <CODE>SHOWSQL</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>Show SQL of current Select</FUN_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
       <CODE>SHOWVERSIO</CODE>
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
       <FUN_TEXT>Display Current Version</FUN_TEXT>
+      <PATH>D</PATH>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>SIDETOOLB</CODE>
@@ -1413,6 +1420,7 @@
       <CODE>000001</CODE>
       <TEXT_TYPE>S</TEXT_TYPE>
       <TEXT>DB Browser Output</TEXT>
+      <PATH>D</PATH>
       <INT_NOTE>SALV_TABLE_STATUS Liste</INT_NOTE>
      </RSMPE_MNLT>
      <RSMPE_MNLT>
@@ -1962,12 +1970,6 @@
      </RSMPE_PFK>
      <RSMPE_PFK>
       <CODE>000001</CODE>
-      <PFNO>23</PFNO>
-      <FUNCODE>SIDETOOLB</FUNCODE>
-      <FUNNO>001</FUNNO>
-     </RSMPE_PFK>
-     <RSMPE_PFK>
-      <CODE>000001</CODE>
       <PFNO>24</PFNO>
       <FUNCODE>TRNSFFILT</FUNCODE>
       <FUNNO>001</FUNNO>
@@ -2066,6 +2068,12 @@
       <CODE>000001</CODE>
       <PFNO>43</PFNO>
       <FUNCODE>COMPLINES</FUNCODE>
+      <FUNNO>001</FUNNO>
+     </RSMPE_PFK>
+     <RSMPE_PFK>
+      <CODE>000001</CODE>
+      <PFNO>48</PFNO>
+      <FUNCODE>SHOWSQL</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
      <RSMPE_PFK>
@@ -2775,6 +2783,10 @@
      <RSMPE_STAF>
       <STATUS>OUTPUT_SELECTION</STATUS>
       <FUNCTION>SHOWFORM</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>OUTPUT_SELECTION</STATUS>
+      <FUNCTION>SHOWSQL</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>OUTPUT_SELECTION</STATUS>

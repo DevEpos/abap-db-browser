@@ -91,6 +91,48 @@
      <ENTRY>Between</ENTRY>
      <LENGTH>17</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>014</KEY>
+     <ENTRY>Create</ENTRY>
+     <LENGTH>16</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>015</KEY>
+     <ENTRY>Create and close</ENTRY>
+     <LENGTH>26</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>016</KEY>
+     <ENTRY>Create +</ENTRY>
+     <LENGTH>18</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>017</KEY>
+     <ENTRY>Create and continue with another entry</ENTRY>
+     <LENGTH>76</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>018</KEY>
+     <ENTRY>Save</ENTRY>
+     <LENGTH>14</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>019</KEY>
+     <ENTRY>Source Field must have a value</ENTRY>
+     <LENGTH>60</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>020</KEY>
+     <ENTRY>Target Table/Field must be filled (Use F4 for Target Field</ENTRY>
+     <LENGTH>116</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -287,60 +329,6 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
-     <CMPNAME>MR_CURSOR</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Cursor for Screen</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
-     <CMPNAME>MR_S_SAVE_FUNC</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Menu Painter: Program interface for dynamic texts</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
-     <CMPNAME>MR_S_SAVE_NEW_FUNC</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Menu Painter: Program interface for dynamic texts</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
-     <CMPNAME>MR_V_JOIN_COND_VAL_TYPE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Value Type for Join condition value</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
-     <CMPNAME>MR_V_JOIN_SOURCE_FLD_DATATYPE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Data Type in ABAP Dictionary</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
-     <CMPNAME>MR_V_JOIN_SOURCE_FLD_LENGTH</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Length (No. of Characters)</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
-     <CMPNAME>MR_V_JOIN_TRGT_FIELD_DATATYPE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Data Type in ABAP Dictionary</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
-     <CMPNAME>MR_V_JOIN_TRGT_FLD_LENGTH</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Length (No. of Characters)</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
-     <CMPNAME>MR_V_TITLE</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>ABAP System Field: Title Line Content of Current Dynpro</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
      <CMPNAME>MS_FIELD_CONDITION</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Join Field Condition</DESCRIPT>
@@ -350,12 +338,6 @@
      <CMPNAME>MS_FILTER_CONDITION</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Join Filter Condition</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>
-     <CMPNAME>MT_TARGET_TABLE_LIST</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Range table for table name</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_EDIT_JOIN_COND_VIEW</CLSNAME>

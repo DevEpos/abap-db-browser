@@ -49,6 +49,24 @@
      <ENTRY>Query Name</ENTRY>
      <LENGTH>21</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>007</KEY>
+     <ENTRY>Parameters</ENTRY>
+     <LENGTH>20</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>008</KEY>
+     <ENTRY>Change Custom Query</ENTRY>
+     <LENGTH>29</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>009</KEY>
+     <ENTRY>Create Custom Query</ENTRY>
+     <LENGTH>29</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -61,31 +79,55 @@
      <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>
      <CMPNAME>COPY_QUERY</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Copy query</DESCRIPT>
+     <DESCRIPT>Copies the query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>
+     <CMPNAME>CREATE_SQL_QUERY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create new SQL Query</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>
      <CMPNAME>DELETE_QUERY</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Deletes the current query</DESCRIPT>
+     <DESCRIPT>Delete the query</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>
      <CMPNAME>DOWNLOAD_QUERY</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Download the current query to file</DESCRIPT>
+     <DESCRIPT>Export query to file</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>
+     <CMPNAME>EDIT_SQL_QUERY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Edit the current sql query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>
+     <CMPNAME>FILL_QUERY_PARAMETERS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create fields for query parameters in tabfield list</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>
+     <CMPNAME>LOAD_CUSTOM_QUERY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Loads a custom query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>
+     <CMPNAME>LOAD_STANDARD_QUERY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Loads a standard query</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>
      <CMPNAME>MAINTAIN_JUMPS</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Maintain jump destinations</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>
-     <CMPNAME>MR_QUERY_F</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Factory for query accesses</DESCRIPT>
+     <DESCRIPT>Maintain jump definitions of query</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_QUERY_SELSCREEN_UTIL</CLSNAME>

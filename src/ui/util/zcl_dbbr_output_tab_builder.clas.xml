@@ -12,6 +12,20 @@
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
    </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OUTPUT_TAB_BUILDER</CLSNAME>
+     <CMPNAME>CREATE_DYN_COMP_TAB</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create dynamic table for data output</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OUTPUT_TAB_BUILDER</CLSNAME>
+     <CMPNAME>ENHANCE_OUTPUT_TABLE_COMPS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create/enhance table components for output table</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
   </asx:values>
  </asx:abap>
 </abapGit>

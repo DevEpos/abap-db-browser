@@ -16,6 +16,9 @@ CLASS cl_query_option_validator IMPLEMENTATION.
 
       WHEN zif_dbbr_c_object_browser_mode=>query.
         rr_validator = NEW cl_qov_query( ).
+
+      WHEN zif_dbbr_c_object_browser_mode=>package.
+        rr_validator = NEW cl_qov_package( ).
     ENDCASE.
 
   ENDMETHOD.
@@ -125,6 +128,17 @@ CLASS cl_qov_database_tab_view IMPLEMENTATION.
 ENDCLASS.
 
 CLASS cl_qov_query IMPLEMENTATION.
+
+  METHOD validate.
+    super->validate(
+        iv_option = iv_option
+        iv_value  = iv_value
+    ).
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS cl_qov_package IMPLEMENTATION.
 
   METHOD validate.
     super->validate(

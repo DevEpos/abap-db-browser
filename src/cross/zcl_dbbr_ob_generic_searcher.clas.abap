@@ -96,8 +96,9 @@ CLASS zcl_dbbr_ob_generic_searcher DEFINITION
     "!
     METHODS add_option_filter
       IMPORTING
-        iv_fieldname TYPE string
-        it_values    TYPE zif_dbbr_ty_object_browser=>ty_search_option_values-value_range.
+        iv_fieldname    TYPE string
+        iv_sql_function TYPE zdbbr_sql_function OPTIONAL
+        it_values       TYPE zif_dbbr_ty_object_browser=>ty_search_option_values-value_range.
     "! <p class="shorttext synchronized" lang="en">Add sort order for field</p>
     "!
     METHODS add_order_by
@@ -121,7 +122,7 @@ CLASS zcl_dbbr_ob_generic_searcher IMPLEMENTATION.
 
   METHOD constructor.
     mr_search_query = ir_query.
-    mv_description_filter_field = cond #( when sy-saprl >= 751 then 'descriptionupper' else 'description' ).
+    mv_description_filter_field = COND #( WHEN sy-saprl >= 751 THEN 'descriptionupper' ELSE 'description' ).
   ENDMETHOD.
 
   METHOD get_cds_sql_name.
@@ -138,10 +139,11 @@ CLASS zcl_dbbr_ob_generic_searcher IMPLEMENTATION.
       BASE mt_criteria
       ( LINES OF VALUE #(
           FOR value IN it_values
-          ( field  = iv_fieldname
-            sign   = value-sign
-            option = value-option
-            low    = value-low ) )
+          ( sqlfieldname = iv_fieldname
+            sql_function = iv_sql_function
+            sign         = value-sign
+            option       = value-option
+            low          = value-low ) )
       )
     ).
   ENDMETHOD.

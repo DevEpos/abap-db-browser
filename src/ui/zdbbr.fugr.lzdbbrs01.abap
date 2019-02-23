@@ -18,6 +18,9 @@ AT SELECTION-SCREEN.
          zif_dbbr_screen_ids=>c_cds_view_variant.
       gr_variant_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = sscrfields-ucomm ).
 
+    WHEN zif_dbbr_screen_ids=>c_save_sql_query.
+      gr_save_sql_query_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = sscrfields-ucomm ).
+
     WHEN 1300.
       gr_addtextfield_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = sscrfields-ucomm ).
 
@@ -46,6 +49,9 @@ AT SELECTION-SCREEN ON EXIT-COMMAND.
          zif_dbbr_screen_ids=>c_cds_view_variant.
       gr_variant_controller->zif_uitb_screen_controller~cancel( lv_function ).
 
+    WHEN zif_dbbr_screen_ids=>c_save_sql_query.
+      gr_save_sql_query_controller->zif_uitb_screen_controller~cancel( lv_function ).
+
     WHEN 1300.
       gr_addtextfield_controller->zif_uitb_screen_controller~cancel( lv_function ).
 
@@ -70,6 +76,9 @@ AT SELECTION-SCREEN OUTPUT.
          zif_dbbr_screen_ids=>c_query_variant OR
          zif_dbbr_screen_ids=>c_cds_view_variant.
       gr_variant_controller->zif_uitb_screen_controller~pbo( ).
+
+    WHEN zif_dbbr_screen_ids=>c_save_sql_query.
+      gr_save_sql_query_controller->zif_uitb_screen_controller~pbo( ).
 
     WHEN 1300.
       gr_addtextfield_controller->zif_uitb_screen_controller~pbo( ).

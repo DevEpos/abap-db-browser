@@ -3,6 +3,8 @@
 *&---------------------------------------------------------------------*
 CLASS cl_screen_util DEFINITION.
   PUBLIC SECTION.
+    "! <p class="shorttext synchronized" lang="en">Calls the given Screen </p>
+    "!
     CLASS-METHODS call_screen
       IMPORTING
         iv_screen_id        TYPE dynnr
@@ -39,4 +41,5 @@ CLASS cl_screen_util IMPLEMENTATION.
       ENDIF.
     ENDIF.
   ENDMETHOD.
+
 ENDCLASS.

@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Parser for SQL Query</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+    <WITH_UNIT_TESTS>X</WITH_UNIT_TESTS>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>CHECK_PARAMETERS_WHERE_USED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Check if all parameters are used in query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>CHECK_SYNTAX</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks ABAP syntax of query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>COMBINE_STMNT_WITH_TOKENS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Combines tokens with statements for easier processing</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>CONSTRUCTOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create new parser</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>EXTRACT_PARAMETERS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Extract parameters from query string</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>INSERT_INTO_TABLE_CLAUSE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Insert INTO TABLE clause into select stmnt.</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>PARSE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Parse the query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>PARSE_QUERY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Process the tokens to get details of the query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>PRE_VALIDATE_STATEMENTS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Do some prelimary validation on the query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>PRE_VALIDATE_TOKENS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Check for invalid tokens before hand</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>SIMPLIFY_TOKENS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Simplifation of some tokens</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>TOKENIZE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Tokenize the query statement</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>
