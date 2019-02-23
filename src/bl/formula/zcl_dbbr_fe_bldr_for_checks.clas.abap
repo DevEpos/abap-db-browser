@@ -1,31 +1,31 @@
-CLASS ZCL_DBBR_fe_bldr_for_checks DEFINITION
+CLASS zcl_dbbr_fe_bldr_for_checks DEFINITION
   PUBLIC
-  INHERITING FROM ZCL_DBBR_fe_generic_form_bldr
+  INHERITING FROM zcl_dbbr_fe_generic_form_bldr
   FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    INTERFACES ZIF_DBBR_fe_formula_builder.
+    INTERFACES zif_dbbr_fe_formula_builder.
 
     METHODS constructor
       IMPORTING
-        ir_formula   TYPE REF TO ZCL_DBBR_formula
-        ir_tabfields TYPE REF TO ZCL_DBBR_tabfield_list.
+        ir_formula   TYPE REF TO zcl_dbbr_formula
+        ir_tabfields TYPE REF TO zcl_dbbr_tabfield_list.
   PRIVATE SECTION.
-    DATA mr_formula   TYPE REF TO ZCL_DBBR_formula.
-    DATA mr_tabfields TYPE REF TO ZCL_DBBR_tabfield_list.
+    DATA mr_formula   TYPE REF TO zcl_dbbr_formula.
+    DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list.
     METHODS include_form_definitions
       IMPORTING
-        it_statements TYPE ZIF_DBBR_fe_types=>tt_statement
+        it_statements TYPE zif_dbbr_fe_types=>tt_statement
       EXPORTING
         et_form       TYPE string_table.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_fe_bldr_for_checks IMPLEMENTATION.
+CLASS zcl_dbbr_fe_bldr_for_checks IMPLEMENTATION.
 
-  METHOD ZIF_DBBR_fe_formula_builder~build_formula.
+  METHOD zif_dbbr_fe_formula_builder~build_formula.
 
     et_lines = VALUE #( ( |REPORT Z_FORMULA.| ) ).
 
@@ -41,7 +41,7 @@ CLASS ZCL_DBBR_fe_bldr_for_checks IMPLEMENTATION.
 
     " insert all tables
     DATA(lt_tables) = mr_tabfields->get_table_list( ).
-    delete lt_tables where tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
+    DELETE lt_tables WHERE tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
     IF lines( lt_tables ) > 1.
       et_lines = VALUE #( BASE et_lines ( |data: begin of row,| ) ).
       LOOP AT lt_tables ASSIGNING FIELD-SYMBOL(<ls_table>).
@@ -54,10 +54,14 @@ CLASS ZCL_DBBR_fe_bldr_for_checks IMPLEMENTATION.
 
     et_lines = VALUE #( BASE et_lines ( |START-OF-SELECTION.| ) ).
 
+
     mr_formula->get_statements( IMPORTING et_statements = DATA(lt_statements) ).
 
     include_form_definitions( EXPORTING it_statements = lt_statements
                               IMPORTING et_form       = et_lines       ).
+
+    ev_starting_line = lines( et_lines ) + 3.
+
     include_normal_statements( EXPORTING it_statements = lt_statements
                                IMPORTING et_form       = et_lines       ).
   ENDMETHOD.

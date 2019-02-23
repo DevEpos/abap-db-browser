@@ -11,6 +11,14 @@
     <STATE>1</STATE>
     <UNICODE>X</UNICODE>
    </VSEOINTERF>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_DBBR_FE_FORMULA_BUILDER</CLSNAME>
+     <CMPNAME>BUILD_FORMULA</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Builds lines of code for formula</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
   </asx:values>
  </asx:abap>
 </abapGit>

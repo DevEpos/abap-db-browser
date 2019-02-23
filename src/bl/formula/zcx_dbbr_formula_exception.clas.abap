@@ -1,6 +1,6 @@
-CLASS ZCX_DBBR_formula_exception DEFINITION
+CLASS zcx_dbbr_formula_exception DEFINITION
   PUBLIC
-  INHERITING FROM ZCX_DBBR_application_exc
+  INHERITING FROM zcx_dbbr_application_exc
   CREATE PUBLIC .
 
   PUBLIC SECTION.
@@ -40,7 +40,7 @@ CLASS ZCX_DBBR_formula_exception DEFINITION
         attr2 TYPE scx_attrname VALUE '',
         attr3 TYPE scx_attrname VALUE '',
         attr4 TYPE scx_attrname VALUE '',
-      END OF no_executable_lines.
+      END OF no_executable_lines .
     CONSTANTS:
       BEGIN OF needed_calc_fld_not_in_list,
         msgid TYPE symsgid VALUE 'ZDBBR_EXCEPTION',
@@ -50,23 +50,27 @@ CLASS ZCX_DBBR_formula_exception DEFINITION
         attr3 TYPE scx_attrname VALUE '',
         attr4 TYPE scx_attrname VALUE '',
       END OF needed_calc_fld_not_in_list .
-    data invalid_row type sy-tabix.
+
+    DATA invalid_row TYPE sy-tabix .
+    DATA syntax_message TYPE string .
+
     METHODS constructor
       IMPORTING
-        !textid          LIKE if_t100_message=>t100key OPTIONAL
-        !previous        LIKE previous OPTIONAL
-        !msgv1           TYPE sy-msgv1 OPTIONAL
-        !msgv2           TYPE sy-msgv2 OPTIONAL
-        !msgv3           TYPE sy-msgv3 OPTIONAL
-        !msgv4           TYPE sy-msgv4 OPTIONAL
-        invalid_row TYPE sy-tabix OPTIONAL.
+        !textid        LIKE if_t100_message=>t100key OPTIONAL
+        !previous      LIKE previous OPTIONAL
+        !msgv1         TYPE sy-msgv1 OPTIONAL
+        !msgv2         TYPE sy-msgv2 OPTIONAL
+        !msgv3         TYPE sy-msgv3 OPTIONAL
+        !msgv4         TYPE sy-msgv4 OPTIONAL
+        !invalid_row   TYPE sy-tabix OPTIONAL
+        syntax_message TYPE string OPTIONAL.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCX_DBBR_formula_exception IMPLEMENTATION.
+CLASS zcx_dbbr_formula_exception IMPLEMENTATION.
 
 
   METHOD constructor ##ADT_SUPPRESS_GENERATION.
@@ -84,6 +88,7 @@ CLASS ZCX_DBBR_formula_exception IMPLEMENTATION.
       if_t100_message~t100key = textid.
     ENDIF.
 
+    me->syntax_message = syntax_message.
     me->invalid_row = invalid_row.
   ENDMETHOD.
 ENDCLASS.

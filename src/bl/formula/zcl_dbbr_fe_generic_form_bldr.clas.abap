@@ -1,4 +1,4 @@
-CLASS ZCL_DBBR_fe_generic_form_bldr DEFINITION
+CLASS zcl_dbbr_fe_generic_form_bldr DEFINITION
   PUBLIC
   ABSTRACT
   CREATE PUBLIC .
@@ -7,7 +7,7 @@ CLASS ZCL_DBBR_fe_generic_form_bldr DEFINITION
   PROTECTED SECTION.
     METHODS include_normal_statements
       IMPORTING
-        it_statements             TYPE ZIF_DBBR_fe_types=>tt_statement
+        it_statements             TYPE zif_dbbr_fe_types=>tt_statement
         if_use_subroutine_strings TYPE abap_bool OPTIONAL
       EXPORTING
         et_form                   TYPE string_table.
@@ -16,7 +16,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_fe_generic_form_bldr IMPLEMENTATION.
+CLASS zcl_dbbr_fe_generic_form_bldr IMPLEMENTATION.
   METHOD include_normal_statements.
     DATA: lt_lines TYPE string_table.
 
@@ -28,7 +28,12 @@ CLASS ZCL_DBBR_fe_generic_form_bldr IMPLEMENTATION.
         SPLIT <ls_statement>-stringform_subroutine AT cl_abap_char_utilities=>cr_lf INTO TABLE lt_lines.
         et_form = VALUE #( BASE et_form ( LINES OF lt_lines ) ).
       ELSE.
-        et_form = VALUE #( BASE et_form ( <ls_statement>-stringform ) ).
+        IF <ls_statement>-stringform CS cl_abap_char_utilities=>cr_lf.
+          SPLIT <ls_statement>-stringform AT cl_abap_char_utilities=>cr_lf INTO TABLE lt_lines.
+          et_form = VALUE #( BASE et_form ( LINES OF lt_lines ) ).
+        ELSE.
+          et_form = VALUE #( BASE et_form ( <ls_statement>-stringform ) ).
+        ENDIF.
       ENDIF.
     ENDLOOP.
 
