@@ -1975,28 +1975,38 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
                                                                          AND fieldname <> 'HIDE_FLAG'
                                                                          AND fieldname <> 'ZZ_EXTERNAL_DATA_ICON'.
 
+      UNASSIGN: <lv_currency_ref>,
+                <lv_currency_ref>.
+
       DATA(ls_dfies) = zcl_dbbr_dictionary_helper=>get_table_field_info( iv_tablename = <ls_fieldcat>-ref_table
                                                                           iv_fieldname = <ls_fieldcat>-ref_field ).
-      IF ls_dfies IS NOT INITIAL.
-        ls_detail-fieldname = ls_dfies-scrtext_l.
-        IF ls_detail-fieldname IS INITIAL.
-          ls_detail-fieldname = ls_dfies-fieldtext.
-        ENDIF.
-      ELSEIF <ls_fieldcat>-parameter2 = 'F'.
+      IF <ls_fieldcat>-parameter2 = 'F'.
         IF mr_util->ms_technical_info-tech_names = abap_true.
           ls_detail-fieldname = <ls_fieldcat>-tooltip.
         ELSE.
           ls_detail-fieldname = <ls_fieldcat>-coltext.
         ENDIF.
-      ELSE.
-        ls_detail-fieldname = <ls_fieldcat>-fieldname.
       ENDIF.
 
       TRY.
           DATA(lr_s_field) = mr_util->mo_tabfields_all->get_field_ref_by_alv_name( <ls_fieldcat>-fieldname ).
-          ls_detail-tech_fieldname = lr_s_field->fieldname_raw.
+          DATA(ls_fcat_for_detail) = VALUE lvc_s_fcat( ).
+          mr_util->set_fieldcat_coltexts(
+            EXPORTING ir_field    = lr_s_field
+            CHANGING  cs_fieldcat = ls_fcat_for_detail
+          ).
+          IF mr_util->ms_technical_info-tech_names = abap_true.
+            ls_detail-fieldname = ls_fcat_for_detail-tooltip.
+            ls_detail-tech_fieldname = ls_fcat_for_detail-scrtext_l.
+          ELSE.
+            ls_detail-fieldname = ls_fcat_for_detail-scrtext_l.
+            ls_detail-tech_fieldname = ls_fcat_for_detail-tooltip.
+          ENDIF.
         CATCH cx_sy_itab_line_not_found.
           ls_detail-tech_fieldname = <ls_fieldcat>-fieldname.
+          IF ls_detail-fieldname IS INITIAL AND ls_dfies IS NOT INITIAL.
+            ls_detail-fieldname = ls_dfies-fieldtext.
+          ENDIF.
       ENDTRY.
 
       ASSIGN COMPONENT <ls_fieldcat>-fieldname OF STRUCTURE is_line TO <lv_fieldvalue>.
@@ -2006,16 +2016,19 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         " get name of reference field in case of active join
         IF mr_util->is_join_active( ).
           TRY .
-              DATA(ls_reffield) = mr_util->mt_fieldcat[ tabname = ls_dfies-tabname fieldname = ls_dfies-reffield ].
+              DATA(ls_reffield) = mr_util->mt_fieldcat[ ref_table = ls_dfies-tabname ref_field = ls_dfies-reffield ].
               ASSIGN COMPONENT ls_reffield-fieldname OF STRUCTURE is_line TO <lv_currency_ref>.
             CATCH cx_sy_itab_line_not_found.
-              CONTINUE.
           ENDTRY.
         ELSE.
           ASSIGN COMPONENT ls_dfies-reffield OF STRUCTURE is_line TO <lv_currency_ref>.
         ENDIF.
 
-        WRITE <lv_fieldvalue> TO ls_detail-value CURRENCY <lv_currency_ref> LEFT-JUSTIFIED.
+        IF <lv_currency_ref> IS ASSIGNED.
+          WRITE <lv_fieldvalue> TO ls_detail-value CURRENCY <lv_currency_ref> LEFT-JUSTIFIED.
+        ELSE.
+          WRITE <lv_fieldvalue> TO ls_detail-value LEFT-JUSTIFIED.
+        ENDIF.
       ELSE.
         DATA(lv_edit_mask) = COND #( WHEN <ls_fieldcat>-convexit IS NOT INITIAL AND
                                           <ls_fieldcat>-convexit <> 'NUM'            THEN '==' && <ls_fieldcat>-convexit ).
@@ -2457,7 +2470,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
                                              current_line_count( ) - lv_alv_filtered_entries ).
 
     " differentiate headers of join and default/custom query selection
-    IF mr_util->is_join_active( ) or mr_util->mf_custom_query_active = abap_true.
+    IF mr_util->is_join_active( ) OR mr_util->mf_custom_query_active = abap_true.
       DATA(lv_selection_count_text) = |{ lv_filtered_line_count NUMBER = USER } Entries|.
     ELSE.
       lv_selection_count_text = |{ lv_filtered_line_count NUMBER = USER } of { mr_util->mv_max_lines_existing NUMBER = USER } Entries|.
