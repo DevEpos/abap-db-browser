@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Utilities for ADT navigation</p>
 CLASS zcl_dbbr_adt_util DEFINITION
   PUBLIC
   FINAL
@@ -5,18 +6,32 @@ CLASS zcl_dbbr_adt_util DEFINITION
 
   PUBLIC SECTION.
 
+    "! <p class="shorttext synchronized" lang="en">Open Object with ADT Tools</p>
     CLASS-METHODS jump_adt
       IMPORTING
-        !iv_obj_name     TYPE tadir-obj_name
-        !iv_obj_type     TYPE tadir-object
-        !iv_sub_obj_name TYPE tadir-obj_name OPTIONAL
-        !iv_sub_obj_type TYPE tadir-object OPTIONAL
-        !iv_line_number  TYPE i OPTIONAL
+        iv_obj_name     TYPE tadir-obj_name
+        iv_obj_type     TYPE tadir-object
+        iv_sub_obj_name TYPE tadir-obj_name OPTIONAL
+        iv_sub_obj_type TYPE tadir-object OPTIONAL
+        iv_line_number  TYPE i OPTIONAL
+      RAISING
+        zcx_dbbr_adt_error .
+    "! <p class="shorttext synchronized" lang="en">Retrieve adt object and names</p>
+    CLASS-METHODS get_adt_objects_and_names
+      IMPORTING
+        iv_obj_name       TYPE tadir-obj_name
+        iv_obj_type       TYPE tadir-object
+      EXPORTING
+        er_adt_uri_mapper TYPE REF TO if_adt_uri_mapper
+        er_adt_objectref  TYPE REF TO cl_adt_object_reference
+        ev_program        TYPE progname
+        ev_include        TYPE progname
       RAISING
         zcx_dbbr_adt_error .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
+    "! <p class="shorttext synchronized" lang="en">Check if jump is possible for given object</p>
     CLASS-METHODS is_adt_jump_possible
       IMPORTING
         !ir_wb_object                  TYPE REF TO cl_wb_object
@@ -25,17 +40,7 @@ CLASS zcl_dbbr_adt_util DEFINITION
         VALUE(rf_is_adt_jump_possible) TYPE abap_bool
       RAISING
         zcx_dbbr_adt_error .
-    CLASS-METHODS get_adt_objects_and_names
-      IMPORTING
-        !iv_obj_name       TYPE tadir-obj_name
-        !iv_obj_type       TYPE tadir-object
-      EXPORTING
-        !er_adt_uri_mapper TYPE REF TO if_adt_uri_mapper
-        !er_adt_objectref  TYPE REF TO cl_adt_object_reference
-        !ev_program        TYPE progname
-        !ev_include        TYPE progname
-      RAISING
-        zcx_dbbr_adt_error .
+
 ENDCLASS.
 
 
@@ -89,7 +94,7 @@ CLASS zcl_dbbr_adt_util IMPLEMENTATION.
     DATA(lo_vit_adt_mapper) = lr_adt_tools->get_uri_mapper_vit( ).
 
     IF lo_vit_adt_mapper->is_vit_wb_request( lr_wb_request ).
-       er_adt_objectref = lo_vit_adt_mapper->map_wb_request_to_objref( wb_request = lr_wb_request ).
+      er_adt_objectref = lo_vit_adt_mapper->map_wb_request_to_objref( wb_request = lr_wb_request ).
     ELSE.
       er_adt_uri_mapper = lr_adt_tools->get_uri_mapper( ).
 
@@ -97,13 +102,15 @@ CLASS zcl_dbbr_adt_util IMPLEMENTATION.
           wb_object          = lr_wb_object
       ).
 
-      er_adt_uri_mapper->map_objref_to_include(
-        EXPORTING
-          uri                = er_adt_objectref->ref_data-uri
-        IMPORTING
-          program            = ev_program
-          include            = ev_include
-      ).
+      IF ev_program IS SUPPLIED.
+        er_adt_uri_mapper->map_objref_to_include(
+          EXPORTING
+            uri                = er_adt_objectref->ref_data-uri
+          IMPORTING
+            program            = ev_program
+            include            = ev_include
+        ).
+      ENDIF.
     ENDIF.
   ENDMETHOD.
 
