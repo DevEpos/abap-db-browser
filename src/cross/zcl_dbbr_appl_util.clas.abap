@@ -85,6 +85,8 @@ CLASS zcl_dbbr_appl_util DEFINITION
       IMPORTING
         is_field      TYPE sval
         !iv_title     TYPE string OPTIONAL
+      EXPORTING
+        ef_cancelled  TYPE abap_bool
       RETURNING
         VALUE(result) TYPE spo_value.
     CLASS-METHODS popup_get_values
@@ -284,7 +286,7 @@ CLASS zcl_dbbr_appl_util IMPLEMENTATION.
         OTHERS       = 1.
 
     IF sy-subrc <> 0 OR lv_rcode = 'A'.
-      RETURN.
+      ef_cancelled = abap_true.
     ELSE.
       result = CONV string( lt_fields[ 1 ]-value ).
     ENDIF.
