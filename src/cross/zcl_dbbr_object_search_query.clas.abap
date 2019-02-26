@@ -29,6 +29,16 @@ CLASS zcl_dbbr_object_search_query DEFINITION
       RAISING
         zcx_dbbr_object_search.
 
+    "! <p class="shorttext synchronized" lang="en">Creates query from string and options</p>
+    "! If parsing is done in external API query can be created directly
+    CLASS-METHODS create_query
+      IMPORTING
+        iv_search_string TYPE string
+        iv_type          TYPE zdbbr_obj_browser_mode
+        it_options       TYPE zif_dbbr_ty_object_browser=>tt_search_option_values OPTIONAL
+      RETURNING
+        VALUE(rr_query)  TYPE REF TO zcl_dbbr_object_search_query.
+
     "! <p class="shorttext synchronized" lang="en">CLASS CONSTRUCTOR</p>
     "!
     CLASS-METHODS class_constructor.
@@ -146,7 +156,6 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
       ( option = c_search_option-by_type )
       ( option = c_search_option-by_package )
       ( option = c_search_option-by_description )
-      ( option = c_search_option-by_table )
       ( option = c_search_option-max_rows single = abap_true no_negation = abap_true )
     ).
 
@@ -241,6 +250,15 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
       it_search_options = ls_query-options
     ).
 
+  ENDMETHOD.
+
+  METHOD create_query.
+    rr_query = NEW #(
+       iv_query          = space " original query string is not needed
+       iv_type           = iv_type
+       iv_search_string  = iv_search_string
+       it_search_options = it_options
+    ).
   ENDMETHOD.
 
   METHOD constructor.
