@@ -5,7 +5,6 @@ INTERFACE zif_dbbr_c_object_browser
     "! <p class="shorttext synchronized" lang="en">Search option for object browser</p>
     BEGIN OF c_search_option,
       by_owner       TYPE string VALUE 'OWNER',
-      by_table       TYPE string VALUE 'TABLE',
       by_select_from TYPE string VALUE 'FROM',
       by_association TYPE string VALUE 'ASSOC',
       by_api         TYPE string VALUE 'API',
