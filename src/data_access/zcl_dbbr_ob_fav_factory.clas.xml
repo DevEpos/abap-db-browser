@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_OB_FAV_FACTORY</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Factory for managin object browser favorites</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OB_FAV_FACTORY</CLSNAME>
+     <CMPNAME>CHANGE_FAVORITE_NAME</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Changes the name of a single favorite</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OB_FAV_FACTORY</CLSNAME>
+     <CMPNAME>CREATE_FAVORITE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create new favorite</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OB_FAV_FACTORY</CLSNAME>
+     <CMPNAME>DELETE_FAVORITE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Delete favorite for the given id</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OB_FAV_FACTORY</CLSNAME>
+     <CMPNAME>GET_FAVORITES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Get all favorites of user</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

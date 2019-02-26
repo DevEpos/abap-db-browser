@@ -45,6 +45,13 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
       END OF ty_s_user_data.
 
     TYPES:
+      BEGIN OF ty_s_fav_func_query_map,
+        function TYPE ui_func,
+        query    TYPE string,
+        type     TYPE zdbbr_obj_browser_mode,
+      END OF ty_s_fav_func_query_map.
+
+    TYPES:
       BEGIN OF ty_s_history,
         id         TYPE ui_func,
         query      TYPE REF TO zcl_dbbr_object_search_query,
@@ -53,6 +60,8 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     TYPES: ty_t_history TYPE STANDARD TABLE OF ty_s_history.
 
     DATA mt_history_stack TYPE ty_t_history.
+    DATA mt_fav_func_query_map TYPE STANDARD TABLE OF ty_s_fav_func_query_map.
+
     CONSTANTS: c_max_history TYPE i VALUE 25.
 
     CONSTANTS:
@@ -328,6 +337,14 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Navigate to next history entry</p>
     METHODS go_to_next_historic_entry.
     METHODS go_to_historic_entry
+      IMPORTING
+        iv_function TYPE ui_func.
+    "! <p class="shorttext synchronized" lang="en">Edit search favorites of Object Browser</p>
+    METHODS edit_favorites.
+    "! <p class="shorttext synchronized" lang="en">Add current query to search favorites</p>
+    METHODS add_favorite.
+    "! <p class="shorttext synchronized" lang="en">Trigger query execution from favorite entry</p>
+    METHODS trigger_query_from_favorite
       IMPORTING
         iv_function TYPE ui_func.
 ENDCLASS.
@@ -1420,6 +1437,8 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 
   METHOD fill_favorite_dd_menu.
+    CLEAR: mt_fav_func_query_map.
+
     mo_favorite_dd_menu->clear( ).
     mo_favorite_dd_menu->add_function(
         fcode = c_functions-add_favorite
@@ -1442,6 +1461,42 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         fcode = c_functions-my_queries_search
         text  = |{ 'My Queries' }|
     ).
+    mo_favorite_dd_menu->add_separator( ).
+
+    DATA(lt_favorites) = zcl_dbbr_ob_fav_factory=>get_favorites( ).
+    DATA(lv_fav_func_counter) = 0.
+
+    LOOP AT lt_favorites ASSIGNING FIELD-SYMBOL(<ls_fav>)
+      GROUP BY <ls_fav>-entity_type
+      ASSIGNING FIELD-SYMBOL(<lv_type>).
+
+      DATA(lo_submenu) = NEW cl_ctmenu( ).
+      LOOP AT GROUP <lv_type> ASSIGNING FIELD-SYMBOL(<ls_favorite>).
+        ADD 1 TO lv_fav_func_counter.
+        DATA(lv_favorite_func) = CONV ui_func( |FAV:{ lv_fav_func_counter }| ).
+        mt_fav_func_query_map = VALUE #( BASE mt_fav_func_query_map
+          ( function = lv_favorite_func
+            type     = <ls_favorite>-entity_type
+            query    = <ls_favorite>-search_string )
+        ).
+        lo_submenu->add_function(
+            fcode = lv_favorite_func
+            text  = <ls_favorite>-favorite_name
+        ).
+      ENDLOOP.
+
+      mo_favorite_dd_menu->add_submenu(
+          menu = lo_submenu
+          text = SWITCH gui_text(
+            <lv_type>
+            WHEN zif_dbbr_c_object_browser_mode=>cds_view THEN 'CDS View'
+            WHEN zif_dbbr_c_object_browser_mode=>database_table_view THEN 'Database Table/View'
+            WHEN zif_dbbr_c_object_browser_mode=>query THEN 'Query'
+            WHEN zif_dbbr_c_object_browser_mode=>package THEN 'Package'
+          )
+      ).
+
+    ENDLOOP.
   ENDMETHOD.
 
   METHOD node_image_for_node_type.
@@ -1952,9 +2007,17 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       WHEN c_functions-next_history.
         go_to_next_historic_entry( ).
 
+      WHEN c_functions-add_favorite.
+        add_favorite( ).
+
+      WHEN c_functions-edit_favorites.
+        edit_favorites( ).
+
       WHEN OTHERS.
         IF fcode CP 'HIST*'.
           go_to_historic_entry( EXPORTING iv_function = fcode ).
+        ELSEIF fcode CP 'FAV:*'.
+          trigger_query_from_favorite( EXPORTING iv_function = fcode ).
         ENDIF.
     ENDCASE.
   ENDMETHOD.
@@ -2396,6 +2459,73 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     mo_search_query = <ls_history_entry>-query.
     update_history_buttons( ).
     show_historic_query( ).
+  ENDMETHOD.
+
+
+  METHOD edit_favorites.
+    NEW zcl_dbbr_ob_fav_manager( )->show(
+        iv_top    = 5
+        iv_left   = 10
+        iv_width  = 120
+        iv_height = 15
+    ).
+    fill_favorite_dd_menu( ).
+  ENDMETHOD.
+
+
+  METHOD add_favorite.
+    DATA: lf_cancelled TYPE abap_bool.
+
+    CHECK mo_search_input->value <> space.
+
+*.. Parse the query again to prevent storing favorite with invalid query
+    TRY.
+        zcl_dbbr_object_search_query=>parse_query_string(
+           iv_query       = |{ mo_search_input->value }|
+           iv_search_type = mv_current_search_type
+        ).
+      CATCH zcx_dbbr_application_exc INTO DATA(lx_parse_error).
+        MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
+        RETURN.
+    ENDTRY.
+
+    DATA(lv_result) = zcl_dbbr_appl_util=>popup_get_value(
+      EXPORTING
+        is_field = VALUE #( tabname = 'ZDBBR_OBJBRSFAV' fieldname = 'FAVORITE_NAME' field_obl = abap_true value = mo_search_input->value )
+        iv_title = |{ 'Enter name for storing the favorite' }|
+      IMPORTING
+        ef_cancelled = lf_cancelled
+    ).
+
+    CHECK: lv_result <> space,
+           lf_cancelled = abap_false.
+
+    CHECK zcl_dbbr_ob_fav_factory=>create_favorite(
+        iv_query = |{ mo_search_input->value }|
+        iv_type  = mv_current_search_type
+        iv_name  = CONV #( lv_result )
+    ).
+*.. Refill favorite menu as a new entry exists now
+    fill_favorite_dd_menu( ).
+
+    MESSAGE s090(zdbbr_info) WITH lv_result.
+  ENDMETHOD.
+
+
+  METHOD trigger_query_from_favorite.
+    DATA(ls_map_entry) = VALUE #( mt_fav_func_query_map[ function = iv_function ] OPTIONAL ).
+    CHECK ls_map_entry IS NOT INITIAL.
+
+    TRY.
+        mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
+          iv_query       = ls_map_entry-query
+          iv_search_type = ls_map_entry-type
+        ).
+        show_historic_query( ).
+        add_history_entry( ).
+      CATCH zcx_dbbr_object_search INTO DATA(lx_parse_error).
+        MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
+    ENDTRY.
   ENDMETHOD.
 
 ENDCLASS.
