@@ -196,13 +196,15 @@ CLASS zcl_dbbr_ob_generic_searcher IMPLEMENTATION.
 
     mf_search_executed = abap_true.
 
+    data(lv_max_rows) = mr_search_query->mv_max_rows + 1.
+
     TRY.
         SELECT DISTINCT (mt_select)
           FROM (mt_from)
           WHERE (mt_where)
           ORDER BY (mt_order_by)
         INTO CORRESPONDING FIELDS OF TABLE @mt_result
-          UP TO @mr_search_query->mv_max_rows ROWS.
+          UP TO @lv_max_rows ROWS.
       CATCH cx_sy_open_sql_error INTO DATA(lx_sql_error).
         RAISE EXCEPTION TYPE zcx_dbbr_object_search
           EXPORTING
