@@ -21,6 +21,7 @@ INTERFACE zif_dbbr_global_types
   TYPES: BEGIN OF ty_cds_tadir,
            created_by   TYPE as4user,
            created_date TYPE as4date,
+           devclass     TYPE devclass,
          END OF ty_cds_tadir.
 
   TYPES:

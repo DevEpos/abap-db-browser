@@ -11,6 +11,20 @@ CLASS zcl_dbbr_dictionary_helper DEFINITION
 
     TYPES: tt_table_definition TYPE STANDARD TABLE OF ty_table_definition WITH EMPTY KEY.
 
+    "! <p class="shorttext synchronized" lang="en">Check if there is a single DB entry for the given entity</p>
+    CLASS-METHODS exists_data_for_entity
+      IMPORTING
+        iv_entity_id          TYPE zdbbr_entity_id
+      RETURNING
+        VALUE(rf_data_exists) TYPE abap_bool.
+
+    "! <p class="shorttext synchronized" lang="en">Retrieve foreign key tables for the given table name</p>
+    CLASS-METHODS get_foreign_key_tables
+      IMPORTING
+        iv_tabname       TYPE tabname
+      RETURNING
+        VALUE(rt_entity) TYPE zdbbr_entity_t.
+
     "! <p class="shorttext synchronized" lang="en">Retrieve database entity for the given name</p>
     "!
     CLASS-METHODS get_entity
@@ -24,7 +38,7 @@ CLASS zcl_dbbr_dictionary_helper DEFINITION
     "!
     CLASS-METHODS get_entity_by_range
       IMPORTING
-        it_entity_range TYPE zif_dbbr_global_types=>ty_tabname_range
+        it_entity_range    TYPE zif_dbbr_global_types=>ty_tabname_range
       RETURNING
         VALUE(rt_entities) TYPE zdbbr_entity_t.
     "! <p class="shorttext synchronized" lang="en">Retrieve all mappings of domain to convexit</p>
@@ -557,6 +571,8 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
     ENDIF.
 
     """ create the hashed table
+    DELETE ADJACENT DUPLICATES FROM lt_component_table COMPARING name.
+
     DATA(lr_new_type) = cl_abap_structdescr=>create( lt_component_table ).
 
     " create the table type for the structure type
@@ -1029,6 +1045,26 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
 
     ev_clipboard_count = lines( lt_possible_entities ).
 
+*.. Try to find queries first
+    SELECT
+      FROM zdbbr_queryh
+      FIELDS query_name,
+             description
+      FOR ALL ENTRIES IN @lt_possible_entities
+      WHERE query_name = @lt_possible_entities-table_line
+    INTO TABLE @DATA(lt_queries_from_clipboard).
+
+    IF sy-subrc = 0.
+      rt_entities = VALUE #(
+        FOR query IN lt_queries_from_clipboard
+        ( entity_id     = query-query_name
+          entity_id_raw = query-query_name
+          entity_type   = zif_dbbr_c_entity_type=>query
+          description   = query-description )
+      ).
+    ENDIF.
+
+*.. Now try to find tables/views/cds views
     DATA(lv_description_language) = zcl_dbbr_appl_util=>get_description_language( ).
 
     SELECT *
@@ -1037,30 +1073,14 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
       WHERE entity = @lt_possible_entities-table_line
     INTO TABLE @DATA(lt_entities).
 
-    IF sy-subrc <> 0.
-      RETURN.
-    ENDIF.
+    IF sy-subrc = 0.
 
-*.. table/view already have their descriptions and can be moved directly to the result
-    rt_entities = VALUE #(
-        FOR table_view IN lt_entities
-        WHERE ( type <> zif_dbbr_c_entity_type=>cds_view )
-        ( entity_id     = table_view-entity
-          entity_id_raw = table_view-entityraw
-          entity_type   = table_view-type
-          description   = table_view-description )
-    ).
-
-*.. CDS Views have to be handled separately to get the platform specific description
-    IF line_exists( lt_entities[ type = zif_dbbr_c_entity_type=>cds_view ] ).
       rt_entities = VALUE #( BASE rt_entities
-        FOR cds_header IN zcl_dbbr_cds_view_factory=>read_cds_view_header_multi(
-            it_cds_view_name = VALUE #( FOR cds IN lt_entities WHERE ( type = zif_dbbr_c_entity_type=>cds_view ) ( cds-entity ) )
-        )
-        ( entity_id     = cds_header-strucobjn
-          entity_id_raw = cds_header-strucobjn_raw
-          description   = cds_header-ddtext
-          entity_type   = zif_dbbr_c_entity_type=>cds_view )
+          FOR table_view IN lt_entities
+          ( entity_id     = table_view-entity
+            entity_id_raw = table_view-entityraw
+            entity_type   = table_view-type
+            description   = table_view-description )
       ).
     ENDIF.
 
@@ -1169,6 +1189,77 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
       FROM zdbbr_i_databaseentity( p_language = @lv_language )
       WHERE entity IN @it_entity_range
     INTO CORRESPONDING FIELDS OF TABLE @rt_entities.
+  ENDMETHOD.
+
+  METHOD get_foreign_key_tables.
+    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+
+    SELECT foreignkeytable AS entity_id,
+           foreignkeytable AS entity_id_raw,
+           createdby AS created_by,
+           developmentpackage AS devclass,
+           description,
+           'T' AS entity_type
+      FROM zdbbr_i_foreignkeytable( p_language = @lv_language )
+      WHERE tablename = @iv_tabname
+      ORDER BY foreignkeytable
+    INTO CORRESPONDING FIELDS OF TABLE @rt_entity.
+  ENDMETHOD.
+
+  METHOD exists_data_for_entity.
+    DATA: lt_selfields TYPE string_table,
+          lr_result    TYPE REF TO data.
+
+    FIELD-SYMBOLS: <lv_data> TYPE any.
+
+    CHECK: iv_entity_id IS NOT INITIAL.
+
+    get_table_field_infos(
+      EXPORTING iv_tablename    = iv_entity_id
+      IMPORTING et_table_fields = DATA(lt_fields)
+    ).
+
+    IF lt_fields IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DELETE lt_fields WHERE datatype = 'CLNT' OR fieldname CP '.*'.
+
+    DATA(ls_field) = VALUE #( lt_fields[ 1 ] OPTIONAL ).
+
+    IF ls_field IS INITIAL.
+      RETURN.
+    ENDIF.
+
+*.. Create result data data type
+    cl_abap_typedescr=>describe_by_name(
+      EXPORTING  p_name      = |{ to_upper( iv_entity_id ) }-{ ls_field-fieldname }|
+      RECEIVING  p_descr_ref = DATA(lr_typedescr)
+      EXCEPTIONS OTHERS      = 1
+    ).
+
+    IF sy-subrc <> 0.
+      RETURN.
+    ENDIF.
+
+    DATA(lr_datadescr) = CAST cl_abap_datadescr( lr_typedescr ).
+    CREATE DATA lr_result TYPE HANDLE lr_datadescr.
+    ASSIGN lr_result->* TO <lv_data>.
+    lt_selfields = VALUE #( ( |{ ls_field-fieldname }| ) ).
+
+    TRY.
+        SELECT
+          SINGLE
+          FROM (iv_entity_id)
+          FIELDS (lt_selfields)
+        INTO @<lv_data>.
+
+        IF sy-subrc = 0 AND sy-dbcnt > 0.
+          rf_data_exists = abap_true.
+        ENDIF.
+      CATCH cx_root INTO DATA(lx_root).
+*        MESSAGE lx_root->get_text( ) TYPE 'I'.
+    ENDTRY.
   ENDMETHOD.
 
 ENDCLASS.

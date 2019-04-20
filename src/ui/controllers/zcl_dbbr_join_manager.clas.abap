@@ -1963,6 +1963,7 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
 
     zcl_uitb_abap_code_viewer=>show_code(
         iv_title  = 'FROM SQL Clause for Join definition'
+        iv_theme  = CAST zdbbr_user_settings_a( zcl_dbbr_usersettings_factory=>get_current_settings( ) )->code_viewer_theme
         it_code   = lt_from_clause
         iv_width  = 650
         iv_height = 400

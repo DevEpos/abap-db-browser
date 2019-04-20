@@ -215,6 +215,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
+     <CMPNAME>IS_VARIANT_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks if the node is holds a db browser variant</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_FAVORITES_TREE</CLSNAME>
      <CMPNAME>LOAD_FAVORITE_NODES</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Loads all favorite nodes into the tree</DESCRIPT>

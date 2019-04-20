@@ -17,6 +17,32 @@ CLASS zcl_dbbr_selection_util DEFINITION
     ALIASES handle_ui_function
       FOR zif_dbbr_screen_util~handle_ui_function .
 
+    TYPES:
+      BEGIN OF ty_s_selection_data,
+        entity_type          TYPE zdbbr_entity_type,
+        entity_id            TYPE zdbbr_entity_id,
+        query_string         TYPE string,
+        do_for_all_select    TYPE abap_bool,
+        for_all_entries_data TYPE REF TO data,
+        association_target   TYPE zdbbr_cds_association,
+        selection_fields     TYPE zdbbr_selfield_itab,
+        technical_infos      TYPE zdbbr_tech_info,
+        no_grouping          TYPE abap_bool,
+        multi_or             TYPE zdbbr_or_seltab_itab,
+        edit_mode            TYPE abap_bool,
+        delete_mode_active   TYPE abap_bool,
+        selfields_multi      TYPE zdbbr_selfield_itab,
+        tabfields            TYPE REF TO zcl_dbbr_tabfield_list,
+        tabfields_all        TYPE REF TO zcl_dbbr_tabfield_list,
+        table_to_alias_map   TYPE zdbbr_table_to_alias_map_itab,
+        join_definition      TYPE zdbbr_join_data,
+        join_def             TYPE zdbbr_join_def,
+        exclude_function     TYPE ui_functions,
+        formula              TYPE REF TO zcl_dbbr_formula,
+        nav_breadcrumbs      TYPE zdbbr_string_t,
+        navigation_count     TYPE i,
+      END OF ty_s_selection_data.
+
     "! <p class="shorttext synchronized" lang="en">Selection did finish</p>
     EVENTS selection_finished
       EXPORTING
@@ -27,30 +53,9 @@ CLASS zcl_dbbr_selection_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Create typed utility for selection</p>
     CLASS-METHODS create_util
       IMPORTING
-        !iv_entity_type        TYPE zdbbr_entity_type
-        !iv_entity_id          TYPE zdbbr_entity_id
-        !if_do_for_all_select  TYPE abap_bool OPTIONAL
-        !ir_t_for_all_data     TYPE REF TO data OPTIONAL
-        !is_association_target TYPE zdbbr_cds_association OPTIONAL
-        !it_selection_fields   TYPE zdbbr_selfield_itab
-        !is_technical_infos    TYPE zdbbr_tech_info
-        !if_no_grouping        TYPE abap_bool OPTIONAL
-        !it_multi_or           TYPE zdbbr_or_seltab_itab OPTIONAL
-        !iv_alv_varianttext    TYPE slis_varbz OPTIONAL
-        !if_edit               TYPE abap_bool OPTIONAL
-        !if_delete_mode_active TYPE abap_bool OPTIONAL
-        !it_selfields_multi    TYPE zdbbr_selfield_itab OPTIONAL
-        !ir_tabfields          TYPE REF TO zcl_dbbr_tabfield_list
-        !ir_tabfields_all      TYPE REF TO zcl_dbbr_tabfield_list
-        !it_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab OPTIONAL
-        !is_join_definition    TYPE zdbbr_join_data OPTIONAL
-        !is_join_def           TYPE zdbbr_join_def OPTIONAL
-        !it_exclude_function   TYPE ui_functions OPTIONAL
-        !ir_formula            TYPE REF TO zcl_dbbr_formula OPTIONAL
-        !it_nav_breadcrumbs    TYPE zdbbr_string_t OPTIONAL
-        !iv_navigation_count   TYPE i OPTIONAL
+        is_selection_data TYPE ty_s_selection_data
       RETURNING
-        VALUE(result)          TYPE REF TO zcl_dbbr_selection_util .
+        VALUE(result)     TYPE REF TO zcl_dbbr_selection_util .
     "! <p class="shorttext synchronized" lang="en">Builds simple alv title</p>
     METHODS build_simple_alv_title
       RETURNING
@@ -58,28 +63,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
-        !iv_entity_type        TYPE zdbbr_entity_type
-        !iv_entity_id          TYPE zdbbr_entity_id
-        !if_do_for_all_select  TYPE abap_bool OPTIONAL
-        !ir_t_for_all_data     TYPE REF TO data OPTIONAL
-        !is_association_target TYPE zdbbr_cds_association OPTIONAL
-        !it_selection_fields   TYPE zdbbr_selfield_itab
-        !is_technical_infos    TYPE zdbbr_tech_info
-        !if_no_grouping        TYPE abap_bool OPTIONAL
-        !it_multi_or           TYPE zdbbr_or_seltab_itab OPTIONAL
-        !iv_alv_varianttext    TYPE slis_varbz OPTIONAL
-        !if_edit               TYPE abap_bool OPTIONAL
-        !if_delete_mode_active TYPE abap_bool OPTIONAL
-        !it_selfields_multi    TYPE zdbbr_selfield_itab OPTIONAL
-        !ir_tabfields          TYPE REF TO zcl_dbbr_tabfield_list
-        !ir_tabfields_all      TYPE REF TO zcl_dbbr_tabfield_list
-        !it_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab
-        !is_join_definition    TYPE zdbbr_join_data OPTIONAL
-        !is_join_def           TYPE zdbbr_join_def OPTIONAL
-        !it_exclude_function   TYPE ui_functions OPTIONAL
-        !ir_formula            TYPE REF TO zcl_dbbr_formula OPTIONAL
-        !it_nav_breadcrumbs    TYPE zdbbr_string_t OPTIONAL
-        !iv_navigation_count   TYPE i OPTIONAL .
+        is_selection_data TYPE ty_s_selection_data.
     "! <p class="shorttext synchronized" lang="en">Executes the selection for the entity</p>
     METHODS execute_selection
         ABSTRACT .
@@ -145,6 +129,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mv_entity_id TYPE zdbbr_entity_id .
     "! <p class="shorttext synchronized" lang="en">Type of Entity</p>
     DATA mv_entity_type TYPE zdbbr_entity_type .
+    DATA mr_s_global_data TYPE REF TO zdbbr_global_data.
     DATA mf_do_for_all_select TYPE abap_bool .
     DATA ms_association_target TYPE zdbbr_cds_association .
     DATA mr_t_for_all_data TYPE REF TO data .
@@ -163,7 +148,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mo_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mo_tabfields_all TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab .
-    data mf_custom_query_active type abap_bool.
+    DATA mf_custom_query_active TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">List of FROM clauses</p>
     DATA mt_from TYPE zdbbr_string_t .
     "! <p class="shorttext synchronized" lang="en">List of SELECT clauses</p>
@@ -189,7 +174,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
         alv_varianttext        TYPE slis_varbz,
         edit                   TYPE abap_bool, " is table editable?
         client_dependent       TYPE abap_bool, "table itself is client dependent
-        number                 TYPE i,
+        number                 TYPE zdbbr_no_of_lines,
         delete_mode            TYPE sap_bool,
       END OF ms_control_info .
     DATA ms_technical_info TYPE zdbbr_tech_info .
@@ -217,6 +202,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mt_current_live_filter TYPE lvc_t_filt .
     "! <p class="shorttext synchronized" lang="en">Abstract ALV Filter for Output Grid</p>
     DATA mr_alv_util TYPE REF TO zcl_dbbr_output_alv_util .
+    DATA mv_query_string TYPE string.
 
 
     "! <p class="shorttext synchronized" lang="en">Adds column for hiding rows</p>
@@ -383,7 +369,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     DATA(lv_type) = COND string(
      WHEN mf_group_by = abap_true THEN
-       |SE16N_REF-SE16N_NR_LINES|
+       |ZDBBR_NO_OF_LINES|
      ELSE
        |SYST-TABIX|
     ).
@@ -404,11 +390,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     IF mf_group_by = abap_false.
       ls_field-tech      = abap_true.
       ls_field-no_out    = abap_true.
-      ls_field-ref_table = 'SYST'.
-      ls_field-ref_field = 'TABIX'.
-    ELSE.
-      ls_field-ref_table = 'SE16N_REF'.
-      ls_field-ref_field = 'SE16N_NR_LINES'.
     ENDIF.
 
     set_line_index_column_texts( CHANGING cs_field = ls_field ).
@@ -476,6 +457,10 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 
   METHOD build_full_fieldnames.
+    IF mf_aggregation = abap_true OR
+       mf_group_by = abap_true.
+      mo_tabfields->set_multi_table_mode( ).
+    ENDIF.
     mo_tabfields->build_complete_fieldnames( ).
     mo_tabfields_original->build_complete_fieldnames( ).
     mo_tabfields_all->build_complete_fieldnames( ).
@@ -524,60 +509,63 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD constructor.
     " set control data
     ms_control_info = VALUE #(
-      primary_table   = COND #( WHEN iv_entity_type = zif_dbbr_c_entity_type=>table THEN iv_entity_id )
-      alv_varianttext = iv_alv_varianttext
-      edit            = if_edit
-      delete_mode     = if_delete_mode_active
+      primary_table   = COND #( WHEN is_selection_data-entity_type = zif_dbbr_c_entity_type=>table THEN is_selection_data-entity_id )
+      edit            = is_selection_data-edit_mode
+      delete_mode     = is_selection_data-delete_mode_active
     ).
 
-    mt_nav_breadcrumbs  = it_nav_breadcrumbs.
-    mv_navigation_count = iv_navigation_count.
+    mt_nav_breadcrumbs  = is_selection_data-nav_breadcrumbs.
+    mv_navigation_count = is_selection_data-navigation_count.
 
-    mo_formula            = ir_formula.
-    ms_join_def           = is_join_def.
-    mv_entity_id          = iv_entity_id.
-    mv_entity_type        = iv_entity_type.
-    mf_do_for_all_select  = if_do_for_all_select.
-    mr_t_for_all_data     = ir_t_for_all_data.
-    ms_association_target = is_association_target.
-    ms_technical_info     = is_technical_infos.
-    mf_case_insensitive_search = is_technical_infos-search_ignore_case.
-    mt_selection_fields   = VALUE #( FOR selfield IN it_selection_fields WHERE ( is_parameter = abap_false ) ( selfield ) ).
-    mt_param_values       = VALUE #( ( LINES OF VALUE #( FOR param IN it_selection_fields WHERE ( is_parameter = abap_true AND
+    mo_formula            = is_selection_data-formula.
+    mv_query_string       = is_selection_data-query_string.
+    ms_join_def           = is_selection_data-join_def.
+    mv_entity_id          = is_selection_data-entity_id.
+    mv_entity_type        = is_selection_data-entity_type.
+    mf_do_for_all_select  = is_selection_data-do_for_all_select.
+    mr_t_for_all_data     = is_selection_data-for_all_entries_data.
+    ms_association_target = is_selection_data-association_target.
+    ms_technical_info     = is_selection_data-technical_infos.
+    mf_case_insensitive_search = is_selection_data-technical_infos-search_ignore_case.
+    mt_selection_fields   = VALUE #( FOR selfield IN is_selection_data-selection_fields WHERE ( is_parameter = abap_false ) ( selfield ) ).
+    mt_param_values       = VALUE #( ( LINES OF VALUE #( FOR param IN is_selection_data-selection_fields WHERE ( is_parameter = abap_true AND
                                                                                                   low IS NOT INITIAL OR
                                                                                                   high IS NOT INITIAL OR
                                                                                                   option IS NOT INITIAL )
                                                                                                 ( param ) ) )
-                                     ( LINES OF VALUE #( FOR multi_param IN it_selfields_multi WHERE ( is_parameter = abap_true AND
-                                                                                                       low IS NOT INITIAL OR
-                                                                                                       high IS NOT INITIAL OR
-                                                                                                       option IS NOT INITIAL )
-                                                                                                     ( multi_param ) ) ) ).
-    mt_selfields_multi    = it_selfields_multi.
-    mt_multi_or           = it_multi_or.
+                                     ( LINES OF VALUE #( FOR multi_param IN is_selection_data-selfields_multi
+                                                         WHERE ( is_parameter = abap_true AND
+                                                                 low IS NOT INITIAL OR
+                                                                 high IS NOT INITIAL OR
+                                                                 option IS NOT INITIAL )
+                                                         ( multi_param ) ) ) ).
+    mt_selfields_multi    = is_selection_data-selfields_multi.
+    mt_multi_or           = is_selection_data-multi_or.
 
-    mo_tabfields          = ir_tabfields->copy( ).
-    mo_tabfields_original = ir_tabfields.
-    mo_tabfields_all      = ir_tabfields_all->copy( ).
-    mo_tabfields_all_original = ir_tabfields_all.
+    mo_tabfields          = COND #( WHEN is_selection_data-tabfields IS BOUND THEN is_selection_data-tabfields->copy( ) ELSE NEW #( ) ).
+    mo_tabfields_original = COND #( WHEN is_selection_data-tabfields IS BOUND THEN is_selection_data-tabfields ELSE NEW #( ) ).
+    mo_tabfields_all      = COND #( WHEN is_selection_data-tabfields_all IS BOUND THEN is_selection_data-tabfields_all->copy( ) ELSE NEW #( ) ).
+    mo_tabfields_all_original = COND #( WHEN is_selection_data-tabfields_all IS BOUND THEN is_selection_data-tabfields_all ELSE NEW #( ) ).
 
     mt_table_to_alias_map = mo_tabfields_all->build_table_to_alias_map( ).
-    mt_exclude_function   = it_exclude_function.
+    mt_exclude_function   = is_selection_data-exclude_function.
+
+    mr_s_global_data = CAST zdbbr_global_data( zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main )->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
 
     IF ms_join_def-tables IS NOT INITIAL.
       mf_join_is_active = abap_true.
     ENDIF.
 
-    IF if_no_grouping = abap_true.
+    IF is_selection_data-no_grouping = abap_true.
       clear_aggregation_fields( CHANGING ct_selection_fields = mt_selection_fields ).
     ENDIF.
   ENDMETHOD.
 
 
   METHOD count_lines.
-    build_full_fieldnames( ).
     determine_group_by_state( ).
     determine_aggregation_state( ).
+    build_full_fieldnames( ).
 
     IF mf_group_by = abap_true OR mf_aggregation = abap_true.
       count_lines_with_aggregation( ).
@@ -1136,13 +1124,14 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 
   METHOD create_util.
-    DATA: lv_typename TYPE seoclsname.
+    DATA: lv_typename  TYPE seoclsname,
+          lf_sql_query TYPE abap_bool.
 
-    IF is_join_def-tables IS NOT INITIAL AND
-       iv_entity_type <> zif_dbbr_c_selscreen_mode=>query.
+    IF is_selection_data-join_def-tables IS NOT INITIAL AND
+       is_selection_data-entity_type <> zif_dbbr_c_selscreen_mode=>query.
       lv_typename = 'ZCL_DBBR_JOIN_SELECTION_UTIL'.
     ELSE.
-      CASE iv_entity_type.
+      CASE is_selection_data-entity_type.
 
         WHEN zif_dbbr_c_selscreen_mode=>table.
           lv_typename = 'ZCL_DBBR_TABLE_SELECTION_UTIL'.
@@ -1151,12 +1140,17 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
           lv_typename = 'ZCL_DBBR_CDS_SELECTION_UTIL'.
 
         WHEN zif_dbbr_c_selscreen_mode=>query.
-*........ SQL queries need a different kind of processing
-          SELECT SINGLE @abap_true
-            FROM zdbbr_queryh
-            WHERE query_name  = @iv_entity_id
-              AND is_sql_query = @abap_true
-          INTO @DATA(lf_sql_query).
+          IF is_selection_data-query_string IS NOT INITIAL AND
+             is_selection_data-entity_id IS INITIAL.
+            lf_sql_query = abap_true.
+          ELSE.
+*.......... SQL queries need a different kind of processing
+            SELECT SINGLE @abap_true
+              FROM zdbbr_queryh
+              WHERE query_name  = @is_selection_data-entity_id
+                AND is_sql_query = @abap_true
+            INTO @lf_sql_query.
+          ENDIF.
 
           IF lf_sql_query = abap_true.
             lv_typename = 'ZCL_DBBR_SQL_QUERY_SELCTN_UTIL'.
@@ -1170,29 +1164,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     IF lv_typename IS NOT INITIAL.
       CREATE OBJECT result TYPE (lv_typename)
         EXPORTING
-          iv_entity_type             = iv_entity_type
-          iv_entity_id               = iv_entity_id
-          if_do_for_all_select       = if_do_for_all_select
-          ir_t_for_all_data          = ir_t_for_all_data
-          is_association_target      = is_association_target
-          it_selection_fields        = it_selection_fields
-          is_technical_infos         = is_technical_infos
-          if_no_grouping             = if_no_grouping
-          it_multi_or                = it_multi_or
-          iv_alv_varianttext         = iv_alv_varianttext
-          if_edit                    = if_edit
-          if_delete_mode_active      = if_delete_mode_active
-          it_selfields_multi         = it_selfields_multi
-          ir_tabfields               = ir_tabfields
-          ir_tabfields_all           = ir_tabfields_all
-          it_table_to_alias_map      = it_table_to_alias_map
-          is_join_definition         = is_join_definition
-          is_join_def                = is_join_def
-          it_exclude_function        = it_exclude_function
-          ir_formula                 = ir_formula
-          it_nav_breadcrumbs         = it_nav_breadcrumbs
-          iv_navigation_count        = iv_navigation_count.
-
+          is_selection_data = is_selection_data.
 *... perform initialization for util
       result->init( ).
     ENDIF.
@@ -1788,6 +1760,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         zcl_uitb_screen_util=>set_function_code( zif_dbbr_c_selection_functions=>refresh ).
 
       WHEN zif_dbbr_c_selection_functions=>show_sql_of_select.
+        CLEAR cv_function.
+
         IF mr_select_program IS BOUND.
           DATA(lv_sql) = mr_select_program->get_select_sql( ).
           IF lv_sql IS NOT INITIAL.
@@ -1796,9 +1770,20 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
                 iv_code   = lv_sql
                 iv_width  = 900
                 iv_height = 500
+                iv_theme  = ms_technical_info-code_viewer_theme
             ).
           ENDIF.
         ENDIF.
+
+      WHEN zif_dbbr_c_selection_functions=>show_users_settings.
+        CLEAR cv_function.
+
+        zcl_dbbr_app_starter=>show_user_settings(
+          EXPORTING if_disable_save = abap_true
+                    iv_start_dynnr  = zif_dbbr_screen_ids=>c_user_settings-output_tab
+                    iv_start_tab    = zcl_dbbr_user_settings_sc=>c_tab_ids-output_tab
+          CHANGING  cs_settings     = ms_technical_info-settings
+        ).
     ENDCASE.
   ENDMETHOD.
 

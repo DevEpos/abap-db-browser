@@ -47,6 +47,13 @@ CLASS zcl_dbbr_object_history_tree DEFINITION
     TYPES: items TYPE treemcitab.
     TYPES: END OF mty_node_data .
 
+    TYPES:
+      BEGIN OF ty_s_variant_data,
+        variant_id  TYPE zdbbr_variant_id,
+        entity_id   TYPE zdbbr_entity_id,
+        entity_type TYPE zdbbr_entity_type,
+      END OF ty_s_variant_data.
+
     CONSTANTS:
       BEGIN OF c_context_codes,
         delete_list                TYPE sy-ucomm VALUE 'DELETE_ALL',
@@ -238,15 +245,15 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
       CHECK: sy-subrc = 0,
              <ls_node_map>-is_variant = abap_false.
 
-      DATA(lo_user_object) = <lo_node>->get_user_object( ).
+      data(lr_user_data) = <lo_node>->get_user_data( ).
 
       TRY.
-          DATA(ls_mostused) = CAST zcl_dbbr_favmenu_entry( lo_user_object )->get_favmenu_data( ).
+          DATA(lr_most_used) = CAST zdbbr_mostused( lr_user_data ).
           lt_mostused_to_delete = VALUE #(
             BASE lt_mostused_to_delete
             ( username        = sy-uname
-              type            = ls_mostused-favtype
-              most_used_entry = ls_mostused-fav_entry )
+              type            = lr_Most_used->type
+              most_used_entry = lr_most_used->most_used_entry )
           ).
           lt_nodes_to_delete = VALUE #( BASE lt_nodes_to_delete ( <lo_node>->mv_node_key ) ).
           DELETE mt_node_map WHERE node_key = <lo_node>->mv_node_key.
@@ -359,13 +366,7 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
           if_expander          = <ls_most_used>-has_variants
           iv_image             = lv_icon
           iv_expanded_image    = lv_icon
-          " add reference of favorite to node
-          ir_user_object       = NEW zcl_dbbr_favmenu_entry(
-              VALUE #( uname         = <ls_most_used>-username
-                       favtype       = <ls_most_used>-type
-                       fav_entry     = <ls_most_used>-most_used_entry
-                       fav_entry_raw = <ls_most_used>-most_used_entry_raw )
-          )
+          ir_user_data         = NEW zdbbr_mostused( <ls_most_used> )
           it_item_table        = lt_items
       ).
 
@@ -383,18 +384,15 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
 
   METHOD on_expand_no_children.
     DATA(lo_node) = mo_tree->get_nodes( )->get_node( ev_node_key ).
-    DATA(lo_user_object) = lo_node->get_user_object( ).
-    DATA(lo_favmenu_object) = CAST zcl_dbbr_favmenu_entry( lo_user_object ).
-
-    DATA(ls_favmenu_data) = lo_favmenu_object->get_favmenu_data( ).
+    data(lr_most_used) = cast zdbbr_mostused( lo_node->get_user_data( ) ).
 
     DATA(lt_variants) = mo_variant_f->find_variant_infos_for_type(
-        iv_entity_id   = ls_favmenu_data-fav_entry
-        iv_entity_type = ls_favmenu_data-favtype
+        iv_entity_id   = lr_most_used->most_used_entry
+        iv_entity_type = lr_most_used->type
     ).
 
     LOOP AT lt_variants ASSIGNING FIELD-SYMBOL(<ls_variant>).
-      <ls_variant>-entity_type = ls_favmenu_data-favtype.
+      <ls_variant>-entity_type = lr_most_used->type.
 
       IF <ls_variant>-description IS NOT INITIAL.
         DATA(lt_items_for_description) = VALUE treemcitab(
@@ -410,7 +408,11 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
           iv_relative_node_key       = ev_node_key
           iv_relationship            = cl_list_tree_model=>relat_last_child
           iv_image                   = CONV #( icon_alv_variants )
-          ir_user_object             = NEW zcl_dbbr_variant( <ls_variant> )
+          ir_user_data               = new ty_s_variant_data(
+              variant_id  = <ls_variant>-variant_id
+              entity_id   = lr_most_used->most_used_entry
+              entity_type = <ls_variant>-entity_type
+          )
           it_item_table              = VALUE #(
             ( item_name  = mo_tree->c_hierarchy_column
               class      = cl_item_tree_model=>item_class_text
@@ -424,7 +426,7 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
       mt_node_map = VALUE #(
         BASE mt_node_map
         ( node_key    = lo_variant_node->mv_node_key
-          entity_id   = <ls_variant>-entity_id
+          entity_id   = lr_most_used->most_used_entry
           entity_type = <ls_variant>-entity_type
           is_variant  = abap_true )
       ).
@@ -468,8 +470,8 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
 
   METHOD on_node_double_click.
     DATA(lo_node) = mo_tree->get_nodes( )->get_node( ev_node_key ).
-    DATA(lo_user_object) = lo_node->get_user_object( ).
-    IF lo_user_object IS INITIAL.
+    DATA(lr_user_data) = lo_node->get_user_data( ).
+    IF lr_user_data IS INITIAL.
       RETURN.
     ENDIF.
 
@@ -479,18 +481,17 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
     ENDIF.
 
     IF <ls_node_map>-is_variant = abap_true.
-      DATA(lo_variant_fav_entry) = CAST zcl_dbbr_variant( lo_user_object ).
-      DATA(ls_variant_info) = lo_variant_fav_entry->get_variant_info( ).
+      DATA(lr_variant_info) = cast ty_s_variant_data( lr_user_data ).
       zcl_dbbr_selscr_nav_events=>raise_variant_entry_chosen(
-          iv_entity_id    = ls_variant_info-entity_id
-          iv_entity_type  = ls_variant_info-entity_type
-          iv_variant_id   = ls_variant_info-variant_id
+          iv_entity_id    = lr_variant_info->entity_id
+          iv_entity_type  = lr_variant_info->entity_type
+          iv_variant_id   = lr_variant_info->variant_id
       ).
     ELSE.
-      DATA(lo_fav_entry) = CAST zcl_dbbr_favmenu_entry( lo_user_object ).
+      data(lr_most_used_entry) = cast zdbbr_Mostused( lr_user_data ).
       zcl_dbbr_selscr_nav_events=>raise_entity_chosen(
-          iv_entity_id   = lo_fav_entry->get_favmenu_data( )-fav_entry
-          iv_entity_type = lo_fav_entry->get_favmenu_data( )-favtype
+          iv_entity_id   = lr_most_used_entry->most_used_entry
+          iv_entity_type = lr_most_used_entry->type
       ).
     ENDIF.
   ENDMETHOD.
@@ -543,14 +544,14 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
     ENDIF.
 
     IF <ls_node_map>-is_variant = abap_true.
-      DATA(ls_variant) = CAST zcl_dbbr_variant( lo_node->get_user_object( ) )->get_variant_info( ).
-      lv_entity_id = ls_variant-entity_id.
-      lv_entity_type = ls_variant-entity_type.
-      lv_variant = ls_variant-variant_id.
+      DATA(lr_variant_info) = cast ty_s_variant_data( lo_node->get_user_data( ) ).
+      lv_entity_id = lr_variant_info->entity_id.
+      lv_entity_type = lr_variant_info->entity_type.
+      lv_variant = lr_variant_info->variant_id.
     ELSE.
-      DATA(ls_mostused) = CAST zcl_dbbr_favmenu_entry( lo_node->get_user_object( ) )->get_favmenu_data( ).
-      lv_entity_id = ls_mostused-fav_entry.
-      lv_entity_type = ls_mostused-favtype.
+      data(lr_most_used_entry) = cast zdbbr_Mostused( lo_node->get_user_data( ) ).
+      lv_entity_id = lr_most_used_entry->most_used_entry.
+      lv_entity_type = lr_most_used_entry->type.
     ENDIF.
 
     zcl_dbbr_selscr_nav_events=>raise_variant_entry_chosen(

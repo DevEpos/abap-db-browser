@@ -11,6 +11,7 @@ CLASS zcl_dbbr_ob_cds_searcher DEFINITION
 
     CONSTANTS:
       c_base_alias                TYPE string VALUE 'base' ##NO_TEXT,
+      c_extension_view_alias      TYPE string VALUE 'ext' ##no_text,
       c_ddl_source_table          TYPE string VALUE 'source' ##NO_TEXT,
       c_api_alias                 TYPE string VALUE 'api' ##NO_TEXT,
       c_source_ddlview_alias      TYPE string VALUE 'sourceddlview' ##NO_TEXT,
@@ -31,6 +32,14 @@ CLASS zcl_dbbr_ob_cds_searcher DEFINITION
     "! <p class="shorttext synchronized" lang="en">Create filter for API option</p>
     "!
     METHODS add_api_option_filter
+      IMPORTING
+        it_values TYPE zif_dbbr_ty_object_browser=>ty_search_option_values-value_range.
+    "! <p class="shorttext synchronized" lang="en">Add extended by filter values to ddlname</p>
+    METHODS add_extension_filter
+      IMPORTING
+        it_values TYPE zif_dbbr_ty_object_browser=>ty_search_option_values-value_range.
+    "! <p class="shorttext synchronized" lang="en">Adds extensions filter to query</p>
+    METHODS add_extensions_filter
       IMPORTING
         it_values TYPE zif_dbbr_ty_object_browser=>ty_search_option_values-value_range.
 
@@ -76,13 +85,16 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
         WHEN zif_dbbr_c_object_browser=>c_api_option_value-custom_fields.
           ls_value-low = zif_dbbr_c_cds_api_state=>add_custom_fields.
 
-        WHEN zif_dbbr_c_object_browser=>c_api_option_value-key_user.
+        WHEN zif_dbbr_c_object_browser=>c_api_option_value-key_user OR
+             zif_dbbr_c_object_browser=>c_api_option_value-key_user_long.
           ls_value-low = zif_dbbr_c_cds_api_state=>use_in_key_user_apps.
 
-        WHEN zif_dbbr_c_object_browser=>c_api_option_value-remote_api.
+        WHEN zif_dbbr_c_object_browser=>c_api_option_value-remote_api OR
+             zif_dbbr_c_object_browser=>c_api_option_value-remote_api_long.
           ls_value-low = zif_dbbr_c_cds_api_state=>use_as_remote_api.
 
-        WHEN zif_dbbr_c_object_browser=>c_api_option_value-cloud_user.
+        WHEN zif_dbbr_c_object_browser=>c_api_option_value-cloud_user OR
+             zif_dbbr_c_object_browser=>c_api_option_value-cloud_user_long.
           ls_value-low = zif_dbbr_c_cds_api_state=>use_in_sap_cloud_platform.
 
       ENDCASE.
@@ -124,6 +136,16 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
     ).
   ENDMETHOD.
 
+  METHOD add_extension_filter.
+
+    SELECT
+      FROM zdbbr_p_cdsviewbase AS base
+        INNER JOIN ddddlsrc AS source
+          ON base~ddlname = source~ddlname
+      FIELDS source~parentname
+      WHERE base~entityid IN @it_values
+    INTO TABLE @DATA(lt_extended_views).
+  ENDMETHOD.
 
   METHOD zif_dbbr_object_searcher~search.
 
@@ -155,6 +177,7 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
     ).
 
     add_select_field( iv_fieldname = 'entityid' iv_fieldname_alias = 'entity_id' iv_entity = c_base_alias ).
+    add_select_field( iv_fieldname = 'ddlname'  iv_fieldname_alias = 'secondary_entity_id' iv_entity = c_base_alias ).
     add_select_field( iv_fieldname = 'createdby' iv_fieldname_alias = 'created_by' iv_entity = c_base_alias ).
     add_select_field( iv_fieldname = 'rawentityid' iv_fieldname_alias = 'entity_id_raw' iv_entity = c_base_alias ).
     add_select_field( iv_fieldname = 'description' iv_entity = lv_cds_text_view ).
@@ -173,6 +196,10 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
     IF mr_search_query->has_options( ).
       LOOP AT mr_search_query->mt_search_options ASSIGNING FIELD-SYMBOL(<ls_option>).
         CASE <ls_option>-option.
+
+*.......... Find views which have a certain extension
+          WHEN zif_dbbr_c_object_browser=>c_search_option-by_extensions.
+            add_extensions_filter( EXPORTING it_values = <ls_option>-value_range ).
 
 *.......... Find views via its description
           WHEN zif_dbbr_c_object_browser=>c_search_option-by_description.
@@ -213,21 +240,11 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
 
 *.......... Find views where the filter exists in the FROM part of the cds view
           WHEN zif_dbbr_c_object_browser=>c_search_option-by_select_from.
-            add_join_table(
-                iv_join_table = |{ zif_dbbr_c_select_source_id=>ddldependency }|
-                iv_alias      = c_source_ddlview_alias
-                it_fields     = VALUE #(
-                  ( field = 'ddlname' ref_field = 'ddlname' ref_table_alias = c_base_alias )
-                )
-                it_filter     = VALUE #(
-                  ( fieldname = 'objecttype' value = 'VIEW' tabname_alias = c_source_ddlview_alias  )
-                )
-            ).
             DATA(lv_from_part_table) = get_cds_sql_name( |{ zif_dbbr_c_select_source_id=>zdbbr_i_cdsfrompartentity }| ).
             add_join_table(
                 iv_join_table = |{ lv_from_part_table }|
                 iv_alias      = c_select_from_alias
-                it_fields     = VALUE #( ( field = 'ddlviewname' ref_field = 'objectname' ref_table_alias = c_source_ddlview_alias ) )
+                it_fields     = VALUE #( ( field = 'ddlviewname' ref_field = 'viewname' ref_table_alias = c_base_alias ) )
             ).
 
             add_option_filter(
@@ -295,4 +312,33 @@ CLASS zcl_dbbr_ob_cds_searcher IMPLEMENTATION.
 
     rt_result = mt_result.
   ENDMETHOD.
+
+
+  METHOD add_extensions_filter.
+    DATA(lv_and_or) = ``.
+    DATA(lt_ext_join_filter) = VALUE zdbbr_join_filter_cond_t( ).
+
+    LOOP AT it_values ASSIGNING FIELD-SYMBOL(<ls_value_range>).
+
+      lt_ext_join_filter = VALUE #( BASE lt_ext_join_filter
+        ( fieldname     = 'entityname'
+          operator      = COND #( WHEN <ls_value_range>-option = 'CP' THEN zif_dbbr_c_operator=>like ELSE zif_dbbr_c_operator=>equals )
+          value         = <ls_value_range>-low
+          value_type    = zif_dbbr_c_join_cond_val_type=>typed_input
+          tabname_alias = c_extension_view_alias
+          and_or        = lv_and_or )
+      ).
+      lv_and_or = 'OR'.
+    ENDLOOP.
+
+    add_join_table(
+        iv_join_table = |{ get_cds_sql_name( |{ zif_dbbr_c_select_source_id=>zdbbr_i_cdsextensionviews }| ) }|
+        iv_alias      = c_extension_view_alias
+        it_fields     = VALUE #(
+          ( field = 'parentddl' ref_field = 'ddlname' ref_table_alias = c_ddl_source_table )
+        )
+        it_filter     = lt_ext_join_filter
+    ).
+  ENDMETHOD.
+
 ENDCLASS.

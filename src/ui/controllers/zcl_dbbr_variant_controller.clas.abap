@@ -49,7 +49,6 @@ CLASS zcl_dbbr_variant_controller DEFINITION
         variant_for_cds_title   TYPE REF TO syst_title,
         variant_cds_name        TYPE REF TO zdbbr_cds_view_name,
       END OF ms_ui_refs .
-    DATA mf_query_mode TYPE boolean .
     DATA ms_query_info TYPE zdbbr_query_info .
     DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mr_tabfields_grouped TYPE REF TO zcl_dbbr_tabfield_list .
@@ -165,7 +164,7 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
           ls_vardata_entry       TYPE zdbbr_vardata,
           lv_entity_id           TYPE zdbbr_entity_id.
 
-    IF mf_query_mode = abap_true.
+    IF mv_selscreen_mode = zif_dbbr_c_selscreen_mode=>query.
       lv_entity_id = ms_query_info-query_id.
     ELSE.
       lv_entity_id = ms_ui_refs-global_data->primary_table.

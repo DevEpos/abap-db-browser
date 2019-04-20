@@ -345,7 +345,7 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
       text  = |{ 'Show Dependency Tree'(011) }|
     ).
 
-    data(lo_toolbar) = fill_toolbar( if_create_extended_search = abap_true ).
+    DATA(lo_toolbar) = fill_toolbar( if_create_extended_search = abap_true ).
 
     cl_gui_cfw=>flush( ).
 
@@ -375,6 +375,20 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
       ( LINES OF super->get_deactivated_functions( ) )
       ( zif_dbbr_c_selscreen_functions=>select_additional_texts )
     ).
+
+    IF mo_cds_view IS BOUND.
+      DATA(lv_source_type) = mo_cds_view->get_header( )-source_type.
+      IF lv_source_type = zif_dbbr_c_cds_view_type=>abstract_entity OR
+         lv_source_type = zif_dbbr_c_cds_view_type=>extend.
+        result = VALUE #(
+          BASE result
+          ( zif_dbbr_c_selscreen_functions=>execute_selection )
+          ( zif_dbbr_c_selscreen_functions=>exec_selection_without_grp )
+          ( zif_dbbr_c_selscreen_functions=>count_lines )
+        ).
+      ENDIF.
+    ENDIF.
+
   ENDMETHOD.
 
 
@@ -399,6 +413,7 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
             zcl_uitb_abap_code_viewer=>show_code(
                 iv_title = |DDL Source { mv_cds_view_name_raw }|
                 iv_code  = lv_source
+                iv_theme = mo_data->mr_s_global_data->settings-code_viewer_theme
             ).
           CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
             lx_app_error->zif_dbbr_exception_message~print( ).

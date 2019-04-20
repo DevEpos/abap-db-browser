@@ -20,6 +20,8 @@ define view ZDBBR_I_CDSEntity
   Text.Description,
   Text.DescriptionUpper,
   Base.CreatedBy,
+  Base.CreatedDate,
+  Base.ChangedDate,
   'C'                     as Type
 }
 where

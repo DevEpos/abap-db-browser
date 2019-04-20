@@ -7,7 +7,7 @@
 @VDM.viewType: #BASIC
 
 define view ZDBBR_I_CDSViewT
-  as select from ddddlsrct as Text
+  as select from ddddlsrc02bt as Text
 {
 
   key Text.ddlname       as DdlName,

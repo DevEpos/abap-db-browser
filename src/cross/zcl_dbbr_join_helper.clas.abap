@@ -299,22 +299,35 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
           ENDIF.
         ENDIF.
 
-*...... handle LIKE and NOT LIKE operator
-        IF ls_filter_cond-operator = zif_dbbr_c_operator=>like OR
-           ls_filter_cond-operator = zif_dbbr_c_operator=>not_like.
-          ls_filter_cond-value = replace( val = ls_filter_cond-value sub = '*' with = '%' occ = 0 ).
+        DATA(lv_value1) = |{ ls_filter_cond-value }|.
 
-          IF ls_filter_cond-value2 IS NOT INITIAL.
-            ls_filter_cond-value2 = replace( val = ls_filter_cond-value2 sub = '*' with = '%' occ = 0 ).
+*...... handle LIKE and NOT LIKE operator
+        IF  ( ls_filter_cond-operator = zif_dbbr_c_operator=>like OR
+              ls_filter_cond-operator = zif_dbbr_c_operator=>not_like ) AND
+            ls_filter_cond-value_type <> zif_dbbr_c_join_cond_val_type=>system_value_input.
+***          ls_filter_cond-value = replace( val = ls_filter_cond-value sub = '*' with = '%' occ = 0 ).
+*........ Use proper SAP to SQL conversion for pattern
+          zcl_dbbr_like_pattern_convrter=>conv_sap_to_sql_pattern(
+            EXPORTING  iv_sap_pattern   = lv_value1
+            IMPORTING  ev_sql_pattern   = lv_value1
+                       ef_escape_needed = DATA(lf_escape_needed)
+            EXCEPTIONS OTHERS = 1
+          ).
+          lv_value1 = cl_abap_dyn_prg=>quote( lv_value1 ).
+          IF lf_escape_needed = abap_true.
+            lv_value1 = |{ lv_value1 } ESCAPE '#' |.
           ENDIF.
+
+          CLEAR ls_filter_cond-value2.
+        ELSE.
+          lv_value1 = COND #(
+            WHEN ls_filter_cond-value_type = zif_dbbr_c_join_cond_val_type=>system_value_input THEN
+              |@{ lv_value1 }|
+            ELSE
+              cl_abap_dyn_prg=>quote( lv_value1 )
+          ).
         ENDIF.
 
-        DATA(lv_value1) = COND #(
-          WHEN ls_filter_cond-value_type = zif_dbbr_c_join_cond_val_type=>system_value_input THEN
-            |@{ ls_filter_cond-value }|
-          ELSE
-            cl_abap_dyn_prg=>quote( ls_filter_cond-value )
-        ).
 
         IF ls_filter_cond-operator = 'BETWEEN'.
           lv_value2 = COND #(
@@ -402,7 +415,12 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
         IF <ls_filter_cond>-tabname IS INITIAL AND <ls_filter_cond>-tabname_alias IS INITIAL.
           <ls_filter_cond>-tabname = <ls_table>-table_name.
         ENDIF.
+
+        IF <ls_filter_cond>-value_type IS INITIAL.
+          <ls_filter_cond>-value_type = zif_dbbr_c_join_cond_val_type=>typed_input.
+        ENDIF.
       ENDLOOP.
+
     ENDLOOP.
   ENDMETHOD.
 

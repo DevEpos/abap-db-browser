@@ -184,9 +184,17 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
 
 
   METHOD find_variant_infos_for_type.
+    DATA(lv_entity_id) = iv_entity_id.
+
+    IF iv_entity_type = zif_dbbr_c_entity_type=>query.
+      NEW zcl_dbbr_query_factory( )->find_queries( EXPORTING iv_query_name = lv_entity_id IMPORTING et_queries = DATA(lt_queries) ).
+      CHECK lt_queries IS NOT INITIAL AND lines( lt_queries ) = 1.
+      lv_entity_id = lt_queries[ 1 ]-query_id.
+    ENDIF.
+
     SELECT * FROM zdbbr_variant
       WHERE variant_name <> @space
-        AND entity_id   = @iv_entity_id
+        AND entity_id   = @lv_entity_id
         AND entity_type = @iv_entity_type
     INTO CORRESPONDING FIELDS OF TABLE @rt_variants.
   ENDMETHOD.

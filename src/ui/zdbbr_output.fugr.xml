@@ -890,6 +890,14 @@
       <PATH>S</PATH>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
+      <CODE>SAVEVAR</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT_NAME>ICON_SYSTEM_SAVE</TEXT_NAME>
+      <ICON_ID>@2L@</ICON_ID>
+      <FUN_TEXT>Save as Variant</FUN_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
       <CODE>SAVE_AS_F4</CODE>
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
@@ -897,6 +905,7 @@
       <ICON_ID>@2L@</ICON_ID>
       <FUN_TEXT>Save As Value Help</FUN_TEXT>
       <ICON_TEXT>As Value Help</ICON_TEXT>
+      <PATH>S</PATH>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>SAVE_AS_F4</CODE>
@@ -911,6 +920,14 @@
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
       <FUN_TEXT>Sich.o.Prüfen</FUN_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>SETTINGS</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT_NAME>ICON_PERSONAL_SETTINGS</TEXT_NAME>
+      <ICON_ID>@K8@</ICON_ID>
+      <FUN_TEXT>Show Settings</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>SHOWFORM</CODE>
@@ -992,7 +1009,7 @@
       <CODE>000001</CODE>
       <NO>03</NO>
       <REF_TYPE>F</REF_TYPE>
-      <REF_CODE>SHOWVERSIO</REF_CODE>
+      <REF_CODE>SAVE_AS_F4</REF_CODE>
       <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
@@ -1003,6 +1020,18 @@
      <RSMPE_MEN>
       <CODE>000001</CODE>
       <NO>05</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>SHOWVERSIO</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000001</CODE>
+      <NO>06</NO>
+      <REF_TYPE>S</REF_TYPE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000001</CODE>
+      <NO>07</NO>
       <REF_TYPE>F</REF_TYPE>
       <REF_CODE>&amp;F15</REF_CODE>
       <REF_NO>001</REF_NO>
@@ -1622,73 +1651,73 @@
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>09</NO>
-      <PFNO>28</PFNO>
+      <PFNO>47</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>10</NO>
-      <PFNO>40</PFNO>
+      <PFNO>S</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>11</NO>
-      <PFNO>S</PFNO>
+      <PFNO>28</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>12</NO>
-      <PFNO>29</PFNO>
+      <PFNO>40</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>13</NO>
-      <PFNO>09</PFNO>
+      <PFNO>S</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>14</NO>
-      <PFNO>38</PFNO>
+      <PFNO>29</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>15</NO>
-      <PFNO>24</PFNO>
+      <PFNO>09</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>16</NO>
-      <PFNO>S</PFNO>
+      <PFNO>38</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>17</NO>
-      <PFNO>30</PFNO>
+      <PFNO>24</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>18</NO>
-      <PFNO>42</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>19</NO>
       <PFNO>S</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
+      <NO>19</NO>
+      <PFNO>30</PFNO>
+     </RSMPE_BUT>
+     <RSMPE_BUT>
+      <PFK_CODE>000001</PFK_CODE>
+      <CODE>0001</CODE>
       <NO>20</NO>
-      <PFNO>16</PFNO>
+      <PFNO>42</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
@@ -1700,7 +1729,7 @@
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>22</NO>
-      <PFNO>20</PFNO>
+      <PFNO>16</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
@@ -1712,43 +1741,43 @@
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>24</NO>
-      <PFNO>32</PFNO>
+      <PFNO>20</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>25</NO>
-      <PFNO>33</PFNO>
+      <PFNO>32</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>26</NO>
-      <PFNO>34</PFNO>
+      <PFNO>33</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>27</NO>
-      <PFNO>S</PFNO>
+      <PFNO>34</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>28</NO>
-      <PFNO>19</PFNO>
+      <PFNO>S</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>29</NO>
-      <PFNO>43</PFNO>
+      <PFNO>19</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>30</NO>
-      <PFNO>S</PFNO>
+      <PFNO>43</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
@@ -1911,8 +1940,8 @@
      <RSMPE_PFK>
       <CODE>000001</CODE>
       <PFNO>11</PFNO>
-      <FUNCODE>SAVE_AS_F4</FUNCODE>
-      <FUNNO>002</FUNNO>
+      <FUNCODE>SAVEVAR</FUNCODE>
+      <FUNNO>001</FUNNO>
      </RSMPE_PFK>
      <RSMPE_PFK>
       <CODE>000001</CODE>
@@ -2068,6 +2097,12 @@
       <CODE>000001</CODE>
       <PFNO>43</PFNO>
       <FUNCODE>COMPLINES</FUNCODE>
+      <FUNNO>001</FUNNO>
+     </RSMPE_PFK>
+     <RSMPE_PFK>
+      <CODE>000001</CODE>
+      <PFNO>47</PFNO>
+      <FUNCODE>SETTINGS</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
      <RSMPE_PFK>
@@ -2758,6 +2793,10 @@
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>OUTPUT_SELECTION</STATUS>
+      <FUNCTION>SAVEVAR</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>OUTPUT_SELECTION</STATUS>
       <FUNCTION>SAVE_AS_F4</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
@@ -2779,6 +2818,10 @@
      <RSMPE_STAF>
       <STATUS>OUTPUT_SELECTION</STATUS>
       <FUNCTION>SEL_COLUMN</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>OUTPUT_SELECTION</STATUS>
+      <FUNCTION>SETTINGS</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>OUTPUT_SELECTION</STATUS>

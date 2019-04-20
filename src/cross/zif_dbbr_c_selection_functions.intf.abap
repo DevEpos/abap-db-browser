@@ -14,6 +14,7 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS load_variant TYPE sy-ucomm VALUE '&OAD' ##NO_TEXT.
   CONSTANTS refresh TYPE sy-ucomm VALUE 'REFRESH' ##NO_TEXT.
   CONSTANTS save_selection_as_f4 TYPE sy-ucomm VALUE 'SAVE_AS_F4' ##NO_TEXT.
+  CONSTANTS save_as_variant TYPE sy-ucomm VALUE 'SAVEVAR' ##NO_TEXT.
   CONSTANTS quick_filter TYPE sy-ucomm VALUE 'QUICK_FILT' ##NO_TEXT.
   CONSTANTS quick_filter_exclusion TYPE sy-ucomm VALUE 'QUICK_FEXC' ##NO_TEXT.
   CONSTANTS hide_lines TYPE sy-ucomm VALUE 'HIDE_SELECTED' ##NO_TEXT.
@@ -45,6 +46,7 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS emphasize_negative_values TYPE sy-ucomm VALUE 'EMPH_NEGAT' ##NO_TEXT.
   CONSTANTS toggle_entity_info_header TYPE sy-ucomm VALUE 'HDR_VSBLTY' ##NO_TEXT.
   CONSTANTS calc_sum_of_chosen_cells TYPE sy-ucomm VALUE 'CALC_SUM_OF_CELLS' ##NO_TEXT.
+  CONSTANTS show_string_cell_content TYPE sy-ucomm VALUE 'SHOW_STRING_CELL_CONTENT' ##NO_TEXT.
   CONSTANTS hide_columns TYPE sy-ucomm VALUE '&COL_INV' ##NO_TEXT.
   CONSTANTS transfer_filter_values TYPE sy-ucomm VALUE 'TRNSFFILT' ##NO_TEXT.
   CONSTANTS compare_selected_lines TYPE sy-ucomm VALUE 'COMPLINES' ##NO_TEXT.
@@ -57,4 +59,5 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS hide_other_columns TYPE sy-ucomm VALUE 'HIDE_OTHERS' ##NO_TEXT.
   CONSTANTS show_details TYPE sy-ucomm VALUE 'DETAILS' ##NO_TEXT.
   CONSTANTS change_max_row_count TYPE sy-ucomm VALUE 'CHMAXROWS' ##no_text.
+  CONSTANTS show_users_settings TYPE sy-ucomm VALUE 'SETTINGS' ##no_text.
 ENDINTERFACE.

@@ -281,21 +281,24 @@ CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
       lf_low_cp = abap_true.
     ENDIF.
 
-    IF cv_low     CS '_' AND
-       lf_low_cp = abap_true.
-      sy-subrc = 0.
-      WHILE sy-subrc = 0.
-        REPLACE '_' WITH '+' INTO cv_low.
-      ENDWHILE.
-    ENDIF.
-
-    IF cv_low     CS '%' AND
-       lf_low_cp = abap_true.
-      sy-subrc = 0.
-      WHILE sy-subrc = 0.
-        REPLACE '%' WITH '+' INTO cv_low.
-      ENDWHILE.
-    ENDIF.
+***  ONLY RELEVANT FOR POOL TABLES
+**********************************************************************
+***    IF cv_low     CS '_' AND
+***       lf_low_cp = abap_true.
+***      sy-subrc = 0.
+***      WHILE sy-subrc = 0.
+***        REPLACE '_' WITH '+' INTO cv_low.
+***      ENDWHILE.
+***    ENDIF.
+***
+***    IF cv_low     CS '%' AND
+***       lf_low_cp = abap_true.
+***      sy-subrc = 0.
+***      WHILE sy-subrc = 0.
+***        REPLACE '%' WITH '+' INTO cv_low.
+***      ENDWHILE.
+***    ENDIF.
+**********************************************************************
 
     IF iv_option = space.
       IF iv_high <> space AND
@@ -340,7 +343,7 @@ CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
       ELSE.
         ASSIGN lt_where[ 1 ] TO FIELD-SYMBOL(<lv_where>).
         IF sy-subrc = 0.
-          <lv_where> = |AND{ <lv_where> }|.
+          <lv_where>(3) = 'AND'.
           rt_where = VALUE #( BASE rt_where ( LINES OF CORRESPONDING #( lt_where ) ) ).
         ENDIF.
       ENDIF.

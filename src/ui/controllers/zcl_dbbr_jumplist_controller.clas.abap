@@ -151,8 +151,10 @@ CLASS zcl_dbbr_jumplist_controller IMPLEMENTATION.
         ENDIF.
       ENDIF.
 
+      DATA(lv_tabname_alias) = COND #( WHEN ms_query_info-ref_join_id IS NOT INITIAL THEN <ls_table>-tabname_alias ELSE <ls_table>-tabname ).
+
 *.... create tabfield list entries for output fields
-      LOOP AT lt_query_selfields ASSIGNING FIELD-SYMBOL(<ls_query_field>) WHERE tabname_alias    = <ls_table>-tabname_alias
+      LOOP AT lt_query_selfields ASSIGNING FIELD-SYMBOL(<ls_query_field>) WHERE tabname_alias    = lv_tabname_alias
                                                                             AND output_active    = abap_true
                                                                             AND is_formula_field = abap_false.
         DATA(ls_fieldinfo) = zcl_dbbr_dictionary_helper=>get_table_field_info(

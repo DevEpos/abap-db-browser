@@ -141,8 +141,6 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     DATA mo_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory .
     "! <p class="shorttext synchronized" lang="en">Factory for favorite menu</p>
     DATA mo_favmenu_f TYPE REF TO zcl_dbbr_favmenu_factory .
-    "! <p class="shorttext synchronized" lang="en">Factory for user settings</p>
-    DATA mo_usersettings_f TYPE REF TO zcl_dbbr_usersettings_factory .
     "! <p class="shorttext synchronized" lang="en">Information for join</p>
     DATA ms_join_def_old TYPE zdbbr_join_data .
     "! <p class="shorttext synchronized" lang="en">ID of an DB Browser entity</p>
@@ -548,7 +546,6 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     mv_entity_type = iv_entity_type.
     mo_altcoltext_f = NEW #( ).
     mo_favmenu_f = NEW #( ).
-    mo_usersettings_f = NEW #( ).
 
 *... update entity type table fields
     mo_data->mo_tabfield_aggr_list->set_entity_type( mv_entity_type ).
@@ -976,8 +973,8 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       ENDLOOP.
     ENDIF.
 
-    DELETE <lt_selection_fields> WHERE tabname_alias NOT IN lt_add_tables_selopt.
-    DELETE <lt_selection_fields_multi> WHERE tabname_alias NOT IN lt_add_tables_selopt.
+*    DELETE <lt_selection_fields> WHERE tabname_alias NOT IN lt_add_tables_selopt.
+*    DELETE <lt_selection_fields_multi> WHERE tabname_alias NOT IN lt_add_tables_selopt.
 
 *.. update tabfield list
     mo_data->mo_tabfield_list->delete_custom(
@@ -1035,12 +1032,16 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
 
   METHOD update_multi_selection_mask.
+    DATA: lt_current_table_list TYPE RANGE OF tabname.
+
 *... set `selection mode` for tabfield list to prevent unwanted behaviour
     mo_data->mo_tabfield_list->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-selection ).
 
 *... first get all active selection tables
     DATA(lt_tables) = mo_data->mo_tabfield_list->get_table_list( ).
     DELETE lt_tables WHERE active_selection = abap_false. " or no_selection_allowed = abap_true.
+*.. Build range for deleting invalid selection selection fields
+    lt_current_table_list = VALUE #( FOR table IN lt_tables ( sign = 'I' option = 'EQ' low = table-tabname_alias ) ).
     SORT lt_tables BY selection_order.
 
 *.. Always show parameter table at first position
@@ -1054,6 +1055,9 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     IF lf_insert_params_at_start = abap_true.
       INSERT ls_param_table INTO lt_tables INDEX 1.
     ENDIF.
+
+    DELETE mo_data->mr_t_table_data->* WHERE tabname_alias NOT IN lt_current_table_list.
+    DELETE mo_data->mr_t_selfields_multi->* WHERE tabname_alias NOT IN lt_current_table_list.
 
 *... cache current list of selection fields
     DATA(lt_selection_fields) = mo_data->mr_t_table_data->*.

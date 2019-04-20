@@ -338,6 +338,24 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
 
     IF ev_fieldname = 'ENTITY_ID'.
 *... Call other object name chooser to get the table name
+      DATA(lo_object_chooser) = NEW zcl_dbbr_choose_object_ctrl(
+        if_global_fav_mode = abap_true
+      ).
+      lo_object_chooser->zif_uitb_screen_controller~call_screen( ).
+      IF lo_object_chooser->was_not_cancelled( ).
+        lo_object_chooser->get_chosen_entry(
+          IMPORTING ev_entry = DATA(lv_chosen_entity)
+                    ev_type  = DATA(lv_chosen_entity_type)
+        ).
+        ASSIGN er_event_data->m_data->* TO <lt_data>.
+        IF sy-subrc = 0.
+          APPEND VALUE lvc_s_modi(
+              row_id    = es_row_no-row_id
+              fieldname = 'ENTITY_ID'
+              value     = lv_chosen_entity
+          ) TO <lt_data>.
+        ENDIF.
+      ENDIF.
     ELSE.
       zcl_dbbr_dictionary_helper=>get_table_field_infos(
         EXPORTING iv_tablename    = lr_row->entity_id
@@ -345,7 +363,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
       ).
 
       lt_values = VALUE #( FOR dfies IN lt_table_fields
-                           where ( fieldname <> '.NODE1' and
+                           WHERE ( fieldname <> '.NODE1' AND
                                    rollname  <> 'MANDT' )
                            ( fieldname = dfies-fieldname
                              key       = dfies-keyflag
@@ -432,8 +450,8 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
         it_f4_assignments    = VALUE #( FOR <ls_new_assignment> IN mt_assignments
                                         WHERE ( ref_f4_id IS INITIAL )
                                         ( ref_f4_id = lv_f4_id
-                                          entity_id = <ls_new_assignment>-entity_id
-                                          fieldname = <ls_new_assignment>-fieldname ) )
+                                          entity_id = to_upper( <ls_new_assignment>-entity_id )
+                                          fieldname = to_upper( <ls_new_assignment>-fieldname ) ) )
         it_f4_assgnmt_delete = mt_deleted_f4_assngmnt
     ).
   ENDMETHOD.

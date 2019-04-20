@@ -13,6 +13,7 @@ CLASS lcl_executor DEFINITION.
       EXPORTING
         et_data_info      TYPE zdbbr_dp_col_metadata_t
         ev_execution_time TYPE string
+        ev_line_count     TYPE zdbbr_no_of_lines
         er_data           TYPE REF TO data.
     "! <p class="shorttext synchronized" lang="en">Will be called upon finished query execution</p>
     METHODS execute_query_finished

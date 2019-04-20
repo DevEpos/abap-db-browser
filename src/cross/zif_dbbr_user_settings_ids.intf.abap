@@ -56,8 +56,12 @@ INTERFACE zif_dbbr_user_settings_ids
   CONSTANTS c_description_language TYPE string VALUE 'P_DLANG' ##NO_TEXT.
   "! Type abap_bool
   CONSTANTS c_activate_alv_live_filter TYPE string VALUE 'P_XFLLIV' ##no_text.
-  "! Type BOOLE
+  "! Type abap_bool
   CONSTANTS c_use_ddl_view_for_select TYPE string VALUE 'P_XDDLFS' ##no_text.
+  "! Type abap_bool
+  CONSTANTS c_deactvt_highltng_in_cqe TYPE string VALUE 'P_XDHLQE' ##no_text.
+  "! type zuitb_code_viewer_theme
+  CONSTANTS c_code_viewer_theme TYPE string VALUE 'P_CVTHME' ##no_text.
   "!Type SAP_BOOL
   CONSTANTS c_search_ignore_case TYPE string VALUE 'P_XIGNCS' ##NO_TEXT.
   CONSTANTS c_assocation_sel_mode TYPE string VALUE 'P_ASNVMO' ##NO_TEXT.

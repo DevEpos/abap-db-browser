@@ -1,60 +1,48 @@
+"! <p class="shorttext synchronized" lang="en">Factory for user settings</p>
 CLASS zcl_dbbr_usersettings_factory DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-
+    "! <p class="shorttext synchronized" lang="en">Retrieves the current settings of the user</p>
+    CLASS-METHODS get_current_settings
+      RETURNING
+        VALUE(rr_s_settings) TYPE REF TO zdbbr_user_settings_a.
+    "! <p class="shorttext synchronized" lang="en">Retrieve Settings for entity browser</p>
     CLASS-METHODS get_entity_browser_settings
       RETURNING
         VALUE(rs_settings) TYPE zdbbr_entbrwsus .
+    "! <p class="shorttext synchronized" lang="en">Save Settings for Entity Browser</p>
     CLASS-METHODS set_entity_browser_settings
       IMPORTING
         !is_settings TYPE zdbbr_entity_browser_sttng_a .
-    METHODS get_settings
+    CLASS-METHODS get_settings
       RETURNING
         VALUE(result) TYPE zdbbr_user_settings_a .
-    METHODS get_last_used_count_setting
+    CLASS-METHODS get_last_used_count_setting
       RETURNING
         VALUE(result) TYPE sy-tabix .
-    METHODS save_settings
+    CLASS-METHODS save_settings
       IMPORTING
         !value TYPE zdbbr_user_settings_a .
-    METHODS update_start_settings
+    CLASS-METHODS update_start_settings
       IMPORTING
         !iv_entity_id   TYPE zdbbr_entity_id
         !iv_entity_type TYPE zdbbr_entity_type .
-    METHODS should_read_db_size
+    CLASS-METHODS should_read_db_size
       RETURNING
         VALUE(result) TYPE abap_bool .
-    METHODS is_experimental_mode_active
+    CLASS-METHODS is_experimental_mode_active
       RETURNING
         VALUE(result) TYPE abap_bool .
   PROTECTED SECTION.
   PRIVATE SECTION.
-
-    METHODS get_default_settings
-      RETURNING
-        VALUE(result) TYPE zdbbr_usrsettng .
 ENDCLASS.
 
 
 
 CLASS zcl_dbbr_usersettings_factory IMPLEMENTATION.
-
-
-  METHOD get_default_settings.
-    DATA: ls_settings TYPE zdbbr_usrsettng.
-
-    SELECT * INTO TABLE @DATA(lt_user_values)
-     FROM usr05
-       WHERE bname = @sy-uname.
-
-    IF sy-subrc = 0.
-
-    ENDIF.
-  ENDMETHOD.
-
 
   METHOD get_entity_browser_settings.
     SELECT SINGLE *
@@ -147,4 +135,11 @@ CLASS zcl_dbbr_usersettings_factory IMPLEMENTATION.
 
     save_settings( CORRESPONDING #( ls_settings ) ).
   ENDMETHOD.
+
+  METHOD get_current_settings.
+    DATA(lo_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
+    DATA(lr_global_data) = CAST zdbbr_global_data( lo_data_cache->get_data_ref( iv_registered_name = zif_dbbr_main_report_var_ids=>c_s_data ) ).
+    rr_s_settings = REF #( lr_global_data->settings ).
+  ENDMETHOD.
+
 ENDCLASS.

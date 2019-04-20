@@ -42,6 +42,8 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
         entity_id     TYPE zdbbr_entity_id,
         entity_id_raw TYPE zdbbr_entity_id,
         node_type     TYPE i,
+        devclass      TYPE devclass,
+        owner         TYPE username,
       END OF ty_s_user_data.
 
     TYPES:
@@ -63,6 +65,7 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     DATA mt_fav_func_query_map TYPE STANDARD TABLE OF ty_s_fav_func_query_map.
 
     CONSTANTS: c_max_history TYPE i VALUE 25.
+    CONSTANTS c_text_class TYPE i VALUE cl_item_tree_model=>item_class_text.
 
     CONSTANTS:
       BEGIN OF c_functions,
@@ -91,6 +94,8 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
         export_queries             TYPE ui_func VALUE 'EXPORT_QUERIES',
         used_in_select_from        TYPE ui_func VALUE 'USED_IN_FROM',
         used_as_assoc              TYPE ui_func VALUE 'USED_AS_ASSOC',
+        add_package_to_query       TYPE ui_func VALUE 'ADD_PACK_TO_QUERY',
+        add_root_package_to_query  TYPE ui_func VALUE 'ADD_ROOT_PACK_TO_QUERY',
       END OF c_functions .
     CONSTANTS c_hierarchy_node2 TYPE tv_itmname VALUE 'HIER2' ##NO_TEXT.
     CONSTANTS c_hierarchy_node3 TYPE tv_itmname VALUE 'HIER3' ##NO_TEXT.
@@ -103,6 +108,7 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     DATA mo_search_type_select TYPE REF TO cl_dd_select_element .
     DATA mo_splitter TYPE REF TO zcl_uitb_gui_splitter_cont.
     DATA mo_tree TYPE REF TO zcl_uitb_column_tree_model .
+    DATA mo_html_control TYPE REF TO cl_gui_html_viewer.
     DATA mo_variant_f TYPE REF TO zcl_dbbr_variant_factory .
     DATA mo_parent_view TYPE REF TO zif_uitb_gui_composite_view.
 
@@ -116,13 +122,34 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     DATA mo_search_query TYPE REF TO zcl_dbbr_object_search_query.
     DATA mv_current_search_type TYPE zdbbr_obj_browser_mode .
     DATA mo_favorite_dd_menu TYPE REF TO cl_ctmenu .
-    DATA: mo_toolbar TYPE REF TO cl_gui_toolbar.
+    DATA mo_toolbar TYPE REF TO cl_gui_toolbar.
+    DATA mv_theme TYPE zuitb_code_viewer_theme.
 
     "! <p class="shorttext synchronized" lang="en">Clears tree of all nodes</p>
     "!
     METHODS clear_tree .
-    "! Create input controls for search type and entity
-    "! @parameter iv_initial_value | the initial value
+    "! <p class="shorttext synchronized" lang="en">Create sub nodes of database table/view</p>
+    METHODS create_db_table_subnodes
+      IMPORTING
+        io_db_tab_view_node TYPE REF TO zcl_uitb_ctm_node
+        is_entity           TYPE zdbbr_entity.
+    "! <p class="shorttext synchronized" lang="en">Create tree node</p>
+    METHODS create_node
+      IMPORTING
+        iv_parent_node     TYPE tm_nodekey OPTIONAL
+        if_folder          TYPE abap_bool OPTIONAL
+        if_expander        TYPE abap_bool OPTIONAL
+        iv_hier1_item_text TYPE tm_itemtxt
+        iv_image           TYPE tv_image OPTIONAL
+        iv_expanded_image  TYPE tv_image OPTIONAL
+        is_hier2_item      TYPE treemcitem OPTIONAL
+        is_hier3_item      TYPE treemcitem OPTIONAL
+        ir_user_data       TYPE REF TO data OPTIONAL
+      RETURNING
+        VALUE(ro_node)     TYPE REF TO zcl_uitb_ctm_node.
+
+    "! <p class="shorttext synchronized" lang="en">Create input controls for search type and entity</p>
+    "! @parameter iv_initial_value | <p class="shorttext synchronized" lang="en">the initial value</p>
     METHODS create_input_dd
       IMPORTING
         !iv_initial_value TYPE string OPTIONAL .
@@ -178,12 +205,13 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     METHODS create_subnodes_for_cds
       IMPORTING
         !io_cds_view      TYPE REF TO zcl_dbbr_cds_view
-        !io_cds_view_node TYPE REF TO zcl_uitb_ctm_node
-      RAISING
-        zcx_uitb_tree_error .
+        !io_cds_view_node TYPE REF TO zcl_uitb_ctm_node.
     "! <p class="shorttext synchronized" lang="en">Creates Tree</p>
     "!
-    METHODS create_tree .
+    METHODS create_tree
+      RAISING
+        zcx_uitb_gui_exception
+        zcx_uitb_tree_error .
     "! <p class="shorttext synchronized" lang="en">Expand a single CDS View</p>
     "!
     METHODS expand_cds_view_node
@@ -226,6 +254,27 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
       IMPORTING
         !iv_view     TYPE zdbbr_entity_id
         !iv_node_key TYPE tm_nodekey .
+    "! <p class="shorttext synchronized" lang="en">Create foreign key table nodes for the given table</p>
+    METHODS expand_foreign_key_tables
+      IMPORTING
+        iv_tabname  TYPE tabname
+        iv_node_key TYPE tm_nodekey.
+    " <p class="shorttext synchronized" lang="en">Expands a single database table</p>
+    METHODS expand_db_table
+      IMPORTING
+        iv_tabname  TYPE tabname
+        iv_node_key TYPE tm_nodekey.
+    "! <p class="shorttext synchronized" lang="en">Expands properties node of db table/view</p>
+    METHODS expand_dbtab_view_properties
+      IMPORTING
+        iv_tabname   TYPE tabname
+        iv_node_type TYPE i
+        iv_node_key  TYPE tm_nodekey.
+    "! <p class="shorttext synchronized" lang="en">Expand technical settings node of db table node</p>
+    METHODS expand_tech_settings_node
+      IMPORTING
+        iv_tabname  TYPE tabname
+        iv_node_key TYPE tm_nodekey.
     "! <p class="shorttext synchronized" lang="en">Fill favorites dropdown</p>
     "!
     METHODS fill_favorite_dd_menu .
@@ -347,6 +396,21 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     METHODS trigger_query_from_favorite
       IMPORTING
         iv_function TYPE ui_func.
+    "! <p class="shorttext synchronized" lang="en">Show result count message in status bar</p>
+    METHODS show_results_message
+      IMPORTING
+        iv_result_count TYPE i
+        iv_max_count    TYPE i.
+    "! <p class="shorttext synchronized" lang="en">Check if the given node type is a package sub node</p>
+    METHODS is_package_sub_node
+      IMPORTING
+        iv_node_type  TYPE i
+      RETURNING
+        VALUE(result) TYPE abap_bool.
+    "! <p class="shorttext synchronized" lang="en">Adapt html input and display doc</p>
+    METHODS adapt_and_display_html_inp
+      IMPORTING
+        if_assign_parent TYPE abap_bool OPTIONAL.
 ENDCLASS.
 
 
@@ -358,6 +422,36 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     gt_api_state_texts = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_data( VALUE zdbbr_cds_api_state( ) ) )->get_ddic_fixed_values( ).
   ENDMETHOD.
 
+  METHOD adapt_and_display_html_inp.
+    DATA: lt_events TYPE cntl_simple_events.
+
+    mo_input_dd->merge_document( ).
+
+    LOOP AT mo_input_dd->html_table ASSIGNING FIELD-SYMBOL(<html>) WHERE line CS `<body`.
+      <html>-line = replace( val = <html>-line sub = `<body` with = `<body scroll="no"` ).
+      EXIT.
+    ENDLOOP.
+
+    IF if_assign_parent = abap_true.
+      mo_html_control = NEW cl_gui_html_viewer(
+        parent = mo_splitter->get_container( 1 )
+      ).
+      mo_input_dd->html_control = mo_html_control.
+      mo_input_dd->html_control->set_ui_flag(
+        cl_gui_html_viewer=>uiflag_no3dborder +
+        cl_gui_html_viewer=>uiflag_noiemenu +
+        cl_gui_html_viewer=>uiflag_use_sapgui_charset
+      ).
+
+      lt_events = value #( ( eventid = mo_html_control->m_id_sapevent ) ).
+      mo_html_control->set_registered_events( lt_events ).
+    ENDIF.
+
+    mo_input_dd->display_document(
+        reuse_control      = abap_true
+        reuse_registration = abap_true
+    ).
+  ENDMETHOD.
 
   METHOD clear_tree.
     mo_tree->get_nodes( )->delete_all_nodes( ).
@@ -370,7 +464,18 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     mo_parent_view = io_parent_view.
     mo_query_f = NEW #( ).
     create_splitter( ).
-    create_tree( ).
+
+    TRY.
+        create_tree( ).
+      CATCH zcx_uitb_gui_exception INTO DATA(lx_gui_error).
+        lx_gui_error->zif_uitb_exception_message~print(
+            iv_msg_type = 'X'
+        ).
+      CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
+        lx_tree_error->zif_uitb_exception_message~print(
+            iv_msg_type = 'X'
+        ).
+    ENDTRY.
     create_input_dd( ).
 
     SET HANDLER:
@@ -438,11 +543,57 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       on_perform_search FOR lo_search_button,
       on_search_type_selected FOR mo_search_type_select.
 
-    mo_input_dd->merge_document( ).
+    adapt_and_display_html_inp( if_assign_parent = abap_true ).
 
-    mo_input_dd->display_document( parent        = mo_splitter->get_container( 1 )
-                                   reuse_control = abap_true ).
+  ENDMETHOD.
 
+
+  METHOD create_node.
+    DATA: ls_item TYPE treemcitem.
+
+    DATA(lv_image) = COND #( WHEN iv_image IS INITIAL AND if_folder = abap_false THEN zif_dbbr_c_icon=>no_icon ELSE iv_image ).
+    DATA(lv_expanded_image) = COND #( WHEN iv_expanded_image IS INITIAL THEN lv_image ELSE iv_expanded_image ).
+
+    DATA(lt_items) = VALUE treemcitab(
+       ( class     = cl_item_tree_model=>item_class_text
+         item_name = mo_tree->c_hierarchy_column
+         text      = iv_hier1_item_text )
+    ).
+    IF is_hier2_item IS NOT INITIAL.
+      ls_item = is_hier2_item.
+      ls_item-item_name = c_hierarchy_node2.
+      IF ls_item-class = 0.
+        ls_item-class = c_text_class.
+      ENDIF.
+      lt_items = VALUE #( BASE lt_items ( ls_item ) ).
+    ENDIF.
+
+    IF is_hier3_item IS NOT INITIAL.
+      ls_item = is_hier3_item.
+      ls_item-item_name = c_hierarchy_node3.
+      IF ls_item-class = 0.
+        ls_item-class = c_text_class.
+      ENDIF.
+      lt_items = VALUE #( BASE lt_items ( ls_item ) ).
+    ENDIF.
+
+    TRY.
+        ro_node = mo_tree->get_nodes( )->add_node(
+            if_folder            = if_folder
+            iv_relative_node_key = iv_parent_node
+            iv_image             = lv_image
+            iv_expanded_image    = lv_expanded_image
+            if_expander          = if_expander
+            if_use_prop_font     = abap_true
+            it_item_table        = lt_items
+            ir_user_data         = ir_user_data
+        ).
+      CATCH zcx_uitb_tree_error INTO DATA(lx_error).
+*...... Application cannot handle this exception so force exit
+        lx_error->zif_uitb_exception_message~print(
+            iv_msg_type = 'X'
+        ).
+    ENDTRY.
   ENDMETHOD.
 
 
@@ -458,23 +609,13 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     DATA(lo_nodes) = mo_tree->get_nodes( ).
 
     LOOP AT it_cds_view_header ASSIGNING FIELD-SYMBOL(<ls_cds_header>).
-      DATA(lo_cds_view_node) = lo_nodes->add_node(
+      DATA(lo_cds_view_node) = create_node(
           if_folder            = abap_true
-          iv_relative_node_key = COND #( WHEN io_parent_node IS NOT INITIAL THEN io_parent_node->mv_node_key )
+          iv_parent_node       = COND #( WHEN io_parent_node IS NOT INITIAL THEN io_parent_node->mv_node_key )
           iv_image             = zif_dbbr_c_icon=>cds_view
-          iv_expanded_image    = zif_dbbr_c_icon=>cds_view
           if_expander          = abap_true
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = mo_tree->c_hierarchy_column
-              font      = cl_item_tree_model=>item_font_prop
-              text      = <ls_cds_header>-entity_id_raw )
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = c_hierarchy_node2
-              font      = cl_item_tree_model=>item_font_prop
-              style     = zif_uitb_c_ctm_style=>inverted_gray
-              text      = <ls_cds_header>-description )
-          )
+          iv_hier1_item_text   = |{ <ls_cds_header>-entity_id_raw }|
+          is_hier2_item        = VALUE #( style = zif_uitb_c_ctm_style=>inverted_gray text = <ls_cds_header>-description )
           ir_user_data  = NEW ty_s_user_data(
               entity_id     = <ls_cds_header>-entity_id
               entity_id_raw = <ls_cds_header>-entity_id_raw
@@ -500,39 +641,87 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     DATA(lo_nodes) = mo_tree->get_nodes( ).
 
     LOOP AT it_table_definition ASSIGNING FIELD-SYMBOL(<ls_tabname>).
-      DATA(lf_expander) = abap_false.
       IF <ls_tabname>-entity_type = zif_dbbr_c_entity_type=>view.
         lv_node_image = zif_dbbr_c_icon=>database_view.
         lv_node_type = c_node_type-view.
-        lf_expander = abap_true.
       ELSE.
         lv_node_image = zif_dbbr_c_icon=>database_table.
         lv_node_type = c_node_type-dbtable.
       ENDIF.
 
-      DATA(lo_table_node) = lo_nodes->add_node(
-          if_folder            = abap_true
-          iv_image             = lv_node_image
-          iv_relative_node_key = COND #( WHEN io_parent_node IS NOT INITIAL THEN io_parent_node->mv_node_key )
-          iv_expanded_image    = lv_node_image
-          if_expander          = lf_expander
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = mo_tree->c_hierarchy_column
-              font      = cl_item_tree_model=>item_font_prop
-              text      = <ls_tabname>-entity_id )
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = c_hierarchy_node2
-              style     = zif_uitb_c_ctm_style=>inverted_gray
-              font      = cl_item_tree_model=>item_font_prop
-              text      = <ls_tabname>-description )
-          )
-          ir_user_data  = NEW ty_s_user_data(
-            entity_id = <ls_tabname>-entity_id
-            node_type = lv_node_type
-          )
+      DATA(lo_table_node) = create_node(
+        iv_parent_node     = COND #( WHEN io_parent_node IS NOT INITIAL THEN io_parent_node->mv_node_key )
+        if_folder          = abap_true
+        if_expander        = abap_true
+        iv_hier1_item_text = |{ <ls_tabname>-entity_id }|
+        iv_image           = lv_node_image
+        iv_expanded_image  = lv_node_image
+        is_hier2_item      = VALUE #( text = <ls_tabname>-description style = zif_uitb_c_ctm_style=>inverted_gray )
+        ir_user_data       = NEW ty_s_user_data(
+          entity_id = <ls_tabname>-entity_id
+          node_type = lv_node_type
+        )
+      ).
+
+      create_db_table_subnodes(
+        EXPORTING io_db_tab_view_node = lo_table_node
+                  is_entity          = <ls_tabname>
       ).
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD create_db_table_subnodes.
+    CHECK io_db_tab_view_node IS BOUND.
+
+    DATA(lo_nodes) = mo_tree->get_nodes( ).
+
+*.. Create properties nodes
+    DATA(lo_properties_node) = create_node(
+        iv_parent_node     = io_db_tab_view_node->mv_node_key
+        if_folder          = abap_true
+        if_expander        = abap_true
+        iv_hier1_item_text = |{ TEXT-017 }|
+        ir_user_data       = NEW ty_s_user_data(
+           entity_id = is_entity-entity_id
+           node_type = COND #( WHEN is_entity-entity_type = zif_dbbr_c_entity_type=>view THEN
+                                 c_node_type-view_properties
+                               ELSE c_node_type-dbtable_properties )
+        )
+    ).
+
+    IF is_entity-entity_type = zif_dbbr_c_entity_type=>table.
+      create_node(
+        iv_parent_node     = io_db_tab_view_node->mv_node_key
+        if_folder          = abap_true
+        if_expander        = abap_true
+        iv_hier1_item_text = |{ 'Technical Settings'(037) }|
+        ir_user_data       = NEW ty_s_user_data(
+          entity_id = is_entity-entity_id
+          node_type = c_node_type-dbtable_tech_settings
+        )
+      ).
+      create_node(
+        iv_parent_node     = io_db_tab_view_node->mv_node_key
+        if_folder          = abap_true
+        if_expander        = abap_true
+        iv_hier1_item_text = |{ 'Foreign Key Relations'(036) }|
+        ir_user_data       = NEW ty_s_user_data(
+          entity_id = is_entity-entity_id
+          node_type = c_node_type-dbtable_foreign_key
+        )
+      ).
+    ELSE.
+      create_node(
+        iv_parent_node     = io_db_tab_view_node->mv_node_key
+        if_folder          = abap_true
+        if_expander        = abap_true
+        iv_hier1_item_text = |{ 'Base Tables'(038) }|
+        ir_user_data       = NEW ty_s_user_data(
+          entity_id = is_entity-entity_id
+          node_type = c_node_type-view_tables
+        )
+      ).
+    ENDIF.
   ENDMETHOD.
 
 
@@ -546,22 +735,12 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     DATA(lo_nodes) = mo_tree->get_nodes( ).
 
     LOOP AT it_package_def ASSIGNING FIELD-SYMBOL(<ls_package>).
-      DATA(lo_package_node) = lo_nodes->add_node(
+      DATA(lo_package_node) = create_node(
           if_folder            = abap_true
           iv_image             = zif_dbbr_c_icon=>package
-          iv_expanded_image    = zif_dbbr_c_icon=>package
           if_expander          = abap_true
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = mo_tree->c_hierarchy_column
-              font      = cl_item_tree_model=>item_font_prop
-              text      = <ls_package>-package )
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = c_hierarchy_node2
-              font      = cl_item_tree_model=>item_font_prop
-              style     = zif_uitb_c_ctm_style=>inverted_gray
-              text      = <ls_package>-ddtext )
-          )
+          iv_hier1_item_text   = |{ <ls_package>-package }|
+          is_hier2_item        = VALUE #( style = zif_uitb_c_ctm_style=>inverted_gray text = <ls_package>-ddtext )
           ir_user_data         = NEW ty_s_user_data(
             entity_id = <ls_package>-package
             node_type = c_node_type-package
@@ -585,22 +764,12 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     DATA(lo_nodes) = mo_tree->get_nodes( ).
     LOOP AT it_queries ASSIGNING FIELD-SYMBOL(<ls_query>).
-      DATA(lo_query_node) = lo_nodes->add_node(
+      DATA(lo_query_node) = create_node(
           if_folder            = abap_true
           iv_image             = zif_dbbr_c_icon=>query
-          iv_expanded_image    = zif_dbbr_c_icon=>query
           if_expander          = abap_true
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = mo_tree->c_hierarchy_column
-              font      = cl_item_tree_model=>item_font_prop
-              text      = <ls_query>-entity_id )
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = c_hierarchy_node2
-              style     = zif_uitb_c_ctm_style=>inverted_gray
-              font      = cl_item_tree_model=>item_font_prop
-              text      = <ls_query>-description )
-          )
+          iv_hier1_item_text   = |{ <ls_query>-entity_id }|
+          is_hier2_item        = VALUE #( style = zif_uitb_c_ctm_style=>inverted_gray text = <ls_query>-description )
           ir_user_data         = NEW ty_s_user_data(
             entity_id = <ls_query>-entity_id
             node_type = c_node_type-query
@@ -632,21 +801,11 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       DATA(lv_cds_name_raw) = io_cds_view->get_header( )-entityname_raw.
 
-      lo_cds_view_node = lo_nodes->add_node(
+      lo_cds_view_node = create_node(
           if_folder            = abap_true
           iv_image             = zif_dbbr_c_icon=>cds_view
-          iv_expanded_image    = zif_dbbr_c_icon=>cds_view
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = mo_tree->c_hierarchy_column
-              font      = cl_item_tree_model=>item_font_prop
-              text      = lv_cds_name_raw )
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = c_hierarchy_node2
-              font      = cl_item_tree_model=>item_font_prop
-              style     = zif_uitb_c_ctm_style=>inverted_gray
-              text      = io_cds_view->get_description( ) )
-          )
+          iv_hier1_item_text   = |{ lv_cds_name_raw }|
+          is_hier2_item        = VALUE #( style = zif_uitb_c_ctm_style=>inverted_gray text = io_cds_view->get_description( ) )
           ir_user_data         = NEW ty_s_user_data(
             entity_id     = io_cds_view->mv_view_name
             entity_id_raw = lv_cds_name_raw
@@ -683,34 +842,23 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       lv_node_type = c_node_type-dbtable.
     ENDIF.
 
-    DATA(lo_table_node) = lo_nodes->add_node(
-        if_folder            = abap_true
-        iv_image             = lv_node_image
-        iv_expanded_image    = lv_node_image
-*        io_user_object       =
-        it_item_table        = VALUE #(
-          ( class     = cl_item_tree_model=>item_class_text
-            item_name = mo_tree->c_hierarchy_column
-            font      = cl_item_tree_model=>item_font_prop
-            text      = is_table_info-entity_id )
-          ( class     = cl_item_tree_model=>item_class_text
-            item_name = c_hierarchy_node2
-            font      = cl_item_tree_model=>item_font_prop
-            style     = zif_uitb_c_ctm_style=>inverted_gray
-            text      = is_table_info-description )
-        )
-        ir_user_data         = NEW ty_s_user_data(
-          entity_id = is_table_info-entity_id
-          node_type = lv_node_type
-        )
+    DATA(lo_table_node) = create_node(
+      if_folder            = abap_true
+      iv_image             = lv_node_image
+      iv_hier1_item_text   = |{ is_table_info-entity_id }|
+      is_hier2_item        = VALUE #( style = zif_uitb_c_ctm_style=>inverted_gray text = is_table_info-description )
+      ir_user_data         = NEW ty_s_user_data(
+        entity_id = is_table_info-entity_id
+        node_type = lv_node_type
+      )
     ).
 
-    IF is_table_info-entity_type = zif_dbbr_c_entity_type=>view.
-      expand_view_node(
-          iv_view     = is_table_info-entity_id
-          iv_node_key = lo_table_node->mv_node_key
-      ).
-    ENDIF.
+    create_db_table_subnodes(
+        io_db_tab_view_node = lo_table_node
+        is_entity           = is_table_info
+    ).
+
+    mo_tree->get_nodes( )->expand_node( lo_table_node->mv_node_key ).
 
   ENDMETHOD.
 
@@ -723,21 +871,11 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       clear_tree( ).
 
 *.. Create nodes/subnodes for a single cds view
-      lo_package_node = lo_nodes->add_node(
+      lo_package_node = create_node(
           if_folder            = abap_true
           iv_image             = zif_dbbr_c_icon=>package
-          iv_expanded_image    = zif_dbbr_c_icon=>package
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = mo_tree->c_hierarchy_column
-              font      = cl_item_tree_model=>item_font_prop
-              text      = io_package->package_name )
-            ( class     = cl_item_tree_model=>item_class_text
-              item_name = c_hierarchy_node2
-              font      = cl_item_tree_model=>item_font_prop
-              style     = zif_uitb_c_ctm_style=>inverted_gray
-              text      = io_package->short_text )
-          )
+          iv_hier1_item_text   = |{ io_package->package_name }|
+          is_hier2_item        = VALUE #( style = zif_uitb_c_ctm_style=>inverted_gray text = io_package->short_text )
           ir_user_data         = NEW ty_s_user_data(
             entity_id = io_package->package_name
             node_type = c_node_type-package
@@ -752,23 +890,13 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     ).
     IF lt_sub_packages IS NOT INITIAL.
       LOOP AT lt_sub_packages ASSIGNING FIELD-SYMBOL(<lo_subpackage>).
-        DATA(lo_subpackage_node) = lo_nodes->add_node(
+        DATA(lo_subpackage_node) = create_node(
             if_folder            = abap_true
-            iv_relative_node_key = lo_package_node->mv_node_key
+            iv_parent_node       = lo_package_node->mv_node_key
             iv_image             = zif_dbbr_c_icon=>package
-            iv_expanded_image    = zif_dbbr_c_icon=>package
             if_expander          = abap_true
-            it_item_table        = VALUE #(
-              ( class     = cl_item_tree_model=>item_class_text
-                item_name = mo_tree->c_hierarchy_column
-                font      = cl_item_tree_model=>item_font_prop
-                text      = <lo_subpackage>->package_name )
-              ( class     = cl_item_tree_model=>item_class_text
-                item_name = c_hierarchy_node2
-                font      = cl_item_tree_model=>item_font_prop
-                style     = zif_uitb_c_ctm_style=>inverted_gray
-                text      = <lo_subpackage>->short_text )
-            )
+            iv_hier1_item_text   = |{ <lo_subpackage>->package_name }|
+            is_hier2_item        = VALUE #( style = zif_uitb_c_ctm_style=>inverted_gray text = <lo_subpackage>->short_text )
             ir_user_data         = NEW ty_s_user_data(
               entity_id = <lo_subpackage>->package_name
               node_type = c_node_type-package
@@ -792,16 +920,11 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     ENDLOOP.
 
     IF lf_has_ddls = abap_true.
-      DATA(lo_cdsviews_node) = lo_nodes->add_node(
+      DATA(lo_cdsviews_node) = create_node(
           if_folder            = abap_true
-          iv_relative_node_key = lo_package_node->mv_node_key
+          iv_parent_node       = lo_package_node->mv_node_key
           if_expander          = abap_true
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              font      = cl_item_tree_model=>item_font_prop
-              item_name = mo_tree->c_hierarchy_column
-              text      = |{ 'Data Definitions'(014) }| )
-          )
+          iv_hier1_item_text   = |{ 'Data Definitions'(014) }|
           ir_user_data         = NEW ty_s_user_data(
             entity_id = io_package->package_name
             node_type = c_node_type-pak_ddl_folder
@@ -816,16 +939,11 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     INTO TABLE @DATA(lt_entity_count_in_package).
 
     IF line_exists( lt_entity_count_in_package[ type = zif_dbbr_c_entity_type=>view ] ).
-      DATA(lo_views_node) = lo_nodes->add_node(
+      DATA(lo_views_node) = create_node(
           if_folder            = abap_true
-          iv_relative_node_key = lo_package_node->mv_node_key
+          iv_parent_node       = lo_package_node->mv_node_key
           if_expander          = abap_true
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              font      = cl_item_tree_model=>item_font_prop
-              item_name = mo_tree->c_hierarchy_column
-              text      = |{ 'Views'(020) }| )
-          )
+          iv_hier1_item_text   = |{ 'Views'(020) }|
           ir_user_data         = NEW ty_s_user_data(
             entity_id = io_package->package_name
             node_type = c_node_type-pak_view_folder
@@ -835,16 +953,11 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 
     IF line_exists( lt_entity_count_in_package[ type = zif_dbbr_c_entity_type=>table ] ).
-      DATA(lo_database_tables_node) = lo_nodes->add_node(
+      DATA(lo_database_tables_node) = create_node(
           if_folder            = abap_true
-          iv_relative_node_key = lo_package_node->mv_node_key
+          iv_parent_node       = lo_package_node->mv_node_key
           if_expander          = abap_true
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              font      = cl_item_tree_model=>item_font_prop
-              item_name = mo_tree->c_hierarchy_column
-              text      = |{ 'Database Tables'(021) }| )
-          )
+          iv_hier1_item_text   = |{ 'Database Tables'(021) }|
           ir_user_data         = NEW ty_s_user_data(
             entity_id = io_package->package_name
             node_type = c_node_type-pak_dtab_folder
@@ -885,77 +998,59 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     DATA(lo_nodes) = mo_tree->get_nodes( ).
 
 *.. Create "Properties" Sub node
-    DATA(lo_cds_properties_node) = lo_nodes->add_node(
-       if_folder            = abap_true
-       iv_relative_node_key = io_cds_view_node->mv_node_key
-       it_item_table        = VALUE #(
-         ( class     = cl_item_tree_model=>item_class_text
-           font      = cl_item_tree_model=>item_font_prop
-           item_name = mo_tree->c_hierarchy_column
-           text      = 'Properties'(017) )
-       )
-       ir_user_data         = NEW ty_s_user_data(
+    DATA(lo_cds_properties_node) = create_node(
+       iv_parent_node     = io_cds_view_node->mv_node_key
+       if_folder          = abap_true
+       iv_hier1_item_text = |{ 'Properties'(017) }|
+       ir_user_data       = NEW ty_s_user_data(
          entity_id = io_cds_view->mv_view_name
          node_type = c_node_type-cds_properties
        )
     ).
 
     DATA(ls_tadio_info) = io_cds_view->get_tadir_info( ).
-*.. Insert node for name of author
-    lo_nodes->add_node(
-        iv_relative_node_key = lo_cds_properties_node->mv_node_key
-        iv_image             = zif_dbbr_c_icon=>user_menu
-        iv_expanded_image    = zif_dbbr_c_icon=>user_menu
-        it_item_table        = VALUE #(
-          ( class     = cl_item_tree_model=>item_class_text
-            font      = cl_item_tree_model=>item_font_prop
-            text      = |{ 'Responsible'(018) }|
-            item_name = mo_tree->c_hierarchy_column )
-          ( class     = cl_item_tree_model=>item_class_text
-            font      = cl_item_tree_model=>item_font_prop
-            text      = |{ ls_tadio_info-created_by }|
-            item_name = c_hierarchy_node2
-            style     = zif_uitb_c_ctm_style=>inverted_blue )
-        )
+    create_node(
+       iv_parent_node     = lo_cds_properties_node->mv_node_key
+       iv_image           = zif_dbbr_c_icon=>user_menu
+       iv_hier1_item_text = |{ 'Responsible'(018) }|
+       is_hier2_item      = VALUE #( text = ls_tadio_info-created_by style = zif_uitb_c_ctm_style=>inverted_blue )
+       ir_user_data       = NEW ty_s_user_data(
+          node_type = c_node_type-cds_owner_prop
+          owner     = ls_tadio_info-created_by
+       )
     ).
-*.. Insert node for created date
-    lo_nodes->add_node(
-        iv_relative_node_key = lo_cds_properties_node->mv_node_key
-        iv_image             = zif_dbbr_c_icon=>date
-        iv_expanded_image    = zif_dbbr_c_icon=>date
-        it_item_table        = VALUE #(
-          ( class     = cl_item_tree_model=>item_class_text
-            font      = cl_item_tree_model=>item_font_prop
-            text      = |{ 'Created On'(033) }|
-            item_name = mo_tree->c_hierarchy_column )
-          ( class     = cl_item_tree_model=>item_class_text
-            font      = cl_item_tree_model=>item_font_prop
-            text      = |{ ls_tadio_info-created_date DATE = USER }|
-            item_name = c_hierarchy_node2
-            style     = zif_uitb_c_ctm_style=>inverted_blue )
-        )
+    create_node(
+       iv_parent_node     = lo_cds_properties_node->mv_node_key
+       iv_image           = zif_dbbr_c_icon=>date
+       iv_hier1_item_text = |{ 'Created On'(033) }|
+       is_hier2_item      = VALUE #( text = |{ ls_tadio_info-created_date DATE = USER }| style = zif_uitb_c_ctm_style=>inverted_blue )
+    ).
+    create_node(
+       iv_parent_node     = lo_cds_properties_node->mv_node_key
+       iv_image           = zif_dbbr_c_icon=>package
+       iv_hier1_item_text = |{ 'Package'(001) }|
+       is_hier2_item      = VALUE #( text = ls_tadio_info-devclass style = zif_uitb_c_ctm_style=>inverted_blue )
+       ir_user_data       = NEW ty_s_user_data(
+          node_type = c_node_type-cds_package_prop
+          devclass  = ls_tadio_info-devclass
+       )
     ).
 
 *.. Insert nodes for found API states
 *.. Create "API States" Sub node
     DATA(lt_api_states) = io_cds_view->get_api_states( ).
     IF lines( lt_api_states ) > 1.
-      DATA(lo_cds_api_states_node) = lo_nodes->add_node(
-         if_folder            = abap_true
-         iv_relative_node_key = lo_cds_properties_node->mv_node_key
-         it_item_table        = VALUE #(
-           ( class     = cl_item_tree_model=>item_class_text
-             font      = cl_item_tree_model=>item_font_prop
-             item_name = mo_tree->c_hierarchy_column
-             text      = |{ 'API States'(019) }| )
-         )
-         ir_user_data         = NEW ty_s_user_data(
-           entity_id = io_cds_view->mv_view_name
-           node_type = c_node_type-cds_api_states
-         )
+      DATA(lo_cds_api_states_node) = create_node(
+        iv_parent_node     = lo_cds_properties_node->mv_node_key
+        if_folder          = abap_true
+        iv_hier1_item_text = |{ 'API States'(019) }|
+        ir_user_data       = NEW ty_s_user_data(
+          entity_id = io_cds_view->mv_view_name
+          node_type = c_node_type-cds_api_states
+        )
       ).
-      lo_api_states_parent_node = lo_cds_api_states_node.
 
+      lo_api_states_parent_node = lo_cds_api_states_node.
     ELSE.
       lo_api_states_parent_node = lo_cds_properties_node.
     ENDIF.
@@ -969,36 +1064,24 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       DATA(lv_icon) = COND tv_image( WHEN lf_not_released = abap_true THEN zif_dbbr_c_icon=>incomplete ELSE zif_dbbr_c_icon=>checked ).
 
-      DATA(lo_api_state_node) = lo_nodes->add_node(
-         if_folder            = abap_false
-         iv_relative_node_key = lo_api_states_parent_node->mv_node_key
-         iv_image             = lv_icon
-         iv_expanded_image    = lv_icon
-         it_item_table        = VALUE #(
-           ( class     = cl_item_tree_model=>item_class_text
-             font      = cl_item_tree_model=>item_font_prop
-             item_name = mo_tree->c_hierarchy_column
-             text      = gt_api_state_texts[ low = <lv_api_state> ]-ddtext )
-         )
-     ).
+      create_node(
+        iv_parent_node     = lo_api_states_parent_node->mv_node_key
+        iv_image           = lv_icon
+        iv_hier1_item_text = |{ gt_api_state_texts[ low = <lv_api_state> ]-ddtext }|
+      ).
     ENDLOOP.
 
 *.. Create "FROM PART" Sub node
     DATA(lt_base_tables) = io_cds_view->get_base_tables( ).
     IF lt_base_tables IS NOT INITIAL.
-      DATA(lo_cds_select_node) = lo_nodes->add_node(
-          if_folder            = abap_true
-          iv_relative_node_key = io_cds_view_node->mv_node_key
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              font      = cl_item_tree_model=>item_font_prop
-              item_name = mo_tree->c_hierarchy_column
-              text      = 'Select From'(012) )
-          )
-          ir_user_data         = NEW ty_s_user_data(
-            entity_id = io_cds_view->mv_view_name
-            node_type = c_node_type-cds_tables
-          )
+      DATA(lo_cds_select_node) = create_node(
+        iv_parent_node     = io_cds_view_node->mv_node_key
+        if_folder          = abap_true
+        iv_hier1_item_text = |{ 'Select From'(012) }|
+        ir_user_data         = NEW ty_s_user_data(
+          entity_id = io_cds_view->mv_view_name
+          node_type = c_node_type-cds_tables
+        )
       ).
 
       LOOP AT lt_base_tables ASSIGNING FIELD-SYMBOL(<ls_base_table>).
@@ -1011,29 +1094,30 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         ).
         lv_node_image = node_image_for_node_type( lv_node_type ).
 
-        DATA(lo_cds_base_table_node) = lo_nodes->add_node(
-            if_folder            = abap_true
-            iv_relative_node_key = lo_cds_select_node->mv_node_key
-            iv_image             = lv_node_image
-            iv_expanded_image    = lv_node_image
-            if_expander          = xsdbool( lv_node_type <> c_node_type-dbtable )
-            it_item_table        = VALUE #(
-              ( class     = cl_item_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                item_name = mo_tree->c_hierarchy_column
-                text      = <ls_base_table>-entityname_raw )
-              ( class     = cl_item_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                item_name = c_hierarchy_node2
-                style     = zif_uitb_c_ctm_style=>inverted_gray
-                text      = <ls_base_table>-description )
-            )
-            ir_user_data         = NEW ty_s_user_data(
+        DATA(lo_cds_base_table_node) = create_node(
+          iv_parent_node        = lo_cds_select_node->mv_node_key
+          iv_image              = lv_node_image
+          if_expander           = xsdbool( lv_node_type <> c_node_type-dbtable )
+          if_folder             = abap_true
+          iv_hier1_item_text    = |{ <ls_base_table>-entityname_raw }|
+          is_hier2_item         = VALUE #( text = <ls_base_table>-description style = zif_uitb_c_ctm_style=>inverted_gray )
+          ir_user_data         = NEW ty_s_user_data(
+            entity_id     = <ls_base_table>-entityname
+            entity_id_raw = <ls_base_table>-entityname_raw
+            node_type     = lv_node_type
+          )
+        ).
+
+        IF lv_node_type = c_node_type-dbtable.
+          create_db_table_subnodes(
+            io_db_tab_view_node = lo_cds_base_table_node
+            is_entity           = VALUE #(
               entity_id     = <ls_base_table>-entityname
               entity_id_raw = <ls_base_table>-entityname_raw
-              node_type     = lv_node_type
+              entity_type   = zif_dbbr_c_entity_type=>table
             )
-        ).
+          ).
+        ENDIF.
 
       ENDLOOP.
 
@@ -1042,21 +1126,15 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 *.. Create "Associations" Sub node
     DATA(lt_assoc) = io_cds_view->get_associations( ).
     IF lt_assoc IS NOT INITIAL.
-      DATA(lo_cds_assoc_node) = lo_nodes->add_node(
-          if_folder            = abap_true
-          iv_relative_node_key = io_cds_view_node->mv_node_key
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              font      = cl_item_tree_model=>item_font_prop
-              item_name = mo_tree->c_hierarchy_column
-              text      = 'Associations'(013) )
-          )
-          ir_user_data         = NEW ty_s_user_data(
-            entity_id = io_cds_view->mv_view_name
-            node_type = c_node_type-cds_assocs
-          )
+      DATA(lo_cds_assoc_node) = create_node(
+         if_folder            = abap_true
+         iv_parent_node       = io_cds_view_node->mv_node_key
+         iv_hier1_item_text   = |{ 'Associations'(013) }|
+         ir_user_data         = NEW ty_s_user_data(
+           entity_id = io_cds_view->mv_view_name
+           node_type = c_node_type-cds_assocs
+         )
       ).
-
 
       LOOP AT lt_assoc ASSIGNING FIELD-SYMBOL(<ls_assoc>).
         lv_node_type = SWITCH #( <ls_assoc>-kind
@@ -1067,29 +1145,32 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         ).
         lv_node_image = node_image_for_node_type( lv_node_type ).
 
-        DATA(lo_cds_assoc_view_node) = lo_nodes->add_node(
+        create_node(
             if_folder            = abap_true
-            iv_relative_node_key = lo_cds_assoc_node->mv_node_key
+            iv_parent_node       = lo_cds_assoc_node->mv_node_key
             if_expander          = abap_true
             iv_image             = lv_node_image
-            iv_expanded_image    = lv_node_image
-            it_item_table        = VALUE #(
-              ( class     = cl_item_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                item_name = mo_tree->c_hierarchy_column
-                text      = |{ <ls_assoc>-raw_name }| )
-              ( class     = cl_item_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = |({ <ls_assoc>-ref_cds_view_raw })|
-                item_name = c_hierarchy_node2
-                style     = zif_uitb_c_ctm_style=>inverted_blue )
-            )
+            iv_hier1_item_text   = |{ <ls_assoc>-raw_name }|
+            is_hier2_item        = VALUE #( text = |({ <ls_assoc>-ref_cds_view_raw })| style = zif_uitb_c_ctm_style=>inverted_blue )
             ir_user_data         = NEW ty_s_user_data(
               entity_id     = <ls_assoc>-ref_cds_view
               entity_id_raw = <ls_assoc>-ref_cds_view_raw
               node_type     = lv_node_type
             )
         ).
+
+        IF <ls_assoc>-kind = zif_dbbr_c_cds_assoc_type=>table.
+          IF lv_node_type = c_node_type-dbtable.
+            create_db_table_subnodes(
+              io_db_tab_view_node = lo_cds_base_table_node
+              is_entity           = VALUE #(
+                entity_id     = <ls_assoc>-ref_cds_view
+                entity_id_raw = <ls_assoc>-ref_cds_view_raw
+                entity_type   = zif_dbbr_c_entity_type=>table
+              )
+            ).
+          ENDIF.
+        ENDIF.
 
       ENDLOOP.
     ENDIF.
@@ -1145,7 +1226,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
             quickinfo = |{ 'Export Queries' }| )
           ( function  = c_functions-favorite_dropdown
             icon      = icon_system_favorites
-            quickinfo = |{ 'Favorites'(026) }|
+            quickinfo = |{ 'Search Favorites'(026) }|
             butn_type = cntb_btype_menu )
           ( butn_type = cntb_btype_sep )
           ( function  = 'HELP'
@@ -1192,6 +1273,86 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       on_node_double_click FOR lo_events,
       on_node_enter_key FOR lo_events,
       on_expand_no_children FOR lo_events.
+  ENDMETHOD.
+
+  METHOD expand_db_table.
+    DATA(ls_tabname) = zcl_dbbr_dictionary_helper=>get_table_info( iv_tablename = iv_tabname ).
+    create_db_table_subnodes(
+        io_db_tab_view_node = mo_tree->get_nodes( )->get_node( iv_node_key )
+        is_entity           = VALUE #( )
+    ).
+  ENDMETHOD.
+
+
+  METHOD expand_dbtab_view_properties.
+    DATA: lv_date      TYPE string,
+          lv_date_text TYPE string.
+
+    SELECT SINGLE *
+      FROM zdbbr_i_databaseentity( p_language = @sy-langu )
+      WHERE entity = @iv_tabname
+    INTO @DATA(ls_entity).
+
+    CHECK sy-subrc = 0.
+
+    create_node(
+        iv_parent_node     = iv_node_key
+        iv_hier1_item_text = |{ 'Responsible'(018) }|
+        iv_image           = zif_dbbr_c_icon=>user_menu
+        is_hier2_item      = VALUE #( text = |{ ls_entity-createdby }| class = c_text_class style = zif_uitb_c_ctm_style=>inverted_blue )
+        ir_user_data       = NEW ty_s_user_data(
+            node_type = COND #( WHEN iv_node_type = c_node_type-dbtable_properties THEN c_node_type-dbtable_owner_prop ELSE c_node_type-view_owner_prop )
+            owner     = ls_entity-createdby
+        )
+    ).
+    IF ls_entity-createddate IS INITIAL.
+      lv_date = |{ ls_entity-changeddate DATE = USER }|.
+      lv_date_text = |{ 'Last Changed on'(039) }|.
+    ELSE.
+      lv_date = |{ ls_entity-createddate DATE = USER }|.
+      lv_date_text = |{ 'Created On'(033) }|.
+    ENDIF.
+
+    create_node(
+        iv_parent_node     = iv_node_key
+        iv_hier1_item_text = lv_date_text
+        iv_image           = zif_dbbr_c_icon=>date
+        is_hier2_item      = VALUE #( text = lv_date class = c_text_class style = zif_uitb_c_ctm_style=>inverted_blue )
+    ).
+    create_node(
+        iv_parent_node     = iv_node_key
+        iv_hier1_item_text = |{ 'Package'(001) }|
+        iv_image           = zif_dbbr_c_icon=>package
+        is_hier2_item      = VALUE #( text = |{ ls_entity-developmentpackage }| class = c_text_class style = zif_uitb_c_ctm_style=>inverted_blue )
+        ir_user_data       = NEW ty_s_user_data(
+            node_type = COND #( WHEN iv_node_type = c_node_type-dbtable_properties THEN c_node_type-dbtable_package_prop ELSE c_node_type-view_package_prop )
+            devclass  = ls_entity-developmentpackage
+        )
+    ).
+
+    mo_tree->get_nodes( )->expand_node( iv_node_key ).
+  ENDMETHOD.
+
+  METHOD is_package_sub_node.
+    result = SWITCH #(
+      iv_node_type
+      WHEN c_node_type-cds_package_prop OR
+           c_node_type-dbtable_package_prop OR
+           c_node_type-view_package_prop THEN abap_true
+    ).
+  ENDMETHOD.
+
+  METHOD expand_foreign_key_tables.
+    DATA(lt_foreign_key_tables) = zcl_dbbr_dictionary_helper=>get_foreign_key_tables( iv_tabname = iv_tabname ).
+
+    CHECK lt_foreign_key_tables IS NOT INITIAL.
+
+    create_multiple_db_tab_tree(
+        it_table_definition = lt_foreign_key_tables
+        io_parent_node      = mo_tree->get_nodes( )->get_node( iv_node_key )
+    ).
+
+    mo_tree->get_nodes( )->expand_node( iv_node_key ).
   ENDMETHOD.
 
 
@@ -1277,68 +1438,38 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 *.. Create properties node of query
 *.. Create "Properties" Sub node
-    DATA(lo_query_props_node) = lo_nodes->add_node(
+    DATA(lo_query_props_node) = create_node(
        if_folder            = abap_true
-       iv_relative_node_key = iv_node_key
-       it_item_table        = VALUE #(
-         ( class     = cl_item_tree_model=>item_class_text
-           font      = cl_item_tree_model=>item_font_prop
-           item_name = mo_tree->c_hierarchy_column
-           text      = TEXT-017 )
-       )
+       iv_parent_node       = iv_node_key
+       iv_hier1_item_text   = |{ TEXT-017 }|
        ir_user_data         = NEW ty_s_user_data(
          entity_id = iv_query
          node_type = c_node_type-query_properties
        )
     ).
 
-    lo_nodes->add_node(
-        iv_relative_node_key = lo_query_props_node->mv_node_key
+    create_node(
+        iv_parent_node       = lo_query_props_node->mv_node_key
         iv_image             = zif_dbbr_c_icon=>user_menu
-        iv_expanded_image    = zif_dbbr_c_icon=>user_menu
-        it_item_table        = VALUE #(
-          ( class     = cl_item_tree_model=>item_class_text
-            font      = cl_item_tree_model=>item_font_prop
-            text      = |{ TEXT-018 }|
-            item_name = mo_tree->c_hierarchy_column )
-          ( class     = cl_item_tree_model=>item_class_text
-            font      = cl_item_tree_model=>item_font_prop
-            text      = |{ ls_query-created_by }|
-            item_name = c_hierarchy_node2
-            style     = zif_uitb_c_ctm_style=>inverted_blue )
+        iv_hier1_item_text   = |{ TEXT-018 }|
+        is_hier2_item        = VALUE #( text = |{ ls_query-created_by }| style = zif_uitb_c_ctm_style=>inverted_blue )
+        ir_user_data         = NEW ty_s_user_data(
+            entity_id     = ls_query-query_name
+            node_type     = c_node_type-query_owner_prop
+            owner         = ls_query-created_by
         )
     ).
-    lo_nodes->add_node(
-        iv_relative_node_key = lo_query_props_node->mv_node_key
+    create_node(
+        iv_parent_node       = lo_query_props_node->mv_node_key
         iv_image             = zif_dbbr_c_icon=>date
-        iv_expanded_image    = zif_dbbr_c_icon=>date
-        it_item_table        = VALUE #(
-          ( class     = cl_item_tree_model=>item_class_text
-            font      = cl_item_tree_model=>item_font_prop
-            text      = |{ TEXT-033 }|
-            item_name = mo_tree->c_hierarchy_column )
-          ( class     = cl_item_tree_model=>item_class_text
-            font      = cl_item_tree_model=>item_font_prop
-            text      = |{ ls_query-created_date DATE = USER }|
-            item_name = c_hierarchy_node2
-            style     = zif_uitb_c_ctm_style=>inverted_blue )
-        )
+        iv_hier1_item_text   = |{ TEXT-033 }|
+        is_hier2_item        = VALUE #( text = |{ ls_query-created_date DATE = USER }| style = zif_uitb_c_ctm_style=>inverted_blue )
     ).
-    lo_nodes->add_node(
-        iv_relative_node_key = lo_query_props_node->mv_node_key
+    create_node(
+        iv_parent_node       = lo_query_props_node->mv_node_key
         iv_image             = |{ icon_settings }|
-        iv_expanded_image    = |{ icon_settings }|
-        it_item_table        = VALUE #(
-          ( class     = cl_item_tree_model=>item_class_text
-            font      = cl_item_tree_model=>item_font_prop
-            text      = |{ 'Type' }|
-            item_name = mo_tree->c_hierarchy_column )
-          ( class     = cl_item_tree_model=>item_class_text
-            font      = cl_item_tree_model=>item_font_prop
-            text      = |{ COND #( WHEN ls_query-source IS INITIAL THEN 'Default' ELSE 'Custom' ) }|
-            item_name = c_hierarchy_node2
-            style     = zif_uitb_c_ctm_style=>inverted_blue )
-        )
+        iv_hier1_item_text   = |{ 'Type' }|
+        is_hier2_item        = VALUE #( text = |{ COND #( WHEN ls_query-source IS INITIAL THEN 'Default' ELSE 'Custom' ) }| style = zif_uitb_c_ctm_style=>inverted_blue )
     ).
 
 *.. Retrieve base tables of view
@@ -1346,15 +1477,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     IF lt_base_tables IS NOT INITIAL.
 
-      DATA(lo_query_entities_node) = lo_nodes->add_node(
+      DATA(lo_query_entities_node) = create_node(
          if_folder            = abap_true
-         iv_relative_node_key = lo_node->mv_node_key
-         it_item_table        = VALUE #(
-           ( class     = cl_item_tree_model=>item_class_text
-             font      = cl_item_tree_model=>item_font_prop
-             item_name = mo_tree->c_hierarchy_column
-             text      = |{ 'Entities' }| )
-         )
+         iv_parent_node       = lo_node->mv_node_key
+         iv_hier1_item_text   = |{ 'Entities' }|
       ).
 
       LOOP AT lt_base_tables ASSIGNING FIELD-SYMBOL(<ls_base_table>).
@@ -1365,29 +1491,25 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           WHEN zif_dbbr_c_entity_type=>cds_view THEN c_node_type-cds_view
         ).
         DATA(lv_image) = node_image_for_node_type( lv_node_type ).
-        DATA(lo_base_table_node) = lo_nodes->add_node(
+        DATA(lo_base_table_node) = create_node(
             if_folder            = abap_true
-            iv_relative_node_key = lo_query_entities_node->mv_node_key
+            iv_parent_node       = lo_query_entities_node->mv_node_key
             iv_image             = lv_image
-            iv_expanded_image    = lv_image
-            if_expander          = COND #( WHEN lv_node_type = c_node_type-view OR
-                                                lv_node_type = c_node_type-cds_view THEN abap_true )
-            it_item_table        = VALUE #(
-              ( class     = cl_item_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                item_name = mo_tree->c_hierarchy_column
-                text      = <ls_base_table>-entity_id_raw )
-              ( class     = cl_item_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                item_name = c_hierarchy_node2
-                style     = zif_uitb_c_ctm_style=>inverted_gray
-                text      = <ls_base_table>-description )
-            )
+            if_expander          = xsdbool( lv_node_type = c_node_type-cds_view )
+            iv_hier1_item_text   = |{ <ls_base_table>-entity_id_raw }|
+            is_hier2_item        = VALUE #( style = zif_uitb_c_ctm_style=>inverted_gray text = <ls_base_table>-description )
             ir_user_data         = NEW ty_s_user_data(
               entity_id = <ls_base_table>-entity_id
               node_type = lv_node_type
             )
         ).
+
+        IF lv_node_type <> c_node_type-cds_view.
+          create_db_table_subnodes(
+              io_db_tab_view_node = lo_base_table_node
+              is_entity           = <ls_base_table>
+          ).
+        ENDIF.
       ENDLOOP.
     ENDIF.
 
@@ -1401,6 +1523,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 *.. Retrieve base tables of view
     DATA(lt_base_tables) = zcl_dbbr_dictionary_helper=>find_base_tables_of_view( iv_view_name = iv_view ).
+
     LOOP AT lt_base_tables ASSIGNING FIELD-SYMBOL(<ls_base_table>).
       DATA(lv_node_type) = SWITCH #(
         <ls_base_table>-entity_type
@@ -1408,33 +1531,111 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         WHEN zif_dbbr_c_entity_type=>view  THEN c_node_type-view
       ).
       DATA(lv_image) = node_image_for_node_type( lv_node_type ).
-      DATA(lo_base_table_node) = lo_nodes->add_node(
+      DATA(lo_base_table_node) = create_node(
           if_folder            = abap_true
-          iv_relative_node_key = iv_node_key
+          iv_parent_node       = iv_node_key
           iv_image             = lv_image
           iv_expanded_image    = lv_image
-*          if_expander          = abap_true
-          it_item_table        = VALUE #(
-            ( class     = cl_item_tree_model=>item_class_text
-              font      = cl_item_tree_model=>item_font_prop
-              item_name = mo_tree->c_hierarchy_column
-              text      = <ls_base_table>-entity_id )
-            ( class     = cl_item_tree_model=>item_class_text
-              font      = cl_item_tree_model=>item_font_prop
-              item_name = c_hierarchy_node2
-              style     = zif_uitb_c_ctm_style=>inverted_gray
-              text      = <ls_base_table>-description )
-          )
+          iv_hier1_item_text   = |{ <ls_base_table>-entity_id }|
+          is_hier2_item        = VALUE #( style = zif_uitb_c_ctm_style=>inverted_gray text = <ls_base_table>-description )
           ir_user_data         = NEW ty_s_user_data(
             entity_id = <ls_base_table>-entity_id
             node_type = lv_node_type
           )
+      ).
+      create_db_table_subnodes(
+          io_db_tab_view_node = lo_base_table_node
+          is_entity           = <ls_base_table>
       ).
     ENDLOOP.
 
     lo_nodes->expand_node( iv_node_key ).
   ENDMETHOD.
 
+  METHOD expand_tech_settings_node.
+    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    SELECT SINGLE *
+     FROM zdbbr_i_dbtabletechsettings( p_language = @lv_language )
+     WHERE tablename = @iv_tabname
+    INTO @DATA(ls_tech_settings).
+
+    CHECK sy-subrc = 0.
+
+    create_node(
+      iv_parent_node     = iv_node_key
+      iv_hier1_item_text = |{ 'Delivery Class' }|
+      is_hier2_item      = VALUE #( text = |'{ ls_tech_settings-deliveryclass }'| style = zif_uitb_c_ctm_style=>inverted_blue )
+      is_hier3_item      = COND #(
+        WHEN ls_tech_settings-deliveryclasstext IS NOT INITIAL THEN
+          VALUE #( text = |{ ls_tech_settings-deliveryclasstext }| style = zif_uitb_c_ctm_style=>inverted_gray )
+      )
+    ).
+    create_node(
+      iv_parent_node     = iv_node_key
+      iv_hier1_item_text = |{ 'Size Category' }|
+      is_hier2_item      = VALUE #( text = |'{ ls_tech_settings-sizecategory }'| style = zif_uitb_c_ctm_style=>inverted_blue )
+      is_hier3_item      = COND #(
+        WHEN ls_tech_settings-sizecategorytext IS NOT INITIAL THEN
+          VALUE #( text = |{ ls_tech_settings-sizecategorytext }| style = zif_uitb_c_ctm_style=>inverted_gray )
+      )
+    ).
+    create_node(
+      iv_parent_node     = iv_node_key
+      iv_hier1_item_text = |{ 'Data Class' }|
+      is_hier2_item      = VALUE #( text = |'{ ls_tech_settings-dataclass }'| style = zif_uitb_c_ctm_style=>inverted_blue )
+      is_hier3_item      = COND #(
+        WHEN ls_tech_settings-dataclasstext IS NOT INITIAL THEN
+          VALUE #( text = |{ ls_tech_settings-dataclasstext }| style = zif_uitb_c_ctm_style=>inverted_gray )
+      )
+    ).
+    create_node(
+      iv_parent_node     = iv_node_key
+      iv_hier1_item_text = |{ 'Buffering' }|
+      is_hier2_item      = VALUE #( text = |'{ ls_tech_settings-bufferingindicator }'| style = zif_uitb_c_ctm_style=>inverted_blue )
+      is_hier3_item      = COND #(
+        WHEN ls_tech_settings-bufferingindicatortext IS NOT INITIAL THEN
+          VALUE #( text = |{ ls_tech_settings-bufferingindicatortext }| style = zif_uitb_c_ctm_style=>inverted_gray )
+      )
+    ).
+
+    mo_tree->get_nodes( )->expand_node( iv_node_key ).
+  ENDMETHOD.
+
+  METHOD export_queries.
+    DATA: lt_query_to_export  TYPE zdbbr_query_info_ui_itab,
+          lt_query_name_range TYPE RANGE OF zdbbr_query_name.
+
+    DATA(lt_selected_nodes) = mo_tree->get_selections( )->get_selected_nodes( ).
+    IF lt_selected_nodes IS INITIAL.
+      MESSAGE |Select at least one Query| TYPE 'S'.
+      RETURN.
+    ENDIF.
+
+*.. Only collect nodes of type query
+    LOOP AT lt_selected_nodes ASSIGNING FIELD-SYMBOL(<lr_node>).
+      DATA(lr_user_data) = CAST ty_s_user_data( <lr_node>->get_user_data( ) ).
+      CHECK lr_user_data IS BOUND.
+
+      IF lr_user_data->node_type = c_node_type-query.
+        lt_query_name_range = VALUE #( BASE lt_query_name_range ( sign = 'I' option = 'EQ' low = lr_user_data->entity_id ) ).
+      ENDIF.
+    ENDLOOP.
+
+    IF lt_query_name_range IS INITIAL.
+      MESSAGE |There are no Query nodes in the current selection. Export was cancelled| TYPE 'S'.
+      RETURN.
+    ENDIF.
+
+*.. Collect ids for the query names
+    SELECT query_id
+      FROM zdbbr_queryh
+      WHERE query_name IN @lt_query_name_range
+    INTO CORRESPONDING FIELDS OF TABLE @lt_query_to_export.
+
+    NEW zcl_dbbr_query_exporter(
+      it_query_info = lt_query_to_export
+    )->export_data( ).
+  ENDMETHOD.
 
   METHOD fill_favorite_dd_menu.
     CLEAR: mt_fav_func_query_map.
@@ -1527,12 +1728,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     update_toolbar( ).
 
-    mo_input_dd->merge_document( ).
-
-    mo_input_dd->display_document(
-        reuse_control      = abap_true
-        reuse_registration = abap_true
-    ).
+    adapt_and_display_html_inp( ).
 
     TRY.
         IF mo_search_query IS INITIAL OR
@@ -1598,9 +1794,27 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
             iv_node_key = ev_node_key
         ).
 
-      WHEN c_node_type-dbtable.
+      WHEN c_node_type-dbtable_foreign_key.
+        expand_foreign_key_tables(
+          iv_tabname  = lr_user_data->entity_id
+          iv_node_key = ev_node_key
+        ).
 
-      WHEN c_node_type-view.
+      WHEN c_node_type-dbtable_tech_settings.
+        expand_tech_settings_node(
+          iv_tabname  = lr_user_data->entity_id
+          iv_node_key = ev_node_key
+        ).
+
+      WHEN c_node_type-dbtable_properties OR
+           c_node_type-view_properties.
+        expand_dbtab_view_properties(
+          iv_tabname   = lr_user_data->entity_id
+          iv_node_type = lr_user_data->node_type
+          iv_node_key  = ev_node_key
+        ).
+
+      WHEN c_node_type-view_tables.
         expand_view_node(
            iv_view     = lr_user_data->entity_id
            iv_node_key = ev_node_key
@@ -1641,12 +1855,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       update_toolbar( ).
 
-      mo_input_dd->merge_document( ).
-
-      mo_input_dd->display_document(
-          reuse_control      = abap_true
-          reuse_registration = abap_true
-      ).
+      adapt_and_display_html_inp( ).
       focus( ).
 
       IF ef_close_popup = abap_true.
@@ -1710,15 +1919,26 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
             er_menu->add_separator( ).
             er_menu->add_function(
                 fcode = c_functions-used_in_select_from
-                text  = |{ 'Show uses in FROM of CDS Views' }|
+                text  = |{ 'Show uses in FROM of CDS Views'(040) }|
             ).
             er_menu->add_function(
                 fcode = c_functions-used_as_assoc
-                text  = |{ 'Show uses as Associations of CDS Views' }|
+                text  = |{ 'Show uses as Associations of CDS Views'(041) }|
             ).
           ENDIF.
 
         WHEN OTHERS.
+          IF is_package_sub_node( <ls_user_data>-node_type ).
+            er_menu->add_function(
+              fcode = c_functions-add_package_to_query
+              text  = |{ 'Add package to current Query'(042) }|
+            ).
+            er_menu->add_function(
+              fcode = c_functions-add_root_package_to_query
+              text  = |{ 'Add root package to current Query'(043) }|
+            ).
+          ENDIF.
+
       ENDCASE.
     ELSE.
 *.... Several nodes are selected
@@ -1730,6 +1950,8 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 
   METHOD on_node_context_menu_select.
+    DATA: lf_no_data TYPE abap_bool.
+
     DATA(lr_user_data) = mo_tree->get_nodes( )->get_node( ev_node_key )->get_user_data( ).
     CHECK lr_user_data IS BOUND.
 
@@ -1774,12 +1996,17 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
             if_load_parameters = abap_true.
 
       WHEN c_functions-exec_with_dbbrs_new_window.
+*...... Check if there is an actual result to show
+*        IF zcl_dbbr_dictionary_helper=>exists_data_for_entity( <ls_user_data>-entity_id ).
         CALL FUNCTION 'ZDBBR_SHOW_SELSCREEN' STARTING NEW TASK 'ZDBBR_OBJ_BRS_EXEC_JUMP'
           EXPORTING
             iv_entity_id       = <ls_user_data>-entity_id
             iv_entity_type     = lv_entity_type
             if_skip_selscreen  = abap_true
             if_load_parameters = abap_true.
+*        ELSE.
+*          MESSAGE i086(zdbbr_info).
+*        ENDIF.
 
       WHEN c_functions-exec_with_dbbrs.
         DATA(lo_variant_starter) = zcl_dbbr_variant_starter_fac=>create_variant_starter(
@@ -1796,11 +2023,16 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         ENDTRY.
 
       WHEN c_functions-show_ddl_source.
+        IF mv_theme IS INITIAL.
+          mv_theme = CAST zdbbr_user_settings_a( zcl_dbbr_usersettings_factory=>get_current_settings( ) )->code_viewer_theme.
+        ENDIF.
+
         TRY.
             DATA(lv_source) = zcl_dbbr_cds_view_factory=>read_ddls_source( <ls_user_data>-entity_id ).
             zcl_uitb_abap_code_viewer=>show_code(
                 iv_title = |DDL Source { <ls_user_data>-entity_id_raw }|
                 iv_code  = lv_source
+                iv_theme = mv_theme
             ).
           CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
             lx_app_error->zif_dbbr_exception_message~print( ).
@@ -1822,6 +2054,30 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
             ev_object_type  = zif_dbbr_c_object_browser_mode=>cds_view
             ev_search_query = |from:{ <ls_user_data>-entity_id }|
             ef_close_popup  = abap_false
+        ).
+
+      WHEN c_functions-add_package_to_query.
+        on_external_object_search_req(
+           ev_object_type  = |{ mo_search_type_select->value }|
+           ev_search_query = |{ mo_search_input->value } package:{ <ls_user_data>-devclass }|
+           ef_close_popup  = abap_false
+        ).
+
+      WHEN c_functions-add_root_package_to_query.
+        cl_pak_package_queries=>get_root_package(
+          EXPORTING im_package      = <ls_user_data>-devclass
+          IMPORTING ev_root_package = DATA(lv_root_pack)
+          EXCEPTIONS OTHERS         = 1
+        ).
+        IF sy-subrc <> 0.
+          MESSAGE ID sy-msgid TYPE 'S' NUMBER sy-msgno
+            WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4 DISPLAY LIKE sy-msgty.
+          RETURN.
+        ENDIF.
+        on_external_object_search_req(
+           ev_object_type  = |{ mo_search_type_select->value }|
+           ev_search_query = |{ mo_search_input->value } package:{ lv_root_pack }|
+           ef_close_popup  = abap_false
         ).
     ENDCASE.
   ENDMETHOD.
@@ -1855,6 +2111,40 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
            <ls_user_data>-node_type = c_node_type-cds_assocs OR
            <ls_user_data>-node_type = c_node_type-cds_properties.
       mo_tree->get_nodes( )->toggle_node( ev_node_key ).
+
+*... Trigger new owner:/package: queries depending on the entity
+    ELSEIF <ls_user_data>-node_type = c_node_type-dbtable_owner_prop OR
+           <ls_user_data>-node_type = c_node_type-dbtable_package_prop OR
+           <ls_user_data>-node_type = c_node_type-query_owner_prop OR
+           <ls_user_data>-node_type = c_node_type-view_package_prop OR
+           <ls_user_data>-node_type = c_node_type-view_owner_prop OR
+           <ls_user_data>-node_type = c_node_type-cds_owner_prop OR
+           <ls_user_data>-node_type = c_node_type-cds_package_prop.
+
+      DATA(lv_query_param) = SWITCH #(
+        <ls_user_data>-node_type
+        WHEN c_node_type-dbtable_package_prop OR
+             c_node_type-view_package_prop    OR
+             c_node_type-cds_package_prop        THEN |{ 'package:' }|
+        ELSE |{ 'owner:' }|
+      ).
+      DATA(lv_query_param_value) = SWITCH #(
+        <ls_user_data>-node_type
+        WHEN c_node_type-dbtable_package_prop OR
+             c_node_type-view_package_prop    OR
+             c_node_type-cds_package_prop        THEN |{ <ls_user_data>-devclass }|
+        ELSE |{ <ls_user_data>-owner }|
+      ).
+      on_external_object_search_req(
+          ev_object_type  = SWITCH #( <ls_user_data>-node_type
+            WHEN c_node_type-cds_owner_prop OR
+                 c_node_type-cds_package_prop THEN zif_dbbr_c_object_browser_mode=>cds_view
+            WHEN c_node_type-query_owner_prop THEN zif_dbbr_c_object_browser_mode=>query
+            ELSE zif_dbbr_c_object_browser_mode=>database_table_view
+          )
+          ev_search_query = |{ lv_query_param }{ lv_query_param_value }|
+          ef_close_popup  = abap_false
+      ).
     ENDIF.
   ENDMETHOD.
 
@@ -1869,7 +2159,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     IF mo_search_query IS INITIAL OR
        mo_search_query->mv_query <> mo_search_input->value OR
-       mo_search_query->mv_search_option <> mo_search_type_select->value.
+       mo_search_query->mv_type <> mo_search_type_select->value.
 
       TRY.
           mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
@@ -1893,7 +2183,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     IF mo_search_query IS INITIAL OR
        mo_search_query->mv_query <> mo_search_input->value OR
-       mo_search_query->mv_search_option <> mo_search_type_select->value.
+       mo_search_query->mv_type <> mo_search_type_select->value.
 
       TRY.
           mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
@@ -1950,12 +2240,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     ENDCASE.
 
-    mo_input_dd->merge_document( ).
-
-    mo_input_dd->display_document(
-        reuse_control      = abap_true
-        reuse_registration = abap_true
-    ).
+    adapt_and_display_html_inp( ).
 
     update_toolbar( ).
   ENDMETHOD.
@@ -2067,18 +2352,16 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     mo_search_input->set_value( |{ lv_package }| ).
     mv_current_search_type = zif_dbbr_c_object_browser_mode=>package.
     mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>package }| ).
-    mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
-        iv_query = |{ lv_package }|
-        iv_search_type = zif_dbbr_c_object_browser_mode=>package
-    ).
+    TRY.
+        mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
+            iv_query = |{ lv_package }|
+            iv_search_type = zif_dbbr_c_object_browser_mode=>package
+        ).
+      CATCH zcx_dbbr_object_search.
+    ENDTRY.
     add_history_entry( ).
 
-    mo_input_dd->merge_document( ).
-
-    mo_input_dd->display_document(
-        reuse_control      = abap_true
-        reuse_registration = abap_true
-    ).
+    adapt_and_display_html_inp( ).
 
   ENDMETHOD.
 
@@ -2117,18 +2400,12 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           WHEN zif_dbbr_c_object_browser_mode=>cds_view.
             lt_search_result = NEW zcl_dbbr_ob_cds_searcher( ir_query = mo_search_query )->zif_dbbr_object_searcher~search( ).
             lv_found_lines = lines( lt_search_result ).
+            show_results_message( iv_result_count = lv_found_lines  iv_max_count = mo_search_query->mv_max_rows ).
             IF lv_found_lines = 0.
-              MESSAGE s086(zdbbr_info).
               clear_tree( ).
             ELSEIF lv_found_lines = 1.
               create_single_cds_view_tree( EXPORTING io_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( |{ lt_search_result[ 1 ]-entity_id }| ) ).
-              MESSAGE s087(zdbbr_info) WITH 1.
             ELSEIF lv_found_lines > 1.
-              IF lv_found_lines >= mo_search_query->mv_max_rows.
-                MESSAGE s084(zdbbr_info) WITH mo_search_query->mv_max_rows.
-              ELSE.
-                MESSAGE s087(zdbbr_info) WITH lv_found_lines.
-              ENDIF.
               create_multiple_cds_view_tree( EXPORTING it_cds_view_header = lt_search_result ).
             ENDIF.
 
@@ -2148,18 +2425,12 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           WHEN zif_dbbr_c_object_browser_mode=>database_table_view.
             lt_search_result = NEW zcl_dbbr_ob_dbtab_searcher( ir_query = mo_search_query )->zif_dbbr_object_searcher~search( ).
             lv_found_lines = lines( lt_search_result ).
+            show_results_message( iv_result_count = lv_found_lines  iv_max_count = mo_search_query->mv_max_rows ).
             IF lv_found_lines = 0.
-              MESSAGE s086(zdbbr_info).
               clear_tree( ).
             ELSEIF lv_found_lines = 1.
               create_single_db_tab_tree( lt_search_result[ 1 ] ).
-              MESSAGE s087(zdbbr_info) WITH 1.
             ELSEIF lv_found_lines > 1.
-              IF lv_found_lines >= mo_search_query->mv_max_rows.
-                MESSAGE s084(zdbbr_info) WITH mo_search_query->mv_max_rows.
-              ELSE.
-                MESSAGE s087(zdbbr_info) WITH lv_found_lines.
-              ENDIF.
               create_multiple_db_tab_tree( it_table_definition = lt_search_result ).
             ENDIF.
 
@@ -2167,18 +2438,12 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           WHEN zif_dbbr_c_object_browser_mode=>query.
             lt_search_result = NEW zcl_dbbr_ob_query_searcher( ir_query = mo_search_query )->zif_dbbr_object_searcher~search( ).
             lv_found_lines = lines( lt_search_result ).
+            show_results_message( iv_result_count = lv_found_lines  iv_max_count = mo_search_query->mv_max_rows ).
             IF lv_found_lines = 0.
-              MESSAGE s086(zdbbr_info).
               clear_tree( ).
             ELSEIF lv_found_lines = 1.
               create_query_tree( lt_search_result ).
-              MESSAGE s087(zdbbr_info) WITH 1.
             ELSEIF lv_found_lines > 1.
-              IF lv_found_lines >= mo_search_query->mv_max_rows.
-                MESSAGE s084(zdbbr_info) WITH mo_search_query->mv_max_rows.
-              ELSE.
-                MESSAGE s087(zdbbr_info) WITH lv_found_lines.
-              ENDIF.
               create_query_tree( lt_search_result ).
             ENDIF.
         ENDCASE.
@@ -2188,6 +2453,20 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_error).
         lx_appl_error->zif_dbbr_exception_message~print( iv_display_type = 'E' ).
     ENDTRY.
+  ENDMETHOD.
+
+  METHOD show_results_message.
+    IF iv_result_count = 0.
+      MESSAGE s086(zdbbr_info).
+    ELSEIF iv_result_count = 1.
+      MESSAGE s094(zdbbr_info).
+    ELSEIF iv_result_count > 1.
+      IF iv_result_count >= iv_max_count.
+        MESSAGE s084(zdbbr_info) WITH iv_max_count.
+      ELSE.
+        MESSAGE s087(zdbbr_info) WITH iv_result_count.
+      ENDIF.
+    ENDIF.
   ENDMETHOD.
 
 
@@ -2276,58 +2555,31 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     mo_search_input->set_value( |owner:me| ).
     mo_search_type_select->set_value( |{ lv_search_type }| ).
     mv_current_search_type = lv_search_type.
-    mo_input_dd->merge_document( ).
-
-    mo_input_dd->display_document(
-        reuse_control      = abap_true
-        reuse_registration = abap_true
-    ).
+    adapt_and_display_html_inp( ).
     on_search_input_enter( ).
   ENDMETHOD.
 
 
-  METHOD export_queries.
-    DATA: lt_query_to_export  TYPE zdbbr_query_info_ui_itab,
-          lt_query_name_range TYPE RANGE OF zdbbr_query_name.
-
-    DATA(lt_selected_nodes) = mo_tree->get_selections( )->get_selected_nodes( ).
-    IF lt_selected_nodes IS INITIAL.
-      MESSAGE |Select at least one Query| TYPE 'S'.
-      RETURN.
-    ENDIF.
-
-*.. Only collect nodes of type query
-    LOOP AT lt_selected_nodes ASSIGNING FIELD-SYMBOL(<lr_node>).
-      DATA(lr_user_data) = CAST ty_s_user_data( <lr_node>->get_user_data( ) ).
-      CHECK lr_user_data IS BOUND.
-
-      IF lr_user_data->node_type = c_node_type-query.
-        lt_query_name_range = VALUE #( BASE lt_query_name_range ( sign = 'I' option = 'EQ' low = lr_user_data->entity_id ) ).
-      ENDIF.
-    ENDLOOP.
-
-    IF lt_query_name_range IS INITIAL.
-      MESSAGE |There are no Query nodes in the current selection. Export was cancelled| TYPE 'S'.
-      RETURN.
-    ENDIF.
-
-*.. Collect ids for the query names
-    SELECT query_id
-      FROM zdbbr_queryh
-      WHERE query_name IN @lt_query_name_range
-    INTO CORRESPONDING FIELDS OF TABLE @lt_query_to_export.
-
-    NEW zcl_dbbr_query_exporter(
-      it_query_info = lt_query_to_export
-    )->export_data( ).
-  ENDMETHOD.
-
-
   METHOD update_history_buttons.
-    DATA: lf_previous TYPE abap_bool,
-          lf_next     TYPE abap_bool.
+    DATA: lf_previous        TYPE abap_bool,
+          lv_function_text   TYPE gui_text,
+          lv_function_string TYPE char256,
+          lf_next            TYPE abap_bool.
 
     FIELD-SYMBOLS: <ls_history> LIKE LINE OF mt_history_stack.
+
+    DEFINE set_function_text.
+      lv_function_string = SWITCH #( <ls_history>-query->mv_type
+          WHEN zif_dbbr_c_object_browser_mode=>cds_view THEN `CDS: `
+          WHEN zif_dbbr_c_object_browser_mode=>database_table_view THEN `DB Tab/View: `
+          WHEN zif_dbbr_c_object_browser_mode=>package THEN `Package: `
+          WHEN zif_dbbr_c_object_browser_mode=>query THEN `Query: `
+      ) && <ls_history>-query->mv_query.
+      lv_function_text = lv_function_string.
+      IF strlen( lv_function_string ) > 40.
+        lv_function_text+37 = '...'.
+      ENDIF.
+    END-OF-DEFINITION.
 
     DATA(lv_history_lines) = lines( mt_history_stack ).
 
@@ -2354,14 +2606,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     IF lf_next = abap_true.
       DATA(lo_next_menu) = NEW cl_ctmenu( ).
       LOOP AT mt_history_stack ASSIGNING <ls_history> TO lv_current_entry - 1.
+        set_function_text.
         lo_next_menu->add_function(
             fcode = <ls_history>-id
-            text  = SWITCH #( <ls_history>-query->mv_type
-              WHEN zif_dbbr_c_object_browser_mode=>cds_view THEN `CDS: `
-              WHEN zif_dbbr_c_object_browser_mode=>database_table_view THEN `DB Tab/View: `
-              WHEN zif_dbbr_c_object_browser_mode=>package THEN `Package: `
-              WHEN zif_dbbr_c_object_browser_mode=>query THEN `Query: `
-            ) && <ls_history>-query->mv_query
+            text  = lv_function_text
             insert_at_the_top = abap_true
         ).
       ENDLOOP.
@@ -2373,14 +2621,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     IF lf_previous = abap_true.
       DATA(lo_previous_menu) = NEW cl_ctmenu( ).
       LOOP AT mt_history_stack ASSIGNING <ls_history> FROM lv_current_entry + 1.
+        set_function_text.
         lo_previous_menu->add_function(
             fcode = <ls_history>-id
-            text  = SWITCH #( <ls_history>-query->mv_type
-              WHEN zif_dbbr_c_object_browser_mode=>cds_view THEN `CDS: `
-              WHEN zif_dbbr_c_object_browser_mode=>database_table_view THEN `DB Tab/View: `
-              WHEN zif_dbbr_c_object_browser_mode=>package THEN `Package: `
-              WHEN zif_dbbr_c_object_browser_mode=>query THEN `Query: `
-            ) && <ls_history>-query->mv_query
+            text  = lv_function_text
         ).
       ENDLOOP.
       IF sy-subrc = 0.
@@ -2401,12 +2645,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     update_toolbar( ).
 
-    mo_input_dd->merge_document( ).
-
-    mo_input_dd->display_document(
-        reuse_control      = abap_true
-        reuse_registration = abap_true
-    ).
+    adapt_and_display_html_inp( ).
     focus( ).
 
     trigger_new_search( ).
@@ -2527,5 +2766,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
     ENDTRY.
   ENDMETHOD.
+
+
+
+
 
 ENDCLASS.

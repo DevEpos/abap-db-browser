@@ -51,6 +51,8 @@ CLASS zcl_dbbr_query_selection_util IMPLEMENTATION.
 *... fill jump destination fields
     mt_jumpdest = NEW zcl_dbbr_jump_destination_f( )->get_jump_destinations( iv_query_id = ls_query-query_id ).
     DELETE mt_jumpdest WHERE is_active = abap_false.
+
+    super->init( ).
   ENDMETHOD.
 
   METHOD read_entity_infos.

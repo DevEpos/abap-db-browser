@@ -428,6 +428,12 @@
      <MSGNR>069</MSGNR>
      <TEXT>You are not allowed to edit the Query &amp;1</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>070</MSGNR>
+     <TEXT>Package &apos;&amp;1&apos; could not be found</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

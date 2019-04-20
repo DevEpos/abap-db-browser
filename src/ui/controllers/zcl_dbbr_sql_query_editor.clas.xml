@@ -31,6 +31,18 @@
      <ENTRY>Pretty Printer</ENTRY>
      <LENGTH>24</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Code Completion</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>005</KEY>
+     <ENTRY>Show Code completion results</ENTRY>
+     <LENGTH>56</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -53,9 +65,21 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_SQL_QUERY_EDITOR</CLSNAME>
+     <CMPNAME>IS_MODIFIED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks the modification state of the editor</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_EDITOR</CLSNAME>
      <CMPNAME>SAVE_QUERY</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Saves the current query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_EDITOR</CLSNAME>
+     <CMPNAME>TEST_QUERY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Tests the current query string</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

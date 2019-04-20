@@ -82,16 +82,10 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
         it_button    = VALUE #(
           ( function = c_functions-edit_name
             icon     = icon_change
-            text     = |{ 'Change' }| )
-*          ( function = c_functions-move_up
-*            icon     = zif_dbbr_c_icon=>up_arrow
-*            quickinfo = |{ 'Move Item up' }| )
-*          ( function = c_functions-move_down
-*            icon     = zif_dbbr_c_icon=>down_arrow
-*            quickinfo = |{ 'Move Item down' }| )
+            text     = |{ 'Change'(007) }| )
           ( function = c_functions-delete
             icon     = icon_delete
-            quickinfo = |{ 'Delete Favorite' }| )
+            quickinfo = |{ text-006 }| )
         )
       IMPORTING
         eo_toolbar   = DATA(lo_toolbar)
@@ -103,8 +97,8 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
 
   METHOD do_before_dynpro_output.
     io_callback->map_fkey_functions( VALUE #(
-      ( fkey = zif_uitb_c_gui_screen=>c_functions-ctrl_f1 mapped_function = c_functions-focus_tree text = |{ 'Set focus to Tree' }| )
-      ( fkey = zif_uitb_c_gui_screen=>c_functions-shift_f2 mapped_function = c_functions-delete text = |{ 'Delete Favorite' }| )
+      ( fkey = zif_uitb_c_gui_screen=>c_functions-ctrl_f1 mapped_function = c_functions-focus_tree text = |{ 'Set focus to Tree'(005) }| )
+      ( fkey = zif_uitb_c_gui_screen=>c_functions-shift_f2 mapped_function = c_functions-delete text = |{ 'Delete Favorite'(006) }| )
     ) ).
   ENDMETHOD.
 
@@ -118,7 +112,7 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
     mo_tree = NEW zcl_uitb_column_tree_model(
       ir_parent           = io_parent
       is_hierarchy_header = VALUE #(
-         heading = |{ 'Object' }|
+         heading = |{ 'Object Type/Query'(003) }|
          width   = 100
       )
       if_auto_node_key    = abap_true
@@ -127,7 +121,7 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
     mo_tree->get_columns( )->add_column(
         iv_colname        = c_cols-description
         iv_width          = 50
-        iv_header_text    = |{ 'Description' }|
+        iv_header_text    = |{ 'Description'(004) }|
     ).
 
     set handler:
@@ -189,7 +183,7 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
     DATA(lv_result) = zcl_dbbr_appl_util=>popup_get_value(
       EXPORTING
         is_field = VALUE #( tabname = 'ZDBBR_OBJBRSFAV' fieldname = 'FAVORITE_NAME' field_obl = abap_true value = lr_user_data->favorite_name )
-        iv_title = |{ 'Enter new name for the favorite' }|
+        iv_title = |{ 'Enter new name for the favorite'(001) }|
       IMPORTING
         ef_cancelled = lf_cancelled
     ).
@@ -219,7 +213,7 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
 
     IF zcl_dbbr_appl_util=>popup_to_confirm(
             iv_title  = 'Delete?'
-            iv_query  = |{ 'Are you sure you want to delete the selected Favorite' } | &&
+            iv_query  = |{ 'Are you sure you want to delete the selected Favorite'(002) } | &&
                         |'{ lr_user_data->favorite_name }'|
             iv_icon_type             = 'ICON_MESSAGE_WARNING' ) = '1'.
       CHECK zcl_dbbr_ob_fav_factory=>delete_favorite( lr_user_data->id ).

@@ -28,16 +28,32 @@
      </TLINE>
      <TLINE>
       <TDFORMAT>*</TDFORMAT>
-      <TDLINE>The object search can be used in one of the following ways. Either you</TDLINE>
+      <TDLINE>The object search can be used in one of the following ways. You can</TDLINE>
      </TLINE>
      <TLINE>
-      <TDLINE>enter a name directly without any wildcards e.g. MARA, then an object</TDLINE>
+      <TDLINE>enter a search term, which can contain the following wildcards:</TDLINE>
      </TLINE>
      <TLINE>
-      <TDLINE>with this name has to exist or you enter the name with wildcards like</TDLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>&apos;&lt;ZH&gt;*&lt;/&gt;&apos;: any string</TDLINE>
      </TLINE>
      <TLINE>
-      <TDLINE>MAR*, then all objects that start with MAR will be returned.</TDLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>&apos;&lt;ZH&gt;+&lt;/&gt;&apos;: any character</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>B1</TDFORMAT>
+      <TDLINE>Ending with &apos;&lt;ZH&gt;&lt;(&gt;&lt;&lt;)&gt;&lt;/&gt;&apos; will prevent the automatic prefix matching</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>/</TDFORMAT>
+      <TDLINE>i.e. a search term &lt;ZK&gt;i_product&lt;/&gt; will find all objects that start</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>with &lt;ZK&gt;i_product&lt;/&gt;, and &lt;ZK&gt;i_product&lt;(&gt;&lt;&lt;)&gt;&lt;/&gt; will only find</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDLINE>objects that are named &lt;ZK&gt;i_product&lt;/&gt;.</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>*</TDFORMAT>
@@ -109,7 +125,7 @@
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>api,,API State,,X,,[released,key_user,custom_fields,remote,cloud]</TDLINE>
+      <TDLINE>api,,API State,,X,,[released,key_user,add_custom_fields,remote,cloud]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
@@ -134,6 +150,10 @@
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
       <TDLINE>field,,Fieldname of object,,X,,*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>extby,,Extension view,,-,,*</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
@@ -217,6 +237,10 @@
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
       <TDLINE>field,,X,,X,,-,,-</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>extby,,X,,-,,-,,-</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>

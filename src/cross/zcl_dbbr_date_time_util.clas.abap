@@ -46,7 +46,21 @@ CLASS zcl_dbbr_date_time_util IMPLEMENTATION.
 
 *.. Try to convert entered value into date
     IF if_is_date = abap_true.
-      DATA(lv_date) = convert_to_date_internal( iv_value ).
+      TRY.
+          DATA(lv_date) = convert_to_date_internal( iv_value ).
+        CATCH zcx_dbbr_conversion_exc.
+*........ Try conversion as the given value is in timestamp display format
+          rv_value = iv_value.
+          zcl_dbbr_data_converter=>convert_values_to_int_format(
+            EXPORTING
+              iv_rollname            = iv_rollname
+              if_print_error_message = abap_false
+            CHANGING
+              cv_value1   = rv_value
+          ).
+          return.
+      ENDTRY.
+
 
       IF iv_domain = zif_dbbr_global_consts=>c_domain_names-timestamp.
         CONVERT DATE lv_date TIME lv_time INTO TIME STAMP lv_timestamp TIME ZONE iv_time_zone.
@@ -70,6 +84,7 @@ CLASS zcl_dbbr_date_time_util IMPLEMENTATION.
         ENDIF.
       ENDIF.
     ELSE.
+      rv_value = iv_value.
       zcl_dbbr_data_converter=>convert_values_to_int_format(
         EXPORTING
           iv_rollname            = iv_rollname

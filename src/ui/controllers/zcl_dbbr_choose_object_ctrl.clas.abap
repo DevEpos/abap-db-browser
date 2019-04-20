@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Controller for choosing a table/query</p>
 CLASS zcl_dbbr_choose_object_ctrl DEFINITION
   PUBLIC
   FINAL
@@ -6,6 +7,8 @@ CLASS zcl_dbbr_choose_object_ctrl DEFINITION
   PUBLIC SECTION.
 
     INTERFACES zif_uitb_screen_controller .
+    ALIASES was_not_cancelled
+      FOR zif_uitb_screen_controller~was_not_cancelled.
 
     METHODS constructor
       IMPORTING
@@ -13,8 +16,8 @@ CLASS zcl_dbbr_choose_object_ctrl DEFINITION
         if_for_fav_menu    TYPE abap_bool OPTIONAL.
     METHODS get_chosen_entry
       EXPORTING
-        !ev_entry    TYPE tabname
-        !ev_type     TYPE zdbbr_favmenu_type .
+        !ev_entry TYPE tabname
+        !ev_type  TYPE zdbbr_favmenu_type .
     METHODS validate_user_input
       IMPORTING
         !iv_function_code TYPE sy-ucomm .

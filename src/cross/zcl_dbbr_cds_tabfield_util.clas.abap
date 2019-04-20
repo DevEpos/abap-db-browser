@@ -37,7 +37,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
+CLASS ZCL_DBBR_CDS_TABFIELD_UTIL IMPLEMENTATION.
 
 
   METHOD add_parameters.
@@ -58,6 +58,8 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
            'LANGU'
         WHEN <ls_param>-datatype = 'DATS' THEN
            'DATS'
+        WHEN <ls_param>-datatype = 'TIMS' THEN
+           'TIMS'
       ).
 
       DATA(ls_tabfield) = VALUE zdbbr_tabfield_info_ui(
@@ -91,6 +93,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
         ls_tabfield-domname = ls_datel-domname.
         ls_tabfield-outputlen = ls_datel-outputlen.
         ls_tabfield-convexit = ls_datel-convexit.
+        ls_tabfield-is_lowercase = ls_datel-lowercase.
       ENDIF.
 
       ir_tabfield_list->add( REF #( ls_tabfield ) ).

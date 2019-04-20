@@ -9,6 +9,8 @@ FUNCTION ZDBBR_SHOW_SELSCREEN.
 *"     VALUE(IF_LOAD_PARAMETERS) TYPE  SAP_BOOL OPTIONAL
 *"     VALUE(IS_SETTINGS) TYPE  ZDBBR_SELSCREEN_SETTINGS OPTIONAL
 *"     VALUE(IF_FROM_CENTRAL_SEARCH) TYPE  SAP_BOOL OPTIONAL
+*"  EXCEPTIONS
+*"      NO_DATA
 *"----------------------------------------------------------------------
   DATA(lv_entity_id) = iv_entity_id.
   DATA(lv_entity_type) = iv_entity_type.
@@ -30,19 +32,22 @@ FUNCTION ZDBBR_SHOW_SELSCREEN.
   ENDIF.
 
   IF if_load_parameters = abap_true.
-    gs_data-settings = NEW zcl_dbbr_usersettings_factory( )->get_settings( ).
+    gs_data-settings = zcl_dbbr_usersettings_factory=>get_settings( ).
   ENDIF.
 
   IF if_skip_selscreen = abap_true.
     DATA(lr_variant_starter) = zcl_dbbr_variant_starter_fac=>create_variant_starter(
-        iv_variant_id        = cond #( when iv_variant_id is not initial then iv_variant_id else zif_dbbr_global_consts=>c_dummy_variant )
+        iv_variant_id        = COND #( WHEN iv_variant_id IS NOT INITIAL THEN iv_variant_id ELSE zif_dbbr_global_consts=>c_dummy_variant )
         iv_entity_type       = lv_entity_type
         iv_variant_entity_id = CONV #( lv_entity_id )
     ).
 
     lr_variant_starter->initialize( ).
     TRY.
-        lr_variant_starter->execute_variant( ).
+        DATA(lf_no_data) = lr_variant_starter->execute_variant( ).
+        IF lf_no_data = abap_true.
+          RAISE no_data.
+        ENDIF.
       CATCH zcx_dbbr_variant_error INTO DATA(lx_variant_error).
         lx_variant_error->show_message( ).
     ENDTRY.

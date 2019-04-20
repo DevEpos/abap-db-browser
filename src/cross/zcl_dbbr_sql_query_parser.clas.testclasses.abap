@@ -23,6 +23,8 @@ CLASS ltcl_unit_test DEFINITION FINAL FOR TESTING
       test_params FOR TESTING
         RAISING cx_static_check,
       test_no_terminator FOR TESTING
+        RAISING cx_static_check,
+      test_is_count_query FOR TESTING
         RAISING cx_static_check.
 
 ENDCLASS.
@@ -201,6 +203,43 @@ CLASS ltcl_unit_test IMPLEMENTATION.
       CATCH zcx_dbbr_application_exc.
     ENDTRY.
 
+  ENDMETHOD.
+
+  METHOD test_is_count_query.
+    DATA: lt_query TYPE TABLE OF string.
+    lt_query = VALUE #(
+      ( |DATA: carrid type spfli-carrid.| )
+      ( )
+      ( |WITH | )
+      ( |    +cities AS (| )
+      ( |        SELECT cityfrom AS city| )
+      ( |            FROM spfli| )
+      ( |            WHERE carrid = @carrid | )
+      ( |        UNION DISTINCT         | )
+      ( |        SELECT cityto AS city          | )
+      ( |            FROM spfli             | )
+      ( |            WHERE carrid = @carrid | )
+      ( |     )     | )
+      ( |     SELECT COUNT( * ) as count       | )
+      ( |        FROM sgeocity      | )
+      ( |        WHERE city IN ( SELECT city                | )
+      ( |                            FROM +cities ).          | )
+    ).
+
+    CONCATENATE LINES OF lt_query INTO DATA(lv_query) SEPARATED BY cl_abap_char_utilities=>cr_lf.
+    mo_cut = NEW #( lv_query ).
+    TRY.
+        DATA(lo_query) = mo_cut->parse( ).
+        cl_abap_unit_assert=>assert_true(
+          act = lo_query->ms_data-is_single_result_query
+          msg = 'Count query could not be detected'
+        ).
+      CATCH zcx_dbbr_application_exc INTO DATA(lx_error).
+    ENDTRY.
+      cl_abap_unit_assert=>assert_not_bound(
+          act = lx_error
+          msg = cond #( when lx_error is bound then lx_error->get_longtext( ) )
+      ).
   ENDMETHOD.
 
 ENDCLASS.

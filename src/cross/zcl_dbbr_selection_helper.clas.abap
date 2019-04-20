@@ -36,7 +36,7 @@ CLASS zcl_dbbr_selection_helper IMPLEMENTATION.
     cv_table_part = REDUCE string(
        INIT value = |{ cv_table_part }( | sep = ``
        FOR param IN it_parameters
-       NEXT value = |{ value }{ param-param_name } = { cl_abap_dyn_prg=>quote( param-param_value ) }| sep = `,`
+       NEXT value = |{ value }{ sep }{ param-param_name } = { cl_abap_dyn_prg=>quote( param-param_value ) }| sep = `, `
     ) && | )|.
   ENDMETHOD.
 

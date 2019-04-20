@@ -41,22 +41,24 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
 
     " create and start selection controller
     DATA(lr_controller) = zcl_dbbr_selection_controller=>create_controller(
-       iv_entity_type        = zif_dbbr_c_selscreen_mode=>table
-       iv_entity_id          = ms_global_data-primary_table
-       it_selection_fields   = mt_selfields
-       it_multi_or           = mt_selfields_or
-       is_technical_infos    = CORRESPONDING #( ms_global_data )
-       it_selfields_multi    = mt_selfields_multi
-       ir_tabfields          = lr_tabfields
-       ir_tabfields_all      = lr_tabfields_all
-       it_table_to_alias_map = mt_table_to_alias_map
-       it_exclude_function   = VALUE #(
-         ( zif_dbbr_c_selection_functions=>leave_screen_with_layout )
-         ( zif_dbbr_c_selection_functions=>transfer_filter_values   )
+      value #(
+         entity_type        = zif_dbbr_c_selscreen_mode=>table
+         entity_id          = ms_global_data-primary_table
+         selection_fields   = mt_selfields
+         multi_or           = mt_selfields_or
+         technical_infos    = CORRESPONDING #( ms_global_data )
+         selfields_multi    = mt_selfields_multi
+         tabfields          = lr_tabfields
+         tabfields_all      = lr_tabfields_all
+         table_to_alias_map = mt_table_to_alias_map
+         exclude_function   = VALUE #(
+           ( zif_dbbr_c_selection_functions=>leave_screen_with_layout )
+           ( zif_dbbr_c_selection_functions=>transfer_filter_values   )
+         )
        )
     ).
 
-    lr_controller->execute_selection( ).
+    rf_no_data = lr_controller->execute_selection( ).
   ENDMETHOD.
 
 

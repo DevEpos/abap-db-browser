@@ -162,7 +162,7 @@ CLASS zcl_dbbr_output_tab_builder IMPLEMENTATION.
         type_name   = COND #( WHEN if_active_grouping = abap_false THEN
                                 'SYST-TABIX'
                               ELSE
-                                'SE16N_REF-SE16N_NR_LINES' ) )
+                                'ZDBBR_NO_OF_LINES' ) )
       " cell color
       ( name        = zif_dbbr_c_special_out_columns=>cell_col_row_color
         simple_name = zif_dbbr_c_special_out_columns=>cell_col_row_color

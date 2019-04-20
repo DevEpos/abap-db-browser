@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Controller for user settings</p>
 CLASS zcl_dbbr_user_settings_sc DEFINITION
   PUBLIC
   CREATE PUBLIC .
@@ -6,9 +7,25 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
 
     INTERFACES zif_uitb_screen_controller .
 
+    CONSTANTS:
+      BEGIN OF c_tab_ids,
+        general_tab   TYPE string VALUE 'INTRO',
+        selscreen_tab TYPE string VALUE 'SEL',
+        favorites_tab TYPE string VALUE 'FAVS',
+        output_tab    TYPE string VALUE 'ALV',
+      END OF c_tab_ids.
+
+    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
-        is_user_settings TYPE zdbbr_user_settings_a OPTIONAL.
+        is_user_settings TYPE zdbbr_user_settings_a OPTIONAL
+        iv_start_tab     TYPE string OPTIONAL
+        iv_start_dynnr   TYPE sy-dynnr OPTIONAL
+        if_disable_save  TYPE abap_bool OPTIONAL.
+    "! <p class="shorttext synchronized" lang="en">Initialize the screen during first call</p>
+    METHODS initialize_screen
+      CHANGING
+        cs_tabs TYPE seltabinfo.
     METHODS get_settings
       RETURNING
         VALUE(rs_settings) TYPE zdbbr_user_settings_a.
@@ -19,11 +36,16 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
       FOR zif_uitb_screen_controller~get_report_id .
     ALIASES get_screen_id
       FOR zif_uitb_screen_controller~get_screen_id .
+    ALIASES mf_first_call
+      FOR zif_uitb_screen_controller~mf_first_call.
 
     TYPES:
       lty_tab_button TYPE c LENGTH 83 .
 
     DATA ms_user_settings TYPE zdbbr_user_settings_a .
+    DATA mf_disable_save TYPE abap_bool.
+    DATA mv_start_tab TYPE string.
+    DATA mv_start_dynnr TYPE string.
     DATA:
       BEGIN OF ms_user_settings_refs,
         color_sort_columns         TYPE REF TO zdbbr_user_settings_a-color_sort_columns,
@@ -57,6 +79,8 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
         initial_obj_nav_mode       TYPE REF TO zdbbr_user_settings_a-initial_obj_nav_mode,
         disable_date_to_times_conv TYPE REF TO zdbbr_user_settings_a-disable_date_to_times_conv,
         use_ddl_view_for_select    TYPE REF TO zdbbr_user_settings_a-use_ddl_view_for_select,
+        deactvt_highltng_in_cqe    TYPE REF TO zdbbr_user_settings_a-deactvt_highltng_in_cqe,
+        code_viewer_theme          TYPE REF TO zdbbr_user_settings_a-code_viewer_theme,
       END OF ms_user_settings_refs .
     DATA mf_data_changed TYPE abap_bool .
 
@@ -78,6 +102,9 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     END-OF-DEFINITION.
 
     ms_user_settings = is_user_settings.
+    mf_disable_save = if_disable_save.
+    mv_start_tab = iv_start_tab.
+    mv_start_dynnr = iv_start_dynnr.
 
     " initialize the global data cache
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>user_settings ).
@@ -113,9 +140,19 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
         show_assoc_brws_at_start    c_show_assoc_sel_at_start,
         activate_alv_live_filter    c_activate_alv_live_filter,
         disable_date_to_times_conv  c_disable_date_to_timest_conv,
-        use_ddl_view_for_select     c_use_ddl_view_for_select.
+        use_ddl_view_for_select     c_use_ddl_view_for_select,
+        deactvt_highltng_in_cqe     c_deactvt_highltng_in_cqe,
+        code_viewer_theme           c_code_viewer_theme.
   ENDMETHOD.
 
+  METHOD initialize_screen.
+    CHECK mf_first_call = abap_true.
+
+    IF mv_start_tab IS NOT INITIAL.
+      cs_tabs-dynnr = mv_start_dynnr.
+      cs_tabs-activetab = mv_start_tab.
+    ENDIF.
+  ENDMETHOD.
 
   METHOD get_settings.
     rs_settings = ms_user_settings.
@@ -123,7 +160,7 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
 
 
   METHOD save_settings.
-    NEW zcl_dbbr_usersettings_factory( )->save_settings( ms_user_settings ).
+    zcl_dbbr_usersettings_factory=>save_settings( ms_user_settings ).
   ENDMETHOD.
 
 
@@ -153,6 +190,7 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
 
   METHOD zif_uitb_screen_controller~call_screen.
     transfer_ui_data( if_to_screen = abap_true ).
+    mf_first_call = abap_true.
 
     zcl_uitb_screen_util=>call_screen(
         iv_screen_id    = get_screen_id( )
@@ -179,7 +217,7 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
 
 
   METHOD zif_uitb_screen_controller~get_screen_id.
-    result = zif_dbbr_screen_ids=>c_show_user_settings.
+    result = zif_dbbr_screen_ids=>c_user_settings-main_screen.
   ENDMETHOD.
 
 
@@ -207,6 +245,10 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
 
 
   METHOD zif_uitb_screen_controller~pbo.
+    IF mf_first_call = abap_true.
+      CLEAR mf_first_call.
+    ENDIF.
+
     zif_uitb_screen_controller~set_status( ).
     LOOP AT SCREEN.
       IF screen-name = zif_dbbr_user_settings_ids=>c_search_ignore_case.
@@ -221,8 +263,9 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     CHECK sy-dynnr = '0100'.
 
     zcl_dbbr_screen_helper=>set_selscreen_status(
-        iv_status = '0100'
-        iv_repid  = zif_dbbr_c_report_id=>user_settings
+        iv_status              = '0100'
+        iv_repid               = zif_dbbr_c_report_id=>user_settings
+        it_excluding_functions = COND #( WHEN mf_disable_save = abap_true THEN VALUE #( ( 'SAVE' ) ) )
     ).
   ENDMETHOD.
 

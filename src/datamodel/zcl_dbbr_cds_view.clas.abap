@@ -86,8 +86,10 @@ CLASS zcl_dbbr_cds_view DEFINITION
         VALUE(result) TYPE abap_bool .
     "! <p class="shorttext synchronized" lang="en">Checks if this cds view has parameters</p>
     METHODS has_parameters
+      IMPORTING
+        if_exclude_system_params TYPE abap_bool OPTIONAL
       RETURNING
-        VALUE(result) TYPE abap_bool .
+        VALUE(result)            TYPE abap_bool .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -227,6 +229,10 @@ CLASS zcl_dbbr_cds_view IMPLEMENTATION.
 
 
   METHOD has_parameters.
-    result = xsdbool( mt_parameters IS NOT INITIAL ).
+    IF if_exclude_system_params = abap_true.
+      result = xsdbool( line_exists( mt_parameters[ has_system_anno = abap_false ] ) ).
+    ELSE.
+      result = xsdbool( mt_parameters IS NOT INITIAL ).
+    ENDIF.
   ENDMETHOD.
 ENDCLASS.

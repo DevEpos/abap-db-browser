@@ -165,6 +165,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
            iv_tabname_alias                = zif_dbbr_global_consts=>c_parameter_dummy_table
            iv_fieldname              = <ls_param>-name
       ).
+
       zcl_dbbr_data_converter=>convert_values_to_int_format(
         EXPORTING iv_rollname            = lr_s_field->rollname
                   iv_type                = lr_s_field->inttype
@@ -284,6 +285,15 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
 
 *.... perform conversion to internal value
       lv_value = <ls_mod_cell>-value.
+
+*.... Consider sy-datum
+      IF ls_param_field-inttype = cl_abap_typedescr=>typekind_date.
+        DATA(lv_system_date_value) = to_upper( lv_value ).
+        IF lv_system_date_value = 'SY-DATUM'.
+          lv_value = |{ sy-datum DATE = USER }|.
+        ENDIF.
+      ENDIF.
+
       TRY.
           zcl_dbbr_data_converter=>convert_values_to_int_format(
             EXPORTING iv_rollname            = ls_param_field-rollname

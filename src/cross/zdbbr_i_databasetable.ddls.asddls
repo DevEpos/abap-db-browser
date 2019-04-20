@@ -19,6 +19,8 @@ define view ZDBBR_I_DatabaseTable
   upper(ddtext)     as DescriptionUpper,
   ddlanguage        as Language,
   author            as CreatedBy,
+  Repo.created_on   as CreatedDate,
+  as4date           as ChangedDate,
   devclass          as DevelopmentPackage,
   'T'               as Type
 }

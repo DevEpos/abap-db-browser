@@ -13,6 +13,7 @@ CLASS zcl_dbbr_sql_query_exec DEFINITION
       EXPORTING
         et_data_info      TYPE zdbbr_dp_col_metadata_t
         ev_execution_time TYPE string
+        ev_line_count     TYPE zdbbr_no_of_lines
         er_data           TYPE REF TO data.
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -36,6 +37,7 @@ CLASS zcl_dbbr_sql_query_exec IMPLEMENTATION.
       IMPORTING
         et_data_info      = et_data_info
         ev_execution_time = ev_execution_time
+        ev_line_count     = ev_line_count
         er_data           = er_data
     ).
   ENDMETHOD.

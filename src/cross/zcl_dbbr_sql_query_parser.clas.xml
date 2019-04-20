@@ -40,6 +40,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
+     <CMPNAME>DETERMINE_MAIN_STMNT_PROPS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Determines the properties of the main statement in the query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_PARSER</CLSNAME>
      <CMPNAME>EXTRACT_PARAMETERS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Extract parameters from query string</DESCRIPT>

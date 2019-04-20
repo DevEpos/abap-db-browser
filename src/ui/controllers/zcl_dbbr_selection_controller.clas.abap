@@ -20,6 +20,7 @@ CLASS zcl_dbbr_selection_controller DEFINITION
         quickfilter_distinct     TYPE gui_text VALUE 'Quickfilter via distinct values',
         quickfilter_exclusion    TYPE gui_text VALUE 'Quickfilter for Selection (Exclude)',
         calc_sum_of_chosen_cells TYPE gui_text VALUE 'Calculate total for selected Cells',
+        show_string_cell_content TYPE gui_text VALUE 'Show cell content in Editor',
         group_selected_columns   TYPE gui_text VALUE 'Group selected Columns',
         delete_filters_from_cols TYPE gui_text VALUE 'Remove Filter from Columns',
         emph_light_green         TYPE gui_text VALUE 'Light Green',
@@ -42,27 +43,9 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     CLASS-METHODS class_constructor .
     CLASS-METHODS create_controller
       IMPORTING
-        !iv_entity_id          TYPE zdbbr_entity_id
-        !iv_entity_type        TYPE zdbbr_entity_type
-        !if_do_for_all_select  TYPE abap_bool OPTIONAL
-        !ir_t_for_all_data     TYPE REF TO data OPTIONAL
-        !it_selection_fields   TYPE zdbbr_selfield_itab
-        !if_no_grouping        TYPE abap_bool OPTIONAL
-        !it_multi_or           TYPE zdbbr_or_seltab_itab OPTIONAL
-        !is_technical_infos    TYPE zdbbr_tech_info
-        !iv_alv_varianttext    TYPE slis_varbz OPTIONAL
-        !if_edit               TYPE abap_bool OPTIONAL
-        !if_delete_mode_active TYPE abap_bool OPTIONAL
-        !it_selfields_multi    TYPE zdbbr_selfield_itab OPTIONAL
-        !ir_tabfields          TYPE REF TO zcl_dbbr_tabfield_list
-        !ir_tabfields_all      TYPE REF TO zcl_dbbr_tabfield_list
-        !it_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab OPTIONAL
-        !is_join_definition    TYPE zdbbr_join_data OPTIONAL
-        is_join_def            TYPE zdbbr_join_def OPTIONAL
-        !it_exclude_function   TYPE ui_functions OPTIONAL
-        !ir_formula            TYPE REF TO zcl_dbbr_formula OPTIONAL
+        is_selection_data    TYPE zcl_dbbr_selection_util=>ty_s_selection_data
       RETURNING
-        VALUE(rr_controller)   TYPE REF TO zcl_dbbr_selection_controller .
+        VALUE(rr_controller) TYPE REF TO zcl_dbbr_selection_controller .
     CLASS-METHODS create_controller_from_data
       IMPORTING
         !is_controller_serialized TYPE zdbbr_sel_ctrl_serialized
@@ -72,7 +55,9 @@ CLASS zcl_dbbr_selection_controller DEFINITION
         VALUE(rr_controller)      TYPE REF TO zcl_dbbr_selection_controller .
     METHODS execute_selection
       IMPORTING
-        !if_count_lines_only TYPE boolean OPTIONAL .
+        !if_count_lines_only TYPE boolean OPTIONAL
+      RETURNING
+        VALUE(rf_no_data)    TYPE abap_bool.
     METHODS get_updated_tabfields
       RETURNING
         VALUE(rr_tabfields) TYPE REF TO zcl_dbbr_tabfield_list .
@@ -112,6 +97,7 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     DATA mf_layout_transferred TYPE sap_bool .
     CONSTANTS mc_container TYPE dynfnam VALUE 'GRID' ##NO_TEXT.
     DATA mf_first_cell_marked TYPE boolean .
+    DATA mf_no_data TYPE abap_bool.
     DATA mr_alv_grid TYPE REF TO zcl_dbbr_output_grid .
     DATA mr_alv_header_doc TYPE REF TO cl_dd_document .
     DATA mr_header_dock TYPE REF TO cl_gui_docking_container .
@@ -148,28 +134,7 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     METHODS compare_selected_lines .
     METHODS constructor
       IMPORTING
-        !iv_entity_id          TYPE zdbbr_entity_id
-        !iv_entity_type        TYPE zdbbr_entity_type
-        !if_do_for_all_select  TYPE abap_bool OPTIONAL
-        !ir_t_for_all_data     TYPE REF TO data OPTIONAL
-        !is_association_target TYPE zdbbr_cds_association OPTIONAL
-        !it_selection_fields   TYPE zdbbr_selfield_itab
-        !if_no_grouping        TYPE abap_bool OPTIONAL
-        !it_multi_or           TYPE zdbbr_or_seltab_itab OPTIONAL
-        !is_technical_infos    TYPE zdbbr_tech_info
-        !iv_alv_varianttext    TYPE slis_varbz OPTIONAL
-        !if_edit               TYPE abap_bool OPTIONAL
-        !if_delete_mode_active TYPE abap_bool OPTIONAL
-        !it_selfields_multi    TYPE zdbbr_selfield_itab OPTIONAL
-        !ir_tabfields          TYPE REF TO zcl_dbbr_tabfield_list
-        !ir_tabfields_all      TYPE REF TO zcl_dbbr_tabfield_list
-        !it_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab OPTIONAL
-        !is_join_definition    TYPE zdbbr_join_data OPTIONAL
-        !it_exclude_function   TYPE ui_functions OPTIONAL
-        !is_join_def           TYPE zdbbr_join_def OPTIONAL
-        !ir_formula            TYPE REF TO zcl_dbbr_formula OPTIONAL
-        !it_nav_breadcrumbs    TYPE zdbbr_string_t OPTIONAL
-        !iv_navigation_count   TYPE i OPTIONAL .
+        is_selection_data TYPE zcl_dbbr_selection_util=>ty_s_selection_data.
     METHODS control_tech_view .
     METHODS create_alv_header .
     METHODS current_line_count
@@ -286,6 +251,7 @@ CLASS zcl_dbbr_selection_controller DEFINITION
       IMPORTING
         !if_leave_screen TYPE boolean DEFAULT abap_true .
     METHODS transfer_layout_info_to_selscr .
+    METHODS show_string_cell_content.
 ENDCLASS.
 
 
@@ -383,6 +349,26 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD show_string_cell_content.
+    FIELD-SYMBOLS: <lt_data> TYPE table.
+    ASSIGN mr_util->mr_t_data->* TO <lt_data>.
+    CHECK sy-subrc = 0.
+    mr_alv_grid->get_selected_cells( IMPORTING et_cell = DATA(lt_cell) ).
+    DATA(ls_cell) = lt_cell[ 1 ].
+
+    ASSIGN <lt_data>[ ls_cell-row_id-index ] TO FIELD-SYMBOL(<ls_row>).
+    CHECK sy-subrc = 0.
+
+    ASSIGN COMPONENT ls_cell-col_id-fieldname OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_value>).
+    CHECK sy-subrc = 0.
+
+    DATA(lo_string_editor) = NEW zcl_uitb_popup_editor(
+      iv_text         = <lv_value>
+      iv_editor_title = |Cell Content for { ls_cell-col_id-fieldname }|
+      if_coding_font  = abap_true
+    ).
+    lo_string_editor->zif_uitb_view~show( ).
+  ENDMETHOD.
 
   METHOD calculate_sum_of_cells.
     TYPES: BEGIN OF lty_cell,
@@ -585,7 +571,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
             t_table        = <lt_table_compare>
         ).
 
-        lr_compare_alv->get_functions( )->set_all( ).
+        lr_compare_alv->get_functions( )->set_default( ).
         lr_compare_alv->get_columns( )->set_color_column( CONV #( zif_dbbr_c_special_out_columns=>cell_col_row_color ) ).
         lr_compare_alv->get_display_settings( )->set_list_header( |DB Browser - Comparison of { lines( lt_index_rows ) } Entries| ).
 
@@ -602,7 +588,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
           lr_column->set_short_text( space ).
           lr_column->set_medium_text( space ).
-          lr_column->set_long_text( ls_field-coltext ).
+          lr_column->set_long_text( ls_field-seltext ).
 
           IF ls_field-no_out = abap_true OR ls_field-tech = abap_true.
             lr_column->set_visible( abap_false ).
@@ -623,29 +609,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     SET LANGUAGE 'EN'.
 
 *... create util instance for handling selection stuff
-    mr_util = zcl_dbbr_selection_util=>create_util(
-        iv_entity_id              = iv_entity_id
-        iv_entity_type            = iv_entity_type
-        if_do_for_all_select      = if_do_for_all_select
-        ir_t_for_all_data         = ir_t_for_all_data
-        is_association_target     = is_association_target
-        it_selection_fields       = it_selection_fields
-        is_technical_infos        = is_technical_infos
-        if_no_grouping            = if_no_grouping
-        it_multi_or               = it_multi_or
-        iv_alv_varianttext        = iv_alv_varianttext
-        if_edit                   = if_edit
-        if_delete_mode_active     = if_delete_mode_active
-        it_selfields_multi        = it_selfields_multi
-        ir_tabfields              = ir_tabfields
-        ir_tabfields_all          = ir_tabfields_all
-        is_join_definition        = is_join_definition
-        is_join_def               = is_join_def
-        it_exclude_function       = it_exclude_function
-        ir_formula                = ir_formula
-        it_nav_breadcrumbs        = it_nav_breadcrumbs
-        iv_navigation_count       = iv_navigation_count
-    ).
+    mr_util = zcl_dbbr_selection_util=>create_util( is_selection_data ).
 
     SET HANDLER:
       on_selection_finish FOR mr_util,
@@ -696,24 +660,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD create_controller.
-    rr_controller = NEW zcl_dbbr_selection_controller(
-        iv_entity_id          = iv_entity_id
-        iv_entity_type        = iv_entity_type
-        it_selection_fields   = it_selection_fields
-        if_no_grouping        = if_no_grouping
-        it_multi_or           = it_multi_or
-        is_technical_infos    = is_technical_infos
-        iv_alv_varianttext    = iv_alv_varianttext
-        if_edit               = if_edit
-        if_delete_mode_active = if_delete_mode_active
-        it_selfields_multi    = it_selfields_multi
-        ir_tabfields          = ir_tabfields
-        ir_tabfields_all      = ir_tabfields_all
-        is_join_definition    = is_join_definition
-        is_join_def           = is_join_def
-        it_exclude_function   = it_exclude_function
-        ir_formula            = ir_formula
-    ).
+    rr_controller = NEW zcl_dbbr_selection_controller( is_selection_data ).
   ENDMETHOD.
 
 
@@ -727,23 +674,21 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       ls_tech_info-activate_alv_live_filter = abap_false.
     ENDIF.
 
-    rr_controller = NEW zcl_dbbr_selection_controller(
-        iv_entity_id              = is_controller_serialized-entity_id
-        iv_entity_type            = is_controller_serialized-entity_type
-        if_do_for_all_select      = xsdbool( ir_t_for_all_data IS BOUND )
-        ir_t_for_all_data         = ir_t_for_all_data
-        is_association_target     = is_controller_serialized-navigation_info
-        it_selection_fields       = is_controller_serialized-selection_fields
-        is_technical_infos        = ls_tech_info
-        it_selfields_multi        = is_controller_serialized-selection_fields_multi
-        it_multi_or               = is_controller_serialized-selection_fields_or
-        ir_tabfields              = lr_tabfields
-        ir_tabfields_all          = lr_tabfields_all
-        is_join_definition        = is_controller_serialized-join_definition
-        is_join_def               = is_controller_serialized-join_def
-        it_nav_breadcrumbs        = is_controller_serialized-navigation_breadcrumbs
-        iv_navigation_count       = CONV #( is_controller_serialized-navigation_count )
+    DATA(ls_selection_data) = CORRESPONDING zcl_dbbr_selection_util=>ty_s_selection_data(
+       is_controller_serialized MAPPING association_target = navigation_info
+                                        selfields_multi    = selection_fields_multi
+                                        multi_or           = selection_fields_or
+                                        nav_breadcrumbs    = navigation_breadcrumbs
     ).
+
+    ls_selection_data-do_for_all_select = xsdbool( ir_t_for_all_data IS BOUND ).
+    ls_selection_data-for_all_entries_data = ir_t_for_all_data.
+    ls_selection_data-technical_infos = ls_tech_info.
+    ls_selection_data-tabfields = lr_tabfields.
+    ls_selection_data-tabfields_all = lr_tabfields_all.
+    ls_selection_data-navigation_count = is_controller_serialized-navigation_count.
+
+    rr_controller = NEW zcl_dbbr_selection_controller( ls_selection_data ).
 
 *... manually reset first screen call if required
     IF if_not_first_screen_call = abap_true.
@@ -1064,11 +1009,15 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD execute_selection.
+    CLEAR mf_no_data.
+
     IF if_count_lines_only = abap_true.
       mr_util->count_lines( ).
     ELSE.
       mr_util->execute_selection( ).
     ENDIF.
+
+    rf_no_data = mf_no_data.
   ENDMETHOD.
 
 
@@ -1243,6 +1192,9 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
                 it_sort           = lt_sort
                 it_filter         = lt_filter
     ).
+
+*.. Filters in the ALV util need to updated to reflect the ALV filters
+    mr_util->get_alv_util( )->update_filters( ).
 
     IF mr_util->ms_technical_info-enable_alv_default_variant = abap_true AND ls_variant-variant IS INITIAL.
       " check if a default variant exists
@@ -1546,6 +1498,17 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       " add option to calculate certain selected cells
       IF lt_cells IS NOT INITIAL.
         lt_menu_flat = VALUE #( BASE lt_menu_flat ( type = sctx_c_type_separator ) ).
+        IF lines( lt_cells ) = 1.
+*......... Check if cell type is string
+          ls_field = VALUE #( lt_fieldcat[ fieldname = lt_cells[ 1 ]-col_id-fieldname ] OPTIONAL ).
+          IF ls_field IS NOT INITIAL AND ls_field-inttype = cl_abap_typedescr=>typekind_string.
+            lt_menu_flat = VALUE #( BASE lt_menu_flat
+              ( type  = sctx_c_type_function
+                fcode = zif_dbbr_c_selection_functions=>show_string_cell_content
+                text  = c_function_texts-show_string_cell_content )
+            ).
+          ENDIF.
+        ENDIF.
         lt_menu_flat = VALUE #( BASE lt_menu_flat
           ( type  = sctx_c_type_function
             fcode = zif_dbbr_c_selection_functions=>calc_sum_of_chosen_cells
@@ -1614,6 +1577,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD on_no_data.
+    mf_no_data = abap_true.
+
     IF mf_has_parent = abap_true.
 *... export error message to memory
       MESSAGE i060(zdbbr_info) INTO DATA(lv_message).
@@ -1696,6 +1661,9 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selection_functions=>calc_sum_of_chosen_cells.
         calculate_sum_of_cells( ).
+
+      WHEN zif_dbbr_c_selection_functions=>show_string_cell_content.
+        show_string_cell_content( ).
 
       WHEN zif_dbbr_c_selection_functions=>compare_selected_lines.
         compare_selected_lines( ).
@@ -2478,4 +2446,5 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     SET TITLEBAR 'OUTPUT_TITLE' OF PROGRAM zif_dbbr_c_report_id=>output WITH lv_select_type_text lv_selection_count_text.
   ENDMETHOD.
+
 ENDCLASS.

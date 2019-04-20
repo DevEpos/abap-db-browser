@@ -28,7 +28,7 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
       IMPORTING
         ir_t_data      TYPE REF TO data
       RETURNING
-        VALUE(rv_size) TYPE i
+        VALUE(rv_size) TYPE zdbbr_no_of_lines
       RAISING
         zcx_dbbr_selection_common.
     "! <p class="shorttext synchronized" lang="en">Determines the size of existing entries</p>
@@ -37,7 +37,7 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
       IMPORTING
         !ir_t_for_all  TYPE REF TO data OPTIONAL
       RETURNING
-        VALUE(rv_size) TYPE i
+        VALUE(rv_size) TYPE zdbbr_no_of_lines
       RAISING
         zcx_dbbr_selection_common .
     "! <p class="shorttext synchronized" lang="en">Returns SQL String for current select</p>

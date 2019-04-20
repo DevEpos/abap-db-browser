@@ -20,11 +20,17 @@ union select from dd26s as BaseTable
   BaseTable.viewname as DdlViewName,
   BaseTable.tabname  as SourceEntity
 }
-union select from dd26s         as BaseTable
-  inner join      ddldependency as DdlMap on  BaseTable.tabname = DdlMap.objectname
-                                          and DdlMap.objecttype = 'VIEW'
-                                          and DdlMap.state      = 'A'
+union select from dd26s                 as BaseTable
+  inner join      ZDBBR_I_DdlDependency as DdlMap on BaseTable.tabname = DdlMap.ViewName
 {
   BaseTable.viewname as DdlViewName,
-  DdlMap.ddlname     as SourceEntity
+  DdlMap.EntityName  as SourceEntity
+}
+
+union select from zdbbrdd26s_v          as BaseTable
+  inner join      ZDBBR_I_DdlDependency as DdlMap on  BaseTable.basetable = DdlMap.DdlName
+                                                  and BaseTable.ddictype  = 'DDLS'
+{
+  BaseTable.ddlview   as DdlViewName,
+  DdlMap.EntityName   as SourceEntity
 }

@@ -51,7 +51,14 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
         et_data_info      = mt_query_result_col
         ev_execution_time = mv_execution_time_str
         er_data           = mr_query_result
+        ev_line_count     = ms_control_info-number
     ).
+
+    IF mo_query->ms_data-is_single_result_query = abap_true.
+      DATA(lv_number_of_lines) = |{ ms_control_info-number NUMBER = USER }|.
+      MESSAGE i024(zdbbr_info) WITH lv_number_of_lines.
+      RETURN.
+    ENDIF.
 
     IF mr_query_result IS NOT BOUND.
       RAISE EVENT no_data.
@@ -118,7 +125,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD build_simple_alv_title.
-    result = |{ 'Result of'(001) } { mv_entity_id }|.
+    result = COND #( WHEN mv_entity_id IS NOT INITIAL THEN |{ 'Result of'(001) } { mv_entity_id }| ELSE |Result of Querytest| ).
   ENDMETHOD.
 
   METHOD get_entity_name.
@@ -140,16 +147,23 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD init.
+    DATA: ls_query TYPE zdbbr_query_data.
+
     " as long as the where clause has not been parsed completely a live filter is not possible
     ms_technical_info-activate_alv_live_filter = abap_false.
     mf_custom_query_active = abap_true.
 
 *... read the query description
     DATA(lo_query_f) = NEW zcl_dbbr_query_factory( ).
-    DATA(ls_query) = lo_query_f->get_query(
-        iv_query_name     = mv_entity_id
-        if_load_completely = abap_false
-    ).
+    IF mv_entity_id IS INITIAL.
+      ASSERT mv_query_string IS NOT INITIAL.
+      ls_query-source = mv_query_string.
+    ELSE.
+      ls_query = lo_query_f->get_query(
+          iv_query_name     = mv_entity_id
+          if_load_completely = abap_false
+      ).
+    ENDIF.
 
     TRY.
         mo_query = NEW zcl_dbbr_sql_query_parser( iv_query = ls_query-source )->parse( ).

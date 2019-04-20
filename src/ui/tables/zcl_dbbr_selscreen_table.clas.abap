@@ -1011,6 +1011,14 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
   METHOD zif_uitb_table~update_screen_attributes.
     FIELD-SYMBOLS: <ls_table_column> TYPE scxtab_column.
 
+*.. control visibility of table and table tool bar
+    DATA(lf_no_table_data) = xsdbool( mr_table_data->* IS INITIAL ).
+    mr_tableview->invisible = lf_no_table_data.
+    DATA(lo_table_tb) = zcl_dbbr_toolbar_util=>get_selscreen_table_tb( ).
+    IF lo_table_tb IS BOUND.
+      lo_table_tb->set_visible( COND #( WHEN lf_no_table_data = abap_true THEN cl_gui_control=>visible_false ELSE cl_gui_control=>visible_true ) ).
+    ENDIF.
+
     handle_column_optimization( ).
 
 *.. if user wants the technical view, display more fields

@@ -70,8 +70,11 @@ CLASS cl_qov_cds IMPLEMENTATION.
 
         WHEN zif_dbbr_c_object_browser=>c_api_option_value-released OR
              zif_dbbr_c_object_browser=>c_api_option_value-key_user OR
+             zif_dbbr_c_object_browser=>c_api_option_value-key_user_long OR
              zif_dbbr_c_object_browser=>c_api_option_value-cloud_user OR
+             zif_dbbr_c_object_browser=>c_api_option_value-cloud_user_long OR
              zif_dbbr_c_object_browser=>c_api_option_value-remote_api OR
+             zif_dbbr_c_object_browser=>c_api_option_value-remote_api_long OR
              zif_dbbr_c_object_browser=>c_api_option_value-custom_fields.
 
         WHEN OTHERS.

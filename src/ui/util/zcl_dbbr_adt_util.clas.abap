@@ -5,7 +5,15 @@ CLASS zcl_dbbr_adt_util DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-
+    "! <p class="shorttext synchronized" lang="en">Create ADT URI for the given entity</p>
+    CLASS-METHODS create_adt_uri
+      IMPORTING
+        iv_type                    TYPE zdbbr_entity_type OPTIONAL
+        iv_tadir_type              TYPE tadir-object OPTIONAL
+        iv_name                    TYPE zdbbr_entity_id
+        iv_name2                   TYPE zdbbr_entity_id OPTIONAL
+      RETURNING
+        VALUE(rs_object_reference) TYPE sadt_object_reference.
     "! <p class="shorttext synchronized" lang="en">Open Object with ADT Tools</p>
     CLASS-METHODS jump_adt
       IMPORTING
@@ -28,6 +36,13 @@ CLASS zcl_dbbr_adt_util DEFINITION
         ev_include        TYPE progname
       RAISING
         zcx_dbbr_adt_error .
+    "! <p class="shorttext synchronized" lang="en">Retrieve ADT Object URI for the given name/type</p>
+    CLASS-METHODS get_adt_object_ref_uri
+      IMPORTING
+        iv_name       TYPE seu_objkey
+        is_type       TYPE wbobjtype
+      RETURNING
+        VALUE(rv_uri) TYPE string.
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -138,6 +153,17 @@ CLASS zcl_dbbr_adt_util IMPLEMENTATION.
     ENDTRY.
   ENDMETHOD.
 
+  METHOD get_adt_object_ref_uri.
+    DATA(lo_uri_mapper) = cl_adt_uri_mapper=>get_instance( ).
+    TRY.
+        rv_uri = lo_uri_mapper->if_adt_uri_mapper~get_adt_object_ref_uri(
+            name = iv_name
+            type = is_type
+        ).
+      CATCH cx_adt_uri_mapping.
+    ENDTRY.
+  ENDMETHOD.
+
 
   METHOD jump_adt.
     get_adt_objects_and_names(
@@ -152,27 +178,27 @@ CLASS zcl_dbbr_adt_util IMPLEMENTATION.
     ).
 
     TRY.
-*        IF iv_sub_obj_name IS NOT INITIAL.
-*
-*          IF ( lv_program <> iv_obj_name AND lv_include IS INITIAL ) OR
-*             ( lv_program = lv_include AND iv_sub_obj_name IS NOT INITIAL ).
-*            lv_include = iv_sub_obj_name.
-*          ENDIF.
-*
-*          DATA(lr_adt_sub_objref) = lr_adt_uri_mapper->map_include_to_objref(
-*              program            = lv_program
-*              include            = lv_include
-*              line               = iv_line_number
-*              line_offset        = 0
-*              end_line           = iv_line_number
-*              end_offset         = 1
-*          ).
-*
-*          IF lr_adt_sub_objref IS NOT INITIAL.
-*            lr_adt_objref = lr_adt_sub_objref.
-*          ENDIF.
-*
-*        ENDIF.
+        IF iv_sub_obj_name IS NOT INITIAL.
+
+          IF ( lv_program <> iv_obj_name AND lv_include IS INITIAL ) OR
+             ( lv_program = lv_include AND iv_sub_obj_name IS NOT INITIAL ).
+            lv_include = iv_sub_obj_name.
+          ENDIF.
+
+          DATA(lr_adt_sub_objref) = lr_adt_uri_mapper->map_include_to_objref(
+              program            = lv_program
+              include            = lv_include
+              line               = iv_line_number
+              line_offset        = 0
+              end_line           = iv_line_number
+              end_offset         = 1
+          ).
+
+          IF lr_adt_sub_objref IS NOT INITIAL.
+            lr_adt_objref = lr_adt_sub_objref.
+          ENDIF.
+
+        ENDIF.
 
         DATA(lv_adt_link) = |adt://{ sy-sysid }{ lr_adt_objref->ref_data-uri }|.
 
@@ -185,6 +211,41 @@ CLASS zcl_dbbr_adt_util IMPLEMENTATION.
 
       CATCH cx_root.
         zcx_dbbr_adt_error=>raise_adt_error_with_text( 'ADT Jump Error' ).
+    ENDTRY.
+
+  ENDMETHOD.
+
+  METHOD create_adt_uri.
+    DATA: lv_obj_type LIKE iv_tadir_type.
+
+    IF iv_type IS SUPPLIED.
+      lv_obj_type = SWITCH trobjtype(
+        iv_type
+        WHEN zif_dbbr_c_entity_type=>cds_view THEN 'DDLS'
+        WHEN zif_dbbr_c_entity_type=>view THEN 'VIEW'
+        WHEN zif_dbbr_c_entity_type=>table THEN 'TABD'
+      ).
+    ELSEIF iv_tadir_type IS SUPPLIED.
+      lv_obj_type = iv_tadir_type.
+    ENDIF.
+
+    DATA(lv_name) = SWITCH sobj_name(
+      iv_type
+      WHEN zif_dbbr_c_entity_type=>cds_view THEN iv_name2
+      ELSE                                       iv_name
+    ).
+
+    TRY.
+        zcl_dbbr_adt_util=>get_adt_objects_and_names(
+          EXPORTING
+            iv_obj_name       = lv_name
+            iv_obj_type       = lv_obj_type
+          IMPORTING
+            er_adt_objectref  = DATA(lr_adt_objectref)
+        ).
+        rs_object_reference = lr_adt_objectref->ref_data.
+      CATCH zcx_dbbr_adt_error.
+
     ENDTRY.
 
   ENDMETHOD.

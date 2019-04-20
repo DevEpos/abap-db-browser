@@ -264,6 +264,9 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
 
     ASSIGN mr_ui_multi_select_fields->* TO FIELD-SYMBOL(<lt_multi>).
 
+    SORT <lt_multi> BY sign option low high.
+    DELETE ADJACENT DUPLICATES FROM <lt_multi> COMPARING sign option low high.
+
     " delete old values
     DELETE ct_selfield_multi WHERE fieldname = cs_selfield-fieldname AND
                                    tabname   = cs_selfield-tabname.

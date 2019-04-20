@@ -76,7 +76,6 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
     DATA mo_navigator TYPE REF TO zcl_dbbr_object_navigator .
     DATA mo_selection_table TYPE REF TO zcl_dbbr_selscreen_table .
     DATA mo_toolbar_cont TYPE REF TO cl_gui_custom_container .
-    DATA mo_usersettings_f TYPE REF TO zcl_dbbr_usersettings_factory .
     DATA mo_util TYPE REF TO zcl_dbbr_selscreen_util .
     DATA:
       BEGIN OF ms_entity_update,
@@ -383,8 +382,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     mf_from_central_search = if_from_central_search.
     mo_data->mr_s_settings->* = is_settings.
 
-    mo_usersettings_f = NEW zcl_dbbr_usersettings_factory( ).
-
 *... register for events of selection table
     SET HANDLER:
       on_aggr_attr_changed FOR mo_selection_table,
@@ -596,19 +593,21 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     ).
     TRY.
         DATA(lr_controller) = zcl_dbbr_selection_controller=>create_controller(
-            iv_entity_type        = mo_data->get_mode( )
-            iv_entity_id          = lv_entity_id
-            it_selection_fields   = lt_selfields
-            if_no_grouping        = if_no_grouping
-            it_multi_or           = mt_multi_or_all
-            is_technical_infos    = CORRESPONDING #( mo_data->mr_s_global_data->* )
-            if_edit               = mo_data->mr_s_global_data->edit
-            if_delete_mode_active = mo_data->mr_s_global_data->delete_mode
-            it_selfields_multi    = mo_data->mr_t_selfields_multi->*
-            ir_tabfields          = <lr_tabfields>->copy( )
-            ir_tabfields_all      = <lr_tabfields_all>->copy( )
-            is_join_def           = mo_data->mr_s_join_def->*
-            ir_formula            = lr_valid_formula
+          VALUE #(
+              entity_type          = mo_data->get_mode( )
+              entity_id            = lv_entity_id
+              selection_fields     = lt_selfields
+              technical_infos      = CORRESPONDING #( mo_data->mr_s_global_data->* )
+              no_grouping          = if_no_grouping
+              multi_or             = mt_multi_or_all
+              edit_mode            = mo_data->mr_s_global_data->edit
+              delete_mode_active   = mo_data->mr_s_global_data->delete_mode
+              selfields_multi      = mo_data->mr_t_selfields_multi->*
+              tabfields            = <lr_tabfields>->copy( )
+              tabfields_all        = <lr_tabfields_all>->copy( )
+              join_def             = mo_data->mr_s_join_def->*
+              formula              = lr_valid_formula
+          )
         ).
 
         lr_controller->execute_selection( if_count_lines_only ).
@@ -714,7 +713,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
       mo_util->load_entity( ).
 
-      mo_usersettings_f->update_start_settings(
+      zcl_dbbr_usersettings_factory=>update_start_settings(
         iv_entity_id   = iv_entity_id
         iv_entity_type = iv_entity_type
       ).
@@ -1363,7 +1362,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
                                                                               OR aggregation <> space.
 
       " get existing field in ungrouped tabfield list
-      DATA(ls_tabfield) = mo_data->mo_tabfield_list->get_field( iv_tabname   = <ls_selfield>-tabname
+      DATA(ls_tabfield) = mo_data->mo_tabfield_list->get_field( iv_tabname   = <ls_selfield>-tabname_alias
                                                                 iv_fieldname = <ls_selfield>-fieldname ).
 
       IF ls_tabfield IS INITIAL.
@@ -1389,9 +1388,9 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
       IF ls_tabfield-has_text_field = abap_true.
         DATA(lr_text_tabfield) = mo_data->mo_tabfield_list->get_field_ref(
-           iv_tabname_alias       = <ls_selfield>-tabname
-           iv_fieldname     = <ls_selfield>-fieldname
-           if_is_text_field = abap_true
+           iv_tabname_alias   = <ls_selfield>-tabname_alias
+           iv_fieldname       = <ls_selfield>-fieldname
+           if_is_text_field   = abap_true
         ).
         DATA(ls_text_tabfield) = lr_text_tabfield->*.
         ls_text_tabfield-output_active = abap_false.
@@ -1713,7 +1712,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             set_focus_to_1st_selfield( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>manage_associations.
-            CHECK mo_usersettings_f->is_experimental_mode_active( ).
+            CHECK zcl_dbbr_usersettings_factory=>is_experimental_mode_active( ).
             NEW zcl_dbbr_association_manager( )->zif_uitb_view~show( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>choose_different_entity.
@@ -1823,6 +1822,13 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       set_cursor( ).
     ENDIF.
 
+**.. control visibility of table and table tool bar
+*    DATA(lf_no_table_data) = xsdbool( mo_data->mr_t_table_data->* IS INITIAL ).
+*    mo_data->mr_s_tableview->invisible = lf_no_table_data.
+*    DATA(lo_table_tb) = zcl_dbbr_toolbar_util=>get_selscreen_table_tb( ).
+*    IF lo_table_tb IS BOUND.
+*      lo_table_tb->set_visible( COND #( WHEN lf_no_table_data = abap_true THEN cl_gui_control=>visible_false ELSE cl_gui_control=>visible_true ) ).
+*    ENDIF.
 
     LOOP AT SCREEN.
       IF screen-name = 'BTN_EXTENDED_SEARCH'.

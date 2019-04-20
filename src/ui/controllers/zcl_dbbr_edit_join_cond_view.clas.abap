@@ -789,13 +789,6 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
             iv_text      = |{ 'Target Table/Field must be filled (Use F4 for Target Field'(020) }|
             iv_parameter = c_p_join_trgt_field
           ).
-        ELSE.
-***          IF mr_join_target_tab->* NOT IN mt_target_table_list.
-***            zcx_dbbr_validation_exception=>raise_with_text(
-***                iv_text      = |Target Table { mr_join_target_tab->* } is not in list of valid tables.|
-***              iv_parameter = c_p_join_trgt_tab
-***            ).
-***          ENDIF.
         ENDIF.
 
         IF mr_join_target_field->* IS INITIAL.
@@ -834,13 +827,6 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
             iv_text      = |Source Table/Field must be filled (Use F4 for Source Field)|
             iv_parameter = c_p_join_src_field
           ).
-        ELSE.
-***          IF mr_join_source_tab->* NOT IN mt_target_table_list.
-***            zcx_dbbr_validation_exception=>raise_with_text(
-***              iv_text      = |Source Table { mr_join_source_tab->* } is not in list of valid tables.|
-***              iv_parameter = c_p_join_src_tab
-***            ).
-***          ENDIF.
         ENDIF.
 
 *...... Retrieve alias of source entity

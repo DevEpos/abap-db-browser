@@ -11,10 +11,10 @@ CLASS zcl_dbbr_like_pattern_convrter DEFINITION
     "! Convert escape characters from SAP to SQL
     CLASS-METHODS conv_sap_to_sql_pattern
       IMPORTING
-        iv_sap_pattern   TYPE clike
+        iv_sap_pattern          TYPE clike
       EXPORTING
-        ev_sql_pattern   TYPE string
-        ef_escape_needed TYPE abap_bool
+        VALUE(ev_sql_pattern)   TYPE string
+        VALUE(ef_escape_needed) TYPE abap_bool
       EXCEPTIONS
         closing_escape.
 
@@ -23,11 +23,11 @@ CLASS zcl_dbbr_like_pattern_convrter DEFINITION
     "! Convert escape characters from SQL to SAP
     CLASS-METHODS conv_sql_to_sap_pattern
       IMPORTING
-        iv_sql_pattern   TYPE clike
-        iv_escape        TYPE escape_char
+        iv_sql_pattern          TYPE clike
+        iv_escape               TYPE escape_char
       EXPORTING
-        ev_sap_pattern   TYPE string
-        ef_escape_needed TYPE abap_bool
+        VALUE(ev_sap_pattern)   TYPE string
+        VALUE(ef_escape_needed) TYPE abap_bool
       EXCEPTIONS
         closing_escape.
   PRIVATE SECTION.

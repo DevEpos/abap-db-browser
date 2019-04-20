@@ -251,10 +251,27 @@
      <LENGTH>92</LENGTH>
     </item>
     <item>
+     <ID>I</ID>
+     <KEY>T29</KEY>
+     <ENTRY>Use Text-Based Editor in Custom Query Editor</ENTRY>
+     <LENGTH>88</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T30</KEY>
+     <ENTRY>CSS Theme for Code Viewer</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
      <ID>S</ID>
      <KEY>P_ASNVMO</KEY>
      <ENTRY>Selection Mode for Association</ENTRY>
      <LENGTH>38</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_CVTHME</KEY>
+     <LENGTH>33</LENGTH>
     </item>
     <item>
      <ID>S</ID>

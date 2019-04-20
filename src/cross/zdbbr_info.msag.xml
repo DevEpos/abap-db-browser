@@ -566,6 +566,18 @@
      <MSGNR>092</MSGNR>
      <TEXT>Favorite &apos;&amp;1&apos; has been deleted</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>093</MSGNR>
+     <TEXT>Settings were updated</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>094</MSGNR>
+     <TEXT>One Result</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

@@ -1,45 +1,48 @@
-class ZCL_DBBR_OUTPUT_GRID definition
-  public
-  inheriting from CL_GUI_ALV_GRID
-  final
-  create public .
+CLASS zcl_dbbr_output_grid DEFINITION
+  PUBLIC
+  INHERITING FROM cl_gui_alv_grid
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  events SORTED_FIELDS_CHANGED .
+    EVENTS sorted_fields_changed .
 
-  methods CONSTRUCTOR
-    importing
-      !IR_PARENT type ref to CL_GUI_CONTAINER .
-  methods EXECUTE_USER_COMMAND
-    importing
-      !IV_FUNCTION_CODE type SY-UCOMM .
-  methods GET_ALL_SELECTED_ROWS
-    returning
-      value(RESULT) type LVC_T_INDX .
-  methods HAS_SELECTED_COLUMNS
-    returning
-      value(RF_COLUMNS_SELECTED) type BOOLEAN .
-  methods HIDE_SELECTED_COLUMNS .
-  methods OPTIMIZE_COLUMNS .
-  methods SET_COLUMN_NAMES
-    importing
-      !IF_TECH_NAMES type BOOLEAN .
+    METHODS constructor
+      IMPORTING
+        !ir_parent TYPE REF TO cl_gui_container .
+    METHODS execute_user_command
+      IMPORTING
+        !iv_function_code TYPE sy-ucomm .
+    METHODS get_all_selected_rows
+      RETURNING
+        VALUE(result) TYPE lvc_t_indx .
+    METHODS has_selected_columns
+      RETURNING
+        VALUE(rf_columns_selected) TYPE boolean .
+    METHODS hide_selected_columns .
+    METHODS optimize_columns .
+    METHODS set_column_names
+      IMPORTING
+        !if_tech_names TYPE boolean .
 
-  methods DISPATCH
-    redefinition .
-  methods SET_SORT_CRITERIA
-    redefinition .
+    METHODS dispatch
+        REDEFINITION .
+    METHODS get_variant_fieldcat
+      RETURNING
+        VALUE(rt_fieldcat) TYPE lvc_t_fcat.
+    METHODS set_sort_criteria
+        REDEFINITION .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_OUTPUT_GRID IMPLEMENTATION.
+CLASS zcl_dbbr_output_grid IMPLEMENTATION.
 
 
-  METHOD CONSTRUCTOR.
+  METHOD constructor.
     super->constructor(
         i_parent        = ir_parent
         i_lifetime      = cl_gui_control=>lifetime_dynpro
@@ -49,7 +52,7 @@ CLASS ZCL_DBBR_OUTPUT_GRID IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD DISPATCH.
+  METHOD dispatch.
 *&---------------------------------------------------------------------*
 *& Author:    stockbal     Date: 2016/12/01
 *&---------------------------------------------------------------------*
@@ -99,7 +102,7 @@ CLASS ZCL_DBBR_OUTPUT_GRID IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD EXECUTE_USER_COMMAND.
+  METHOD execute_user_command.
     fcode_bouncer( ).
   ENDMETHOD.
 
@@ -129,14 +132,14 @@ CLASS ZCL_DBBR_OUTPUT_GRID IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD HAS_SELECTED_COLUMNS.
+  METHOD has_selected_columns.
     get_selected_columns( IMPORTING et_index_columns = DATA(lt_col_index) ).
 
     rf_columns_selected = xsdbool( lt_col_index IS NOT INITIAL ).
   ENDMETHOD.
 
 
-  METHOD HIDE_SELECTED_COLUMNS.
+  METHOD hide_selected_columns.
 
     get_scroll_info_via_id( IMPORTING es_row_info = DATA(ls_row_id)
                                       es_col_info = DATA(ls_col_id) ).
@@ -170,7 +173,7 @@ CLASS ZCL_DBBR_OUTPUT_GRID IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD OPTIMIZE_COLUMNS.
+  METHOD optimize_columns.
     optimize_all_cols(
 *      EXPORTING
 *        include_header = 1    " Spaltenüberschriften berücksichtigen (0=Nein, 1=Ja)
@@ -185,10 +188,13 @@ CLASS ZCL_DBBR_OUTPUT_GRID IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD SET_COLUMN_NAMES.
+  METHOD set_column_names.
     DATA: lv_tooltip TYPE lvc_tip,
           lv_coltext TYPE lvc_txtcol.
-
+    get_internal_variant(
+      IMPORTING
+        es_variant = DATA(ls_variant)
+    ).
     get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fcat) ).
 
     LOOP AT lt_fcat ASSIGNING FIELD-SYMBOL(<ls_fcat>).
@@ -203,7 +209,7 @@ CLASS ZCL_DBBR_OUTPUT_GRID IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD SET_SORT_CRITERIA.
+  METHOD set_sort_criteria.
 *&---------------------------------------------------------------------*
 *& Author:    stockbal     Date: 2016/12/01
 *&---------------------------------------------------------------------*
@@ -211,4 +217,9 @@ CLASS ZCL_DBBR_OUTPUT_GRID IMPLEMENTATION.
 
     RAISE EVENT sorted_fields_changed.
   ENDMETHOD.
+
+  METHOD get_variant_fieldcat.
+    get_internal_fieldcat( importing et_fieldcatalog = rt_fieldcat ).
+  ENDMETHOD.
+
 ENDCLASS.

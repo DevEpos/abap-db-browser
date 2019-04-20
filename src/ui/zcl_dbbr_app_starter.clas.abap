@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Starts screen for DB Browser</p>
 CLASS zcl_dbbr_app_starter DEFINITION
   PUBLIC
   FINAL
@@ -5,9 +6,15 @@ CLASS zcl_dbbr_app_starter DEFINITION
 
   PUBLIC SECTION.
 
+    "! <p class="shorttext synchronized" lang="en">Show user settings dialog for DB Browser</p>
     CLASS-METHODS show_user_settings
+      IMPORTING
+        if_disable_save TYPE abap_bool OPTIONAL
+        iv_start_dynnr  TYPE sy-dynnr OPTIONAL
+        iv_start_tab    TYPE string OPTIONAL
       CHANGING
-        !cs_settings TYPE zdbbr_user_settings_a .
+        !cs_settings    TYPE zdbbr_user_settings_a .
+    "! <p class="shorttext synchronized" lang="en">Shows the multi input selection screen for a table field</p>
     CLASS-METHODS show_multi_select
       IMPORTING
         !iv_current_line   TYPE sy-tabix
@@ -15,6 +22,7 @@ CLASS zcl_dbbr_app_starter DEFINITION
       CHANGING
         !ct_selfield       TYPE zdbbr_selfield_itab
         !ct_selfield_multi TYPE zdbbr_selfield_itab .
+    "! <p class="shorttext synchronized" lang="en">Start new DB Browser selection from memory</p>
     CLASS-METHODS start_selection_from_memory
       RETURNING
         VALUE(result) TYPE REF TO zcl_dbbr_selection_controller .
@@ -60,7 +68,12 @@ CLASS zcl_dbbr_app_starter IMPLEMENTATION.
 
 
   METHOD show_user_settings.
-    DATA(lr_user_settings) = NEW zcl_dbbr_user_settings_sc( is_user_settings = cs_settings ).
+    DATA(lr_user_settings) = NEW zcl_dbbr_user_settings_sc(
+        is_user_settings = cs_settings
+        if_disable_save  = if_disable_save
+        iv_start_tab     = iv_start_tab
+        iv_start_dynnr   = iv_start_dynnr
+    ).
     lr_user_settings->zif_uitb_screen_controller~call_screen( ).
 
     IF lr_user_settings->zif_uitb_screen_controller~was_not_cancelled( ).

@@ -166,7 +166,7 @@
     <item>
      <ID>I</ID>
      <KEY>026</KEY>
-     <ENTRY>Favorites</ENTRY>
+     <ENTRY>Search Favorites</ENTRY>
      <LENGTH>19</LENGTH>
     </item>
     <item>
@@ -223,8 +223,62 @@
      <ENTRY>Open with Dependency Analyzer</ENTRY>
      <LENGTH>58</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>036</KEY>
+     <ENTRY>Foreign Key Relations</ENTRY>
+     <LENGTH>42</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>037</KEY>
+     <ENTRY>Technical Settings</ENTRY>
+     <LENGTH>28</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>038</KEY>
+     <ENTRY>Base Tables</ENTRY>
+     <LENGTH>21</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>039</KEY>
+     <ENTRY>Last Changed on</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>040</KEY>
+     <ENTRY>Show uses in FROM of CDS Views</ENTRY>
+     <LENGTH>60</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>041</KEY>
+     <ENTRY>Show uses as Associations of CDS Views</ENTRY>
+     <LENGTH>76</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>042</KEY>
+     <ENTRY>Add package to current Query</ENTRY>
+     <LENGTH>56</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>043</KEY>
+     <ENTRY>Add root package to current Query</ENTRY>
+     <LENGTH>66</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>ADAPT_AND_DISPLAY_HTML_INP</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Adapt html input and display doc</DESCRIPT>
+    </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
      <CMPNAME>ADD_FAVORITE</CMPNAME>
@@ -251,9 +305,15 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_DB_TABLE_SUBNODES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create sub nodes of database table/view</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
      <CMPNAME>CREATE_INPUT_DD</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Create dynamic document for search input</DESCRIPT>
+     <DESCRIPT>Create input controls for search type and entity</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
@@ -272,6 +332,12 @@
      <CMPNAME>CREATE_MULTIPLE_PACKAGE_TREE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Create tree for multiple packages</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>CREATE_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create tree node</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
@@ -335,6 +401,24 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_DBTAB_VIEW_PROPERTIES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expands properties node of db table/view</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_DB_TABLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expands a single database table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_FOREIGN_KEY_TABLES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create foreign key table nodes for the given table</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
      <CMPNAME>EXPAND_PACKAGE_DBTABS_NODE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Expand db tabs subnode of package node</DESCRIPT>
@@ -365,6 +449,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>EXPAND_TECH_SETTINGS_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Expand technical settings node of db table node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
      <CMPNAME>EXPAND_VIEW_NODE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Expand a single Database view</DESCRIPT>
@@ -392,6 +482,12 @@
      <CMPNAME>GO_TO_PREVIOUS_HISTORIC_ENTRY</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Navigate to previous history entry</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>IS_PACKAGE_SUB_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Check if the given node type is a package sub node</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
@@ -464,6 +560,12 @@
      <CMPNAME>SHOW_HISTORIC_QUERY</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Trigger query from history</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>SHOW_RESULTS_MESSAGE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Show result count message in status bar</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>

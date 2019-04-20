@@ -227,7 +227,7 @@ CLASS zcl_dbbr_favmenu_factory IMPLEMENTATION.
     DATA(lv_last_used_count) = COND #(
       WHEN if_all = abap_true THEN 0
       ELSE
-         NEW zcl_dbbr_usersettings_factory( )->get_last_used_count_setting( )
+         zcl_dbbr_usersettings_factory=>get_last_used_count_setting( )
     ).
 
     SELECT *

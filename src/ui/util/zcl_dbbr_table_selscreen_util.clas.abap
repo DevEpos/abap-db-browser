@@ -177,7 +177,7 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
     mo_data->mr_v_selmask_entity_name->* = mo_data->mr_s_global_data->primary_table.
 
     " determine table size
-    IF mo_usersettings_f->should_read_db_size( ).
+    IF zcl_dbbr_usersettings_factory=>should_read_db_size( ).
       zcl_dbbr_screen_helper=>show_progress( iv_text     = `Determining Table size...`
                                              iv_progress = 70 ).
       mv_tab_size_text = | (rows { zcl_dbbr_selection_helper=>read_db_size( mo_data->mr_s_global_data->primary_table ) NUMBER = USER })|.

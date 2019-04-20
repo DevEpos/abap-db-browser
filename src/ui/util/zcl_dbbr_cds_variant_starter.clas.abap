@@ -10,8 +10,8 @@ CLASS zcl_dbbr_cds_variant_starter DEFINITION
 
     METHODS constructor
       IMPORTING
-        !iv_variant_id TYPE zdbbr_variant_id
-        !iv_cds_view   TYPE zdbbr_cds_view_name .
+        !iv_variant_id      TYPE zdbbr_variant_id
+        !iv_cds_view        TYPE zdbbr_cds_view_name .
   PROTECTED SECTION.
 
     METHODS fill_data_from_variant
@@ -48,22 +48,24 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
 
     " create and start selection controller
     DATA(lr_controller) = zcl_dbbr_selection_controller=>create_controller(
-       iv_entity_id          = mv_cds_view
-       iv_entity_type        = zif_dbbr_c_selscreen_mode=>cds_view
-       it_selection_fields   = mt_selfields
-       it_multi_or           = mt_selfields_or
-       is_technical_infos    = CORRESPONDING #( ms_global_data )
-       it_selfields_multi    = mt_selfields_multi
-       ir_tabfields          = lr_tabfields
-       ir_tabfields_all      = lr_tabfields_all
-       it_table_to_alias_map = mt_table_to_alias_map
-       it_exclude_function   = VALUE #(
-         ( zif_dbbr_c_selection_functions=>leave_screen_with_layout )
-         ( zif_dbbr_c_selection_functions=>transfer_filter_values   )
+       value #(
+         entity_id          = mv_cds_view
+         entity_type        = zif_dbbr_c_selscreen_mode=>cds_view
+         selection_fields   = mt_selfields
+         multi_or           = mt_selfields_or
+         technical_infos    = CORRESPONDING #( ms_global_data )
+         selfields_multi    = mt_selfields_multi
+         tabfields          = lr_tabfields
+         tabfields_all      = lr_tabfields_all
+         table_to_alias_map = mt_table_to_alias_map
+         exclude_function   = VALUE #(
+          ( zif_dbbr_c_selection_functions=>leave_screen_with_layout )
+          ( zif_dbbr_c_selection_functions=>transfer_filter_values   )
+         )
        )
     ).
 
-    lr_controller->execute_selection( ).
+    rf_no_data = lr_controller->execute_selection( ).
   ENDMETHOD.
 
 
@@ -88,7 +90,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
   METHOD fill_data_from_variant.
     IF mv_variant_id = zif_dbbr_global_consts=>c_dummy_variant.
 *.... Fill parameters if the cds view has any
-      IF mo_cds_view->has_parameters( ).
+      IF mo_cds_view->has_parameters( if_exclude_system_params = abap_true ).
         DATA(lo_param_popup) = NEW zcl_dbbr_cds_param_popup(
             io_tabfields = mo_tabfield_list
         ).
@@ -115,6 +117,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD fill_primary_entity.
+
     mo_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( mv_cds_view ).
 
     create_cds_fields( VALUE #(

@@ -35,8 +35,9 @@ CLASS zcl_dbbr_sql_query_exec_proxy DEFINITION
       IMPORTING
         iv_row_count      TYPE i OPTIONAL
         if_count_only     TYPE abap_bool OPTIONAL
-      RETURNING
-        VALUE(rv_program) TYPE program.
+      EXPORTING
+        VALUE(ev_program) TYPE program
+        VALUE(ev_message) TYPE string.
     "! <p class="shorttext synchronized" lang="en">Check and correct the query result</p>
     "!
     CLASS-METHODS check_and_correct_result
@@ -74,13 +75,25 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
           lv_time2        TYPE timestampl,
           lv_duration     TYPE timestampl.
 
-    DATA(lv_program) = create_subroutine_code(
-      iv_row_count = iv_row_count
+    create_subroutine_code(
+      EXPORTING
+        iv_row_count = iv_row_count
+      IMPORTING
+        ev_program   = DATA(lv_program)
+        ev_message   = rs_table_result-message
     ).
+
+    IF rs_table_result-message IS NOT INITIAL.
+      RETURN.
+    ENDIF.
 
     DATA(lv_class) = |\\PROGRAM={ lv_program }\\CLASS=MAIN|.
     GET TIME STAMP FIELD lv_time1.
-    CALL METHOD (lv_class)=>execute RECEIVING rr_result = lr_query_result .
+    IF ms_query-is_single_result_query = abap_true.
+      CALL METHOD (lv_class)=>execute RECEIVING rv_count = rs_table_result-line_count.
+    ELSE.
+      CALL METHOD (lv_class)=>execute RECEIVING rr_result = lr_query_result .
+    ENDIF.
     GET TIME STAMP FIELD lv_time2.
 
     cl_abap_tstmp=>subtract(
@@ -93,10 +106,12 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
     lv_duration  = lv_duration  * 1000.
     rs_table_result-query_execution_time = |{ lv_duration NUMBER = USER } ms|.
 
-    check_and_correct_result(
-      EXPORTING ir_query_result = lr_query_result
-      CHANGING  cs_result       = rs_table_result
-    ).
+    IF ms_query-is_single_result_query = abap_false.
+      check_and_correct_result(
+        EXPORTING ir_query_result = lr_query_result
+        CHANGING  cs_result       = rs_table_result
+      ).
+    ENDIF.
   ENDMETHOD.
 
   METHOD create_subroutine_code.
@@ -110,7 +125,17 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
         ( |  PUBLIC SECTION.| )
         ( |    CLASS-METHODS execute| )
         ( |      RETURNING| )
-        ( |        VALUE(rr_result) TYPE REF TO data| )
+    ).
+    IF ms_query-is_single_result_query = abap_true.
+      lt_lines = VALUE #( BASE lt_lines
+          ( |        VALUE(rv_count) TYPE ZDBBR_NO_OF_LINES| )
+      ).
+    ELSE.
+      lt_lines = VALUE #( BASE lt_lines
+          ( |        VALUE(rr_result) TYPE REF TO data| )
+      ).
+    ENDIF.
+    lt_lines = VALUE #( BASE lt_lines
         ( |      RAISING| )
         ( |        ZCX_DBBR_SQL_QUERY_ERROR.| )
         ( |ENDCLASS.| )
@@ -140,6 +165,8 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
 *.... Fill the value for the parameter
       IF <ls_parameter>-value IS NOT INITIAL.
         lv_param_line = |{ lv_param_line } VALUE '{ <ls_parameter>-value }'|.
+      ELSEIF <ls_parameter>-default_value_raw IS NOT INITIAL.
+        lv_param_line = |{ lv_param_line } VALUE { <ls_parameter>-default_value_raw }|.
       ENDIF.
       lv_param_line = |{ lv_param_line }.|.
       lt_lines = VALUE #( BASE lt_lines
@@ -175,8 +202,15 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
     SPLIT ms_query-select_source AT cl_abap_char_utilities=>cr_lf INTO TABLE lt_lines_temp.
 
     ASSIGN lt_lines_temp[ ms_query-last_row_in_select_stmnt ] TO FIELD-SYMBOL(<lv_last_query_line>).
-    <lv_last_query_line> = |{ <lv_last_query_line>(ms_query-last_row_offset) } INTO TABLE @DATA(result)|.
-    IF iv_row_count IS SUPPLIED AND iv_row_count > 0.
+    IF ms_query-is_single_result_query = abap_true.
+      <lv_last_query_line> = |{ <lv_last_query_line>(ms_query-last_row_offset) } INTO @rv_count|.
+    ELSE.
+      <lv_last_query_line> = |{ <lv_last_query_line>(ms_query-last_row_offset) } INTO TABLE @DATA(result)|.
+    ENDIF.
+    IF  iv_row_count IS SUPPLIED AND
+        iv_row_count > 0 AND
+        ms_query-is_single_result_query = abap_false AND
+        ms_query-main_select_stmnt_type <> zcl_dbbr_sql_query_parser=>c_keywords-union.
       <lv_last_query_line> = |{ <lv_last_query_line> } UP TO { iv_row_count } ROWS.|.
     ELSE.
       <lv_last_query_line> = |{ <lv_last_query_line> }.|.
@@ -187,9 +221,15 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
     lt_lines = VALUE #( BASE lt_lines
        ( |    TRY.| )
        ( LINES OF lt_lines_temp )
-       ( |        CREATE DATA rr_result LIKE result.| )
-       ( |        ASSIGN rr_result->* to FIELD-SYMBOL(<lt_result>).| )
-       ( |        <lt_result> = result.| )
+    ).
+    IF ms_query-is_single_result_query = abap_false.
+      lt_lines = VALUE #( BASE lt_lines
+         ( |        CREATE DATA rr_result LIKE result.| )
+         ( |        ASSIGN rr_result->* to FIELD-SYMBOL(<lt_result>).| )
+         ( |        <lt_result> = result.| )
+      ).
+    ENDIF.
+    lt_lines = VALUE #( BASE lt_lines
        ( |      CATCH cx_root INTO DATA(lx_root).| )
        ( |        RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error| )
        ( |          EXPORTING| )
@@ -204,15 +244,11 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
 
 *.. Generate the subroutine
     GENERATE SUBROUTINE POOL lt_lines
-                        NAME rv_program
-                        MESSAGE DATA(lv_error_message)
+                        NAME ev_program
+                        MESSAGE ev_message
                         LINE    DATA(lv_error_line)
                         OFFSET  DATA(lv_error_offset)
                         WORD    DATA(lv_error_word).   "#EC CI_GENERATE
-
-    IF lv_error_message IS NOT INITIAL.
-      CLEAR rv_program.
-    ENDIF.
   ENDMETHOD.
 
   METHOD remove_null.
@@ -269,6 +305,7 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
       DATA(lv_rollname) = VALUE rollname( ).
       DATA(lv_domname) = VALUE domname( ).
       DATA(lv_length) = VALUE ddleng( ).
+      data(lv_int_length) = value intlen( ).
       DATA(lv_decimals) = VALUE decimals( ).
       DATA(lv_description) = VALUE ddtext( ).
 
@@ -279,6 +316,8 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
         lv_domname = ls_ddic_header-domname.
         lv_decimals = ls_ddic_header-decimals.
         lv_length = ls_ddic_header-leng.
+        lv_int_length = ls_ddic_header-intlen.
+
         lv_description = COND #(
           WHEN ls_ddic_header-scrtext_m IS NOT INITIAL THEN ls_ddic_header-scrtext_m
           WHEN ls_ddic_header-scrtext_l IS NOT INITIAL THEN ls_ddic_header-scrtext_l
@@ -289,6 +328,7 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
         lv_decimals = lr_comp_type->decimals.
         lv_description = ls_table_field_details-name.
         lv_length = lr_comp_type->length.
+        lv_int_length = lr_comp_type->length.
       ENDIF.
 
 *.... add metadata
@@ -297,6 +337,7 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
             name        = ls_table_field_details-name
             description = lv_description
             length      = lv_length
+            int_length  = lv_int_length
             domname     = lv_domname
             rollname    = lv_rollname
             decimals    = lv_decimals

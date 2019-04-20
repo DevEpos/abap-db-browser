@@ -177,23 +177,25 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
 
     " create and start selection controller
     DATA(lr_controller) = zcl_dbbr_selection_controller=>create_controller(
-       iv_entity_type        = zif_dbbr_c_selscreen_mode=>query
-       iv_entity_id          = ms_query-query_name
-       it_selection_fields   = mt_selfields
-       it_multi_or           = mt_selfields_or
-       is_technical_infos    = CORRESPONDING #( ms_global_data )
-       it_selfields_multi    = mt_selfields_multi
-       ir_tabfields          = lr_tabfields
-       ir_tabfields_all      = lr_tabfields_all
-       is_join_def           = ms_join_def
-       it_exclude_function   = VALUE #(
-         ( zif_dbbr_c_selection_functions=>leave_screen_with_layout )
-         ( zif_dbbr_c_selection_functions=>transfer_filter_values   )
+      value #(
+         entity_type        = zif_dbbr_c_selscreen_mode=>query
+         entity_id          = ms_query-query_name
+         selection_fields   = mt_selfields
+         multi_or           = mt_selfields_or
+         technical_infos    = CORRESPONDING #( ms_global_data )
+         selfields_multi    = mt_selfields_multi
+         tabfields          = lr_tabfields
+         tabfields_all      = lr_tabfields_all
+         join_def           = ms_join_def
+         exclude_function   = VALUE #(
+           ( zif_dbbr_c_selection_functions=>leave_screen_with_layout )
+           ( zif_dbbr_c_selection_functions=>transfer_filter_values   )
+         )
+         formula            = COND #( WHEN mo_formula IS BOUND AND mo_formula->has_executable_code( ) THEN  mo_formula )
        )
-       ir_formula            = COND #( WHEN mo_formula IS BOUND AND mo_formula->has_executable_code( ) THEN  mo_formula )
     ).
 
-    lr_controller->execute_selection( ).
+    rf_no_data = lr_controller->execute_selection( ).
   ENDMETHOD.
 
 

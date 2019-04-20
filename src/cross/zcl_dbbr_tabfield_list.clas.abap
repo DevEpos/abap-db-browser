@@ -270,6 +270,10 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
       IMPORTING
         !iv_table_name   TYPE tabname
         !if_virtual_join TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Set the grouping to active</p>
+    METHODS set_multi_table_mode
+      IMPORTING
+        if_active_grouping TYPE abap_bool DEFAULT abap_true.
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -308,6 +312,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     DATA mf_iterator_for_active TYPE boolean .
     "! <p class="shorttext synchronized" lang="en">Type of Entity</p>
     DATA mv_entity_type TYPE zdbbr_entity_type .
+    DATA: mf_multi_table_mode TYPE abap_bool.
 
     METHODS fill_full_fieldnames
       CHANGING
@@ -378,6 +383,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     IF ls_entity_info-tabname = zif_dbbr_global_consts=>c_parameter_dummy_table OR
        ls_entity_info-tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
       ls_entity_info-is_custom = abap_true.
+      DATA(lf_insert_first) = abap_true.
 
       IF ls_entity_info-tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
         ls_entity_info-alias = zif_dbbr_global_consts=>c_formula_alias.
@@ -385,7 +391,11 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     ENDIF.
 
     TRY.
-        mt_tables = VALUE #( BASE mt_tables ( ls_entity_info ) ).
+        IF lf_insert_first = abap_true.
+          INSERT ls_entity_info INTO mt_tables INDEX 1.
+        ELSE.
+          mt_tables = VALUE #( BASE mt_tables ( ls_entity_info ) ).
+        ENDIF.
       CATCH cx_sy_itab_duplicate_key.
     ENDTRY.
 
@@ -720,7 +730,9 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
   METHOD fill_full_fieldnames.
 
-    cs_field-sql_fieldname_long = COND #( WHEN  is_multi_table_list( ) AND cs_field-tabname_alias IS NOT INITIAL THEN
+    cs_field-sql_fieldname_long = COND #( WHEN ( is_multi_table_list( ) OR
+                                                 mf_multi_table_mode = abap_true ) AND
+                                               cs_field-tabname_alias IS NOT INITIAL THEN
                                        cs_field-tabname_alias && '~' && cs_field-fieldname_raw
                                      ELSE
                                        cs_field-fieldname_raw ).
@@ -762,7 +774,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     IF iv_tabname IS INITIAL.
       rs_tabfield = VALUE #( mt_fields[ fieldname = iv_fieldname ] OPTIONAL ).
     ELSE.
-      rs_tabfield = VALUE #( mt_fields[ tabname   = iv_tabname fieldname = iv_fieldname ] OPTIONAL ).
+      rs_tabfield = VALUE #( mt_fields[ tabname_alias = iv_tabname fieldname = iv_fieldname ] OPTIONAL ).
     ENDIF.
   ENDMETHOD.
 
@@ -982,6 +994,9 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
+  METHOD set_multi_table_mode.
+    mf_multi_table_mode = if_active_grouping.
+  ENDMETHOD.
 
   METHOD set_entity_type.
     mv_entity_type = value.
@@ -1037,6 +1052,13 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
   METHOD sort_tables_by_active.
     SORT mt_tables BY active_selection DESCENDING selection_order ASCENDING.
+
+    DATA(lv_param_table_index) = line_index( mt_tables[ tabname = zif_dbbr_global_consts=>c_parameter_dummy_table ] ).
+    IF lv_param_table_index > 0.
+      DATA(ls_param_table) = mt_tables[ lv_param_table_index ].
+      DELETE mt_tables INDEX lv_param_table_index.
+      INSERT ls_param_table INTO mt_tables INDEX 1.
+    ENDIF.
   ENDMETHOD.
 
 

@@ -1,55 +1,55 @@
-class ZCL_DBBR_VARIANT_CREATOR definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_variant_creator DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  class-methods CREATE_VARIANT
-    importing
-      !IV_VARIANT_ID type ZDBBR_VARIANT_ID optional
-      !IV_VARIANT_NAME type ZDBBR_VARIANT_NAME optional
-      !IV_ENTITY_ID type ZDBBR_ENTITY_ID
-      !IV_ENTITY_TYPE type ZDBBR_ENTITY_TYPE
-      !IV_VARIANT_DESCRIPTION type DDTEXT
-      !IF_HAS_OUTPUT_FIELDS type ABAP_BOOL optional
-      !IF_HAS_SORT_FIELDS type ABAP_BOOL optional
-      !IT_SELFIELDS type ZDBBR_SELFIELD_ITAB
-      !IT_MULTI_SELFIELDS type ZDBBR_SELFIELD_ITAB optional
-      !IT_MULTI_OR type ZDBBR_OR_SELTAB_ITAB optional
-    returning
-      value(RS_VARIANT) type ZDBBR_VARIANT_DATA .
+    CLASS-METHODS create_variant
+      IMPORTING
+        !iv_variant_id          TYPE zdbbr_variant_id OPTIONAL
+        !iv_variant_name        TYPE zdbbr_variant_name OPTIONAL
+        !iv_entity_id           TYPE zdbbr_entity_id
+        !iv_entity_type         TYPE zdbbr_entity_type
+        !iv_variant_description TYPE ddtext
+        !if_has_output_fields   TYPE abap_bool OPTIONAL
+        !if_has_sort_fields     TYPE abap_bool OPTIONAL
+        !it_selfields           TYPE zdbbr_selfield_itab
+        !it_multi_selfields     TYPE zdbbr_selfield_itab OPTIONAL
+        !it_multi_or            TYPE zdbbr_or_seltab_itab OPTIONAL
+      RETURNING
+        VALUE(rs_variant)       TYPE zdbbr_variant_data .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  class-methods ADD_SPECIAL_VARIANT_DATA
-    importing
-      !IV_LAYOUT_DATA_TYPE type ZDBBR_VARIANT_DATATYPE
-      !IV_LAYOUT_DATA_LOW type ANY optional
-      !IV_LAYOUT_DATA_HIGH type ANY optional
-    changing
-      !CS_LAYOUT_DATA type ZDBBR_VARDATA
-      !CT_LAYOUT_DATA type ZDBBR_VARDATA_ITAB
-      !CV_LINE_COUNTER type SY-TABIX .
-  class-methods ADD_VALUE_VARIANT_DATA
-    importing
-      !IS_SELFIELD type ZDBBR_SELFIELD
-      !IT_MULTI type ZDBBR_SELFIELD_ITAB
-    changing
-      !CS_LAYOUT_DATA type ZDBBR_VARDATA
-      !CT_LAYOUT_DATA type ZDBBR_VARDATA_ITAB
-      !CV_LINE_COUNTER type SY-TABIX .
-  class-methods ADD_MULTI_OR_VARIANT_DATA
-    importing
-      !IS_SELFIELD_INFO type ZDBBR_SELFIELD_INFO
-    changing
-      !CS_LAYOUT_DATA type ZDBBR_VARDATA
-      !CT_LAYOUT_DATA type ZDBBR_VARDATA_ITAB .
+    CLASS-METHODS add_special_variant_data
+      IMPORTING
+        !iv_layout_data_type TYPE zdbbr_variant_datatype
+        !iv_layout_data_low  TYPE any OPTIONAL
+        !iv_layout_data_high TYPE any OPTIONAL
+      CHANGING
+        !cs_layout_data      TYPE zdbbr_vardata
+        !ct_layout_data      TYPE zdbbr_vardata_itab
+        !cv_line_counter     TYPE sy-tabix .
+    CLASS-METHODS add_value_variant_data
+      IMPORTING
+        !is_selfield     TYPE zdbbr_selfield
+        !it_multi        TYPE zdbbr_selfield_itab
+      CHANGING
+        !cs_layout_data  TYPE zdbbr_vardata
+        !ct_layout_data  TYPE zdbbr_vardata_itab
+        !cv_line_counter TYPE sy-tabix .
+    CLASS-METHODS add_multi_or_variant_data
+      IMPORTING
+        !is_selfield_info TYPE zdbbr_selfield_info
+      CHANGING
+        !cs_layout_data   TYPE zdbbr_vardata
+        !ct_layout_data   TYPE zdbbr_vardata_itab .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_VARIANT_CREATOR IMPLEMENTATION.
+CLASS zcl_dbbr_variant_creator IMPLEMENTATION.
 
 
   METHOD add_multi_or_variant_data.
@@ -132,8 +132,8 @@ CLASS ZCL_DBBR_VARIANT_CREATOR IMPLEMENTATION.
     " get multi select values
     IF is_selfield-push = abap_true.
       LOOP AT it_multi ASSIGNING FIELD-SYMBOL(<ls_select_multi>)
-         WHERE tabname = is_selfield-tabname AND
-               fieldname = is_selfield-fieldname AND
+         WHERE tabname_alias = is_selfield-tabname_alias AND
+               fieldname     = is_selfield-fieldname AND
                ( low IS NOT INITIAL OR high IS NOT INITIAL ).
         ADD 1 TO cv_line_counter.
         cs_layout_data-counter   = cv_line_counter.
@@ -170,7 +170,7 @@ CLASS ZCL_DBBR_VARIANT_CREATOR IMPLEMENTATION.
 
       " fill default values
       DATA(ls_vardata_entry) = VALUE zdbbr_vardata(
-          tabname         = <ls_selection_field>-tabname
+          tabname         = <ls_selection_field>-tabname_alias
           fieldname       = <ls_selection_field>-fieldname
       ).
 
@@ -213,7 +213,7 @@ CLASS ZCL_DBBR_VARIANT_CREATOR IMPLEMENTATION.
 
       " 1) process single tuple data
       LOOP AT <ls_multi_or_tuple>-values ASSIGNING FIELD-SYMBOL(<ls_multi_or_tuple_data>).
-        ls_vardata_entry-tabname = <ls_multi_or_tuple_data>-tabname.
+        ls_vardata_entry-tabname = <ls_multi_or_tuple_data>-tabname_alias.
         ls_vardata_entry-fieldname = <ls_multi_or_tuple_data>-fieldname.
 
         add_multi_or_variant_data(

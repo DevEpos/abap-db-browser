@@ -115,6 +115,13 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
     TYPES: items TYPE treemcitab.
     TYPES: END OF mty_node_data .
 
+    TYPES:
+      BEGIN OF ty_s_variant_data,
+        variant_id  TYPE zdbbr_variant_id,
+        entity_id   TYPE zdbbr_entity_id,
+        entity_type TYPE zdbbr_entity_type,
+      END OF ty_s_variant_data.
+
     CONSTANTS c_hierarchy_node2 TYPE tv_itmname VALUE 'HIER2' ##no_text.
     CONSTANTS c_descr_column TYPE tv_itmname VALUE 'DESCR' ##NO_TEXT.
     CONSTANTS c_top_node TYPE tm_nodekey VALUE '00001' ##NO_TEXT.
@@ -165,6 +172,13 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
     METHODS get_selection_mode
       RETURNING
         VALUE(result) TYPE i .
+    "! <p class="shorttext synchronized" lang="en">Checks if the node is holds a db browser variant</p>
+    "!
+    METHODS is_variant_node
+      IMPORTING
+        io_node                TYPE REF TO zcl_uitb_ctm_node
+      RETURNING
+        VALUE(rf_variant_node) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">handles a ui function code</p>
     "!
     METHODS handle_gui_function
@@ -309,7 +323,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
                                    |Favorites for { sy-uname }| ).
 
 *.. create dummy favmenu entry data for top node
-    DATA(ls_favmenu_data) = VALUE zdbbr_favmenu(
+    DATA(lr_favmenu_data) = NEW zdbbr_favmenu(
         uname      = COND #( WHEN mf_global_fav_mode = abap_false THEN sy-uname )
         favtype    = zif_dbbr_c_favmenu_type=>folder
         object_id  = 1
@@ -330,7 +344,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     lo_nodes->add_node(
       iv_node_key              = c_top_node
       if_folder                = abap_true
-      ir_user_object           = NEW zcl_dbbr_favmenu_entry( ls_favmenu_data )
+      ir_user_data             = lr_favmenu_data
       iv_drag_drop_id          = lv_dnd_handle
       it_item_table            = VALUE #(
         ( item_name  = zcl_uitb_column_tree_model=>c_hierarchy_column
@@ -400,7 +414,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
 
     LOOP AT it_favinfo ASSIGNING FIELD-SYMBOL(<ls_tabinfo>).
-      DATA(ls_favmenu_entry) = VALUE zdbbr_favmenu(
+      DATA(lr_favmenu_entry) = NEW zdbbr_favmenu(
           uname         = lv_user
           favtype       = <ls_tabinfo>-type
           fav_entry     = <ls_tabinfo>-favorite
@@ -411,7 +425,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
           text          = <ls_tabinfo>-description
       ).
 
-      lt_favmenu_new = VALUE #( BASE lt_favmenu_new ( ls_favmenu_entry ) ).
+      lt_favmenu_new = VALUE #( BASE lt_favmenu_new ( lr_favmenu_entry->* ) ).
 
 *.... add node to node table
       DATA(lv_node_id) = |{ lv_new_fav_id ALPHA = IN }|.
@@ -423,6 +437,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
       DATA(lv_node_image) = COND #(
         WHEN <ls_tabinfo>-type = zif_dbbr_c_favmenu_type=>cds_view THEN zif_dbbr_c_icon=>cds_view
         WHEN <ls_tabinfo>-type = zif_dbbr_c_favmenu_type=>table THEN zif_dbbr_c_icon=>database_table
+        WHEN <ls_tabinfo>-type = zif_dbbr_c_favmenu_type=>query THEN zif_dbbr_c_icon=>query
       ).
 
       mo_tree_model->get_nodes( )->add_node(
@@ -432,18 +447,18 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
           iv_drag_drop_id      = lv_dnd_handle
           iv_image             = lv_node_image
           iv_expanded_image    = lv_node_image
-          ir_user_object       = NEW zcl_dbbr_favmenu_entry( ls_favmenu_entry )
+          ir_user_data         = lr_favmenu_entry
           it_item_table        = VALUE #(
              ( item_name  = mo_tree_model->c_hierarchy_column
                class      = cl_item_tree_model=>item_class_text
                font       = cl_item_tree_model=>item_font_prop
-               text       = ls_favmenu_entry-fav_entry_raw
+               text       = lr_favmenu_entry->fav_entry_raw
              )
              ( item_name = c_hierarchy_node2
                style     = zif_uitb_c_ctm_style=>inverted_gray
                font      = cl_item_tree_model=>item_font_prop
                class     = cl_item_tree_model=>item_class_text
-               text      = ls_favmenu_entry-text
+               text      = lr_favmenu_entry->text
              )
           )
       ).
@@ -469,7 +484,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     DATA(lo_selected_node) = mo_tree_model->get_selections( )->get_selected_node( ).
 
     IF lo_selected_node IS INITIAL OR
-       zcl_dbbr_tree_helper=>is_variant_node( lo_selected_node ).
+       is_variant_node( lo_selected_node ).
       RETURN.
     ENDIF.
 
@@ -537,7 +552,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
     " get the current new max object id for the new favorite entry
     DATA(lv_new_fav_id) = mo_favmenu_f->get_next_object_id( if_global = mf_global_fav_mode ).
-    DATA(ls_favmenu_entry_new) = VALUE zdbbr_favmenu(
+    DATA(lr_favmenu_entry_new) = NEW zdbbr_favmenu(
         uname         = COND sysuname( WHEN mf_global_fav_mode = abap_false THEN sy-uname )
         favtype       = lv_favorite_type
         fav_entry     = lv_favorite_name
@@ -548,7 +563,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
         text          = lv_node_description
     ).
 
-    mo_favmenu_f->update_favorite( ls_favmenu_entry_new ).
+    mo_favmenu_f->update_favorite( lr_favmenu_entry_new->* ).
 
     DATA(lv_new_node_key) = |{ lv_new_fav_id ALPHA = IN }|.
 
@@ -562,7 +577,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
       if_folder                = abap_false
       iv_image                   = zcl_dbbr_tree_helper=>get_tree_node_icon( lv_favorite_type )
       iv_drag_drop_id            = lv_dnd_handle
-      ir_user_object             = NEW zcl_dbbr_favmenu_entry( ls_favmenu_entry_new )
+      ir_user_data               = lr_favmenu_entry_new
       it_item_table              = VALUE #(
         ( item_name  = mo_tree_model->c_hierarchy_column
           class      = cl_item_tree_model=>item_class_text
@@ -580,8 +595,8 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
     mt_node_map = VALUE #( BASE mt_node_map
      ( node_key     = lv_new_node_key
-       entity_id    = ls_favmenu_entry_new-fav_entry
-       entity_type  = ls_favmenu_entry_new-favtype
+       entity_id    = lr_favmenu_entry_new->fav_entry
+       entity_type  = lr_favmenu_entry_new->favtype
      )
     ).
 
@@ -602,7 +617,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     DATA(lo_selected_node) = mo_tree_model->get_selections( )->get_selected_node( ).
 
     IF lo_selected_node IS INITIAL OR
-       zcl_dbbr_tree_helper=>is_variant_node( lo_selected_node ).
+       is_variant_node( lo_selected_node ).
       RETURN.
     ENDIF.
 
@@ -637,7 +652,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     " 2) create new fav entry for folder
     " get the current new max object id for the new favorite entry
     DATA(lv_new_fav_id) = mo_favmenu_f->get_next_object_id( if_global = mf_global_fav_mode ).
-    DATA(ls_favmenu_entry_new) = VALUE zdbbr_favmenu(
+    DATA(lr_favmenu_entry_new) = NEW zdbbr_favmenu(
         uname      = COND sysuname( WHEN mf_global_fav_mode = abap_false THEN sy-uname )
         favtype    = zif_dbbr_c_favmenu_type=>folder
         object_id  = lv_new_fav_id
@@ -646,7 +661,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
         text       = lv_folder_name
     ).
 
-    mo_favmenu_f->update_favorite( ls_favmenu_entry_new ).
+    mo_favmenu_f->update_favorite( lr_favmenu_entry_new->* ).
 
     DATA(lv_new_node_key) = |{ lv_new_fav_id ALPHA = IN }|.
 
@@ -660,7 +675,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
         iv_relationship            = lv_relationship
         if_folder                = abap_true
         iv_drag_drop_id            = lv_dnd_handle
-        ir_user_object             = NEW zcl_dbbr_favmenu_entry( ls_favmenu_entry_new )
+        ir_user_data               = lr_favmenu_entry_new
         it_item_table              = VALUE #(
         ( item_name  = mo_tree_model->c_hierarchy_column
           class      = cl_item_tree_model=>item_class_text
@@ -674,8 +689,8 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 *.. create new node map entry
     mt_node_map = VALUE #( BASE mt_node_map
      ( node_key     = lv_new_node_key
-       entity_id    = ls_favmenu_entry_new-fav_entry
-       entity_type  = ls_favmenu_entry_new-favtype
+       entity_id    = lr_favmenu_entry_new->fav_entry
+       entity_type  = lr_favmenu_entry_new->favtype
      )
     ).
 
@@ -761,7 +776,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
     IF lo_selected_node IS INITIAL OR
        lo_selected_node->mv_node_key = c_top_node OR
-       zcl_dbbr_tree_helper=>is_variant_node( lo_selected_node ).
+       is_variant_node( lo_selected_node ).
       RETURN.
     ENDIF.
 
@@ -772,13 +787,20 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     ENDIF.
 
     IF lo_selected_node->has_children( ).
-      IF zcl_dbbr_appl_util=>popup_to_confirm( iv_title     = 'Delete favorite folder'
-                                               iv_query     = 'Should the folder and all its child nodes really be deleted?'
-                                               iv_icon_type = 'ICON_QUESTION' ) <> '1'.
-        RETURN.
-      ENDIF.
+*.... Only show query for folder deletion if it really is a folder
+      DATA(lr_user_data) = lo_selected_node->get_user_data( ).
+      TRY.
+          DATA(lr_fav_data) = CAST zdbbr_favmenu( lr_user_data ).
+          IF lr_fav_data->favtype = zif_dbbr_c_favmenu_type=>folder.
+            IF zcl_dbbr_appl_util=>popup_to_confirm( iv_title     = 'Delete favorite folder'
+                                                     iv_query     = 'Should the folder and all its child nodes really be deleted?'
+                                                     iv_icon_type = 'ICON_QUESTION' ) <> '1'.
+              RETURN.
+            ENDIF.
+          ENDIF.
+        CATCH cx_sy_move_cast_error.
+      ENDTRY.
     ENDIF.
-
 
 *.. 1) delete favorites from ZDBBR_favmenu
     delete_favorite_node( lo_selected_node ).
@@ -980,11 +1002,11 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
 
   METHOD get_node_favmenu_data.
-    DATA(lo_user_object) = io_node->get_user_object( ).
-    CHECK lo_user_object IS BOUND.
+    DATA(lr_user_data) = io_node->get_user_data( ).
+    CHECK lr_user_data IS BOUND.
 
     TRY.
-        rs_favmenu = CAST zcl_dbbr_favmenu_entry( lo_user_object )->get_favmenu_data( ).
+        rs_favmenu = CAST zdbbr_favmenu( lr_user_data )->*.
       CATCH cx_sy_move_cast_error.
     ENDTRY.
   ENDMETHOD.
@@ -1059,6 +1081,20 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD is_variant_node.
+    CHECK io_node IS BOUND.
+
+    DATA(lr_user_data) = io_node->get_user_data( ).
+
+    CHECK lr_user_data IS BOUND.
+
+    TRY.
+        CAST ty_s_variant_data( lr_user_data ).
+        rf_variant_node = abap_true.
+      CATCH cx_sy_move_cast_error.
+    ENDTRY.
+  ENDMETHOD.
+
   METHOD import_from_clipboard.
     DATA: lv_clipboard_count TYPE sy-tabix.
 
@@ -1069,7 +1105,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
                                         mo_tree_model->get_selections( )->get_selected_node( ) ).
 
     IF lo_node_for_import IS INITIAL OR
-       zcl_dbbr_tree_helper=>is_variant_node( lo_node_for_import ).
+       is_variant_node( lo_node_for_import ).
       RETURN.
     ENDIF.
 
@@ -1149,6 +1185,9 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
       LOOP AT lt_menu_entries ASSIGNING FIELD-SYMBOL(<ls_group_entry>).
 
+        CHECK: <ls_group_entry>-object_id IS NOT INITIAL,
+               <ls_group_entry>-parent_id IS NOT INITIAL.
+
         DATA(lf_is_folder) = should_display_as_folder(
            iv_fav_type     = <ls_group_entry>-favtype
            if_has_variants = <ls_group_entry>-has_variants
@@ -1186,7 +1225,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
             iv_image             = lv_icon
             iv_expanded_image    = lv_icon
             " add reference of favorite to node
-            ir_user_object       = NEW zcl_dbbr_favmenu_entry( CONV #( <ls_group_entry> ) )
+            ir_user_data         = NEW zdbbr_favmenu( <ls_group_entry> )
             it_item_table        = lt_items
         ).
 
@@ -1205,7 +1244,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
     IF lo_selected_node IS INITIAL OR
        lo_selected_node->mv_node_key = c_top_node OR
-       zcl_dbbr_tree_helper=>is_variant_node( lo_selected_node ).
+       is_variant_node( lo_selected_node ).
       RETURN.
     ENDIF.
 
@@ -1242,7 +1281,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
     IF lo_selected_node IS INITIAL OR
        lo_selected_node->mv_node_key = c_top_node OR
-       zcl_dbbr_tree_helper=>is_variant_node( lo_selected_node ).
+       is_variant_node( lo_selected_node ).
       RETURN.
     ENDIF.
 
@@ -1292,10 +1331,8 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
   METHOD on_expand_no_children.
     DATA(lo_node) = mo_tree_model->get_nodes( )->get_node( ev_node_key ).
-    DATA(lo_user_object) = lo_node->get_user_object( ).
-    DATA(lo_favmenu_object) = CAST zcl_dbbr_favmenu_entry( lo_user_object ).
-
-    DATA(ls_favmenu_data) = lo_favmenu_object->get_favmenu_data( ).
+    DATA(lr_user_data) = lo_node->get_user_data( ).
+    DATA(ls_favmenu_data) = CAST zdbbr_favmenu( lr_user_data )->*.
 
     DATA(lt_variants) = mo_variant_f->find_variant_infos_for_type(
         iv_entity_id   = ls_favmenu_data-fav_entry
@@ -1320,7 +1357,11 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
           iv_relative_node_key       = ev_node_key
           iv_relationship            = cl_list_tree_model=>relat_last_child
           iv_image                   = CONV #( icon_alv_variants )
-          ir_user_object             = NEW zcl_dbbr_variant( <ls_variant> )
+          ir_user_data               = NEW ty_s_variant_data(
+              variant_id  = <ls_variant>-variant_id
+              entity_id   = ls_favmenu_data-fav_entry
+              entity_type = ls_favmenu_data-favtype
+          )
           it_item_table              = VALUE #(
             ( item_name  = mo_tree_model->c_hierarchy_column
               class      = cl_item_tree_model=>item_class_text
@@ -1343,7 +1384,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
   METHOD on_node_context_menu_request.
     DATA(lo_selected_node) = mo_tree_model->get_selections( )->get_selected_node( ).
 
-    CHECK NOT zcl_dbbr_tree_helper=>is_variant_node( lo_selected_node ).
+    CHECK NOT is_variant_node( lo_selected_node ).
 
     DATA(lo_parent_node) = lo_selected_node->get_parent( ).
     DATA(lv_parent_node) = COND #( WHEN lo_parent_node IS BOUND THEN lo_parent_node->mv_node_key ).
@@ -1432,11 +1473,11 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 *.. Get the selected node from the tree
     DATA(lo_selected_node) = mo_tree_model->get_selections( )->get_selected_node( ).
 
-    DATA(lo_user_object) = lo_selected_node->get_user_object( ).
+    DATA(lr_user_data) = lo_selected_node->get_user_data( ).
     IF lo_selected_node->is_folder( ).
 *.... Check whether the node is truly a folder or just a favorite with variants
-      IF lo_user_object IS BOUND.
-        DATA(lv_fav_type) = CAST zcl_dbbr_favmenu_entry( lo_user_object )->get_favmenu_data( )-favtype.
+      IF lr_user_data IS BOUND.
+        DATA(lv_fav_type) = CAST zdbbr_favmenu( lr_user_data )->favtype.
         IF lv_fav_type <> zif_dbbr_c_favmenu_type=>folder.
           lf_is_favorite = abap_true.
         ENDIF.
@@ -1446,19 +1487,18 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     ENDIF.
 
     IF lf_is_favorite = abap_true.
-      IF zcl_dbbr_tree_helper=>is_variant_node( lo_selected_node ).
-        DATA(lo_variant_fav_entry) = CAST zcl_dbbr_variant( lo_user_object ).
-        DATA(ls_variant_info) = lo_variant_fav_entry->get_variant_info( ).
+      IF is_variant_node( lo_selected_node ).
+        DATA(ls_variant_info) = CAST ty_s_variant_data( lr_user_data )->*.
         zcl_dbbr_selscr_nav_events=>raise_variant_entry_chosen(
             iv_entity_id    = ls_variant_info-entity_id
             iv_entity_type  = ls_variant_info-entity_type
             iv_variant_id   = ls_variant_info-variant_id
         ).
       ELSE.
-        DATA(lo_fav_entry) = CAST zcl_dbbr_favmenu_entry( lo_user_object ).
+        DATA(lr_fav_entry) = CAST zdbbr_favmenu( lr_user_data ).
         zcl_dbbr_selscr_nav_events=>raise_entity_chosen(
-            iv_entity_id   = lo_fav_entry->get_favmenu_data( )-fav_entry
-            iv_entity_type = lo_fav_entry->get_favmenu_data( )-favtype
+            iv_entity_id   = lr_fav_entry->fav_entry
+            iv_entity_type = lr_fav_entry->favtype
         ).
       ENDIF.
     ELSE.
@@ -1624,11 +1664,9 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
     DATA(lo_node) = mo_tree_model->get_nodes( )->get_node( iv_node_key ).
 
-    DATA(lo_user_object) = lo_node->get_user_object( ).
-    CHECK lo_user_object IS NOT INITIAL.
-    DATA(lo_fav_entry) = CAST zcl_dbbr_favmenu_entry( lo_user_object ).
-
-    DATA(ls_favmenu_data) = lo_fav_entry->get_favmenu_data( ).
+    DATA(lr_user_data) = lo_node->get_user_data( ).
+    CHECK lr_user_data IS NOT INITIAL.
+    DATA(ls_favmenu_data) = CAST zdbbr_favmenu( lr_user_data )->*.
 
     IF mo_parent_view IS BOUND.
       mo_parent_view->execute_command( NEW zcl_uitb_gui_simple_command(
@@ -1650,11 +1688,10 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     DATA(lo_selected_node) = get_selected_favorite( ).
     CHECK lo_selected_node IS NOT INITIAL.
 
-    DATA(lo_user_object) = lo_selected_node->get_user_object( ).
-    CHECK lo_user_object IS NOT INITIAL.
-    DATA(lo_fav_entry) = CAST zcl_dbbr_favmenu_entry( lo_user_object ).
+    DATA(lr_user_data) = lo_selected_node->get_user_data( ).
+    CHECK lr_user_data IS NOT INITIAL.
+    DATA(ls_favmenu_data) = CAST zdbbr_favmenu( lr_user_data )->*.
 
-    DATA(ls_favmenu_data) = lo_fav_entry->get_favmenu_data( ).
     DATA(lf_query) = xsdbool( ls_favmenu_data-favtype = zif_dbbr_c_favmenu_type=>query ).
 
     lv_fav_id = ls_favmenu_data-fav_entry.

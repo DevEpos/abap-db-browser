@@ -12,7 +12,7 @@ CLASS lcl_executor IMPLEMENTATION.
     CLEAR: mf_async_finished,
            ms_query_result.
 
-    zcl_dbbr_screen_helper=>show_progress( iv_text = |Query is being executed...| iv_progress = 0 ).
+    zcl_dbbr_screen_helper=>show_progress( iv_text = |Query is being executed...| iv_progress = 1 ).
 
     CALL FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY' STARTING NEW TASK 'QUERY_EXEC' DESTINATION 'NONE'
       CALLING execute_query_finished ON END OF TASK
@@ -26,6 +26,7 @@ CLASS lcl_executor IMPLEMENTATION.
 
     process_query_result( ).
 
+    ev_line_count = ms_query_result-line_count.
     et_data_info = VALUE #(
         FOR <ls_result_col> IN ms_query_result-columns
         ( <ls_result_col>-metadata )
@@ -52,7 +53,9 @@ CLASS lcl_executor IMPLEMENTATION.
 
     FIELD-SYMBOLS: <lt_result> TYPE table.
 
-    CHECK ms_query_result IS NOT INITIAL.
+    CHECK: ms_query_result IS NOT INITIAL,
+*........ No column data exists for a count query
+           mo_query->ms_data-is_single_result_query = abap_false.
 
 *.. Check if an error occurred
     IF ms_query_result-message IS NOT INITIAL.
@@ -78,6 +81,12 @@ CLASS lcl_executor IMPLEMENTATION.
             WHEN cl_abap_typedescr=>typekind_int1.
               lr_type = cl_abap_elemdescr=>get_int1( ).
 
+            WHEN cl_abap_typedescr=>typekind_hex.
+              lr_type = cl_abap_elemdescr=>get_x( ls_metadata-length ).
+
+            WHEN cl_abap_typedescr=>typekind_num.
+              lr_type = cl_abap_elemdescr=>get_n( ls_metadata-length ).
+
             WHEN cl_abap_typedescr=>typekind_int8.
               lr_type = cl_abap_elemdescr=>get_int8( ).
 
@@ -98,7 +107,7 @@ CLASS lcl_executor IMPLEMENTATION.
               lr_type = cl_abap_elemdescr=>get_c( p_length = ls_metadata-length ).
 
             WHEN cl_abap_typedescr=>typekind_packed.
-              lr_type = cl_abap_elemdescr=>get_p( p_length = ls_metadata-length p_decimals = CONV #( ls_metadata-decimals ) ).
+              lr_type = cl_abap_elemdescr=>get_p( p_length = ls_metadata-int_length p_decimals = CONV #( ls_metadata-decimals ) ).
 
             WHEN cl_abap_typedescr=>typekind_float.
               lr_type = cl_abap_elemdescr=>get_f( ).

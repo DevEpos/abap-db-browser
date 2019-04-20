@@ -261,9 +261,10 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
                                            iv_progress = 1 ).
 
     clear_edit_flags( ).
-
     CLEAR: mo_data->mr_s_settings->*,
            mf_sql_query.
+*.. Queries do never allow the edit/delete mode
+    mo_data->mr_s_settings->disable_edit = abap_true.
 
 *... 1) load query from database
     DATA(ls_query_data) = mo_query_f->get_query( mv_query_name ).
@@ -569,6 +570,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
         ls_tabfield-length = ls_dfies-leng.
         ls_tabfield-outputlen = ls_dfies-outputlen.
         ls_tabfield-convexit = ls_dfies-convexit.
+        ls_tabfield-is_lowercase = ls_dfies-lowercase.
       ELSE.
         ls_tabfield-decimals = <ls_param>-decimals.
         ls_tabfield-inttype = <ls_param>-inttype.

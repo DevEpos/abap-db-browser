@@ -24,7 +24,7 @@
       <TYP>E</TYP>
       <VERSION>0003</VERSION>
       <MASTERLANG>X</MASTERLANG>
-      <TXTLINES>00002</TXTLINES>
+      <TXTLINES>00005</TXTLINES>
       <DOKSTATE>A</DOKSTATE>
      </DOKIL>
      <HEAD>
@@ -68,7 +68,14 @@
        <TDLINE>&amp;EXAMPLE&amp;</TDLINE>
       </TLINE>
       <TLINE>
-       <TDFORMAT>AS</TDFORMAT>
+       <TDFORMAT>*</TDFORMAT>
+       <TDLINE>The entered CDS view is &lt;ZH&gt;I_Product&lt;/&gt;. If the setting is active,</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>instead of &lt;ZH&gt;I_Product&lt;/&gt;, its DDL SQL view &lt;ZH&gt;IPRODUCT&lt;/&gt; will be</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>used in the SQL statment</TDLINE>
       </TLINE>
      </LINES>
     </item>

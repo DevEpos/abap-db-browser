@@ -16,6 +16,17 @@ CLASS zcx_dbbr_object_search DEFINITION
         !msgv4    TYPE sy-msgv4 OPTIONAL .
 
     CONSTANTS:
+      "! Package '&1' could not be found
+      BEGIN OF invalid_package,
+        msgid TYPE symsgid VALUE 'ZDBBR_EXCEPTION',
+        msgno TYPE symsgno VALUE '070',
+        attr1 TYPE scx_attrname VALUE 'MSGV1',
+        attr2 TYPE scx_attrname VALUE '',
+        attr3 TYPE scx_attrname VALUE '',
+        attr4 TYPE scx_attrname VALUE '',
+      END OF invalid_package .
+
+    CONSTANTS:
       "! Search Option &1 is incomplete
       BEGIN OF option_incomplete,
         msgid TYPE symsgid VALUE 'ZDBBR_EXCEPTION',

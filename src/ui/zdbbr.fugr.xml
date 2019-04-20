@@ -301,6 +301,11 @@
        <TYP>SAP_BOOL</TYP>
       </RSIMP>
      </IMPORT>
+     <EXCEPTION>
+      <RSEXC>
+       <EXCEPTION>NO_DATA</EXCEPTION>
+      </RSEXC>
+     </EXCEPTION>
      <DOCUMENTATION>
       <RSFDO>
        <PARAMETER>IV_ENTITY_ID</PARAMETER>
@@ -341,6 +346,11 @@
        <KIND>P</KIND>
        <STEXT>Boolean Variable (X=True, Space=False)</STEXT>
        <INDEX> 007</INDEX>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>NO_DATA</PARAMETER>
+       <KIND>X</KIND>
+       <INDEX> 008</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>

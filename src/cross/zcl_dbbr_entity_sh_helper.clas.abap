@@ -118,12 +118,14 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
     CASE mv_entity_type.
 
       WHEN zif_dbbr_c_entity_type=>table.
-        SELECT tablename AS entity_id, developmentpackage AS devclass, language AS ddlanguage, description AS ddtext
-          FROM zdbbr_i_databasetable( p_language = @lv_language )
-          WHERE tablename IN @lt_entity_id_selopt
+        SELECT entity AS entity_id, developmentpackage AS devclass, language AS ddlanguage, description AS ddtext
+          FROM zdbbr_i_databaseentity( p_language = @lv_language )
+          WHERE entity IN @lt_entity_id_selopt
+            AND (    type = @zif_dbbr_c_entity_type=>table
+                  OR type = @zif_dbbr_c_entity_type=>view )
             AND developmentpackage IN @lt_package_selopt
-          ORDER BY tablename
-        into corresponding fields of table @lt_result
+          ORDER BY entity
+        INTO CORRESPONDING FIELDS OF TABLE @lt_result
           UP TO @cs_callcontrol-maxrecords ROWS.
 
       WHEN zif_dbbr_c_entity_type=>query.
@@ -132,7 +134,7 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
           WHERE query_name IN @lt_entity_id_selopt
            AND  description IN @lt_description_selopt
           ORDER BY query_name
-        into corresponding fields of table @lt_result
+        INTO CORRESPONDING FIELDS OF TABLE @lt_result
           UP TO @cs_callcontrol-maxrecords ROWS.
 
       WHEN zif_dbbr_c_entity_type=>cds_view.

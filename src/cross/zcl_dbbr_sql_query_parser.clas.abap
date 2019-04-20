@@ -34,6 +34,9 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
     CONSTANTS:
       BEGIN OF c_keywords,
         select           TYPE string VALUE 'SELECT',
+        count            TYPE string VALUE 'COUNT',
+        count_pattern    TYPE string VALUE 'COUNT*',
+        count_star       TYPE string VALUE 'COUNT(*)',
         data             TYPE string VALUE 'DATA',
         where            TYPE string VALUE 'WHERE',
         fields           TYPE string VALUE 'FIELDS',
@@ -43,6 +46,7 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
         inner_join       TYPE string VALUE 'INNER JOIN',
         left_outer_join  TYPE string VALUE 'LEFT OUTER JOIN',
         right_outer_join TYPE string VALUE 'RIGHT OUTER JOIN',
+        union            TYPE string VALUE 'UNION',
         cross_join       TYPE string VALUE 'CROSS JOIN',
       END OF c_keywords.
 
@@ -81,6 +85,7 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
     CLASS-DATA gt_invalid_keyword_range TYPE RANGE OF string.
 
     DATA mv_raw_query TYPE string.
+    DATA mv_query_type TYPE string.
     DATA mv_executable_query TYPE string.
     DATA mv_select_query_end_offset TYPE i.
     DATA mo_sql_query TYPE REF TO zcl_dbbr_sql_query.
@@ -94,6 +99,7 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
     DATA mt_token_raw TYPE stokesx_tab.
     DATA mt_query_lines TYPE STANDARD TABLE OF string.
     DATA mv_select_query_end_row TYPE i.
+    DATA mf_single_result TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Tokenize the query statement</p>
     "!
     METHODS tokenize
@@ -142,6 +148,10 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
     "! Example: <br>
     "! Token 'ORDER' and token 'BY' will be combined into Token 'ORDER BY'
     METHODS simplify_tokens.
+    "! <p class="shorttext synchronized" lang="en">Determines the properties of the main statement in the query</p>
+    "! This are needed to properly create the subroutine program for the data
+    "! selection
+    METHODS determine_main_stmnt_props.
 ENDCLASS.
 
 
@@ -181,6 +191,9 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
 
     combine_stmnt_with_tokens( ).
 
+*.. Check the type of the query
+    determine_main_stmnt_props( ).
+
     check_syntax( ).
 
     extract_parameters( ).
@@ -207,6 +220,8 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
         select_source            = mv_executable_query
         last_row_in_select_stmnt = mv_select_query_end_row
         last_row_offset          = mv_select_query_end_offset
+        main_select_stmnt_type   = mv_query_type
+        is_single_result_query   = mf_single_result
       )
       it_parameters = VALUE #( FOR param IN mt_parameter WHERE ( is_used = abap_true ) ( CORRESPONDING #( param ) )  )
     ).
@@ -282,7 +297,7 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
 
       ASSIGN mt_token_raw[ <ls_stmnt>-from ] TO FIELD-SYMBOL(<ls_first_token>).
 
-      IF <ls_first_token>-str = c_keywords-select or
+      IF <ls_first_token>-str = c_keywords-select OR
          <ls_first_token>-str = c_keywords-with.
         ADD 1 TO lv_select_stmnt_count.
         mv_select_stmnt_index = <ls_first_token>-row.
@@ -416,7 +431,11 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
 
     mv_select_query_end_offset = ls_last_token-col + strlen( ls_last_token-value ).
     mv_select_query_end_row = ls_last_token-row.
-    <lv_query_line> = |{ <lv_query_line>(mv_select_query_end_offset) } INTO TABLE @DATA(result).|.
+    IF mf_single_result = abap_true.
+      <lv_query_line> = |{ <lv_query_line>(mv_select_query_end_offset) } INTO @DATA(result).|.
+    ELSE.
+      <lv_query_line> = |{ <lv_query_line>(mv_select_query_end_offset) } INTO TABLE @DATA(result).|.
+    ENDIF.
   ENDMETHOD.
 
   METHOD check_syntax.
@@ -456,6 +475,62 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
     ENDIF.
 
     CONCATENATE LINES OF mt_query_lines INTO mv_executable_query SEPARATED BY cl_abap_char_utilities=>cr_lf.
+
+  ENDMETHOD.
+
+
+  METHOD determine_main_stmnt_props.
+    DATA: lt_aggregate_func_range TYPE RANGE OF string,
+          lv_select_index         TYPE sy-tabix.
+
+    FIELD-SYMBOLS: <ls_token> LIKE LINE OF mt_token_raw.
+
+    mf_single_result = abap_false.
+
+*.. Determine the last select statement in the query
+    IF line_exists( mt_token_raw[ str = c_keywords-with ] ).
+      lv_select_index = lines( mt_token_raw ).
+      WHILE lv_select_index > 0.
+        IF mt_token_raw[ lv_select_index ]-str = c_keywords-select.
+*........ If it is the last main select, the preceding token has to be a parenthesis
+          IF mt_token_raw[ lv_select_index - 1 ]-str = ')'.
+            EXIT.
+          ENDIF.
+        ENDIF.
+        lv_select_index = lv_select_index - 1.
+      ENDWHILE.
+
+    ELSE.
+      lv_select_index = line_index( mt_token_raw[ str = c_keywords-select ] ).
+    ENDIF.
+
+*.. Check if INTO TABLE is possible for the query by checking if COUNT is available without
+*... any active aggregation functions
+    LOOP AT mt_token_raw ASSIGNING <ls_token> FROM lv_select_index WHERE str CP c_keywords-count_pattern.
+      EXIT.
+    ENDLOOP.
+    IF sy-subrc = 0.
+      lt_aggregate_func_range = VALUE #(
+        ( sign = 'I' option = 'EQ' low = 'GROUP' )
+        ( sign = 'I' option = 'EQ' low = 'SUM' )
+        ( sign = 'I' option = 'EQ' low = 'MAX' )
+        ( sign = 'I' option = 'EQ' low = 'MIN' )
+        ( sign = 'I' option = 'EQ' low = 'AVG' )
+      ).
+      LOOP AT mt_token_raw ASSIGNING <ls_token> FROM lv_select_index WHERE str IN lt_aggregate_func_range.
+        EXIT.
+      ENDLOOP.
+      mf_single_result = xsdbool( sy-subrc <> 0 ).
+    ENDIF.
+
+    LOOP AT mt_token_raw ASSIGNING <ls_token> FROM lv_select_index WHERE str = c_keywords-union.
+      EXIT.
+    ENDLOOP.
+    IF sy-subrc = 0.
+      mv_query_type = c_keywords-union.
+    ELSE.
+      mv_query_type = c_keywords-select.
+    ENDIF.
 
   ENDMETHOD.
 
