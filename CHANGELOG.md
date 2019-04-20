@@ -1,5 +1,18 @@
 # DBBrowser - Changelog
 
+## v2.8.8   - 2019-04-20
+
+### Features
+
+- Updated Dependency Tree
+  - Side by side tree and DDL Source code viewing
+  - Control double click behaviour on node
+
+### Fixes
+
+- Fix in Variant managment
+- Overall minor fixes
+
 ## v2.2.0   - 2019-02-26
 
 ### Features
