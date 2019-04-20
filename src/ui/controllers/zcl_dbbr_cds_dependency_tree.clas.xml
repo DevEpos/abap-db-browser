@@ -307,6 +307,30 @@
      <ENTRY>Content (New Task)</ENTRY>
      <LENGTH>28</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>050</KEY>
+     <ENTRY>Maximize Code Viewer</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>051</KEY>
+     <ENTRY>Close Code Viewer</ENTRY>
+     <LENGTH>27</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>052</KEY>
+     <ENTRY>Options</ENTRY>
+     <LENGTH>17</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>053</KEY>
+     <ENTRY>Show options menu</ENTRY>
+     <LENGTH>27</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -320,6 +344,12 @@
      <CMPNAME>CONSTRUCTOR</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>CONSTRUCTOR</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_DEPENDENCY_TREE</CLSNAME>
+     <CMPNAME>CREATE_CODE_VIEWER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates code viewer control</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_CDS_DEPENDENCY_TREE</CLSNAME>
@@ -350,6 +380,12 @@
      <CMPNAME>GET_RELATION_TEXT</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Retrieve Text for constant</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_DEPENDENCY_TREE</CLSNAME>
+     <CMPNAME>MODIFY_OPTIONS_CTX_MENU</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates context menu for options</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_CDS_DEPENDENCY_TREE</CLSNAME>
