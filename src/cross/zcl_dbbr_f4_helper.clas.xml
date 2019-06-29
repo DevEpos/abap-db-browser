@@ -33,6 +33,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
+     <CMPNAME>CALL_F4</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Call value help for selection field</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>CALL_F4_WITH_SEARCH_HELP</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Call value help for specific ddic value help definition</DESCRIPT>

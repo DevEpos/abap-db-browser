@@ -59,7 +59,12 @@ CLASS zcl_dbbr_f4_helper DEFINITION
       CHANGING
         !cv_value                TYPE zdbbr_value .
     "! <p class="shorttext synchronized" lang="en">Call value help for selection field</p>
-    "!
+    CLASS-METHODS call_f4
+      IMPORTING
+        io_custom_f4_map TYPE REF TO zcl_dbbr_custom_f4_map
+      CHANGING
+        cs_selfield      TYPE zdbbr_selfield.
+    "! <p class="shorttext synchronized" lang="en">Call value help for selection field</p>
     CLASS-METHODS call_selfield_f4
       IMPORTING
         !if_low           TYPE boolean OPTIONAL
@@ -495,6 +500,58 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD call_f4.
+    DATA: lv_dynpfield_name TYPE dynfnam,
+          lv_selvalue       TYPE dynfieldvalue,
+          lv_tabname        TYPE tabname,
+          lv_fieldname      TYPE fieldname.
+
+    IF cs_selfield-has_cust_f4_help = abap_false.
+
+      IF cs_selfield-is_parameter = abap_true.
+        lv_tabname = cs_selfield-rollname.
+      ELSE.
+        lv_tabname = cs_selfield-tabname.
+        lv_fieldname = cs_selfield-fieldname.
+      ENDIF.
+
+      call_built_in_f4(
+        EXPORTING
+          iv_tablename = lv_tabname
+          iv_fieldname = lv_fieldname
+        CHANGING
+          cv_value     = cs_selfield-low
+      ).
+    ELSE. " Call custom search help
+*.... 1) read f4 help definition
+      io_custom_f4_map->read_custom_f4_definition(
+        EXPORTING
+          iv_tablename             = cs_selfield-tabname
+          iv_fieldname             = cs_selfield-fieldname
+          iv_rollname              = cs_selfield-rollname
+          is_built_in_type         = VALUE #(
+            datatype = cs_selfield-datatype
+            inttype  = cs_selfield-inttype
+            leng     = cs_selfield-length
+          )
+        IMPORTING
+          et_custom_f4_definitions = DATA(lt_f4_definition) ).
+      IF lt_f4_definition IS INITIAL.
+        MESSAGE `Value help in ZDBBR_F4H is not valid` TYPE 'S'.
+        RETURN.
+      ENDIF.
+
+      zcl_dbbr_custom_f4_helper=>call_custom_f4(
+        EXPORTING
+          it_f4_definition   = lt_f4_definition
+          if_low             = abap_true
+        CHANGING
+          cs_selfield        = cs_selfield
+      ).
+
+    ENDIF.
+  ENDMETHOD.
+
   METHOD call_selfield_f4.
     DATA: lv_dynpfield_name TYPE dynfnam,
           lv_selvalue       TYPE dynfieldvalue.
@@ -538,10 +595,15 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
         EXPORTING
           iv_tablename             = cs_selfield-tabname
           iv_fieldname             = cs_selfield-fieldname
+          iv_rollname              = cs_selfield-rollname
+          is_built_in_type         = VALUE #(
+            datatype = cs_selfield-datatype
+            leng     = cs_selfield-length
+          )
         IMPORTING
           et_custom_f4_definitions = DATA(lt_f4_definition) ).
       IF lt_f4_definition IS INITIAL.
-        MESSAGE `Suchhilfe in ZDBBROIN_F4 ist nicht gültig` TYPE 'S'.
+        MESSAGE `Value help in ZDBBR_F4H is not valid` TYPE 'S'.
         RETURN.
       ENDIF.
 
