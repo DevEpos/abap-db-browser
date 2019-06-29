@@ -19,6 +19,24 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Anaylyzes dependencies of View and returns tree</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_DEP_ANALYZER</CLSNAME>
+     <CMPNAME>FILL_ADDITIONAL_INFORMATION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Fill additional information of dependencies</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_DEP_ANALYZER</CLSNAME>
+     <CMPNAME>GET_USED_ENTITIES</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve distinct entities and count</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_DEP_ANALYZER</CLSNAME>
+     <CMPNAME>GET_USED_ENTITY_COUNT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieve metrics about dependencies</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

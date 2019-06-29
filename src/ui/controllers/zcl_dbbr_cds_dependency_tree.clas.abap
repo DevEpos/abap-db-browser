@@ -26,22 +26,6 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     METHODS do_before_dynpro_output
         REDEFINITION.
   PRIVATE SECTION.
-
-    CONSTANTS:
-      BEGIN OF c_functions,
-        close_code_view            TYPE ui_func VALUE 'CLOSE',
-        maximize_code_view         TYPE ui_func VALUE 'MAXIMIZE_CODE_VIEW',
-        focus_on_tree              TYPE ui_func VALUE 'FOCUS',
-        expand_all                 TYPE ui_func VALUE 'EXPANDALL',
-        collapse_all               TYPE ui_func VALUE 'COLLAPSEALL',
-        show_metrics               TYPE ui_func VALUE 'SHOW_METRICS',
-        open_with_adt              TYPE ui_func VALUE 'ADTJUMP',
-        options_menu               TYPE ui_func VALUE 'OPTIONS',
-        open_in_new_window         TYPE ui_func VALUE 'OPENINDBBRSNEWWIN',
-        show_ddl_source            TYPE ui_func VALUE 'SHOWSOURCE',
-        exec_with_dbbrs            TYPE ui_func VALUE 'EXECWIHTDBBRS',
-        exec_with_dbbrs_new_window TYPE ui_func VALUE 'EXECWIHTDBBRSNEW',
-      END OF c_functions .
     CONSTANTS:
       BEGIN OF c_dbl_click_action,
         function_prefix            TYPE string VALUE 'DBL_CLICK_ACTION_',
@@ -66,9 +50,12 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     CONSTANTS c_hierarchy_node2 TYPE tv_itmname VALUE 'HIER2' ##NO_TEXT.
     CONSTANTS c_fill_text_func TYPE sy-ucomm VALUE 'FILLTXT' ##no_text.
 
+
     DATA mv_dbl_click_action TYPE char1.
+    DATA mf_tree_mode TYPE abap_bool VALUE abap_true.
     DATA mf_opened_from_adt TYPE abap_bool.
     DATA mo_options_menu TYPE REF TO cl_ctmenu.
+    DATA mo_usage_alv TYPE REF TO lcl_usage_alv.
     DATA mo_tree TYPE REF TO zcl_uitb_column_tree_model .
     DATA mv_view_name TYPE zdbbr_cds_view_name .
     DATA mt_node_map TYPE STANDARD TABLE OF ty_node_map WITH KEY node_key.
@@ -76,44 +63,37 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     DATA ms_metrics_map TYPE cl_dd_ddl_meta_num_collector=>entity2number_map.
     DATA: mo_code_view TYPE REF TO zcl_uitb_abap_code_view,
           mo_splitter  TYPE REF TO zcl_uitb_gui_splitter_cont,
-          mv_theme     TYPE zuitb_code_viewer_theme.
+          mv_theme     TYPE zuitb_code_viewer_theme,
+          mo_switch    TYPE REF TO zcl_uitb_gui_switch_container.
 
     "! <p class="shorttext synchronized" lang="en">Add new node to the tree</p>
-    "!
     METHODS add_node
       IMPORTING
         is_node        TYPE cl_ddls_dependency_visitor=>ty_s_dependency_graph_node
         iv_parent_node TYPE tm_nodekey OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Create tree model</p>
-    "!
     METHODS create_tree
       IMPORTING
         io_container TYPE REF TO cl_gui_container
       RAISING
         zcx_uitb_gui_exception.
-
-
     "! <p class="shorttext synchronized" lang="en">Fetches CDS dependencies</p>
-    "!
     METHODS fetch_dependencies
       RETURNING
         VALUE(rf_dependencies_read) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Retrieve Text for constant</p>
-    "!
     METHODS get_relation_text
       IMPORTING
         iv_constant    TYPE string
       RETURNING
         VALUE(rv_text) TYPE string.
     "! <p class="shorttext synchronized" lang="en">Get text for object type</p>
-    "!
     METHODS get_object_type_text
       IMPORTING
         iv_constant    TYPE string
       RETURNING
         VALUE(rv_text) TYPE string.
     "! <p class="shorttext synchronized" lang="en">Get icon for node type</p>
-    "!
     METHODS get_icon_for_node
       IMPORTING
         iv_type        TYPE string
@@ -121,7 +101,6 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
         VALUE(rv_icon) TYPE tv_image.
     METHODS fill_entity_texts.
     METHODS show_complexity_metrics.
-
     "! <p class="shorttext synchronized" lang="en">Handler for requesting a context menu for a node</p>
     METHODS on_node_context_menu_request
           FOR EVENT node_context_menu_request OF zif_uitb_tree_model_events
@@ -139,14 +118,26 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
           FOR EVENT node_double_click OF zif_uitb_tree_model_events
       IMPORTING
           !ev_node_key .
+    "! <p class="shorttext synchronized" lang="en">Trigger Show CDS Source Code</p>
+    METHODS do_show_cds_source
+      IMPORTING
+        ir_params TYPE REF TO data OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Show CDS Source Code</p>
-    "!
-    METHODS show_cds_source.
+    METHODS show_cds_source
+      IMPORTING
+        iv_cds_name TYPE zdbbr_entity_id.
+    "! <p class="shorttext synchronized" lang="en">Trigger Show Content of DB Entity</p>
+    METHODS do_show_content
+      IMPORTING
+        if_new_task TYPE abap_bool OPTIONAL
+        ir_params   TYPE REF TO data OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Show Content of DB Entity</p>
-    "!
     METHODS show_content
       IMPORTING
-        if_new_task TYPE abap_bool OPTIONAL.
+        if_new_task    TYPE abap_bool OPTIONAL
+        iv_entity_id   TYPE zdbbr_entity_id
+        iv_entity_type TYPE zdbbr_entity_type.
+
     "! <p class="shorttext synchronized" lang="en">Creates code viewer control</p>
     METHODS create_code_viewer
       IMPORTING
@@ -164,6 +155,28 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     METHODS update_settings
       IMPORTING
         iv_dbl_click_action TYPE zdbbr_action.
+    "! <p class="shorttext synchronized" lang="en">Switch between tree and alv mode</p>
+    METHODS toggle_usage_alv.
+    METHODS toggle_dependency_tree.
+    "! <p class="shorttext synchronized" lang="en">Trigger ADT jump</p>
+    METHODS do_open_with_adt
+      IMPORTING
+        ir_params TYPE REF TO data.
+    "! <p class="shorttext synchronized" lang="en">Jump to ADT with selected entity</p>
+    METHODS open_with_adt
+      IMPORTING
+        iv_entity_id   TYPE zdbbr_entity_id
+        iv_entity_type TYPE zdbbr_entity_type.
+    "! <p class="shorttext synchronized" lang="en">Open DB Browser in new window for entity</p>
+    METHODS open_db_browser_new_window
+      IMPORTING
+        iv_entity_id   TYPE zdbbr_entity_id
+        iv_entity_type TYPE zdbbr_entity_type.
+    "! <p class="shorttext synchronized" lang="en">Trigger Open DB Browser in new window for entity</p>
+    METHODS do_open_in_new_window
+      IMPORTING
+        ir_params TYPE REF TO data.
+
 ENDCLASS.
 
 
@@ -261,6 +274,12 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD do_before_dynpro_output.
+    IF mf_tree_mode = abap_true.
+      io_callback->set_title( |{ 'SQL Dependency Tree for'(002) } { mv_view_name }| ).
+    ELSE.
+      io_callback->set_title( |{ 'SQL Used Data Sources Analysis for'(054) } { mv_view_name }| ).
+    ENDIF.
+
     io_callback->deactivate_function( zif_uitb_c_gui_screen=>c_functions-save ).
     DATA(lt_fkey_map) = VALUE zif_uitb_ty_gui_screen=>ty_t_fkey_map(
         ( fkey = zif_uitb_c_gui_screen=>c_functions-ctrl_f1       mapped_function = c_functions-focus_on_tree               text = |{ 'Set Focus to Tree' }| )
@@ -316,9 +335,14 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
 
   METHOD create_tree.
+*.. Create switch for to toggle between tree and ALV on the left side
+    mo_switch = NEW zcl_uitb_gui_switch_container(
+      io_parent   = io_container
+    ).
+
     create_control_toolbar(
       EXPORTING
-        io_parent    = io_container
+        io_parent    = mo_switch->add_child( iv_id = 'TREE')
         it_button    = VALUE #(
           ( function  = c_functions-expand_all
             quickinfo = |{ 'Expand all nodes' }|
@@ -341,6 +365,9 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
             icon      = icon_table_settings
             text      = |{ 'Content (New Task)'(049) }|          )
           ( butn_type = cntb_btype_sep )
+          ( function  = c_functions-toggle_alv
+            text      = |{ 'Analyze Usages' }|
+            icon      = icon_active_inactive )
           ( function  = c_functions-show_metrics
             quickinfo = |{ 'Show Complexity Metrics'(032) }|
             icon      = icon_calculation
@@ -354,7 +381,7 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
         )
       IMPORTING
         eo_toolbar   = DATA(mo_toolbar)
-        eo_client    = DATA(lo_container)
+        eo_client    = DATA(lo_left_container)
     ).
 
     modify_options_ctx_menu( ).
@@ -367,7 +394,7 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
         OTHERS  = 1 ).
 
     mo_tree = NEW zcl_uitb_column_tree_model(
-      ir_parent           = lo_container
+      ir_parent           = lo_left_container
       is_hierarchy_header = VALUE #(
         heading = 'Entity Name'(035)
         width   = 110
@@ -466,7 +493,7 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
 
   METHOD fill_entity_texts.
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     zcl_uitb_screen_util=>show_progress( iv_progress = 75 iv_text = |{ 'Loading Descriptions...'(037) }| ).
 
@@ -598,65 +625,29 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
     CASE ev_fcode.
 
       WHEN c_functions-open_with_adt.
-
-        TRY.
-            zcl_dbbr_adt_util=>jump_adt(
-                iv_obj_name     = |{ <ls_node_map>-entity_id }|
-                iv_obj_type     = SWITCH #(
-                    <ls_node_map>-entity_type
-                    WHEN zif_dbbr_c_entity_type=>cds_view THEN 'DDLS'
-                    WHEN zif_dbbr_c_entity_type=>table    THEN 'TABD'
-                    WHEN zif_dbbr_c_entity_type=>view     THEN 'VIEW'
-                )
-            ).
-          CATCH zcx_dbbr_adt_error INTO DATA(lx_adt_error).
-          CATCH zcx_dbbr_data_read_error INTO DATA(lx_data_read_error).
-        ENDTRY.
+        open_with_adt( EXPORTING iv_entity_id = <ls_node_map>-entity_id
+                                 iv_entity_type = <ls_node_map>-entity_type ).
 
       WHEN c_functions-open_in_new_window.
-        CALL FUNCTION 'ZDBBR_SHOW_SELSCREEN' STARTING NEW TASK 'ZDBBR_OBJ_BRS_OPEN_JUMP'
-          EXPORTING
-            iv_entity_id       = <ls_node_map>-entity_id
-            iv_entity_type     = <ls_node_map>-entity_type
-            if_load_parameters = abap_true.
+        open_db_browser_new_window( iv_entity_id = <ls_node_map>-entity_id
+                                    iv_entity_type = <ls_node_map>-entity_type ).
 
       WHEN c_functions-exec_with_dbbrs_new_window.
-**...... Check if there is an actual result to show
-*        IF zcl_dbbr_dictionary_helper=>exists_data_for_entity( <ls_node_map>-entity_id ).
-        CALL FUNCTION 'ZDBBR_SHOW_SELSCREEN' STARTING NEW TASK 'ZDBBR_OBJ_BRS_EXEC_JUMP'
-          EXPORTING
-            iv_entity_id       = <ls_node_map>-entity_id
-            iv_entity_type     = <ls_node_map>-entity_type
-            if_skip_selscreen  = abap_true
-            if_load_parameters = abap_true.
-*        ELSE.
-*          MESSAGE i086(zdbbr_info).
-*        ENDIF.
-
-      WHEN c_functions-exec_with_dbbrs.
-        DATA(lo_variant_starter) = zcl_dbbr_variant_starter_fac=>create_variant_starter(
-            iv_variant_id        = zif_dbbr_global_consts=>c_dummy_variant
-            iv_entity_type       = <ls_node_map>-entity_type
-            iv_variant_entity_id = CONV #( <ls_node_map>-entity_id )
+        show_content(
+            if_new_task    = abap_true
+            iv_entity_id   = <ls_node_map>-entity_id
+            iv_entity_type = <ls_node_map>-entity_type
         ).
 
-        lo_variant_starter->initialize( ).
-        TRY.
-            lo_variant_starter->execute_variant( ).
-          CATCH zcx_dbbr_variant_error INTO DATA(lx_variant_error).
-            lx_variant_error->show_message(
-                iv_message_type = 'S'
-            ).
-        ENDTRY.
+      WHEN c_functions-exec_with_dbbrs.
+        show_content(
+            if_new_task    = abap_false
+            iv_entity_id   = <ls_node_map>-entity_id
+            iv_entity_type = <ls_node_map>-entity_type
+        ).
 
       WHEN c_functions-show_ddl_source.
-        TRY.
-            DATA(lv_source) = zcl_dbbr_cds_view_factory=>read_ddls_source( <ls_node_map>-entity_id ).
-            load_cds_source_into_view( EXPORTING iv_code = lv_source ).
-          CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
-            lx_app_error->zif_dbbr_exception_message~print( ).
-        ENDTRY.
-
+        show_cds_source( iv_cds_name = <ls_node_map>-entity_id ).
     ENDCASE.
   ENDMETHOD.
 
@@ -670,7 +661,6 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
       RETURN.
     ENDIF.
-
 
     CASE mv_dbl_click_action.
 
@@ -690,7 +680,10 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
         lv_fcode = c_functions-exec_with_dbbrs_new_window.
 
       WHEN c_dbl_click_action-adt_navigation.
-        lv_fcode = c_functions-open_with_adt.
+        open_with_adt(
+            iv_entity_id   = lr_node_map->entity_id
+            iv_entity_type = lr_node_map->entity_type
+        ).
     ENDCASE.
 
     IF lv_fcode IS NOT INITIAL.
@@ -703,17 +696,39 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD show_cds_source.
-    DATA(lt_selected_nodes) = mo_tree->get_selections( )->get_selected_nodes( ).
-    CHECK lines( lt_selected_nodes ) = 1.
+  METHOD do_show_cds_source.
+    IF ir_params IS BOUND.
+      ASSIGN CAST lty_s_command_info( ir_params )->* TO FIELD-SYMBOL(<ls_command_info>).
+      IF sy-subrc = 0 AND <ls_command_info>-entity_type = zif_dbbr_c_entity_type=>cds_view.
+        show_cds_source( <ls_command_info>-entity_id ).
+      ENDIF.
+    ELSEIF mf_tree_mode = abap_false.
+      mo_usage_alv->get_selected_entity( IMPORTING ev_entity_id   = DATA(lv_alv_entity_id)
+                                                   ef_is_cds      = DATA(lf_is_cds) ).
+      CHECK lf_is_cds = abap_true.
+      show_cds_source( lv_alv_entity_id ).
+    ELSE.
+      DATA(lt_selected_nodes) = mo_tree->get_selections( )->get_selected_nodes( ).
+      CHECK lines( lt_selected_nodes ) = 1.
 
-    ASSIGN mt_node_map[ node_key    = lt_selected_nodes[ 1 ]->mv_node_key
-                        entity_type = zif_dbbr_c_entity_type=>cds_view ] TO FIELD-SYMBOL(<ls_node_map>).
-    CHECK sy-subrc = 0.
-    on_node_context_menu_select(
-        ev_fcode    = c_functions-show_ddl_source
-        ev_node_key = <ls_node_map>-node_key
-    ).
+      ASSIGN mt_node_map[ node_key    = lt_selected_nodes[ 1 ]->mv_node_key
+                          entity_type = zif_dbbr_c_entity_type=>cds_view ] TO FIELD-SYMBOL(<ls_node_map>).
+      CHECK sy-subrc = 0.
+      on_node_context_menu_select(
+          ev_fcode    = c_functions-show_ddl_source
+          ev_node_key = <ls_node_map>-node_key
+      ).
+      show_cds_source( iv_cds_name = <ls_node_map>-entity_id ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD show_cds_source.
+    TRY.
+        DATA(lv_source) = zcl_dbbr_cds_view_factory=>read_ddls_source( iv_cds_name ).
+        load_cds_source_into_view( EXPORTING iv_code = lv_source ).
+      CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
+        lx_app_error->zif_dbbr_exception_message~print( ).
+    ENDTRY.
   ENDMETHOD.
 
 
@@ -801,16 +816,60 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD show_content.
-    DATA(lt_selected_nodes) = mo_tree->get_selections( )->get_selected_nodes( ).
-    CHECK lines( lt_selected_nodes ) = 1.
+  METHOD do_show_content.
+    IF ir_params IS BOUND.
+      ASSIGN CAST lty_s_command_info( ir_params )->* TO FIELD-SYMBOL(<ls_command_info>).
+      IF sy-subrc = 0.
+        show_content(
+            if_new_task    = if_new_task
+            iv_entity_id   = <ls_command_info>-entity_id
+            iv_entity_type = <ls_command_info>-entity_type
+        ).
+      ENDIF.
+    ELSEIF mf_tree_mode = abap_false.
+      mo_usage_alv->get_selected_entity( IMPORTING ev_entity_id   = DATA(lv_alv_entity_id)
+                                                   ev_entity_type = DATA(lv_alv_entity_type) ).
+      show_content(
+          if_new_task    = if_new_task
+          iv_entity_id   = lv_alv_entity_id
+          iv_entity_type = lv_alv_entity_type
+      ).
+    ELSE.
+      DATA(lt_selected_nodes) = mo_tree->get_selections( )->get_selected_nodes( ).
+      CHECK lines( lt_selected_nodes ) = 1.
 
-    ASSIGN mt_node_map[ node_key = lt_selected_nodes[ 1 ]->mv_node_key ] TO FIELD-SYMBOL(<ls_node_map>).
-    CHECK sy-subrc = 0.
-    on_node_context_menu_select(
-        ev_fcode    = COND #( WHEN if_new_task = abap_true THEN c_functions-exec_with_dbbrs_new_window ELSE c_functions-exec_with_dbbrs )
-        ev_node_key = <ls_node_map>-node_key
-    ).
+      ASSIGN mt_node_map[ node_key = lt_selected_nodes[ 1 ]->mv_node_key ] TO FIELD-SYMBOL(<ls_node_map>).
+      CHECK sy-subrc = 0.
+      show_content(
+          if_new_task    = if_new_task
+          iv_entity_id   = <ls_node_map>-entity_id
+          iv_entity_type = <ls_node_map>-entity_type
+      ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD show_content.
+    IF if_new_task = abap_true.
+      CALL FUNCTION 'ZDBBR_SHOW_SELSCREEN' STARTING NEW TASK 'ZDBBR_OBJ_BRS_EXEC_JUMP'
+        EXPORTING
+          iv_entity_id       = iv_entity_id
+          iv_entity_type     = iv_entity_type
+          if_skip_selscreen  = abap_true
+          if_load_parameters = abap_true.
+    ELSE.
+      DATA(lo_variant_starter) = zcl_dbbr_variant_starter_fac=>create_variant_starter(
+          iv_variant_id        = zif_dbbr_global_consts=>c_dummy_variant
+          iv_entity_type       = iv_entity_type
+          iv_variant_entity_id = CONV #( iv_entity_id )
+      ).
+
+      lo_variant_starter->initialize( ).
+      TRY.
+          lo_variant_starter->execute_variant( ).
+        CATCH zcx_dbbr_variant_error INTO DATA(lx_variant_error).
+          lx_variant_error->show_message( iv_message_type = 'S' ).
+      ENDTRY.
+    ENDIF.
   ENDMETHOD.
 
 
@@ -830,6 +889,17 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
           mo_splitter->set_element_visibility( iv_element = 1 if_visible = abap_true ).
         ENDIF.
 
+      WHEN c_functions-open_with_adt.
+        do_open_with_adt( io_command->mr_params ).
+
+      WHEN c_functions-toggle_tree.
+        toggle_dependency_tree( ).
+        zcl_uitb_screen_util=>set_function_code( ).
+
+      WHEN c_functions-toggle_alv.
+        toggle_usage_alv( ).
+        zcl_uitb_screen_util=>set_function_code( ).
+
       WHEN c_functions-focus_on_tree.
         mo_tree->zif_uitb_gui_control~focus( ).
 
@@ -840,19 +910,31 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
         show_complexity_metrics( ).
 
       WHEN c_functions-show_ddl_source.
-        show_cds_source( ).
+        do_show_cds_source( io_command->mr_params ).
+
+      WHEN c_functions-open_in_new_window.
+        do_open_in_new_window( io_command->mr_params ).
 
       WHEN c_functions-exec_with_dbbrs.
-        show_content( ).
+        do_show_content( ir_params = io_command->mr_params  ).
 
       WHEN c_functions-exec_with_dbbrs_new_window.
-        show_content( if_new_task = abap_true ).
+        do_show_content( if_new_task = abap_true
+                      ir_params   = io_command->mr_params ).
 
       WHEN zif_uitb_c_gui_screen=>c_functions-search.
-        DATA(ls_result) = mo_tree->get_search( )->find( ).
+        IF mf_tree_mode = abap_true.
+          DATA(ls_result) = mo_tree->get_search( )->find( ).
+        ELSE.
+          mo_usage_alv->set_alv_function( zif_uitb_c_alv_functions=>find ).
+        ENDIF.
 
       WHEN zif_uitb_c_gui_screen=>c_functions-search_more.
-        ls_result = mo_tree->get_search( )->find_next( ).
+        IF mf_tree_mode = abap_true.
+          ls_result = mo_tree->get_search( )->find_next( ).
+        ELSE.
+          mo_usage_alv->set_alv_function( zif_uitb_c_alv_functions=>find_more ).
+        ENDIF.
 
       WHEN zif_uitb_c_gui_screen=>c_functions-page_top.
         mo_tree->scroll_to( cl_tree_model=>scroll_home ).
@@ -907,6 +989,83 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 *.... Update global DB Browser settings as well
       CAST zdbbr_user_settings_a( zcl_dbbr_usersettings_factory=>get_current_settings( ) )->dep_tree_dbl_click_action = mv_dbl_click_action.
     ENDIF.
+  ENDMETHOD.
+
+
+  METHOD toggle_usage_alv.
+    mf_tree_mode = abap_false.
+
+    IF mo_usage_alv IS INITIAL.
+      zcl_uitb_screen_util=>show_progress( iv_progress = 1 iv_text = |{ 'Analyzing Usages' }| ).
+      mo_usage_alv = NEW #(
+        io_dependency_tree = me
+        io_parent          = mo_switch->add_child( iv_id = 'ALV' )
+        iv_cds_view_name   = mv_view_name
+      ).
+    ENDIF.
+
+    mo_switch->set_child_visible( iv_id = 'TREE' if_visible = abap_false ).
+    mo_switch->set_child_visible( iv_id = 'ALV' if_visible = abap_true ).
+
+  ENDMETHOD.
+
+
+
+  METHOD toggle_dependency_tree.
+    mf_tree_mode = abap_true.
+    mo_switch->set_child_visible( iv_id = 'TREE' if_visible = abap_true ).
+    mo_switch->set_child_visible( iv_id = 'ALV' if_visible = abap_false ).
+  ENDMETHOD.
+
+
+  METHOD open_with_adt.
+    TRY.
+        zcl_dbbr_adt_util=>jump_adt(
+            iv_obj_name     = |{ iv_entity_id }|
+            iv_obj_type     = SWITCH #(
+                iv_entity_type
+                WHEN zif_dbbr_c_entity_type=>cds_view THEN 'DDLS'
+                WHEN zif_dbbr_c_entity_type=>table    THEN 'TABD'
+                WHEN zif_dbbr_c_entity_type=>view     THEN 'VIEW'
+            )
+        ).
+      CATCH zcx_dbbr_adt_error INTO DATA(lx_adt_error).
+      CATCH zcx_dbbr_data_read_error INTO DATA(lx_data_read_error).
+    ENDTRY.
+
+  ENDMETHOD.
+
+  METHOD do_open_with_adt.
+    IF ir_params IS BOUND.
+      ASSIGN CAST lty_s_command_info( ir_params )->* TO FIELD-SYMBOL(<ls_command_info>).
+      IF sy-subrc = 0.
+        open_with_adt(
+            iv_entity_id   = <ls_command_info>-entity_id
+            iv_entity_type = <ls_command_info>-entity_type
+        ).
+      ENDIF.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD do_open_in_new_window.
+    IF ir_params IS BOUND.
+      ASSIGN CAST lty_s_command_info( ir_params )->* TO FIELD-SYMBOL(<ls_command_info>).
+      IF sy-subrc = 0.
+        open_db_browser_new_window(
+            iv_entity_id   = <ls_command_info>-entity_id
+            iv_entity_type = <ls_command_info>-entity_type
+        ).
+      ENDIF.
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD open_db_browser_new_window.
+    CALL FUNCTION 'ZDBBR_SHOW_SELSCREEN' STARTING NEW TASK 'ZDBBR_OBJ_BRS_OPEN_JUMP'
+      EXPORTING
+        iv_entity_id       = iv_entity_id
+        iv_entity_type     = iv_entity_type
+        if_load_parameters = abap_true.
   ENDMETHOD.
 
 ENDCLASS.
