@@ -15,7 +15,7 @@ INTERFACE zif_dbbr_c_object_browser
       by_field       TYPE string VALUE 'FIELD',
       by_params      TYPE string VALUE 'PARAMS',
       max_rows       TYPE string VALUE 'MAXROWS',
-      by_extensions   TYPE string VALUE 'EXTBY',
+      by_extensions  TYPE string VALUE 'EXTBY',
     END OF c_search_option.
 
   CONSTANTS:
@@ -33,10 +33,12 @@ INTERFACE zif_dbbr_c_object_browser
   CONSTANTS:
     "! Values for 'TYPE' option
     BEGIN OF c_type_option_value,
-      function  TYPE string VALUE 'FUNCTION',
-      hierarchy TYPE string VALUE 'HIERARCHY',
-      view      TYPE string VALUE 'VIEW',
-      table     TYPE string VALUE 'TABLE',
+      function        TYPE string VALUE 'FUNCTION',
+      hierarchy       TYPE string VALUE 'HIERARCHY',
+      view            TYPE string VALUE 'VIEW',
+      abstract_entity TYPE string VALUE 'ABSTRACT',
+      custom_entity   TYPE string VALUE 'CUSTOM',
+      table           TYPE string VALUE 'TABLE',
     END OF c_type_option_value.
 
   CONSTANTS:
