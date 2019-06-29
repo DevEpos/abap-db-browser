@@ -1,5 +1,118 @@
 # DBBrowser - Changelog
 
+## v2.14.0    - 2019-06-27                                                                                                                             
+                                                                                                                                                       
+### Features                                                                                                                                           
+                                                                                                                                                       
+- add views for api state "Custom Fields" from table cfd_w_cds                                                                                         
+- enhance object search with new parameters                                                                                                            
+  1) read all results                                                                                                                                  
+  2) read API states (C0 contract does not count for this)                                                                                             
+- show endusertext-label for CDS view columns in CDS mode                                                                                              
+                                                                                                                                                       
+### Fixes                                                                                                                                              
+                                                                                                                                                       
+- add correct column optimization to Variant Pop-Up                                                                                                    
+- fix some issues in the CDS factory                                                                                                                   
+- use global description language for domain fix values of text fields                                                                                 
+- cache original system language and use it for descriptions (see zcl_dbbr_system_helper)                                                              
+  - remove description language setting from UI                                                                                                        
+                                                                                                                                                       
+## v2.13.0    - 2019-06-03                                                                                                                             
+                                                                                                                                                       
+### Features                                                                                                                                           
+                                                                                                                                                       
+- new function in ALV output to hide all columns where no cell has any values                                                                          
+- use UI-Toolbox ALV for detail output                                                                                                                 
+- Add some utility methods to where clause builder                                                                                                     
+                                                                                                                                                       
+### Fixes                                                                                                                                              
+                                                                                                                                                       
+- Selection Screen history was not filled with initial entity at transaction start                                                                     
+- Fix error in CDS Navigation                                                                                                                          
+- Read Automatic/Default variant with the current user name                                                                                            
+- Properly update the filtered entries count in selection output                                                                                       
+- Fix drag-n-drop error in Favorites tree                                                                                                              
+- Remove unnecessary ALV refresh after some global ALV actions                                                                                         
+- Fix bug in CDS Selection Screen Util                                                                                                                 
+- Fix bug in recognizing Value Helps on CDS Parameters                                                                                                 
+- Fix replace sy-tabix type with zdbbr_no_of_lines type in selection controller                                                                        
+                                                                                                                                                       
+## v2.12.0    - 2019-05-20                                                                                                                             
+                                                                                                                                                       
+### Features                                                                                                                                           
+                                                                                                                                                       
+- Create history entry if entity is started from AiE                                                                                                   
+- Use new search dialog in selection screen Strg+F/Strg+G event                                                                                        
+- New mode in dependency analyzer of CDS View to display unique usages                                                                                 
+                                                                                                                                                       
+### Fixes                                                                                                                                              
+                                                                                                                                                       
+- Correct reading/display of custom F4 helps in Parameter popup                                                                                        
+- Fix some minor issues during the determination of the value helps for                                                                                
+  a data type                                                                                                                                          
+                                                                                                                                                       
+## v2.11.0    - 2019-05-10                                                                                                                             
+                                                                                                                                                       
+### Features                                                                                                                                           
+                                                                                                                                                       
+- New User setting to control the location of the object navigator                                                                                     
+- New User setting for compact selection screen columns                                                                                                
+- Enhancements to Value help management                                                                                                                
+  - New flag to control Alpha conversion during value transfer                                                                                         
+  - Assign existing custom value help to table/view field                                                                                              
+  - Refresh value helps of fields after F4 assignments were changed                                                                                    
+                                                                                                                                                       
+## Fixes                                                                                                                                               
+                                                                                                                                                       
+- Default Variant sort-/output fields are not loaded correctly                                                                                         
+- New selection dialog for ALV column jump                                                                                                             
+- Fix for all selection during CDS View association navigation                                                                                         
+- Hide "Change parameter" UI function if no CDS view with parameter exists                                                                             
+  in the selection                                                                                                                                     
+                                                                                                                                                       
+## v2.10.0   - 2019-04-29                                                                                                                              
+                                                                                                                                                       
+### Features                                                                                                                                           
+                                                                                                                                                       
+- Automatic selection criteria saving/loading setting                                                                                                  
+- Allow clearing of navigation history in selection screen                                                                                             
+- New Value help dialog for choosing variants                                                                                                          
+                                                                                                                                                       
+- Introduce AND logical operator for 1 to many DB object search parameters                                                                             
+                                                                                                                                                       
+### Fixes                                                                                                                                              
+                                                                                                                                                       
+- Minor fix in Sort Field control                                                                                                                      
+- Minor fix in where clause builder -> use selopt structure with more characters in                                                                    
+  low/high values                                                                                                                                      
+- Proper support of Option negation for 1 to many parameters in object search                                                                          
+                                                                                                                                                       
+## v2.9.0   - 2019-04-25                                                                                                                               
+                                                                                                                                                       
+### Features                                                                                                                                           
+                                                                                                                                                       
+- CDS View Search now also searches DDL names with the given search string                                                                             
+- ALV Output will be shown even if no Rows were found if the following criteria are met                                                                
+  - DB Browser was opened from ADT                                                                                                                     
+  - Entity is CDS View and has Parameters that are not System parameters                                                                               
+- Reorganization of User settings dialog                                                                                                               
+  - Renamed ALV list output to Data Ouput                                                                                                              
+  - New settings tab called Data Selection                                                                                                             
+- New options for CDS Views type Analytics.query = true                                                                                                
+  - Open in Analysis for Office - via custom options menu                                                                                              
+  - Open in Query Monitor - via custom options menu                                                                                                    
+                                                                                                                                                       
+### Fixes                                                                                                                                              
+                                                                                                                                                       
+- Replace tabname with tabname_alias in field sorting control                                                                                          
+- Show Client field in custom SQL query                                                                                                                
+                                                                                                                                                       
+### Refactoring                                                                                                                                        
+                                                                                                                                                       
+- Delete class ZIF_DBBR_C_SEARCH_FUNCTION                                                                                                              
+- Make all methods in ZCL_DBBR_CUSTOM_F4_FACTORY static                                                                                                
+
 ## v2.8.8   - 2019-04-20
 
 ### Features
