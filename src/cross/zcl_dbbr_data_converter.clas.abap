@@ -261,7 +261,7 @@ CLASS ZCL_DBBR_DATA_CONVERTER IMPLEMENTATION.
     " create type described by name
     DATA(lr_type_descr) = CAST cl_abap_datadescr(
         cl_abap_typedescr=>describe_by_name(
-            cond #( when iv_fieldname is initial then iv_tabname else iv_tabname && '-' && iv_fieldname )
+            cond string( when iv_fieldname is initial then iv_tabname else iv_tabname && '-' && iv_fieldname )
         )
     ).
     CREATE DATA lr_input TYPE HANDLE lr_type_descr.
