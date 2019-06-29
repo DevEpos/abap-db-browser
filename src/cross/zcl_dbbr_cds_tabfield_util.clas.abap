@@ -28,6 +28,7 @@ CLASS zcl_dbbr_cds_tabfield_util DEFINITION
     CLASS-METHODS add_parameters
       IMPORTING
         !ir_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list
+        io_custom_f4_map  TYPE REF TO zcl_dbbr_custom_f4_map OPTIONAL
         !it_parameters    TYPE zdbbr_cds_parameter_t
       RETURNING
         VALUE(rs_entity)  TYPE zdbbr_entity_info .
@@ -37,7 +38,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_CDS_TABFIELD_UTIL IMPLEMENTATION.
+CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
 
 
   METHOD add_parameters.
@@ -69,7 +70,7 @@ CLASS ZCL_DBBR_CDS_TABFIELD_UTIL IMPLEMENTATION.
         is_parameter     = abap_true
         selection_active = abap_true
         default_option   = zif_dbbr_c_options=>equals
-        default_sign     = zif_dbbr_c_options=>includes
+        default_sign     = zif_dbbr_c_options=>including
         default_low      = <ls_param>-default_value
         is_technical     = <ls_param>-has_system_anno
         ddic_order       = <ls_param>-posnr
@@ -96,9 +97,20 @@ CLASS ZCL_DBBR_CDS_TABFIELD_UTIL IMPLEMENTATION.
         ls_tabfield-is_lowercase = ls_datel-lowercase.
       ENDIF.
 
+      IF io_custom_f4_map IS BOUND.
+        ls_tabfield-has_custom_f4 = io_custom_f4_map->entry_exists(
+          iv_tabname       = <ls_param>-strucobjn
+          iv_fieldname     = ls_tabfield-fieldname
+          iv_rollname      = ls_tabfield-rollname
+          is_built_in_type = VALUE #(
+            datatype  = ls_tabfield-datatype
+            leng      = ls_tabfield-length
+          )
+        ).
+      ENDIF.
+
       ir_tabfield_list->add( REF #( ls_tabfield ) ).
     ENDLOOP.
-
 
 *.. add cds view to list of tables
     rs_entity = VALUE zdbbr_entity_info(
@@ -142,7 +154,7 @@ CLASS ZCL_DBBR_CDS_TABFIELD_UTIL IMPLEMENTATION.
         is_key           = <ls_column>-keyflag
         selection_active = if_selection
         output_active    = if_output
-        default_sign     = zif_dbbr_c_options=>includes
+        default_sign     = zif_dbbr_c_options=>including
         ddic_order       = <ls_column>-position
         length           = <ls_column>-leng
         decimals         = <ls_column>-decimals
@@ -154,8 +166,13 @@ CLASS ZCL_DBBR_CDS_TABFIELD_UTIL IMPLEMENTATION.
 
       IF io_custom_f4_map IS BOUND.
         ls_tabfield-has_custom_f4 = io_custom_f4_map->entry_exists(
-          iv_tabname   = iv_name
-          iv_fieldname = ls_tabfield-fieldname
+          iv_tabname       = iv_name
+          iv_fieldname     = ls_tabfield-fieldname
+          iv_rollname      = ls_tabfield-rollname
+          is_built_in_type = VALUE #(
+            datatype  = ls_tabfield-datatype
+            leng      = ls_tabfield-length
+          )
         ).
       ENDIF.
 
@@ -186,6 +203,13 @@ CLASS ZCL_DBBR_CDS_TABFIELD_UTIL IMPLEMENTATION.
 
           CATCH cx_sy_move_cast_error.
         ENDTRY.
+      ENDIF.
+
+*.... Fill the field label
+      IF <ls_column>-fieldlabel IS NOT INITIAL.
+        ls_tabfield-field_ddtext = <ls_column>-fieldlabel.
+      ELSEIF <ls_column>-ddtext IS NOT INITIAL.
+        ls_tabfield-field_ddtext = <ls_column>-ddtext.
       ENDIF.
 
       ls_tabfield-is_numeric = zcl_dbbr_dictionary_helper=>is_type_numeric( ls_tabfield-inttype ).
