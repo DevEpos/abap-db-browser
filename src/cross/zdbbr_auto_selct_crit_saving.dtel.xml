@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_DTEL" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <DD04V>
+    <ROLLNAME>ZDBBR_AUTO_SELCT_CRIT_SAVING</ROLLNAME>
+    <DDLANGUAGE>E</DDLANGUAGE>
+    <DOMNAME>BOOLE</DOMNAME>
+    <HEADLEN>55</HEADLEN>
+    <SCRLEN1>10</SCRLEN1>
+    <SCRLEN2>20</SCRLEN2>
+    <SCRLEN3>40</SCRLEN3>
+    <DDTEXT>Automatic Saving of last used Selection Criteria</DDTEXT>
+    <REPTEXT>AutCritSav</REPTEXT>
+    <SCRTEXT_S>AutCritSav</SCRTEXT_S>
+    <SCRTEXT_M>Save last sel. Crit.</SCRTEXT_M>
+    <SCRTEXT_L>Automatic Saving of selection criteria</SCRTEXT_L>
+    <DTELMASTER>E</DTELMASTER>
+    <REFKIND>D</REFKIND>
+   </DD04V>
+   <LONGTEXTS>
+    <item>
+     <DOKIL>
+      <ID>DE</ID>
+      <OBJECT>ZDBBR_AUTO_SELCT_CRIT_SAVING</OBJECT>
+      <LANGU>E</LANGU>
+      <TYP>E</TYP>
+      <VERSION>0001</VERSION>
+      <MASTERLANG>X</MASTERLANG>
+      <TXTLINES>00011</TXTLINES>
+      <DOKSTATE>A</DOKSTATE>
+     </DOKIL>
+     <HEAD>
+      <TDOBJECT>DOKU</TDOBJECT>
+      <TDNAME>ZDBBR_AUTO_SELCT_CRIT_SAVING</TDNAME>
+      <TDID>DE</TDID>
+      <TDSPRAS>E</TDSPRAS>
+      <TDFORM>S_DOCU_SHOW</TDFORM>
+      <TDSTYLE>S_DOCUS1</TDSTYLE>
+      <TDVERSION>00001</TDVERSION>
+      <TDLINESIZE>072</TDLINESIZE>
+     </HEAD>
+     <LINES>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;DEFINITION&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>This setting control the automatic creation and loading of selection</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>criteria of the currently chosen entity in the DB Browser.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>Every time a data selection is performed and selection criteria were</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>entered in into the selection screen an automatic variant will be</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>created with the entered values. The thus created variant is only valid</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>for the current user.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;USE&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>This setting is very useful if you are currently viewing the content of</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>a given database entity with a set of selection criteria and want to</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>quickly look at the content of another entity. Before you switch to the</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>other entity you do not want to create an extra variant for these</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>criteria.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;DEPENDENCIES&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U1</TDFORMAT>
+       <TDLINE>&amp;EXAMPLE&amp;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>AS</TDFORMAT>
+      </TLINE>
+     </LINES>
+    </item>
+   </LONGTEXTS>
+  </asx:values>
+ </asx:abap>
+</abapGit>
