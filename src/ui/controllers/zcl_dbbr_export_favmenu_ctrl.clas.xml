@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_EXPORT_FAVMENU_CTRL</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Controller for exporting favorites</DESCRIPT>
     <STATE>1</STATE>

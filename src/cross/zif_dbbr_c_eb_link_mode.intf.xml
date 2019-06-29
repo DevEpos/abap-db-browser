@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOINTERF>
     <CLSNAME>ZIF_DBBR_C_EB_LINK_MODE</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Link modes for Entity Browser Search Result</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>

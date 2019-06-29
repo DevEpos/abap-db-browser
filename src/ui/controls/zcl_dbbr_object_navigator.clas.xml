@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_OBJECT_NAVIGATOR</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Navigation Control in Selection Screen</DESCRIPT>
     <STATE>1</STATE>

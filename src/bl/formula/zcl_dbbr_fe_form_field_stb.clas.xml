@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_FE_FORM_FIELD_STB</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Statement builder for calculation field</DESCRIPT>
     <STATE>1</STATE>

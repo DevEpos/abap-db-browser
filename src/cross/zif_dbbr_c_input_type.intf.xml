@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOINTERF>
     <CLSNAME>ZIF_DBBR_C_INPUT_TYPE</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Input Types for dynamic screens</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>

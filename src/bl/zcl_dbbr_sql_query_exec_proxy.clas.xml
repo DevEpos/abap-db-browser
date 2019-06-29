@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC_PROXY</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Proxy for SQL Query execution</DESCRIPT>
     <STATE>1</STATE>

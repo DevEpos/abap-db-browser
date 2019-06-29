@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_FE_SET_ROW_COLOR_TV</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Validates tokesn of SET_ROW_COLOR call</DESCRIPT>
     <STATE>1</STATE>

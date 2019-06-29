@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_ENTITY_ALIAS_UTIL</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Retrieves free Alias for Join definition</DESCRIPT>
     <STATE>1</STATE>

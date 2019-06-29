@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_OB_PACKAGE_SEARCHER</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Package searcher for Object browser</DESCRIPT>
     <STATE>1</STATE>

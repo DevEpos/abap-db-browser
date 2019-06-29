@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOINTERF>
     <CLSNAME>ZIF_DBBR_C_REPORT_ID</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>ID&apos;s for reports</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>

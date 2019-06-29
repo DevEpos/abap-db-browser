@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_SELECT_PROG_CREATOR</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Creates subroutine pool program for selection data from db</DESCRIPT>
     <STATE>1</STATE>

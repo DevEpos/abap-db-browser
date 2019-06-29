@@ -4,8 +4,6 @@
   <asx:values>
    <PROGDIR>
     <NAME>ZUITB_SCREEN_UTIL</NAME>
-    <STATE>A</STATE>
-    <VARCL>X</VARCL>
     <SUBC>I</SUBC>
     <RLOAD>E</RLOAD>
     <UCCHECK>X</UCCHECK>

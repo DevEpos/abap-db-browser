@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOINTERF>
     <CLSNAME>ZIF_DBBR_C_TEXT_SELECTION_TYPE</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Selectino type for value help</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>

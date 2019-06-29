@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_FC_OUTPUT_ALV</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Field Control: ALV for managing the output fields</DESCRIPT>
     <STATE>1</STATE>

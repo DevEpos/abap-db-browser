@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_JOIN_SELECTION_UTIL</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Util Class to handle Selection Requests with join</DESCRIPT>
     <STATE>1</STATE>

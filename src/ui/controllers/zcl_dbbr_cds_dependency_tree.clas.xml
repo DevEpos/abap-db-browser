@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_CDS_DEPENDENCY_TREE</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Dependency Tree for CDS View</DESCRIPT>
     <STATE>1</STATE>

@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOINTERF>
     <CLSNAME>ZIF_DBBR_FE_TYPES</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Type definitions for formula editor</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>

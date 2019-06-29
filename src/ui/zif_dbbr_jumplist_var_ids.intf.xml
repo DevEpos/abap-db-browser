@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOINTERF>
     <CLSNAME>ZIF_DBBR_JUMPLIST_VAR_IDS</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Ids of variables in jump list definition report</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>

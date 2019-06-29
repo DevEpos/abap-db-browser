@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_SAVE_SQL_QUERY_CTRL</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Controller for saving a sql query</DESCRIPT>
     <STATE>1</STATE>

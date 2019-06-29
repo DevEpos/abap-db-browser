@@ -34,7 +34,7 @@ AT SELECTION-SCREEN OUTPUT.
 *.... returns the tab buttons from program source code analysing
       btn_intr = 'General'(005).
       btn_fav = 'Object Navigator'(002).
-      btn_alv = 'ALV list output'(003).
+      btn_alv = 'Data Output'(003).
       btn_sel = 'Selection screen'(001).
       btn_dsel = 'Data Selection'(004).
 

@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_CDS_VARIANT_STARTER</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Starts selection for stored variant of CDS view</DESCRIPT>
     <STATE>1</STATE>

@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_CDS_VIEW_FACTORY</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Factory for Accessing CDS View information</DESCRIPT>
     <STATE>1</STATE>

@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_CDS_DEP_ANALYZER</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Dependency Analyzer for CDS View</DESCRIPT>
     <STATE>1</STATE>

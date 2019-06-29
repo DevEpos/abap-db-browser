@@ -4,7 +4,6 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZCX_DBBR_NC_EXCEPTION</CLSNAME>
-    <VERSION>1</VERSION>
     <LANGU>E</LANGU>
     <DESCRIPT>Generic no check errors in DB Browser</DESCRIPT>
     <CATEGORY>40</CATEGORY>
