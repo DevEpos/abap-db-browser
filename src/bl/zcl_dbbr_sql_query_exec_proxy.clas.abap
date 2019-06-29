@@ -305,7 +305,7 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
       DATA(lv_rollname) = VALUE rollname( ).
       DATA(lv_domname) = VALUE domname( ).
       DATA(lv_length) = VALUE ddleng( ).
-      data(lv_int_length) = value intlen( ).
+      DATA(lv_int_length) = VALUE intlen( ).
       DATA(lv_decimals) = VALUE decimals( ).
       DATA(lv_description) = VALUE ddtext( ).
 
