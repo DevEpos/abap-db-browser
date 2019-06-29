@@ -11,6 +11,14 @@
     <STATE>1</STATE>
     <UNICODE>X</UNICODE>
    </VSEOINTERF>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZIF_DBBR_TY_OBJECT_BROWSER</CLSNAME>
+     <CMPNAME>TY_S_SEARCH_ENGINE_PARAMS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Search engine parameters</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
   </asx:values>
  </asx:abap>
 </abapGit>

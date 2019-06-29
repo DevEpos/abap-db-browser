@@ -3,22 +3,22 @@
 *"* declarations
 
 
-CLASS cl_query_option_validator IMPLEMENTATION.
+CLASS lcl_query_option_validator IMPLEMENTATION.
 
   METHOD create_validator.
     CASE iv_type.
 
       WHEN zif_dbbr_c_object_browser_mode=>cds_view.
-        rr_validator = NEW cl_qov_cds( ).
+        rr_validator = NEW lcl_qov_cds( ).
 
       WHEN zif_dbbr_c_object_browser_mode=>database_table_view.
-        rr_validator = NEW cl_qov_database_tab_view( ).
+        rr_validator = NEW lcl_qov_database_tab_view( ).
 
       WHEN zif_dbbr_c_object_browser_mode=>query.
-        rr_validator = NEW cl_qov_query( ).
+        rr_validator = NEW lcl_qov_query( ).
 
       WHEN zif_dbbr_c_object_browser_mode=>package.
-        rr_validator = NEW cl_qov_package( ).
+        rr_validator = NEW lcl_qov_package( ).
     ENDCASE.
 
   ENDMETHOD.
@@ -45,7 +45,7 @@ CLASS cl_query_option_validator IMPLEMENTATION.
 
 ENDCLASS.
 
-CLASS cl_qov_cds IMPLEMENTATION.
+CLASS lcl_qov_cds IMPLEMENTATION.
 
   METHOD validate.
     DATA: lf_invalid TYPE abap_bool.
@@ -55,18 +55,25 @@ CLASS cl_qov_cds IMPLEMENTATION.
         iv_value  = iv_value
     ).
 
+*.. Remove exclusion characters before the actual validation
+    DATA(lv_value) = iv_value.
+
     IF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_type.
-      CASE iv_value.
+      lcl_exclusion_helper=>remove_exclusion_string( CHANGING cv_value = lv_value ).
+      CASE lv_value.
 
         WHEN zif_dbbr_c_object_browser=>c_type_option_value-function OR
              zif_dbbr_c_object_browser=>c_type_option_value-hierarchy OR
+             zif_dbbr_c_object_browser=>c_type_option_value-abstract_entity OR
+             zif_dbbr_c_object_browser=>c_type_option_value-custom_entity OR
              zif_dbbr_c_object_browser=>c_type_option_value-view.
 
         WHEN OTHERS.
           lf_invalid = abap_true.
       ENDCASE.
     ELSEIF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_api.
-      CASE iv_value.
+      lcl_exclusion_helper=>remove_exclusion_string( CHANGING cv_value = lv_value ).
+      CASE lv_value.
 
         WHEN zif_dbbr_c_object_browser=>c_api_option_value-released OR
              zif_dbbr_c_object_browser=>c_api_option_value-key_user OR
@@ -82,7 +89,7 @@ CLASS cl_qov_cds IMPLEMENTATION.
       ENDCASE.
 
     ELSEIF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_params.
-      IF iv_value <> 'TRUE'.
+      IF lv_value <> 'TRUE'.
         lf_invalid = abap_true.
       ENDIF.
     ENDIF.
@@ -92,13 +99,13 @@ CLASS cl_qov_cds IMPLEMENTATION.
         EXPORTING
           textid = zcx_dbbr_object_search=>invalid_option_value
           msgv1  = |{ iv_option }|
-          msgv2  = |{ iv_value }|.
+          msgv2  = |{ lv_value }|.
     ENDIF.
   ENDMETHOD.
 
 ENDCLASS.
 
-CLASS cl_qov_database_tab_view IMPLEMENTATION.
+CLASS lcl_qov_database_tab_view IMPLEMENTATION.
 
   METHOD validate.
     DATA: lf_invalid TYPE abap_bool.
@@ -108,8 +115,11 @@ CLASS cl_qov_database_tab_view IMPLEMENTATION.
         iv_value  = iv_value
     ).
 
+    DATA(lv_value) = iv_value.
+
     IF iv_option = zif_dbbr_c_object_browser=>c_search_option-by_type.
-      CASE iv_value.
+      lcl_exclusion_helper=>remove_exclusion_string( CHANGING cv_value = lv_value ).
+      CASE lv_value.
 
         WHEN zif_dbbr_c_object_browser=>c_type_option_value-table OR
              zif_dbbr_c_object_browser=>c_type_option_value-view.
@@ -124,13 +134,13 @@ CLASS cl_qov_database_tab_view IMPLEMENTATION.
         EXPORTING
           textid = zcx_dbbr_object_search=>invalid_option_value
           msgv1  = |{ iv_option }|
-          msgv2  = |{ iv_value }|.
+          msgv2  = |{ lv_value }|.
     ENDIF.
   ENDMETHOD.
 
 ENDCLASS.
 
-CLASS cl_qov_query IMPLEMENTATION.
+CLASS lcl_qov_query IMPLEMENTATION.
 
   METHOD validate.
     super->validate(
@@ -141,13 +151,29 @@ CLASS cl_qov_query IMPLEMENTATION.
 
 ENDCLASS.
 
-CLASS cl_qov_package IMPLEMENTATION.
+CLASS lcl_qov_package IMPLEMENTATION.
 
   METHOD validate.
     super->validate(
         iv_option = iv_option
         iv_value  = iv_value
     ).
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lcl_exclusion_helper IMPLEMENTATION.
+
+  METHOD remove_exclusion_string.
+    IF cv_value CP '!*'.
+      cv_value = cv_value+1.
+      cv_sign = zif_dbbr_c_options=>excluding.
+    ENDIF.
+
+    IF cv_value CP '<>*'.
+      cv_value = cv_value+2.
+      cv_sign = zif_dbbr_c_options=>excluding.
+    ENDIF.
   ENDMETHOD.
 
 ENDCLASS.

@@ -21,14 +21,14 @@ CLASS zcl_dbbr_ob_query_searcher IMPLEMENTATION.
         iv_alias      = c_base_table
     ).
 
-    IF mr_search_query->has_search_string( ).
+    IF mo_search_query->has_search_string( ).
       add_filter( VALUE #( sqlfieldname  = 'query_name'
-                           option        = mr_search_query->mv_search_option
+                           option        = mo_search_query->mv_search_option
                            sign          = 'I'
-                           low           = mr_search_query->mv_search_string ) ).
+                           low           = mo_search_query->mv_search_string ) ).
     ENDIF.
 
-    LOOP AT mr_search_query->get_options( ) ASSIGNING FIELD-SYMBOL(<ls_option>).
+    LOOP AT mo_search_query->get_options( ) ASSIGNING FIELD-SYMBOL(<ls_option>).
 
       CASE <ls_option>-option.
 

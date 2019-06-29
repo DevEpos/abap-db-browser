@@ -16,16 +16,18 @@ CLASS zcl_dbbr_object_search_query DEFINITION
     DATA mv_query TYPE string READ-ONLY.
     DATA mv_max_rows TYPE sy-tabix READ-ONLY.
     DATA mt_search_options TYPE zif_dbbr_ty_object_browser=>tt_search_option_values READ-ONLY.
+    DATA ms_search_engine_params TYPE zif_dbbr_ty_object_browser=>ty_s_search_engine_params READ-ONLY.
 
     "! <p class="shorttext synchronized" lang="en">Parses the given search string</p>
     "! The given string is processed to extract additional search parameters
     "!
     CLASS-METHODS parse_query_string
       IMPORTING
-        iv_query        TYPE string
-        iv_search_type  TYPE zdbbr_obj_browser_mode
+        iv_query                TYPE string
+        is_search_engine_params TYPE zif_dbbr_ty_object_browser=>ty_s_search_engine_params OPTIONAL
+        iv_search_type          TYPE zdbbr_obj_browser_mode
       RETURNING
-        VALUE(rr_query) TYPE REF TO zcl_dbbr_object_search_query
+        VALUE(rr_query)         TYPE REF TO zcl_dbbr_object_search_query
       RAISING
         zcx_dbbr_object_search.
 
@@ -33,11 +35,12 @@ CLASS zcl_dbbr_object_search_query DEFINITION
     "!
     CLASS-METHODS create_query
       IMPORTING
-        iv_search_string TYPE string
-        iv_type          TYPE zdbbr_obj_browser_mode
-        it_options       TYPE zif_dbbr_ty_object_browser=>tt_search_option_values OPTIONAL
+        iv_search_string        TYPE string
+        iv_type                 TYPE zdbbr_obj_browser_mode
+        is_search_engine_params TYPE zif_dbbr_ty_object_browser=>ty_s_search_engine_params OPTIONAL
+        it_options              TYPE zif_dbbr_ty_object_browser=>tt_search_option_values OPTIONAL
       RETURNING
-        VALUE(rr_query)  TYPE REF TO zcl_dbbr_object_search_query
+        VALUE(rr_query)         TYPE REF TO zcl_dbbr_object_search_query
       RAISING
         zcx_dbbr_object_search.
 
@@ -99,10 +102,11 @@ CLASS zcl_dbbr_object_search_query DEFINITION
     "!
     METHODS constructor
       IMPORTING
-        iv_query          TYPE string
-        iv_type           TYPE zdbbr_obj_browser_mode
-        iv_search_string  TYPE string
-        it_search_options TYPE zif_dbbr_ty_object_browser=>tt_search_option_values.
+        iv_query                TYPE string
+        iv_type                 TYPE zdbbr_obj_browser_mode
+        is_search_engine_params TYPE zif_dbbr_ty_object_browser=>ty_s_search_engine_params OPTIONAL
+        iv_search_string        TYPE string
+        it_search_options       TYPE zif_dbbr_ty_object_browser=>tt_search_option_values.
 
     "! <p class="shorttext synchronized" lang="en">Adjust the current query string</p>
     CLASS-METHODS adjust_query_string
@@ -110,7 +114,7 @@ CLASS zcl_dbbr_object_search_query DEFINITION
         cv_query TYPE string.
 
     "! <p class="shorttext synchronized" lang="en">Checks the given option and its values</p>
-    CLASS-METHODS check_option
+    CLASS-METHODS parse_option
       IMPORTING
         iv_search_type TYPE zdbbr_obj_browser_mode
         is_option      TYPE zif_dbbr_ty_object_browser=>ty_search_option_values
@@ -162,6 +166,7 @@ CLASS zcl_dbbr_object_search_query DEFINITION
         iv_value   TYPE string
       CHANGING
         ct_options TYPE zif_dbbr_ty_object_browser=>tt_search_option_values.
+
 ENDCLASS.
 
 
@@ -239,7 +244,9 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
     lt_allowed_options = VALUE #(
         FOR option IN gt_search_option_map
         WHERE ( type = iv_search_type )
-        ( sign = 'I' option = 'EQ' low = option-option )
+        ( sign   = zif_dbbr_c_options=>including
+          option = zif_dbbr_c_options=>equals
+          low    = option-option )
     ).
 
     SPLIT iv_query AT space INTO TABLE lt_query_tokens.
@@ -276,10 +283,11 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
     enhance_options( CHANGING ct_options = ls_query-options ).
 
     rr_query = NEW #(
-      iv_search_string  = ls_query-query
-      iv_type           = iv_search_type
-      iv_query          = iv_query
-      it_search_options = ls_query-options
+      iv_search_string        = ls_query-query
+      iv_type                 = iv_search_type
+      iv_query                = iv_query
+      is_search_engine_params = is_search_engine_params
+      it_search_options       = ls_query-options
     ).
 
   ENDMETHOD.
@@ -288,7 +296,7 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
     DATA: lt_options LIKE it_options.
 
     LOOP AT it_options ASSIGNING FIELD-SYMBOL(<ls_option>).
-      check_option(
+      parse_option(
         EXPORTING iv_search_type = iv_type
                   is_option      = <ls_option>
         CHANGING  ct_options     = lt_options ).
@@ -300,14 +308,15 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
     adjust_query_string( CHANGING cv_query = lv_search_string ).
 
     rr_query = NEW #(
-       iv_query          = space " original query string is not needed
-       iv_type           = iv_type
-       iv_search_string  = lv_search_string
-       it_search_options = lt_options
+       iv_query                = space " original query string is not needed
+       iv_type                 = iv_type
+       iv_search_string        = lv_search_string
+       is_search_engine_params = is_search_engine_params
+       it_search_options       = lt_options
     ).
   ENDMETHOD.
 
-  METHOD check_option.
+  METHOD parse_option.
     DATA(lt_value_range) = is_option-value_range.
 
     ASSIGN gt_search_option_setting[ option = is_option-option ] TO FIELD-SYMBOL(<ls_option_info>).
@@ -327,9 +336,10 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
   METHOD constructor.
     mv_query = iv_query.
     mv_type = iv_type.
+    ms_search_engine_params = is_search_engine_params.
     mv_search_string = to_upper( iv_search_string ).
     IF iv_search_string IS NOT INITIAL.
-      mv_search_option = COND #( WHEN iv_search_string CA '+*' THEN 'CP' ELSE 'EQ' ).
+      mv_search_option = COND #( WHEN iv_search_string CA '+*' THEN zif_dbbr_c_options=>contains_pattern ELSE zif_dbbr_c_options=>equals ).
     ENDIF.
     mt_search_options = it_search_options.
 
@@ -384,8 +394,6 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD add_option_value.
-    DATA: lv_value2 TYPE string.
-
     ASSIGN ct_options[ option = is_option-option ] TO FIELD-SYMBOL(<ls_option>).
     IF sy-subrc <> 0.
       INSERT VALUE #(
@@ -394,18 +402,13 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
     ENDIF.
 
     DATA(lv_value) = iv_value.
-    DATA(lv_sign) = 'I'.
+    DATA(lv_value2) = ``.
+    DATA(lv_sign) = zif_dbbr_c_options=>including.
+    DATA(lv_sign2) = zif_dbbr_c_options=>including.
 
     IF is_option-no_negation = abap_false.
-      IF lv_value CP '!*'.
-        lv_value = lv_value+1.
-        lv_sign = 'E'.
-      ENDIF.
-
-      IF lv_value CP '<>*'.
-        lv_value = lv_value+2.
-        lv_sign = 'E'.
-      ENDIF.
+      lcl_exclusion_helper=>remove_exclusion_string( CHANGING cv_value = lv_value
+                                                              cv_sign  = lv_sign  ).
     ENDIF.
 
 *.. Consider key-value options in a special way
@@ -413,8 +416,19 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
       IF lv_value CS c_key_value_pair_separator.
         SPLIT lv_value AT c_key_value_pair_separator INTO lv_value lv_value2.
         TRANSLATE lv_value TO UPPER CASE.
-        IF sy-saprl >= 751. " upper() function available!
-          TRANSLATE lv_value2 TO UPPER CASE.
+*...... Ignore second value if first value is already excluded
+        IF lv_sign = zif_dbbr_c_options=>excluding.
+          CLEAR: lv_value2,
+                 lv_sign2.
+        ELSE.
+          IF sy-saprl >= 751. " upper() function available!
+            TRANSLATE lv_value2 TO UPPER CASE.
+          ENDIF.
+
+          IF is_option-no_negation = abap_false.
+            lcl_exclusion_helper=>remove_exclusion_string( CHANGING cv_value = lv_value2
+                                                                    cv_sign  = lv_sign2   ).
+          ENDIF.
         ENDIF.
       ELSE.
         TRANSLATE lv_value TO UPPER CASE.
@@ -426,6 +440,10 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
 *... annotations are stored with a <annokey1>$[0-9]$.<annokey2> like syntax
     IF is_option-option = zif_dbbr_c_object_browser=>c_search_option-by_anno.
       lv_value = replace( val = lv_value occ = 0 sub = '.' with = '*.' ).
+      DATA(lv_value_length) = strlen( lv_value ) - 1.
+      IF lv_value IS NOT INITIAL AND lv_value+lv_value_length(1) <> '*'.
+        lv_value = lv_value && '*'.
+      ENDIF.
     ENDIF.
 
 *.. Crop input if necessary
@@ -438,7 +456,15 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
 
     <ls_option>-value_range = VALUE #(
         BASE <ls_option>-value_range
-        ( sign = lv_sign  option = COND #( WHEN lv_value CA '*+' THEN 'CP' ELSE 'EQ ' ) low = lv_value high = lv_value2 )
+        ( sign    = lv_sign
+          sign2   = lv_sign2
+          option  = COND #( WHEN lv_value CA '*+' THEN zif_dbbr_c_options=>contains_pattern
+                            ELSE                       zif_dbbr_c_options=>equals )
+          option2 = COND #( WHEN lv_value2 IS INITIAL THEN space
+                            WHEN lv_value2 CA '*+'    THEN zif_dbbr_c_options=>contains_pattern
+                            ELSE                           zif_dbbr_c_options=>equals )
+          low     = lv_value
+          high    = lv_value2 )
     ).
   ENDMETHOD.
 
@@ -503,7 +529,7 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD validate_option_value.
-    cl_query_option_validator=>create_validator( iv_search_type )->validate( iv_option = iv_option iv_value = iv_value ).
+    lcl_query_option_validator=>create_validator( iv_search_type )->validate( iv_option = iv_option iv_value = iv_value ).
   ENDMETHOD.
 
   METHOD get_option.
@@ -525,12 +551,12 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD enhance_options.
-    DATA: lt_package_range TYPE RANGE OF string.
+    DATA: lt_package_range TYPE zif_dbbr_ty_object_browser=>ty_t_value_range.
 
     LOOP AT ct_options ASSIGNING FIELD-SYMBOL(<ls_option>).
       IF <ls_option>-option = c_search_option-by_package.
-        lt_package_range = VALUE #( FOR range IN <ls_option>-value_range WHERE ( option = 'CP' ) ( range ) ).
-        LOOP AT <ls_option>-value_range ASSIGNING FIELD-SYMBOL(<ls_value_range>) WHERE option <> 'CP'.
+        lt_package_range = VALUE #( FOR range IN <ls_option>-value_range WHERE ( option = zif_dbbr_c_options=>contains_pattern ) ( range ) ).
+        LOOP AT <ls_option>-value_range ASSIGNING FIELD-SYMBOL(<ls_value_range>) WHERE option <> zif_dbbr_c_options=>contains_pattern.
           cl_pak_package_queries=>get_all_subpackages(
             EXPORTING
               im_package             = CONV #( <ls_value_range>-low )
@@ -547,8 +573,12 @@ CLASS zcl_dbbr_object_search_query IMPLEMENTATION.
                 msgv1  = |{ <ls_value_range>-low }|.
           ENDIF.
           lt_package_range = VALUE #( BASE lt_package_range
-            ( sign = <ls_value_range>-sign option = 'EQ' low = <ls_value_range>-low )
-            ( LINES OF VALUE #( FOR subpackage IN lt_subpackages ( sign = <ls_value_range>-sign option = 'EQ' low = subpackage-package ) ) )
+            ( sign   = <ls_value_range>-sign
+              option = zif_dbbr_c_options=>equals
+              low    = <ls_value_range>-low )
+            ( LINES OF VALUE #( FOR subpackage IN lt_subpackages ( sign   = <ls_value_range>-sign
+                                                                   option = zif_dbbr_c_options=>equals
+                                                                   low    = subpackage-package ) ) )
           ).
         ENDLOOP.
         <ls_option>-value_range = lt_package_range.
