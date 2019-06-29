@@ -31,7 +31,6 @@ FUNCTION ZDBBR_START.
 * initialize some global fields
   gs_data-settings = zcl_dbbr_usersettings_factory=>get_settings( ).
 
-  zcl_dbbr_appl_util=>set_descr_lang_ref( REF #( gs_data-description_language ) ).
   zcl_dbbr_system_helper=>set_locale_language( ).
 
 * Validate the last saved data
@@ -75,11 +74,11 @@ FUNCTION ZDBBR_START.
           ENDIF.
 
           DATA(lf_skip_selscreen) = COND #( WHEN lv_skip_selscreen_value  = 'false' THEN abap_false ELSE abap_true ).
+          gs_data-called_from_adt = abap_true.
 
           IF lf_skip_selscreen = abap_true.
 *....... Always activate the live filter when selection screen is skipped
             gs_data-settings-activate_alv_live_filter = abap_true.
-            gs_data-called_from_adt = abap_true.
             DATA(lr_variant_starter) = zcl_dbbr_variant_starter_fac=>create_variant_starter(
                 iv_variant_id        = zif_dbbr_global_consts=>c_dummy_variant
                 iv_entity_type       = lv_entity_type

@@ -590,6 +590,12 @@
     </item>
     <item>
      <ID>S</ID>
+     <KEY>P_XCOLWD</KEY>
+     <ENTRY>With defined Column Widths</ENTRY>
+     <LENGTH>34</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
      <KEY>P_XFIELD</KEY>
      <ENTRY>With ouput fields</ENTRY>
      <LENGTH>26</LENGTH>

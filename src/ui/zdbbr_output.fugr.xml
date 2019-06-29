@@ -24,6 +24,7 @@
       <NEXTSCREEN>0100</NEXTSCREEN>
       <LINES>200</LINES>
       <COLUMNS>255</COLUMNS>
+      <NO_TOOLBAR>X</NO_TOOLBAR>
      </HEADER>
      <CONTAINERS>
       <RPY_DYCATT>
@@ -676,7 +677,7 @@
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
       <ICON_ID>@16@</ICON_ID>
-      <FUN_TEXT>Choose</FUN_TEXT>
+      <FUN_TEXT>Show Row Details</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>DISP_HIDRO</CODE>
@@ -736,7 +737,7 @@
       <CODE>FOCUSASSOC</CODE>
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
-      <FUN_TEXT>Set Focus to Accociation List</FUN_TEXT>
+      <FUN_TEXT>Set Focus to Associations</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>GO_TO_COL</CODE>
@@ -762,6 +763,16 @@
       <TEXT_NAME>ICON_OVERVIEW</TEXT_NAME>
       <ICON_ID>@3Q@</ICON_ID>
       <FUN_TEXT>Show / Hide Additional Information</FUN_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>HIDECOLNVL</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT_NAME>ICON_COLLAPSE</TEXT_NAME>
+      <ICON_ID>@3T@</ICON_ID>
+      <FUN_TEXT>Hide Columns with no values</FUN_TEXT>
+      <INFO_TEXT>Hide all Columns where no values exist</INFO_TEXT>
+      <PATH>H</PATH>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>HIERCHOUTP</CODE>
@@ -930,6 +941,12 @@
       <FUN_TEXT>Show Settings</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
+      <CODE>SHORTCUTS</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>Show Shortcuts</FUN_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
       <CODE>SHOWFORM</CODE>
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
@@ -1021,17 +1038,24 @@
       <CODE>000001</CODE>
       <NO>05</NO>
       <REF_TYPE>F</REF_TYPE>
-      <REF_CODE>SHOWVERSIO</REF_CODE>
+      <REF_CODE>SHORTCUTS</REF_CODE>
       <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000001</CODE>
       <NO>06</NO>
-      <REF_TYPE>S</REF_TYPE>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>SHOWVERSIO</REF_CODE>
+      <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000001</CODE>
       <NO>07</NO>
+      <REF_TYPE>S</REF_TYPE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000001</CODE>
+      <NO>08</NO>
       <REF_TYPE>F</REF_TYPE>
       <REF_CODE>&amp;F15</REF_CODE>
       <REF_NO>001</REF_NO>
@@ -1404,6 +1428,18 @@
       <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
+      <CODE>000013</CODE>
+      <NO>03</NO>
+      <REF_TYPE>S</REF_TYPE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000013</CODE>
+      <NO>04</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>HIDECOLNVL</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
       <CODE>000019</CODE>
       <NO>01</NO>
       <REF_TYPE>F</REF_TYPE>
@@ -1599,204 +1635,6 @@
      </RSMPE_ACT>
     </ACT>
     <BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>01</NO>
-      <PFNO>18</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>02</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>03</NO>
-      <PFNO>07</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>04</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>05</NO>
-      <PFNO>08</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>06</NO>
-      <PFNO>05</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>07</NO>
-      <PFNO>06</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>08</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>09</NO>
-      <PFNO>47</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>10</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>11</NO>
-      <PFNO>28</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>12</NO>
-      <PFNO>40</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>13</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>14</NO>
-      <PFNO>29</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>15</NO>
-      <PFNO>09</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>16</NO>
-      <PFNO>38</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>17</NO>
-      <PFNO>24</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>18</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>19</NO>
-      <PFNO>30</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>20</NO>
-      <PFNO>42</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>21</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>22</NO>
-      <PFNO>16</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>23</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>24</NO>
-      <PFNO>20</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>25</NO>
-      <PFNO>32</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>26</NO>
-      <PFNO>33</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>27</NO>
-      <PFNO>34</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>28</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>29</NO>
-      <PFNO>19</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>30</NO>
-      <PFNO>43</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>31</NO>
-      <PFNO>41</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>32</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>33</NO>
-      <PFNO>17</PFNO>
-     </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000003</PFK_CODE>
       <CODE>0001</CODE>
@@ -2061,6 +1899,12 @@
       <CODE>000001</CODE>
       <PFNO>36</PFNO>
       <FUNCODE>&amp;INFO</FUNCODE>
+      <FUNNO>001</FUNNO>
+     </RSMPE_PFK>
+     <RSMPE_PFK>
+      <CODE>000001</CODE>
+      <PFNO>37</PFNO>
+      <FUNCODE>SHORTCUTS</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
      <RSMPE_PFK>
@@ -2681,6 +2525,10 @@
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>OUTPUT_SELECTION</STATUS>
+      <FUNCTION>HIDECOLNVL</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>OUTPUT_SELECTION</STATUS>
       <FUNCTION>HIERCHOUTP</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
@@ -2822,6 +2670,10 @@
      <RSMPE_STAF>
       <STATUS>OUTPUT_SELECTION</STATUS>
       <FUNCTION>SETTINGS</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>OUTPUT_SELECTION</STATUS>
+      <FUNCTION>SHORTCUTS</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>OUTPUT_SELECTION</STATUS>

@@ -31,8 +31,14 @@
     <item>
      <ID>I</ID>
      <KEY>003</KEY>
-     <ENTRY>ALV list output</ENTRY>
+     <ENTRY>Data Output</ENTRY>
      <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Data Selection</ENTRY>
+     <LENGTH>24</LENGTH>
     </item>
     <item>
      <ID>I</ID>
@@ -44,7 +50,7 @@
      <ID>I</ID>
      <KEY>B01</KEY>
      <ENTRY>Coloring of columns</ENTRY>
-     <LENGTH>64</LENGTH>
+     <LENGTH>30</LENGTH>
     </item>
     <item>
      <ID>I</ID>
@@ -62,7 +68,7 @@
      <ID>I</ID>
      <KEY>B04</KEY>
      <ENTRY>Favorites</ENTRY>
-     <LENGTH>30</LENGTH>
+     <LENGTH>20</LENGTH>
     </item>
     <item>
      <ID>I</ID>
@@ -78,189 +84,243 @@
     </item>
     <item>
      <ID>I</ID>
+     <KEY>B07</KEY>
+     <ENTRY>Variant Settings</ENTRY>
+     <LENGTH>26</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
      <KEY>S01</KEY>
      <ENTRY>DB Browser - User settings</ENTRY>
-     <LENGTH>76</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>S02</KEY>
      <ENTRY>DB Browser - Central Search - Settings</ENTRY>
-     <LENGTH>76</LENGTH>
+     <LENGTH>50</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T01</KEY>
      <ENTRY>Technical view</ENTRY>
-     <LENGTH>26</LENGTH>
+     <LENGTH>25</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T02</KEY>
      <ENTRY>Technical column name leads</ENTRY>
-     <LENGTH>58</LENGTH>
+     <LENGTH>40</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T03</KEY>
      <ENTRY>Activate expert mode</ENTRY>
-     <LENGTH>68</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T04</KEY>
      <ENTRY>Max count of result lines</ENTRY>
-     <LENGTH>30</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T05</KEY>
      <ENTRY>Show Object Navigator at start</ENTRY>
-     <LENGTH>66</LENGTH>
+     <LENGTH>45</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T06</KEY>
      <ENTRY>Visible Entries in History</ENTRY>
-     <LENGTH>66</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T07</KEY>
      <ENTRY>Use technical name as column header</ENTRY>
-     <LENGTH>78</LENGTH>
+     <LENGTH>45</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T08</KEY>
      <ENTRY>Output without conversion exit</ENTRY>
-     <LENGTH>62</LENGTH>
+     <LENGTH>45</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T09</KEY>
      <ENTRY>Key columns scrollable</ENTRY>
-     <LENGTH>58</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T10</KEY>
      <ENTRY>Without cell merging during sorts</ENTRY>
-     <LENGTH>112</LENGTH>
+     <LENGTH>45</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T11</KEY>
      <ENTRY>Leading sign in numerical fields</ENTRY>
-     <LENGTH>116</LENGTH>
+     <LENGTH>45</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T12</KEY>
      <ENTRY>Show zero&apos;s as blanks</ENTRY>
-     <LENGTH>42</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T13</KEY>
      <ENTRY>Activate reduced memory usage</ENTRY>
-     <LENGTH>80</LENGTH>
+     <LENGTH>40</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T14</KEY>
      <ENTRY>Automatic layout transfer</ENTRY>
-     <LENGTH>80</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T15</KEY>
      <ENTRY>Color formula fields</ENTRY>
-     <LENGTH>76</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T16</KEY>
      <ENTRY>Color sorting fields</ENTRY>
-     <LENGTH>86</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T17</KEY>
      <ENTRY>Color additional text fields</ENTRY>
-     <LENGTH>84</LENGTH>
+     <LENGTH>40</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T18</KEY>
      <ENTRY>Activate experimental mode</ENTRY>
-     <LENGTH>64</LENGTH>
+     <LENGTH>40</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T19</KEY>
      <ENTRY>Show table size in title bar</ENTRY>
-     <LENGTH>88</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T20</KEY>
      <ENTRY>Allow ALV default variant</ENTRY>
-     <LENGTH>56</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T22</KEY>
      <ENTRY>Default &quot;Maintain Entries&quot; for editable DB tables</ENTRY>
-     <LENGTH>100</LENGTH>
-    </item>
-    <item>
-     <ID>I</ID>
-     <KEY>T23</KEY>
-     <ENTRY>Language for Descriptions (ALV, etc.)</ENTRY>
-     <LENGTH>50</LENGTH>
+     <LENGTH>60</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T24</KEY>
      <ENTRY>Don&apos;t consider case during text search</ENTRY>
-     <LENGTH>76</LENGTH>
+     <LENGTH>45</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T25</KEY>
      <ENTRY>Show Association Browser at Start</ENTRY>
-     <LENGTH>56</LENGTH>
+     <LENGTH>45</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T26</KEY>
      <ENTRY>Activate ALV Live Filter</ENTRY>
-     <LENGTH>108</LENGTH>
+     <LENGTH>35</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T27</KEY>
      <ENTRY>Disable Date To Timestamp Conversion</ENTRY>
-     <LENGTH>72</LENGTH>
+     <LENGTH>45</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T28</KEY>
      <ENTRY>Use DDL View instead of CDS View for Selection</ENTRY>
-     <LENGTH>92</LENGTH>
+     <LENGTH>65</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T29</KEY>
      <ENTRY>Use Text-Based Editor in Custom Query Editor</ENTRY>
-     <LENGTH>88</LENGTH>
+     <LENGTH>65</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T30</KEY>
      <ENTRY>CSS Theme for Code Viewer</ENTRY>
      <LENGTH>50</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T31</KEY>
+     <ENTRY>Selection Mode for Association</ENTRY>
+     <LENGTH>60</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T32</KEY>
+     <ENTRY>Automatic saving/loading of selection criteria</ENTRY>
+     <LENGTH>55</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T33</KEY>
+     <ENTRY>Initial Navigator Mode</ENTRY>
+     <LENGTH>35</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T34</KEY>
+     <ENTRY>Visible Entries in History</ENTRY>
+     <LENGTH>35</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T35</KEY>
+     <ENTRY>Mode for Favorite Menu</ENTRY>
+     <LENGTH>35</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T36</KEY>
+     <ENTRY>Initial Mode</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T37</KEY>
+     <ENTRY>Filters of Default Variant take precedence</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T38</KEY>
+     <ENTRY>Display Navigator on the right side</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T39</KEY>
+     <ENTRY>Compact Column Widths</ENTRY>
+     <LENGTH>40</LENGTH>
     </item>
     <item>
      <ID>S</ID>

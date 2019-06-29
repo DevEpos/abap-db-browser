@@ -15,8 +15,6 @@ FUNCTION ZDBBR_SHOW_SELSCREEN.
   DATA(lv_entity_id) = iv_entity_id.
   DATA(lv_entity_type) = iv_entity_type.
 
-  zcl_dbbr_appl_util=>set_descr_lang_ref( REF #( gs_data-description_language ) ).
-
   " check if RFC connection is enabled
   DATA: lv_caller_destination         TYPE rfcdisplay-rfcdest.
   CALL FUNCTION 'RFC_GET_ATTRIBUTES'
@@ -81,7 +79,19 @@ FUNCTION ZDBBR_SHOW_SELSCREEN.
     is_settings             = is_settings
   ).
 
-  gr_selscreen_controller->load_entity( ).
+  IF gs_data-called_from_adt = abap_true.
+    gr_selscreen_controller->load_entity(
+        if_fill_history = abap_true
+        iv_entity_id    = lv_entity_id
+        iv_entity_type  = lv_entity_type
+    ).
+  ELSE.
+    gr_selscreen_controller->load_entity( if_fill_history = abap_true ). "gs_data-called_from_adt ).
+  ENDIF.
+
+* Information that DB Browser was opened from ADT is no longer needed at this point, so
+* it will be cleared to avoid any side effects
+  CLEAR gs_data-called_from_adt.
 
   gr_selscreen_controller->zif_uitb_screen_controller~call_screen( ).
 

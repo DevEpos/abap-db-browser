@@ -38,7 +38,7 @@ FUNCTION ZDBBR_DBENTITY_SH_EXIT.
 
     DATA: lt_result TYPE zdbbr_entity_t.
 
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT entityraw AS entity_id, type AS entity_type, description, developmentpackage AS devclass
       FROM zdbbr_i_databaseentity( p_language = @lv_language )

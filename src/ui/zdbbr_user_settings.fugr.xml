@@ -70,12 +70,6 @@
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>02</NO>
-      <PFNO>11</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>03</NO>
       <PFNO>12</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
@@ -96,12 +90,6 @@
       <CODE>000001</CODE>
       <PFNO>00</PFNO>
       <FUNCODE>OK</FUNCODE>
-      <FUNNO>001</FUNNO>
-     </RSMPE_PFK>
-     <RSMPE_PFK>
-      <CODE>000001</CODE>
-      <PFNO>11</PFNO>
-      <FUNCODE>SAVE</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
      <RSMPE_PFK>
@@ -131,10 +119,6 @@
      <RSMPE_STAF>
       <STATUS>0100</STATUS>
       <FUNCTION>OK</FUNCTION>
-     </RSMPE_STAF>
-     <RSMPE_STAF>
-      <STATUS>0100</STATUS>
-      <FUNCTION>SAVE</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>0200</STATUS>

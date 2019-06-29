@@ -1,4 +1,4 @@
-FUNCTION zdbbr_dbtab_sh_exit.
+FUNCTION ZDBBR_DBTAB_SH_EXIT.
 *"----------------------------------------------------------------------
 *"*"Local Interface:
 *"  IMPORTING
@@ -38,7 +38,7 @@ FUNCTION zdbbr_dbtab_sh_exit.
     ENDLOOP.
 
     DATA: lt_result TYPE STANDARD TABLE OF zdbbr_db_tab_sh_result.
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT table~tabname, devclass, ddlanguage, ddtext
       FROM zdbbrdbtab_v AS table

@@ -265,7 +265,7 @@
     <item>
      <FUNCNAME>ZDBBR_SHOW_SELSCREEN</FUNCNAME>
      <REMOTE_CALL>R</REMOTE_CALL>
-     <SHORT_TEXT>Anzeige des Selektionsscreens für SE16 Advanced</SHORT_TEXT>
+     <SHORT_TEXT>Show Selection Screen of DB Browser</SHORT_TEXT>
      <IMPORT>
       <RSIMP>
        <PARAMETER>IV_ENTITY_ID</PARAMETER>
@@ -357,7 +357,7 @@
     <item>
      <FUNCNAME>ZDBBR_START</FUNCNAME>
      <REMOTE_CALL>R</REMOTE_CALL>
-     <SHORT_TEXT>Ruft den Databrowser auf</SHORT_TEXT>
+     <SHORT_TEXT>Call DB Browser</SHORT_TEXT>
      <IMPORT>
       <RSIMP>
        <PARAMETER>IF_INITIALIZE</PARAMETER>
@@ -807,8 +807,10 @@
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
        <LINE>006</LINE>
        <COLUMN>001</COLUMN>
-       <LENGTH>059</LENGTH>
+       <LENGTH>077</LENGTH>
        <HEIGHT>001</HEIGHT>
+       <C_RESIZE_H>X</C_RESIZE_H>
+       <C_COLN_MIN>077</C_COLN_MIN>
       </RPY_DYCATT>
       <RPY_DYCATT>
        <TYPE>TABLE_CTRL</TYPE>
@@ -827,7 +829,6 @@
        <TC_SEPAR_H>X</TC_SEPAR_H>
        <TC_TITLE>X</TC_TITLE>
        <TC_HEADER>X</TC_HEADER>
-       <TC_CONFIG>X</TC_CONFIG>
        <TC_SEL_LNS>NONE</TC_SEL_LNS>
        <TC_SEL_CLS>NONE</TC_SEL_CLS>
        <TC_FIXCOL>003</TC_FIXCOL>
@@ -1004,7 +1005,7 @@
        <NAME>GV_SELFIELD_COUNT</NAME>
        <TEXT>__________________________</TEXT>
        <LINE>006</LINE>
-       <COLUMN>062</COLUMN>
+       <COLUMN>080</COLUMN>
        <LENGTH>026</LENGTH>
        <VISLENGTH>026</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1033,7 +1034,7 @@
        <TEXT>Selection_Criteria</TEXT>
        <LINE>001</LINE>
        <LENGTH>018</LENGTH>
-       <VISLENGTH>249</VISLENGTH>
+       <VISLENGTH>252</VISLENGTH>
        <HEIGHT>001</HEIGHT>
        <FORMAT>CHAR</FORMAT>
        <REQU_ENTRY>N</REQU_ENTRY>
@@ -1066,7 +1067,7 @@
        <LINE>001</LINE>
        <COLUMN>002</COLUMN>
        <LENGTH>012</LENGTH>
-       <VISLENGTH>012</VISLENGTH>
+       <VISLENGTH>060</VISLENGTH>
        <HEIGHT>001</HEIGHT>
        <GROUP4>FLD</GROUP4>
        <FORMAT>CHAR</FORMAT>
@@ -1112,7 +1113,7 @@
        <LINE>001</LINE>
        <COLUMN>005</COLUMN>
        <LENGTH>008</LENGTH>
-       <VISLENGTH>008</VISLENGTH>
+       <VISLENGTH>025</VISLENGTH>
        <HEIGHT>001</HEIGHT>
        <GROUP3>IVA</GROUP3>
        <FORMAT>CHAR</FORMAT>
@@ -1714,8 +1715,8 @@
       <DESCRIPT>Einstiegsbild Vorhandene F4 Hilfe für Feld speichern</DESCRIPT>
       <TYPE>N</TYPE>
       <NEXTSCREEN>0101</NEXTSCREEN>
-      <LINES>003</LINES>
-      <COLUMNS>093</COLUMNS>
+      <LINES>006</LINES>
+      <COLUMNS>096</COLUMNS>
      </HEADER>
      <CONTAINERS>
       <RPY_DYCATT>
@@ -1744,7 +1745,7 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>GS_BUILT_IN_F4-SEARCH_TABLE</NAME>
-       <TEXT>________________</TEXT>
+       <TEXT>?_______________</TEXT>
        <LINE>001</LINE>
        <COLUMN>030</COLUMN>
        <LENGTH>016</LENGTH>
@@ -1775,7 +1776,7 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>GS_BUILT_IN_F4-SEARCH_FIELD</NAME>
-       <TEXT>______________________________</TEXT>
+       <TEXT>?_____________________________</TEXT>
        <LINE>002</LINE>
        <COLUMN>030</COLUMN>
        <LENGTH>030</LENGTH>
@@ -1806,7 +1807,7 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>GS_BUILT_IN_F4-DESCRIPTION</NAME>
-       <TEXT>____________________________________________________________</TEXT>
+       <TEXT>?___________________________________________________________</TEXT>
        <LINE>003</LINE>
        <COLUMN>030</COLUMN>
        <LENGTH>060</LENGTH>
@@ -1817,6 +1818,36 @@
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <REQU_ENTRY>O</REQU_ENTRY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>CHECK</TYPE>
+       <NAME>GS_BUILT_IN_F4-PERFORM_ALPHA_CONVERSION</NAME>
+       <TEXT>Perform_Alpha_Conversion_during_value_transfer</TEXT>
+       <LINE>004</LINE>
+       <COLUMN>001</COLUMN>
+       <LENGTH>048</LENGTH>
+       <VISLENGTH>048</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>CHECK</TYPE>
+       <NAME>GS_BUILT_IN_F4-APPLY_TO_SAME_TYPE</NAME>
+       <TEXT>Use_value_help_for_table_fields_with_same_data_type</TEXT>
+       <LINE>005</LINE>
+       <COLUMN>001</COLUMN>
+       <LENGTH>053</LENGTH>
+       <VISLENGTH>053</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>SCREEN</CONT_TYPE>
@@ -2806,11 +2837,11 @@
       <PROGRAM>SAPLZDBBR</PROGRAM>
       <SCREEN>0202</SCREEN>
       <LANGUAGE>E</LANGUAGE>
-      <DESCRIPT>Einstiegsbild F4 Suchhilfe sichern</DESCRIPT>
+      <DESCRIPT>Save custom value help</DESCRIPT>
       <TYPE>N</TYPE>
       <NEXTSCREEN>0202</NEXTSCREEN>
-      <LINES>029</LINES>
-      <COLUMNS>117</COLUMNS>
+      <LINES>026</LINES>
+      <COLUMNS>115</COLUMNS>
      </HEADER>
      <CONTAINERS>
       <RPY_DYCATT>
@@ -2819,21 +2850,12 @@
       </RPY_DYCATT>
       <RPY_DYCATT>
        <TYPE>CUST_CTRL</TYPE>
-       <NAME>SEARCHFIELDS_CONT</NAME>
+       <NAME>CUST_CONT</NAME>
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
-       <LINE>005</LINE>
+       <LINE>007</LINE>
        <COLUMN>001</COLUMN>
-       <LENGTH>114</LENGTH>
-       <HEIGHT>012</HEIGHT>
-      </RPY_DYCATT>
-      <RPY_DYCATT>
-       <TYPE>CUST_CTRL</TYPE>
-       <NAME>ASSIGNED_CONT</NAME>
-       <ELEMENT_OF>SCREEN</ELEMENT_OF>
-       <LINE>018</LINE>
-       <COLUMN>001</COLUMN>
-       <LENGTH>114</LENGTH>
-       <HEIGHT>012</HEIGHT>
+       <LENGTH>115</LENGTH>
+       <HEIGHT>020</HEIGHT>
       </RPY_DYCATT>
      </CONTAINERS>
      <FIELDS>
@@ -2857,11 +2879,11 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>GS_CUSTOM_SEARCH_HELP-SEARCH_TABLE</NAME>
-       <TEXT>________________</TEXT>
+       <TEXT>______________________________</TEXT>
        <LINE>001</LINE>
-       <COLUMN>028</COLUMN>
-       <LENGTH>016</LENGTH>
-       <VISLENGTH>016</VISLENGTH>
+       <COLUMN>027</COLUMN>
+       <LENGTH>030</LENGTH>
+       <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
        <FORMAT>CHAR</FORMAT>
        <OUTPUT_FLD>X</OUTPUT_FLD>
@@ -2889,7 +2911,7 @@
        <NAME>GS_CUSTOM_SEARCH_HELP-SEARCH_FIELD</NAME>
        <TEXT>______________________________</TEXT>
        <LINE>002</LINE>
-       <COLUMN>028</COLUMN>
+       <COLUMN>027</COLUMN>
        <LENGTH>030</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -2919,7 +2941,7 @@
        <NAME>GS_CUSTOM_SEARCH_HELP-DESCRIPTION</NAME>
        <TEXT>____________________________________________________________</TEXT>
        <LINE>003</LINE>
-       <COLUMN>028</COLUMN>
+       <COLUMN>027</COLUMN>
        <LENGTH>060</LENGTH>
        <VISLENGTH>060</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -2929,6 +2951,38 @@
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <REQU_ENTRY>R</REQU_ENTRY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>CHECK</TYPE>
+       <NAME>GS_CUSTOM_SEARCH_HELP-APPLY_TO_SAME_TYPE</NAME>
+       <TEXT>Use_Value_Help_for_Table_fields_with_same_Type</TEXT>
+       <LINE>004</LINE>
+       <COLUMN>001</COLUMN>
+       <LENGTH>048</LENGTH>
+       <VISLENGTH>048</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <GROUP1>INP</GROUP1>
+       <FORMAT>CHAR</FORMAT>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>CHECK</TYPE>
+       <NAME>GS_CUSTOM_SEARCH_HELP-PERFORM_ALPHA_CONVERSION</NAME>
+       <TEXT>Perform_Alpha_conversion_on_value_tranfser</TEXT>
+       <LINE>005</LINE>
+       <COLUMN>001</COLUMN>
+       <LENGTH>044</LENGTH>
+       <VISLENGTH>044</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <GROUP1>INP</GROUP1>
+       <FORMAT>CHAR</FORMAT>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>SCREEN</CONT_TYPE>
@@ -3480,7 +3534,7 @@
    <CUA>
     <ADM>
      <ACTCODE>000016</ACTCODE>
-     <MENCODE>000133</MENCODE>
+     <MENCODE>000134</MENCODE>
      <PFKCODE>000038</PFKCODE>
     </ADM>
     <STA>
@@ -4298,6 +4352,29 @@
       <FUN_TEXT>Show Help</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
+      <CODE>ASSGNBIF4</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>Assign DDIC Value Help</FUN_TEXT>
+      <INFO_TEXT>Assigns existing DDIC Value Help to Field</INFO_TEXT>
+      <PATH>A</PATH>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>ASSGNCF4</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>Assign Custom F4 to Field</FUN_TEXT>
+      <INFO_TEXT>Assign custom DB Browser VH to Field</INFO_TEXT>
+      <PATH>S</PATH>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>ASSGNCF4</CODE>
+      <TEXTNO>002</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>Assign F4 to Field</FUN_TEXT>
+      <ICON_TEXT>Assign</ICON_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
       <CODE>ASSIGN_TO</CODE>
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
@@ -4604,7 +4681,7 @@
       <CODE>DELETE_F4</CODE>
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
-      <FUN_TEXT>Remove from field</FUN_TEXT>
+      <FUN_TEXT>Remove Custom F4 from field</FUN_TEXT>
       <PATH>V</PATH>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
@@ -6234,8 +6311,9 @@
      <RSMPE_MEN>
       <CODE>000003</CODE>
       <NO>02</NO>
-      <REF_TYPE>M</REF_TYPE>
-      <REF_CODE>000007</REF_CODE>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>MAINTF4</REF_CODE>
+      <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000003</CODE>
@@ -6295,24 +6373,31 @@
       <CODE>000007</CODE>
       <NO>01</NO>
       <REF_TYPE>F</REF_TYPE>
-      <REF_CODE>SAVE_F4</REF_CODE>
+      <REF_CODE>ASSGNBIF4</REF_CODE>
       <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000007</CODE>
       <NO>02</NO>
       <REF_TYPE>F</REF_TYPE>
-      <REF_CODE>DELETE_F4</REF_CODE>
+      <REF_CODE>ASSGNCF4</REF_CODE>
       <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000007</CODE>
       <NO>03</NO>
-      <REF_TYPE>S</REF_TYPE>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>DELETE_F4</REF_CODE>
+      <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000007</CODE>
       <NO>04</NO>
+      <REF_TYPE>S</REF_TYPE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000007</CODE>
+      <NO>05</NO>
       <REF_TYPE>F</REF_TYPE>
       <REF_CODE>MAINTF4</REF_CODE>
       <REF_NO>001</REF_NO>
@@ -7500,12 +7585,24 @@
       <CODE>000132</CODE>
       <NO>06</NO>
       <REF_TYPE>F</REF_TYPE>
-      <REF_CODE>SAVE_F4</REF_CODE>
+      <REF_CODE>ASSGNBIF4</REF_CODE>
       <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000132</CODE>
       <NO>07</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>ASSGNCF4</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000132</CODE>
+      <NO>08</NO>
+      <REF_TYPE>S</REF_TYPE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000132</CODE>
+      <NO>09</NO>
       <REF_TYPE>F</REF_TYPE>
       <REF_CODE>DELETE_F4</REF_CODE>
       <REF_NO>001</REF_NO>
@@ -7972,6 +8069,11 @@
       <TEXT>Context menu</TEXT>
       <INT_NOTE>Context Menu for Screen 0100</INT_NOTE>
      </RSMPE_MNLT>
+     <RSMPE_MNLT>
+      <CODE>000134</CODE>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT>MAINTF4</TEXT>
+     </RSMPE_MNLT>
     </MTX>
     <ACT>
      <RSMPE_ACT>
@@ -8249,79 +8351,79 @@
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>10</NO>
-      <PFNO>38</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>11</NO>
       <PFNO>40</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>12</NO>
+      <NO>11</NO>
       <PFNO>S</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>13</NO>
+      <NO>12</NO>
       <PFNO>24</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>14</NO>
+      <NO>13</NO>
       <PFNO>S</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>15</NO>
+      <NO>14</NO>
       <PFNO>05</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>16</NO>
+      <NO>15</NO>
       <PFNO>27</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>17</NO>
+      <NO>16</NO>
       <PFNO>28</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>18</NO>
+      <NO>17</NO>
       <PFNO>29</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>19</NO>
+      <NO>18</NO>
       <PFNO>S</PFNO>
+     </RSMPE_BUT>
+     <RSMPE_BUT>
+      <PFK_CODE>000001</PFK_CODE>
+      <CODE>0001</CODE>
+      <NO>19</NO>
+      <PFNO>33</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>20</NO>
-      <PFNO>06</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>21</NO>
       <PFNO>S</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
+      <NO>21</NO>
+      <PFNO>35</PFNO>
+     </RSMPE_BUT>
+     <RSMPE_BUT>
+      <PFK_CODE>000001</PFK_CODE>
+      <CODE>0001</CODE>
       <NO>22</NO>
-      <PFNO>33</PFNO>
+      <PFNO>48</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
@@ -8333,36 +8435,18 @@
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>24</NO>
-      <PFNO>35</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>25</NO>
-      <PFNO>48</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>26</NO>
-      <PFNO>S</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>27</NO>
       <PFNO>32</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>28</NO>
+      <NO>25</NO>
       <PFNO>S</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>29</NO>
+      <NO>26</NO>
       <PFNO>36</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
@@ -12481,6 +12565,14 @@
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>0100</STATUS>
+      <FUNCTION>ASSGNBIF4</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>ASSGNCF4</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
       <FUNCTION>ASSOCMGMT</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
@@ -12862,6 +12954,14 @@
      <RSMPE_STAF>
       <STATUS>0100</STATUS>
       <FUNCTION>USERFUNC05</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100_CTX_SELFIELD</STATUS>
+      <FUNCTION>ASSGNBIF4</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100_CTX_SELFIELD</STATUS>
+      <FUNCTION>ASSGNCF4</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>0100_CTX_SELFIELD</STATUS>
@@ -15846,7 +15946,7 @@
      </RSMPE_TITT>
      <RSMPE_TITT>
       <CODE>PROGTITLE</CODE>
-      <TEXT>DB Browser - &amp;1&amp;2&amp;3&amp;3</TEXT>
+      <TEXT>DB Browser - &amp;1&amp;2&amp;3&amp;4</TEXT>
      </RSMPE_TITT>
      <RSMPE_TITT>
       <CODE>QUERY_MNG_TITLE</CODE>
