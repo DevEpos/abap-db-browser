@@ -1,52 +1,141 @@
-CLASS ZCL_DBBR_custom_f4_map DEFINITION
+"! <p class="shorttext synchronized" lang="en">Map for custom value help</p>
+CLASS zcl_dbbr_custom_f4_map DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+    "! <p class="shorttext synchronized" lang="en">Reads custom F4 definitions for the given table-field</p>
     METHODS read_custom_f4_definition
       IMPORTING
         iv_tablename             TYPE tabname
         iv_fieldname             TYPE fieldname
+        iv_rollname              TYPE rollname OPTIONAL
+        is_built_in_type         TYPE zdbbr_built_in_data_type OPTIONAL
       EXPORTING
-        et_custom_f4_definitions TYPE ZDBBR_f4_data_itab.
+        et_custom_f4_definitions TYPE zdbbr_f4_data_itab.
+    "! <p class="shorttext synchronized" lang="en">Reads custom f4 definitions for the given table</p>
     METHODS read_custom_f4_definitions
       IMPORTING
         iv_tablename TYPE tabname.
+    "! <p class="shorttext synchronized" lang="en">Clears all buffered custom f4 definitions</p>
     METHODS clear.
+    "! <p class="shorttext synchronized" lang="en">Clears all buffered F4 def. for the given table field</p>
+    METHODS clear_f4_for_field
+      IMPORTING
+        iv_tabname   TYPE tabname
+        iv_fieldname TYPE fieldname.
+    "! <p class="shorttext synchronized" lang="en">Determine F4 for given table field</p>
+    METHODS determine_f4_for_field
+      IMPORTING
+        iv_tabname   TYPE tabname
+        iv_fieldname TYPE fieldname.
+    "! <p class="shorttext synchronized" lang="en">Checks if there is a custom F4 for the given table field</p>
     METHODS entry_exists
       IMPORTING
         iv_tabname       TYPE tabname
         iv_fieldname     TYPE fieldname
+        iv_rollname      TYPE rollname OPTIONAL
+        is_built_in_type TYPE zdbbr_built_in_data_type OPTIONAL
       RETURNING
         VALUE(rf_exists) TYPE boolean.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    DATA: mt_custom_f4_map TYPE ZDBBR_custom_f4_map_itab.
+    DATA: mt_custom_f4_by_dt_map TYPE HASHED TABLE OF zdbbr_custom_f4_map WITH UNIQUE KEY rollname datatype length.
+    DATA: mt_custom_f4_map TYPE zdbbr_custom_f4_map_itab.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_custom_f4_map IMPLEMENTATION.
+CLASS zcl_dbbr_custom_f4_map IMPLEMENTATION.
 
   METHOD clear.
     CLEAR mt_custom_f4_map.
   ENDMETHOD.
 
+  METHOD clear_f4_for_field.
+    DELETE mt_custom_f4_map WHERE tabname = iv_tabname
+                              AND fieldname = iv_fieldname.
+  ENDMETHOD.
+
   METHOD read_custom_f4_definition.
-*&---------------------------------------------------------------------*
-*& Description: Reads existing f4 help definition definend in ZDBBROIN_F4
-*&---------------------------------------------------------------------*
-    ASSIGN mt_custom_f4_map[ tabname   = iv_tablename
-                             fieldname = iv_fieldname ] TO FIELD-SYMBOL(<ls_custom_f4_map>).
+    IF iv_tablename = zif_dbbr_global_consts=>c_parameter_dummy_table.
+      ASSIGN mt_custom_f4_map[ fieldname = iv_fieldname ] TO FIELD-SYMBOL(<ls_custom_f4_map>).
+    ELSE.
+      ASSIGN mt_custom_f4_map[ tabname   = iv_tablename
+                               fieldname = iv_fieldname ] TO <ls_custom_f4_map>.
+    ENDIF.
+
     IF sy-subrc = 0.
       et_custom_f4_definitions = <ls_custom_f4_map>-f4_definitions.
+    ELSE.
+      IF iv_rollname IS NOT INITIAL.
+        ASSIGN mt_custom_f4_by_dt_map[ rollname = iv_rollname ] TO <ls_custom_f4_map>.
+      ELSE.
+        ASSIGN mt_custom_f4_by_dt_map[ datatype = is_built_in_type-datatype
+                                       length   = is_built_in_type-leng    ] TO <ls_custom_f4_map>.
+      ENDIF.
+      IF sy-subrc = 0.
+        et_custom_f4_definitions = <ls_custom_f4_map>-f4_definitions.
+      ENDIF.
     ENDIF.
   ENDMETHOD.
+
+  METHOD determine_f4_for_field.
+    zcl_dbbr_custom_f4_factory=>find_f4_for_table(
+      EXPORTING iv_tabname = iv_tabname
+      IMPORTING et_f4      = DATA(lt_f4)
+    ).
+
+    DELETE lt_f4 WHERE fieldname <> iv_fieldname.
+
+    CHECK lt_f4 IS NOT INITIAL.
+
+    INSERT VALUE #(
+        tabname        = iv_tabname
+        fieldname      = iv_fieldname
+        f4_definitions = lt_f4
+     ) INTO TABLE mt_custom_f4_map.
+  ENDMETHOD.
+
 
   METHOD entry_exists.
     rf_exists = xsdbool( line_exists( mt_custom_f4_map[ tabname   = iv_tabname
                                                         fieldname = iv_fieldname ] ) ).
+
+    CHECK rf_exists = abap_false.
+    IF iv_rollname IS INITIAL AND is_built_in_type IS INITIAL.
+      RETURN.
+    ENDIF.
+
+*.. Check cache for already read F4 that match the passed data type
+    IF iv_rollname IS NOT INITIAL.
+      rf_exists = xsdbool( line_exists( mt_custom_f4_by_dt_map[ rollname = iv_rollname ] ) ).
+    ENDIF.
+
+    CHECK rf_exists = abap_false.
+
+    rf_exists = xsdbool( line_exists( mt_custom_f4_by_dt_map[ datatype = is_built_in_type-datatype
+                                                              length   = is_built_in_type-leng     ] ) ).
+
+    CHECK rf_exists = abap_false.
+
+*.. Check if there are Value helps whoose search key field match the given data type
+    zcl_dbbr_custom_f4_factory=>find_f4_for_datatype(
+      EXPORTING iv_rollname           = iv_rollname
+                if_apply_to_same_data = abap_true
+                is_built_in_type      = is_built_in_type
+      IMPORTING et_f4                 = DATA(lt_f4_for_datatype)
+    ).
+    IF lt_f4_for_datatype IS NOT INITIAL.
+      INSERT VALUE #(
+         rollname       = iv_rollname
+         datatype       = COND #( WHEN iv_rollname IS INITIAL THEN is_built_in_type-datatype )
+         length         = COND #( WHEN iv_rollname IS INITIAL THEN is_built_in_type-leng )
+         f4_definitions = lt_f4_for_datatype
+      ) INTO TABLE mt_custom_f4_by_dt_map.
+      rf_exists = abap_true.
+    ENDIF.
   ENDMETHOD.
 
   METHOD read_custom_f4_definitions.
@@ -55,9 +144,8 @@ CLASS ZCL_DBBR_custom_f4_map IMPLEMENTATION.
 *&---------------------------------------------------------------------*
 
     IF NOT line_exists( mt_custom_f4_map[ tabname = iv_tablename ] ).
-      DATA(lr_custom_f4_factory) = NEW ZCL_DBBR_custom_f4_factory( ).
 
-      lr_custom_f4_factory->find_f4_for_table(
+      zcl_dbbr_custom_f4_factory=>find_f4_for_table(
         EXPORTING iv_tabname = iv_tablename
         IMPORTING et_f4      = DATA(lt_f4)
       ).
@@ -70,7 +158,7 @@ CLASS ZCL_DBBR_custom_f4_map IMPLEMENTATION.
         INSERT VALUE #(
             tabname        = <ls_f4_group>-tabname
             fieldname      = <ls_f4_group>-fieldname
-            f4_definitions = VALUE ZDBBR_f4_data_itab( FOR f4 IN GROUP <ls_f4_group> ( f4 ) )
+            f4_definitions = VALUE zdbbr_f4_data_itab( FOR f4 IN GROUP <ls_f4_group> ( f4 ) )
          ) INTO TABLE mt_custom_f4_map.
       ENDLOOP.
 
