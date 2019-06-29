@@ -578,6 +578,60 @@
      <MSGNR>094</MSGNR>
      <TEXT>One Result</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>095</MSGNR>
+     <TEXT>Default variant saved for &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>096</MSGNR>
+     <TEXT>Default variant for &amp;1 deleted</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>097</MSGNR>
+     <TEXT>Default variant was loaded</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>098</MSGNR>
+     <TEXT>There is no Default Variant for &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>099</MSGNR>
+     <TEXT>Value Help assigments for &amp;1-&amp;2 deleted</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>100</MSGNR>
+     <TEXT>Value Help assigments for &amp;1-&amp;2 updated</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>101</MSGNR>
+     <TEXT>No Entries found - Check your filter criteria and/or parameter values</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>102</MSGNR>
+     <TEXT>&amp;1 Columns with no values were hidden</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>103</MSGNR>
+     <TEXT>No Empty Columns found</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>
