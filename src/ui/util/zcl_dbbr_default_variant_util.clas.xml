@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_DEFAULT_VARIANT_UTIL</CLSNAME>
+    <VERSION>1</VERSION>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Utility for Handling Default Entity Variant</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DEFAULT_VARIANT_UTIL</CLSNAME>
+     <CMPNAME>CREATE_DEFAULT_VARIANT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates default variant</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DEFAULT_VARIANT_UTIL</CLSNAME>
+     <CMPNAME>DELETE_DEFAULT_VARIANT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Deletes default Variant</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_DEFAULT_VARIANT_UTIL</CLSNAME>
+     <CMPNAME>LOAD_DEFAULT_VARIANT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Loads defaultVariant</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>
