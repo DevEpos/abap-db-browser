@@ -1,51 +1,54 @@
-class ZCL_DBBR_SYSTEM_HELPER definition
-  public
-  create public .
+CLASS zcl_dbbr_system_helper DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
-
-  class-methods PRINT_SYSTEM_MESSAGE .
-  class-methods SET_LANGUAGE .
-  class-methods GET_CDS_VIEW_TEXT_TABLE
-    returning
-      value(RESULT) type TABNAME .
-  class-methods SET_LOCALE_LANGUAGE .
-  class-methods CREATE_GUID_22
-    returning
-      value(RV_GUID_22) type GUID_22 .
-  class-methods GENERATE_SUBROUTINE
-    importing
-      !IT_LINES type STRING_TABLE
-    returning
-      value(RV_SUBR_PROGNAME) type PROGNAME .
-  class-methods CHECK_ABAP_SYNTAX
-    importing
-      !IT_LINES type STRING_TABLE .
-  class-methods GET_SYSTEM_VALUE
-    importing
-      !IV_SYSTEM_VALUE_TYPE type ZDBBR_SYST_VALUE_TYPE
-    exporting
-      !EV_SYSTEM_VALUE type ANY .
-  class-methods SYST_VALUE_ALLWD_FOR_INTTYP
-    importing
-      !IV_INTTYPE type INTTYPE
-    returning
-      value(RF_POSSIBLE) type BOOLEAN .
-  class-methods GET_CURRENT_METHOD_NAME
-    importing
-      !IV_STACK_LEVEL type I default 2
-    returning
-      value(RV_METHOD_NAME) type STRING .
-  class-methods GET_DISP_VAL_FOR_SYSTEM_VA
-    importing
-      !IV_SYSTEM_VAR_NAME type STRING
-    returning
-      value(RV_DISPLAY_VALUE) type ZDBBR_VALUE .
+  PUBLIC SECTION.
+    CLASS-DATA gv_original_system_langu TYPE sy-langu READ-ONLY.
+    CLASS-METHODS print_system_message .
+    CLASS-METHODS set_language .
+    CLASS-METHODS get_cds_view_text_table
+      RETURNING
+        VALUE(result) TYPE tabname .
+    CLASS-METHODS set_locale_language .
+    CLASS-METHODS create_guid_22
+      RETURNING
+        VALUE(rv_guid_22) TYPE guid_22 .
+    CLASS-METHODS generate_subroutine
+      IMPORTING
+        !it_lines               TYPE string_table
+      RETURNING
+        VALUE(rv_subr_progname) TYPE progname .
+    CLASS-METHODS check_abap_syntax
+      IMPORTING
+        !it_lines TYPE string_table .
+    CLASS-METHODS get_system_language
+      RETURNING
+        VALUE(result) TYPE sy-langu.
+    CLASS-METHODS get_system_value
+      IMPORTING
+        !iv_system_value_type TYPE zdbbr_syst_value_type
+      EXPORTING
+        !ev_system_value      TYPE any .
+    CLASS-METHODS syst_value_allwd_for_inttyp
+      IMPORTING
+        !iv_inttype        TYPE inttype
+      RETURNING
+        VALUE(rf_possible) TYPE boolean .
+    CLASS-METHODS get_current_method_name
+      IMPORTING
+        !iv_stack_level       TYPE i DEFAULT 2
+      RETURNING
+        VALUE(rv_method_name) TYPE string .
+    CLASS-METHODS get_disp_val_for_system_va
+      IMPORTING
+        !iv_system_var_name     TYPE string
+      RETURNING
+        VALUE(rv_display_value) TYPE zdbbr_value .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  types:
-    BEGIN OF mty_abap_callstack_entry,
+    TYPES:
+      BEGIN OF mty_abap_callstack_entry,
         mainprogram TYPE dbgsrepid,
         include     TYPE dbgsrepid,
         line        TYPE dbglinno,
@@ -53,20 +56,20 @@ private section.
         event       TYPE dbglevent,
         flag_system TYPE c LENGTH 1,
       END OF mty_abap_callstack_entry .
-  types:
-    mtt_abap_callstack TYPE STANDARD TABLE OF mty_abap_callstack_entry WITH DEFAULT KEY .
+    TYPES:
+      mtt_abap_callstack TYPE STANDARD TABLE OF mty_abap_callstack_entry WITH DEFAULT KEY .
 
-  class-data SV_CDS_VIEW_TEXT_TABLE type TABNAME .
-  class-data SF_IS_750 type ABAP_BOOL .
+    CLASS-DATA sv_cds_view_text_table TYPE tabname .
+    CLASS-DATA sf_is_750 TYPE abap_bool .
 
-  class-methods RAISE_GENERAL_ERROR
-    importing
-      !IV_MESSAGE type STRING .
+    CLASS-METHODS raise_general_error
+      IMPORTING
+        !iv_message TYPE string .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_SYSTEM_HELPER IMPLEMENTATION.
+CLASS zcl_dbbr_system_helper IMPLEMENTATION.
 
 
   METHOD check_abap_syntax.
@@ -108,8 +111,8 @@ CLASS ZCL_DBBR_SYSTEM_HELPER IMPLEMENTATION.
 
 
   METHOD get_cds_view_text_table.
-    result = cond #(
-      when sy-saprl >= 750 then 'DDDDLSRC02BT' else 'DD02BT'
+    result = COND #(
+      WHEN sy-saprl >= 750 THEN 'DDDDLSRC02BT' ELSE 'DD02BT'
     ).
   ENDMETHOD.
 
@@ -136,28 +139,33 @@ CLASS ZCL_DBBR_SYSTEM_HELPER IMPLEMENTATION.
 
     ASSIGN (iv_system_var_name) TO FIELD-SYMBOL(<lv_system_variable>).
     CHECK sy-subrc = 0.
-    check <lv_system_variable> is not INITIAL.
+    CHECK <lv_system_variable> IS NOT INITIAL.
 
 *.. get descriptor for system field
-    DATA(lr_system_type_descr) = cast cl_abap_elemdescr(
+    DATA(lr_system_type_descr) = CAST cl_abap_elemdescr(
       cl_abap_typedescr=>describe_by_data( p_data = <lv_system_variable> )
     ).
 
-    CHECK lr_system_type_descr is bound.
+    CHECK lr_system_type_descr IS BOUND.
 
     lr_system_type_descr->get_ddic_field(
       EXPORTING
-        p_langu      = SY-LANGU    " Current Language
+        p_langu      = sy-langu    " Current Language
       RECEIVING
-        p_flddescr   = data(ls_field)    " Field Description
+        p_flddescr   = DATA(ls_field)    " Field Description
       EXCEPTIONS
         not_found    = 1
         no_ddic_type = 2
-        others       = 3
+        OTHERS       = 3
     ).
     IF sy-subrc = 0.
-      data(lr_converter) = new zcl_dbbr_data_converter( ).
+      DATA(lr_converter) = NEW zcl_dbbr_data_converter( ).
       rv_display_value = <lv_system_variable>.
+*.... System language was changed always to English because of GUI Text translations missing
+*..... in other languages -> use the cached original language to get the true sy-langu value
+      IF iv_system_var_name = 'SY-LANGU'.
+        rv_display_value = COND #( WHEN gv_original_system_langu IS NOT INITIAL THEN gv_original_system_langu ELSE sy-langu ).
+      ENDIF.
       lr_converter->convert_values_to_disp_format(
         EXPORTING
           iv_rollname = ls_field-tabname
@@ -224,6 +232,9 @@ CLASS ZCL_DBBR_SYSTEM_HELPER IMPLEMENTATION.
 
 
   METHOD set_locale_language.
+    IF gv_original_system_langu IS INITIAL.
+      gv_original_system_langu = sy-langu.
+    ENDIF.
     SET LOCALE LANGUAGE 'E'.
   ENDMETHOD.
 
@@ -236,4 +247,9 @@ CLASS ZCL_DBBR_SYSTEM_HELPER IMPLEMENTATION.
       rf_possible = abap_true.
     ENDIF.
   ENDMETHOD.
+
+  METHOD get_system_language.
+    result = COND #( WHEN gv_original_system_langu IS NOT INITIAL THEN gv_original_system_langu ELSE sy-langu ).
+  ENDMETHOD.
+
 ENDCLASS.
