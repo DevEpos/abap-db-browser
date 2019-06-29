@@ -30,6 +30,12 @@ CLASS zcl_dbbr_custom_f4_helper DEFINITION
         !ct_selfield        TYPE zdbbr_selfield_itab OPTIONAL .
   PROTECTED SECTION.
   PRIVATE SECTION.
+    TYPES: BEGIN OF ty_table_alias_map,
+             tabname   TYPE string,
+             alias     TYPE string,
+             alv_alias TYPE string,
+           END OF ty_table_alias_map.
+    CLASS-DATA mt_table_alias_map TYPE STANDARD TABLE OF ty_table_alias_map.
 
     CLASS-METHODS build_f4_range_table
       IMPORTING
@@ -53,17 +59,14 @@ CLASS zcl_dbbr_custom_f4_helper DEFINITION
       EXPORTING
         !ef_cancelled          TYPE boolean
         !et_where              TYPE STANDARD TABLE .
-    CLASS-METHODS fill_projection_field_names
+    CLASS-METHODS build_table_alias_map
       IMPORTING
-        if_joins_needed       TYPE abap_bool
-        it_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab OPTIONAL
-      CHANGING
-        ct_f4_fields          TYPE zdbbr_f4_field_itab.
+        is_join_def TYPE zdbbr_join_def.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
+CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
 
 
   METHOD build_f4_range_table.
@@ -181,7 +184,8 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
           LOOP AT lt_return ASSIGNING FIELD-SYMBOL(<ls_return>).
             DATA(lv_tabix) = sy-tabix.
 
-            IF cs_selfield-fieldname <> lv_key_field_name.
+            IF  ls_f4_definition-perform_alpha_conversion = abap_true OR
+                ls_f4_definition-perform_alpha_conv_assgmt = abap_true.
               zcl_dbbr_data_converter=>perform_alpha_conversion_input(
                 EXPORTING
                   iv_tabname   = ls_f4_definition-fields[ is_search_key = abap_true ]-search_table
@@ -214,7 +218,8 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
           ENDLOOP.
         ELSE.
           DATA(lv_returnval) = lt_return[ 1 ]-fieldval.
-          IF cs_selfield-fieldname <> lv_key_field_name.
+          IF  ls_f4_definition-perform_alpha_conversion = abap_true OR
+              ls_f4_definition-perform_alpha_conv_assgmt = abap_true.
             zcl_dbbr_data_converter=>perform_alpha_conversion_input(
               EXPORTING
                 iv_tabname   = ls_f4_definition-fields[ is_search_key = abap_true ]-search_table
@@ -254,7 +259,6 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
     " determine the key field
     TRY.
         DATA(ls_search_field) = lt_f4_fields[ is_search_key = abap_true ].
-        ev_key_field = ls_search_field-search_field.
       CATCH cx_sy_itab_line_not_found.
         RETURN.
     ENDTRY.
@@ -263,23 +267,15 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
     DATA(lf_joins_needed) = xsdbool( is_custom_f4_definition-join_def-tables IS NOT INITIAL ).
 
     IF lf_joins_needed = abap_true.
-      " 2) build alias map and from clause
-      DATA(lt_table_alias_map) = zcl_dbbr_join_helper=>build_table_to_alias_map( is_join_def = is_custom_f4_definition-join_def ).
-
       lt_from_clause = zcl_dbbr_join_helper=>build_from_clause_for_join_def(
         is_join_def        = is_custom_f4_definition-join_def
-        it_table_alias_map = lt_table_alias_map
       ).
+      build_table_alias_map( is_custom_f4_definition-join_def ).
+      ev_key_field = mt_table_alias_map[ tabname = ls_search_field-search_table ]-alv_alias && '_' && ls_search_field-search_field.
     ELSE. " fields are all in one table
       APPEND ls_search_field-search_table TO lt_from_clause.
+      ev_key_field = ls_search_field-search_field.
     ENDIF.
-
-    " -- build names for projection fields
-    fill_projection_field_names(
-      EXPORTING if_joins_needed       = lf_joins_needed
-                it_table_to_alias_map = lt_table_alias_map
-      CHANGING  ct_f4_fields          = lt_f4_fields
-    ).
 
     " 2) filter values
     IF filtering_is_possible( lt_f4_fields ).
@@ -302,10 +298,14 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
             sign   = 'I' )
         ).
         DATA(lv_entered_value_low) = COND string(
-          WHEN lf_joins_needed = abap_true THEN
-            lt_table_alias_map[ tabname = ls_search_field-search_table ]-alias && `~` && ev_key_field
+          WHEN lf_joins_needed = abap_true AND
+               ls_search_field-search_table_alias IS NOT INITIAL THEN
+            ls_search_field-search_table_alias && `~` && ls_search_field-search_field
+          WHEN lf_joins_needed = abap_true AND
+               ls_search_field-search_table_alias IS INITIAL THEN
+            mt_table_alias_map[ tabname = ls_search_field-search_table ]-alias && `~` && ls_search_field-search_field
           ELSE
-            ev_key_field
+            ls_search_field-search_field
         ).
 
         lt_where = VALUE #( ( |{ lv_entered_value_low } IN @lt_entered_value_selopt| ) ).
@@ -318,17 +318,35 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
     LOOP AT lt_f4_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
       DATA(lv_tabix) = sy-tabix.
 
+      DATA(lv_sql_name) = ``.
+      DATA(lv_alias) = ``.
+      DATA(lv_alias_name) = ``.
+      IF lf_joins_needed = abap_true.
+
+        IF <ls_field>-search_table_alias IS NOT INITIAL.
+          lv_alias = mt_table_alias_map[ alias = <ls_field>-search_table_alias ]-alv_alias.
+          lv_sql_name = mt_table_alias_map[ alias = <ls_field>-search_table_alias ]-alias && '~' && <ls_field>-search_field.
+        ELSE.
+          lv_alias = mt_table_alias_map[ tabname = <ls_field>-search_table ]-alv_alias.
+          lv_sql_name = mt_table_alias_map[ tabname = <ls_field>-search_table ]-alias && '~' && <ls_field>-search_field.
+        ENDIF.
+        lv_alias_name = lv_alias && '_' && <ls_field>-search_field.
+      ELSE.
+        lv_alias_name =
+        lv_sql_name = <ls_field>-search_field.
+      ENDIF.
+
       APPEND VALUE abap_componentdescr(
-          name       = <ls_field>-alias_name
+          name       = lv_alias_name
           type       = CAST cl_abap_datadescr( cl_abap_typedescr=>describe_by_name( <ls_field>-search_table && '-' && <ls_field>-search_field ) )
       ) TO lt_component_table.
 
       " add field to select table
       DATA(lv_select_field) = COND #(
         WHEN lf_joins_needed = abap_true THEN
-          <ls_field>-select_name && ` AS ` && <ls_field>-alias_name
+          lv_sql_name && ` AS ` && lv_alias_name
         ELSE
-          <ls_field>-select_name
+          lv_sql_name
       ).
       IF lv_tabix <> lv_field_count.
         lv_select_field = lv_select_field && ','.
@@ -339,15 +357,10 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
       " does this field support sorting?
       IF <ls_field>-sort_active = abap_true.
         DATA(lv_separator) = COND #( WHEN lt_sort IS NOT INITIAL THEN `, ` ).
-        lt_sort = VALUE #( BASE lt_sort ( |{ lv_separator }{ <ls_field>-select_name } ASCENDING| ) ).
+        lt_sort = VALUE #( BASE lt_sort ( |{ lv_separator }{ lv_sql_name } ASCENDING| ) ).
       ENDIF.
     ENDLOOP.
 
-*    IF lt_sort IS NOT INITIAL.
-*      lt_sort[ lines( lt_sort ) ] = replace( val = lt_sort[ lines( lt_sort ) ] sub = ',' with = '' ).
-*    ENDIF.
-
-    " create dynamic table type
     " Create the structure type
     DATA(lr_new_type) = cl_abap_structdescr=>create( p_components = lt_component_table
                                                      p_strict = abap_false ).
@@ -368,39 +381,17 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
         WHERE (lt_where)
         ORDER BY (lt_sort).
       CATCH cx_sy_open_sql_db.
-        MESSAGE 'Beim DB-Select ist ein Fehler aufgetreten' TYPE 'S'.
+        MESSAGE 'Error during SQL' TYPE 'S'.
       CATCH cx_sy_dynamic_osql_semantics INTO DATA(lr_osql_sem_exc).
-        MESSAGE 'Beim Parsen einer dynamischen Angabe trat ein Fehler auf' TYPE 'S'.
+        MESSAGE 'Error during parsing of dynamic SQL' TYPE 'S'.
       CATCH cx_sy_dynamic_osql_syntax.
-        MESSAGE 'Beim Parsen einer dynamischen Angabe trat ein Fehler auf' TYPE 'S'.
+        MESSAGE 'Error during parsing of dynamic SQL' TYPE 'S'.
     ENDTRY.
 
   ENDMETHOD.
 
 
-  METHOD fill_projection_field_names.
-    IF if_joins_needed = abap_false.
-      LOOP AT ct_f4_fields ASSIGNING FIELD-SYMBOL(<ls_f4_field>).
-        <ls_f4_field>-select_name = <ls_f4_field>-search_field.
-        <ls_f4_field>-alias_name = <ls_f4_field>-search_field.
-      ENDLOOP.
-    ELSE.
-      LOOP AT ct_f4_fields ASSIGNING <ls_f4_field>.
-        <ls_f4_field>-alias = it_table_to_alias_map[ tabname = <ls_f4_field>-search_table ]-alias.
-        <ls_f4_field>-select_name = |{ <ls_f4_field>-alias }~{ <ls_f4_field>-search_field }|.
-        IF <ls_f4_field>-is_search_key = abap_false.
-          <ls_f4_field>-alias_name = |{ <ls_f4_field>-alias }_{ <ls_f4_field>-search_field }|.
-        ELSE.
-          <ls_f4_field>-alias_name = <ls_f4_field>-search_field.
-        ENDIF.
-      ENDLOOP.
-    ENDIF.
-  ENDMETHOD.
-
-
   METHOD filtering_is_possible.
-
-*&---------------------------------------------------------------------*
 *& Description: Check if field value restriction (filtering) is allowed
 *&---------------------------------------------------------------------*
     IF line_exists( it_fields[ allow_restriction = abap_true ] ).
@@ -453,8 +444,8 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
     CALL FUNCTION 'FREE_SELECTIONS_DIALOG'
       EXPORTING
         selection_id            = lv_selection_id
-        title                   = 'Werteeinschränkung'
-        frame_text              = 'Selektion'
+        title                   = 'Value Restriction'
+        frame_text              = 'Selection'
         status                  = 1
         as_window               = 'X'
         tree_visible            = abap_false
@@ -481,12 +472,10 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
     DATA(lf_join_is_active) = xsdbool( is_join_def IS NOT INITIAL ).
 
     IF lf_join_is_active = abap_true.
-      DATA(lt_table_alias_map) = zcl_dbbr_join_helper=>build_table_to_alias_map( is_join_def = is_join_def ).
-
       """ enrich tablefields with table prefix - if necessary
       LOOP AT lt_selected_ranges ASSIGNING FIELD-SYMBOL(<ls_range>).
         """ determine table alias
-        DATA(lv_alias) = lt_table_alias_map[ tabname = <ls_range>-tablename ]-alias.
+        DATA(lv_alias) = mt_table_alias_map[ tabname = <ls_range>-tablename ]-alias.
         LOOP AT <ls_range>-frange_t ASSIGNING FIELD-SYMBOL(<ls_range_single_line>).
           <ls_range_single_line>-fieldname = lv_alias && '~' && <ls_range_single_line>-fieldname.
         ENDLOOP.
@@ -550,7 +539,7 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
     " Show popup with the options and give one back
     CALL FUNCTION 'LVC_SINGLE_ITEM_SELECTION'
       EXPORTING
-        i_title         = 'Suchhilfe auswählen'
+        i_title         = |{ 'Choose Value Help'(001) }|
         it_fieldcatalog = lt_fieldcat
       IMPORTING
         es_selfield     = ls_selfield
@@ -563,4 +552,19 @@ CLASS ZCL_DBBR_CUSTOM_F4_HELPER IMPLEMENTATION.
     ENDIF.
 
   ENDMETHOD.
+
+  METHOD build_table_alias_map.
+    mt_table_alias_map = VALUE #( ( alias     = is_join_def-primary_table_alias
+                                    alv_alias = is_join_def-primary_table_alias_alv
+                                    tabname   = is_join_def-primary_table  ) ).
+
+    LOOP AT is_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_join_table>).
+      mt_table_alias_map = VALUE #( BASE mt_table_alias_map
+        ( alias     = <ls_join_table>-add_table_alias
+          alv_alias = <ls_join_table>-add_table_alias_alv
+          tabname   = <ls_join_table>-add_table  )
+      ).
+    ENDLOOP.
+  ENDMETHOD.
+
 ENDCLASS.
