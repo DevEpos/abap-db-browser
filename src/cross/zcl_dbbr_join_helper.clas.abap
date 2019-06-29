@@ -4,7 +4,6 @@ CLASS zcl_dbbr_join_helper DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-
     TYPES:
       "! <p class="shorttext synchronized" lang="en">Join Condition Type</p>
       "! Internal type for Join Condition which is used for building the
@@ -86,20 +85,13 @@ CLASS zcl_dbbr_join_helper DEFINITION
         iv_entity_alias TYPE zdbbr_entity_alias
       CHANGING
         cs_join         TYPE zdbbr_join_def.
-
-    "! <p class="shorttext synchronized" lang="en">text</p>
-    CLASS-METHODS get_sql_name
-      CHANGING
-        cv_tabname TYPE tabname.
 ENDCLASS.
 
 
 
 CLASS zcl_dbbr_join_helper IMPLEMENTATION.
 
-  METHOD get_sql_name.
 
-  ENDMETHOD.
 
   METHOD build_from_clause_for_join_def.
     DATA(lt_table_to_alias_map) = it_table_alias_map.
@@ -179,10 +171,9 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
 
 
   METHOD prepare_tables.
-    DATA: lv_and_string         TYPE string,
-          lv_on_string          TYPE string,
+    DATA: lv_on_string          TYPE string,
+          lv_and_string         TYPE string,
           lv_or_string          TYPE string,
-          lv_value2             TYPE string,
 
           lf_parenthesis_opened TYPE abap_bool,
           lv_parenthesis_open   TYPE string,
@@ -197,9 +188,9 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
     FIELD-SYMBOLS: <ls_last_condition> TYPE ty_join_condition.
 
 *... prefill some needed join condition operator strings
-    lv_on_string = |  { 'ON'  ALIGN = RIGHT WIDTH = 5 } |.
-    lv_and_string = |  { 'AND'  ALIGN = RIGHT WIDTH = 5 } |.
-    lv_or_string = |  { 'OR'  ALIGN = RIGHT WIDTH = 5 } |.
+    lv_on_string = |  { zif_dbbr_c_selection_condition=>on  ALIGN = RIGHT WIDTH = 5 } |.
+    lv_and_string = |  { zif_dbbr_c_selection_condition=>and  ALIGN = RIGHT WIDTH = 5 } |.
+    lv_or_string = |  { zif_dbbr_c_selection_condition=>or  ALIGN = RIGHT WIDTH = 5 } |.
 
     rs_join-primary_table = is_join_def-primary_table.
 
@@ -246,48 +237,33 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
 
       ls_parsed_table-table = |{ ls_parsed_table-table } AS { lv_join_table_alias }|.
 
-*.... parse field conditions
-      LOOP AT <ls_join_table>-field_conditions ASSIGNING FIELD-SYMBOL(<ls_field_cond>).
+*.... parse the conditions
+      LOOP AT <ls_join_table>-conditions INTO DATA(ls_cond).
         lv_index = sy-tabix.
-
-        CLEAR: ls_new_condition.
 
 *...... Determine the alias of the reference field
-        lv_reference_alias = COND #( WHEN <ls_field_cond>-ref_table_alias IS NOT INITIAL THEN
-                                       <ls_field_cond>-ref_table_alias
-                                     WHEN <ls_field_cond>-ref_table = is_join_def-primary_table THEN
-                                       is_join_def-primary_table_alias
-                                     ELSE
-                                       is_join_def-tables[ add_table = <ls_field_cond>-ref_table ]-add_table_alias ).
-        IF lv_reference_alias IS INITIAL.
-          lv_reference_alias = it_table_to_alias_map[ tabname = <ls_field_cond>-ref_table ]-alias.
-        ENDIF.
+        IF ls_cond-type = zif_dbbr_c_join_cond_type=>field.
+          lv_reference_alias = COND #( WHEN ls_cond-ref_table_alias IS NOT INITIAL THEN
+                                         ls_cond-ref_table_alias
+                                       WHEN ls_cond-ref_table = is_join_def-primary_table THEN
+                                         is_join_def-primary_table_alias
+                                       ELSE
+                                         is_join_def-tables[ add_table = ls_cond-ref_table ]-add_table_alias ).
+        ELSE.
 
-        ls_new_condition = VALUE #(
-          join_operator = COND #( WHEN lv_index = 1 THEN lv_on_string ELSE lv_and_string )
-          value         = |{ lv_join_table_alias }~{ <ls_field_cond>-field } { <ls_field_cond>-operator } | &&
-                          |{ lv_reference_alias }~{ <ls_field_cond>-ref_field }|
-        ).
-        APPEND ls_new_condition TO ls_parsed_table-conditions ASSIGNING <ls_last_condition>.
-      ENDLOOP.
-
-*.... parse the filter conditions
-      LOOP AT <ls_join_table>-filter_conditions INTO DATA(ls_filter_cond).
-        lv_index = sy-tabix.
-        CLEAR: lv_value2.
-
-        lv_reference_alias = COND #( WHEN ls_filter_cond-tabname_alias IS NOT INITIAL THEN
-                                       ls_filter_cond-tabname_alias
-                                     WHEN ls_filter_cond-tabname = is_join_def-primary_table THEN
-                                       is_join_def-primary_table_alias
-                                     WHEN ls_filter_cond-tabname IS NOT INITIAL THEN
-                                       is_join_def-tables[ add_table = ls_filter_cond-tabname ]-add_table_alias ).
-        IF lv_reference_alias IS INITIAL.
-          lv_reference_alias = it_table_to_alias_map[ tabname = ls_filter_cond-tabname ]-alias.
+          lv_reference_alias = COND #( WHEN ls_cond-tabname_alias IS NOT INITIAL THEN
+                                         ls_cond-tabname_alias
+                                       WHEN ls_cond-tabname = is_join_def-primary_table THEN
+                                         is_join_def-primary_table_alias
+                                       WHEN ls_cond-tabname IS NOT INITIAL THEN
+                                         is_join_def-tables[ add_table = ls_cond-tabname ]-add_table_alias ).
+          IF lv_reference_alias IS INITIAL.
+            lv_reference_alias = it_table_to_alias_map[ tabname = ls_cond-tabname ]-alias.
+          ENDIF.
         ENDIF.
 
 *...... check for need of possible open parenthesis
-        IF ls_filter_cond-and_or = 'OR'.
+        IF ls_cond-and_or = zif_dbbr_c_selection_condition=>or.
           IF lf_parenthesis_opened = abap_false.
             lv_parenthesis_open = |( |.
             lf_parenthesis_opened = abap_true.
@@ -299,56 +275,69 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
           ENDIF.
         ENDIF.
 
-        DATA(lv_value1) = |{ ls_filter_cond-value }|.
-
-*...... handle LIKE and NOT LIKE operator
-        IF  ( ls_filter_cond-operator = zif_dbbr_c_operator=>like OR
-              ls_filter_cond-operator = zif_dbbr_c_operator=>not_like ) AND
-            ls_filter_cond-value_type <> zif_dbbr_c_join_cond_val_type=>system_value_input.
-***          ls_filter_cond-value = replace( val = ls_filter_cond-value sub = '*' with = '%' occ = 0 ).
-*........ Use proper SAP to SQL conversion for pattern
-          zcl_dbbr_like_pattern_convrter=>conv_sap_to_sql_pattern(
-            EXPORTING  iv_sap_pattern   = lv_value1
-            IMPORTING  ev_sql_pattern   = lv_value1
-                       ef_escape_needed = DATA(lf_escape_needed)
-            EXCEPTIONS OTHERS = 1
+        IF ls_cond-type = zif_dbbr_c_join_cond_type=>field.
+          ls_parsed_table-conditions = VALUE #( BASE ls_parsed_table-conditions
+            ( open_bracket   = lv_parenthesis_open
+              join_operator  = COND #( WHEN lv_index = 1 THEN lv_on_string ELSE lv_previous_join_cond )
+              value          = |{ lv_join_table_alias }~{ ls_cond-field } { ls_cond-operator } | &&
+                               |{ lv_reference_alias }~{ ls_cond-ref_field }|
+              closing_bracket = lv_parenthesis_closed )
           ).
-          lv_value1 = cl_abap_dyn_prg=>quote( lv_value1 ).
-          IF lf_escape_needed = abap_true.
-            lv_value1 = |{ lv_value1 } ESCAPE '#' |.
+        ELSE.
+          DATA(lv_value1) = |{ ls_cond-value }|.
+          DATA(lv_value2) = ||.
+
+*........ handle LIKE and NOT LIKE operator
+          IF  ( ls_cond-operator = zif_dbbr_c_operator=>like OR
+                ls_cond-operator = zif_dbbr_c_operator=>not_like ) AND
+              ls_cond-value_type <> zif_dbbr_c_join_cond_val_type=>system_value_input.
+***          ls_filter_cond-value = replace( val = ls_filter_cond-value sub = '*' with = '%' occ = 0 ).
+*.......... Use proper SAP to SQL conversion for pattern
+            zcl_dbbr_like_pattern_convrter=>conv_sap_to_sql_pattern(
+              EXPORTING  iv_sap_pattern   = lv_value1
+              IMPORTING  ev_sql_pattern   = lv_value1
+                         ef_escape_needed = DATA(lf_escape_needed)
+              EXCEPTIONS OTHERS = 1
+            ).
+            lv_value1 = cl_abap_dyn_prg=>quote( lv_value1 ).
+            IF lf_escape_needed = abap_true.
+              lv_value1 = |{ lv_value1 } ESCAPE '#' |.
+            ENDIF.
+
+            CLEAR ls_cond-value2.
+          ELSE.
+            IF ls_cond-value_type = zif_dbbr_c_join_cond_val_type=>system_value_input.
+              IF lv_value1 = 'SY-LANGU'.
+                lv_value1 = cl_abap_dyn_prg=>quote( zcl_dbbr_system_helper=>get_system_language( ) ).
+              ELSE.
+                lv_value1 = |@{ lv_value1 }|.
+              ENDIF.
+            ELSE.
+              lv_value1 = cl_abap_dyn_prg=>quote( lv_value1 ).
+            ENDIF.
           ENDIF.
 
-          CLEAR ls_filter_cond-value2.
-        ELSE.
-          lv_value1 = COND #(
-            WHEN ls_filter_cond-value_type = zif_dbbr_c_join_cond_val_type=>system_value_input THEN
-              |@{ lv_value1 }|
-            ELSE
-              cl_abap_dyn_prg=>quote( lv_value1 )
+          IF ls_cond-operator = 'BETWEEN'.
+            lv_value2 = COND #(
+              WHEN ls_cond-value_type = zif_dbbr_c_join_cond_val_type=>system_value_input THEN
+                |@{ ls_cond-value2 }|
+              ELSE
+                cl_abap_dyn_prg=>quote( ls_cond-value2 )
+            ).
+            lv_value2 = | { zif_dbbr_c_selection_condition=>and } { lv_value2 }|.
+          ENDIF.
+
+          ls_parsed_table-conditions = VALUE #( BASE ls_parsed_table-conditions
+            ( open_bracket    = lv_parenthesis_open
+              join_operator   = COND #( WHEN lv_index = 1 THEN lv_on_string ELSE lv_previous_join_cond )
+              value           = |{ lv_reference_alias }~{ ls_cond-field }| &&
+                                | { ls_cond-operator } | &&
+                                |{ lv_value1 }{ lv_value2 }|
+              closing_bracket = lv_parenthesis_closed )
           ).
         ENDIF.
 
-
-        IF ls_filter_cond-operator = 'BETWEEN'.
-          lv_value2 = COND #(
-            WHEN ls_filter_cond-value_type = zif_dbbr_c_join_cond_val_type=>system_value_input THEN
-              |@{ ls_filter_cond-value2 }|
-            ELSE
-              cl_abap_dyn_prg=>quote( ls_filter_cond-value2 )
-          ).
-          lv_value2 = | AND { lv_value2 }|.
-        ENDIF.
-
-        ls_parsed_table-conditions = VALUE #( BASE ls_parsed_table-conditions
-          ( open_bracket    = lv_parenthesis_open
-            join_operator   = COND #( WHEN lv_index = 1 THEN lv_and_string ELSE lv_previous_join_cond )
-            value           = |{ lv_reference_alias }~{ ls_filter_cond-fieldname }| &&
-                              | { ls_filter_cond-operator } | &&
-                              |{ lv_value1 }{ lv_value2 }|
-            closing_bracket = lv_parenthesis_closed )
-        ).
-
-        lv_previous_join_cond = COND #( WHEN ls_filter_cond-and_or = 'OR' THEN lv_or_string ELSE lv_and_string ).
+        lv_previous_join_cond = COND #( WHEN ls_cond-and_or = zif_dbbr_c_selection_condition=>or THEN lv_or_string ELSE lv_and_string ).
         CLEAR: lv_parenthesis_closed,
                lv_parenthesis_open.
 
@@ -383,6 +372,8 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
 
 
   METHOD repair_join_definition.
+    FIELD-SYMBOLS: <ls_condition> TYPE zdbbr_join_condition_data.
+
     rs_join_def = is_join_def.
     IF is_join_def-primary_table_entity_type = zif_dbbr_c_entity_type=>cds_view AND
        ( if_use_ddl_for_select = abap_true OR sy-saprl < 750 ).
@@ -392,6 +383,24 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
     ENDIF.
 
     LOOP AT rs_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_table>).
+*.... fill unified condition table
+      IF <ls_table>-conditions IS INITIAL.
+*....... First the field conditions are added
+        LOOP AT <ls_table>-field_conditions ASSIGNING FIELD-SYMBOL(<ls_field_cond>).
+          APPEND INITIAL LINE TO <ls_table>-conditions ASSIGNING <ls_condition>.
+          <ls_condition> = CORRESPONDING #( <ls_field_cond> ).
+          <ls_condition>-type = zif_dbbr_c_join_cond_type=>field.
+          <ls_condition>-and_or = zif_dbbr_c_selection_condition=>and.
+        ENDLOOP.
+*........ and then the filter conditions
+        LOOP AT <ls_table>-filter_conditions ASSIGNING FIELD-SYMBOL(<ls_filter_cond>).
+          APPEND INITIAL LINE TO <ls_table>-conditions ASSIGNING <ls_condition>.
+          <ls_condition> = CORRESPONDING #( <ls_filter_cond> MAPPING field = fieldname ).
+          <ls_condition>-type = zif_dbbr_c_join_cond_type=>filter.
+        ENDLOOP.
+*...... remove the last condition operator
+        <ls_table>-conditions[ lines( <ls_table>-conditions ) ]-and_or = space.
+      ENDIF.
       IF <ls_table>-entity_type = zif_dbbr_c_entity_type=>cds_view AND
          ( if_use_ddl_for_select = abap_true OR sy-saprl < 750 ).
         <ls_table>-add_table = zcl_dbbr_cds_view_factory=>read_ddl_ddic_view(
@@ -402,25 +411,21 @@ CLASS zcl_dbbr_join_helper IMPLEMENTATION.
       IF <ls_table>-join_type IS INITIAL.
         <ls_table>-join_type = zif_dbbr_c_join_types=>inner_join.
       ENDIF.
-      LOOP AT <ls_table>-field_conditions ASSIGNING FIELD-SYMBOL(<ls_field_cond>) WHERE operator IS INITIAL.
-        <ls_field_cond>-operator = zif_dbbr_c_operator=>equals.
-      ENDLOOP.
 
-      LOOP AT <ls_table>-filter_conditions ASSIGNING FIELD-SYMBOL(<ls_filter_cond>) WHERE operator IS INITIAL OR
-                                                                                        ( tabname IS INITIAL AND tabname_alias IS INITIAL ).
-        IF <ls_filter_cond>-operator IS INITIAL.
-          <ls_filter_cond>-operator = zif_dbbr_c_operator=>equals.
+      LOOP AT <ls_table>-conditions ASSIGNING <ls_condition> WHERE operator IS INITIAL OR
+                                                                   ( tabname IS INITIAL AND tabname_alias IS INITIAL ).
+        IF <ls_condition>-operator IS INITIAL.
+          <ls_condition>-operator = zif_dbbr_c_operator=>equals.
         ENDIF.
 *...... Not quite sure if this can't still result in an erroneous select
-        IF <ls_filter_cond>-tabname IS INITIAL AND <ls_filter_cond>-tabname_alias IS INITIAL.
-          <ls_filter_cond>-tabname = <ls_table>-table_name.
+        IF <ls_condition>-tabname IS INITIAL AND <ls_condition>-tabname_alias IS INITIAL.
+          <ls_condition>-tabname = <ls_table>-table_name.
         ENDIF.
 
-        IF <ls_filter_cond>-value_type IS INITIAL.
-          <ls_filter_cond>-value_type = zif_dbbr_c_join_cond_val_type=>typed_input.
+        IF <ls_condition>-value_type IS INITIAL.
+          <ls_condition>-value_type = zif_dbbr_c_join_cond_val_type=>typed_input.
         ENDIF.
       ENDLOOP.
-
     ENDLOOP.
   ENDMETHOD.
 
