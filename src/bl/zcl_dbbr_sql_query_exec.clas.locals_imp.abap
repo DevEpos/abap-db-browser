@@ -68,10 +68,10 @@ CLASS lcl_executor IMPLEMENTATION.
         CLEAR lr_type.
         DATA(ls_metadata) = <ls_column>-metadata.
 
-        IF ls_metadata-rollname = 'MANDT'.
-          DELETE ms_query_result-columns.
-          CONTINUE.
-        ENDIF.
+*        IF ls_metadata-rollname = 'MANDT'.
+*          DELETE ms_query_result-columns.
+*          CONTINUE.
+*        ENDIF.
 
         IF ls_metadata-rollname IS NOT INITIAL.
           lr_type = CAST #( cl_abap_typedescr=>describe_by_name( ls_metadata-rollname ) ).
