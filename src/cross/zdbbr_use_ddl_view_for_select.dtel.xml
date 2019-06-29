@@ -24,7 +24,7 @@
       <TYP>E</TYP>
       <VERSION>0003</VERSION>
       <MASTERLANG>X</MASTERLANG>
-      <TXTLINES>00005</TXTLINES>
+      <TXTLINES>00010</TXTLINES>
       <DOKSTATE>A</DOKSTATE>
      </DOKIL>
      <HEAD>
@@ -47,7 +47,7 @@
        <TDLINE>This setting controls, if the Database View of a CDS view should be used</TDLINE>
       </TLINE>
       <TLINE>
-       <TDLINE>when a selecting data from a CDS View</TDLINE>
+       <TDLINE>when selecting data from a CDS View</TDLINE>
       </TLINE>
       <TLINE>
        <TDFORMAT>U1</TDFORMAT>
@@ -55,6 +55,19 @@
       </TLINE>
       <TLINE>
        <TDFORMAT>AS</TDFORMAT>
+       <TDLINE>You want to view the content of a CDS View which has an Access Control</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>(aka DCL) that can never be fulfilled - these kind of DCLs are normally</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>encountered at Analytical queries &lt;ZK&gt;(@Analytics.query: true&lt;/&gt;). These</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>DCLs are ignored by certain tools but ABAP SQL will always try to</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>enforce them.</TDLINE>
       </TLINE>
       <TLINE>
        <TDFORMAT>U1</TDFORMAT>
