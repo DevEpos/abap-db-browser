@@ -112,7 +112,7 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
     ENDLOOP.
 
 *.. 2) Retrieve the current language key for which the texts should be selected
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
 *.. 3) determine for which type the search help should be called
     CASE mv_entity_type.
