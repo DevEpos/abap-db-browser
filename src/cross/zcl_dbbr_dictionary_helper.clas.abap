@@ -625,7 +625,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
 
         WHEN zif_dbbr_c_text_selection_type=>domain_value.
           DATA(lr_elemdescr) = CAST cl_abap_elemdescr( cl_abap_elemdescr=>describe_by_name( <ls_add_text>-id_field_rollname ) ).
-          <ls_add_text>-domain_fix_values = lr_elemdescr->get_ddic_fixed_values( ).
+          <ls_add_text>-domain_fix_values = lr_elemdescr->get_ddic_fixed_values( p_langu = zcl_dbbr_system_helper=>get_system_language( ) ).
 
         WHEN zif_dbbr_c_text_selection_type=>table OR
              zif_dbbr_c_text_selection_type=>text_table.
@@ -672,7 +672,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
     CALL FUNCTION 'DDIF_DTEL_GET'
       EXPORTING
         name          = iv_data_element     " Name des zu lesenden Datenelements
-        langu         = zcl_dbbr_appl_util=>get_description_language( )
+        langu         = zcl_dbbr_system_helper=>get_system_language( )
       IMPORTING
         dd04v_wa      = rs_dtel_info    " Header des Datenelements
       EXCEPTIONS
@@ -685,7 +685,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
     DATA(lr_elem_descr) = CAST cl_abap_elemdescr(
         cl_abap_elemdescr=>describe_by_name( iv_rollname )
     ).
-    rs_dfies = lr_elem_descr->get_ddic_field( p_langu = zcl_dbbr_appl_util=>get_description_language( ) ).
+    rs_dfies = lr_elem_descr->get_ddic_field( p_langu = zcl_dbbr_system_helper=>get_system_language( ) ).
   ENDMETHOD.
 
 
@@ -697,7 +697,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
     DATA(lr_data_descr) = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_data( iv_data ) ).
     lr_data_descr->get_ddic_fixed_values(
       EXPORTING
-        p_langu        = zcl_dbbr_appl_util=>get_description_language( )
+        p_langu        = zcl_dbbr_system_helper=>get_system_language( )
       RECEIVING
         p_fixed_values = DATA(lt_fix_values)
       EXCEPTIONS
@@ -755,7 +755,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
       EXPORTING
         tabname        = iv_tablename
         lfieldname     = lv_fieldname
-        langu          = zcl_dbbr_appl_util=>get_description_language( )
+        langu          = zcl_dbbr_system_helper=>get_system_language( )
       IMPORTING
         dfies_wa       = rs_dfies
       EXCEPTIONS
@@ -775,7 +775,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
     CALL FUNCTION 'DDIF_FIELDINFO_GET'
       EXPORTING
         tabname        = iv_tablename
-        langu          = zcl_dbbr_appl_util=>get_description_language( )
+        langu          = zcl_dbbr_system_helper=>get_system_language( )
       TABLES
         dfies_tab      = et_table_fields
       EXCEPTIONS
@@ -795,7 +795,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
     CALL FUNCTION 'DDIF_TABL_GET'
       EXPORTING
         name          = iv_tablename
-        langu         = zcl_dbbr_appl_util=>get_description_language( )
+        langu         = zcl_dbbr_system_helper=>get_system_language( )
       IMPORTING
         dd02v_wa      = rs_info
       EXCEPTIONS
@@ -982,7 +982,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
     ENDIF.
 
 
-    DATA(lv_descr_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_descr_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     IF iv_type IS NOT INITIAL.
 
@@ -1065,7 +1065,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
     ENDIF.
 
 *.. Now try to find tables/views/cds views
-    DATA(lv_description_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_description_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT *
       FROM zdbbr_i_databaseentity( p_language = @lv_description_language )
@@ -1087,7 +1087,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD find_base_tables_of_view.
-    DATA(lv_descr_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_descr_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT basetable AS entity_id,
            basetable AS entity_id_raw,
@@ -1103,7 +1103,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
 
 
   METHOD get_table_description.
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     IF is_table_info-tabclass = 'VIEW'.
       SELECT SINGLE ddtext INTO @rv_description
@@ -1160,7 +1160,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_entity.
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT SINGLE entity AS entity_id,
                   entityraw AS entity_id_raw,
@@ -1180,7 +1180,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
 
 
   METHOD get_entity_by_range.
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT entity AS entity_id,
            entityraw AS entity_id_raw,
@@ -1192,7 +1192,7 @@ CLASS zcl_dbbr_dictionary_helper IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_foreign_key_tables.
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT foreignkeytable AS entity_id,
            foreignkeytable AS entity_id_raw,
