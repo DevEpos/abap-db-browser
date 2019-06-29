@@ -96,12 +96,7 @@ CLASS zcl_dbbr_appl_util DEFINITION
         ct_fields           TYPE tt_input_val
       RETURNING
         VALUE(rf_cancelled) TYPE abap_bool.
-    CLASS-METHODS set_descr_lang_ref
-      IMPORTING
-        !ir_v_descr_language TYPE REF TO langu .
-    CLASS-METHODS get_description_language
-      RETURNING
-        VALUE(result) TYPE langu .
+
     CLASS-METHODS translate_first_letter
       IMPORTING
         !iv_input  TYPE clike
@@ -164,16 +159,6 @@ CLASS zcl_dbbr_appl_util IMPLEMENTATION.
     CONVERT TIME STAMP lv_timestamp_long TIME ZONE 'UTC' INTO TIME ev_time.
     CONVERT TIME STAMP lv_timestamp_long TIME ZONE 'UTC' INTO DATE ev_date.
   ENDMETHOD.
-
-
-  METHOD get_description_language.
-    IF mr_v_description_language IS BOUND AND mr_v_description_language->* IS NOT INITIAL.
-      result = mr_v_description_language->*.
-    ELSE.
-      result = sy-langu.
-    ENDIF.
-  ENDMETHOD.
-
 
   METHOD get_docu_text.
     DATA: lt_lines TYPE STANDARD TABLE OF tline.
@@ -386,11 +371,6 @@ CLASS zcl_dbbr_appl_util IMPLEMENTATION.
                 INTO rv_message.
       ENDIF.
     ENDIF.
-  ENDMETHOD.
-
-
-  METHOD set_descr_lang_ref.
-    mr_v_description_language = ir_v_descr_language.
   ENDMETHOD.
 
 
