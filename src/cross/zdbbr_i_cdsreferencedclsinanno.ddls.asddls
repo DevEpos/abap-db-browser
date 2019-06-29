@@ -15,6 +15,7 @@ define view ZDBBR_I_CDSReferencedClsInAnno
 where
      Name like '.FILTER%.TRANSFORMEDBY'
   or Name like '.SORT%.TRANSFORMEDBY'
+  or Name like '%.WRITEACTIVEIMPLEMENTEDBY'
   or Name like '%.VIRTUALELEMENTCALCULATEDBY'
   or Name like 'ANALYTICS%.READCLASSNAME'
   or Name like 'ANALYTICS%.WRITEBACK.CLASSNAME'
