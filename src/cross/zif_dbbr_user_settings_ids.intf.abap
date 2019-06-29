@@ -54,6 +54,8 @@ INTERFACE zif_dbbr_user_settings_ids
   CONSTANTS c_activate_maintain_entries TYPE string VALUE 'P_XDBEDT' ##NO_TEXT.
   "! Type ZDBBR_LANGUAGE
   CONSTANTS c_description_language TYPE string VALUE 'P_DLANG' ##NO_TEXT.
+  "! Type ABAP_BOOL
+  CONSTANTS c_override_sy_langu TYPE string VALUE 'P_OVRSYL' ##NO_TEXT.
   "! Type abap_bool
   CONSTANTS c_activate_alv_live_filter TYPE string VALUE 'P_XFLLIV' ##no_text.
   "! Type abap_bool
@@ -66,6 +68,15 @@ INTERFACE zif_dbbr_user_settings_ids
   CONSTANTS c_search_ignore_case TYPE string VALUE 'P_XIGNCS' ##NO_TEXT.
   CONSTANTS c_assocation_sel_mode TYPE string VALUE 'P_ASNVMO' ##NO_TEXT.
   CONSTANTS c_show_assoc_sel_at_start TYPE string VALUE 'P_ASSLST' ##NO_TEXT.
+  "! Type - SAP_BOOL
+  CONSTANTS c_auto_select_criteria_saving TYPE string VALUE 'P_XATSCR' ##NO_TEXT.
+  "! Type - SAP_BOOL
+  CONSTANTS c_always_load_def_var_first TYPE string VALUE 'P_XLDVAS' ##NO_TEXT.
+  "! Type - SAP_BOOL
+  CONSTANTS c_dock_obj_nav_on_right TYPE string VALUE 'P_XDONOR' ##NO_TEXT.
+  "! Type - SAP_BOOL
+  CONSTANTS c_selscr_compact_col_widths TYPE string VALUE 'P_XSCCCW' ##NO_TEXT.
+
   CONSTANTS c_r_user_settings_controller TYPE string VALUE 'GR_USER_SETTINGS_CONTROLLER' ##NO_TEXT.
 
 ENDINTERFACE.
