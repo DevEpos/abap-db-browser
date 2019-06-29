@@ -1,60 +1,93 @@
-class ZCL_DBBR_SELSCREEN_HISTORY definition
-  public
-  final
-  create public .
+"! <p class="shorttext synchronized" lang="en">History Manager for Selection Screen</p>
+CLASS zcl_dbbr_selscreen_history DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  class-events NAVIGATED
-    exporting
-      value(ES_HISTORY_ENTRY) type ZDBBR_SELSCREEN_HISTORY
-      value(EV_CURRENT_INDEX) type I optional .
-  class-events HISTORY_MODIFIED .
+    "! <p class="shorttext synchronized" lang="en">Navigation occurred</p>
+    CLASS-EVENTS navigated
+      EXPORTING
+        VALUE(es_history_entry) TYPE zdbbr_selscreen_history
+        VALUE(ev_current_index) TYPE i OPTIONAL .
+    "! <p class="shorttext synchronized" lang="en">History was modified</p>
+    CLASS-EVENTS history_modified .
 
-  class-methods ADD_NEW_ENTRY
-    importing
-      !IV_ENTITY type ZDBBR_ENTITY_ID
-      !IV_TYPE type ZDBBR_ENTITY_TYPE
-      !IV_DESCRIPTION type DDTEXT .
-  class-methods DELETE_ENTITY_FROM_HISTORY
-    importing
-      !IV_ENTITY_ID type ZDBBR_ENTITY_ID
-      !IV_ENTITY_TYPE type ZDBBR_ENTITY_TYPE .
-  class-methods GET_CURRENT_INDEX
-    returning
-      value(RESULT) type I .
-  class-methods GET_HISTORY
-    returning
-      value(RESULT) type ZDBBR_SELSCREEN_HISTORY_T .
-  class-methods HAS_NEXT
-    returning
-      value(RESULT) type ABAP_BOOL .
-  class-methods HAS_PREVIOUS
-    returning
-      value(RESULT) type ABAP_BOOL .
-  class-methods NAVIGATE_BACK .
-  class-methods NAVIGATE_FORWARD .
-  class-methods NAVIGATE_TO
-    importing
-      !IV_INDEX type I
-      !IF_FORCE_NAVIGATION type ABAP_BOOL optional
-    returning
-      value(RF_NAVIGATED) type ABAP_BOOL .
-  class-methods NAVIGATE_TO_CURRENT
-    returning
-      value(RF_NAVIGATED) type ABAP_BOOL .
+    "! <p class="shorttext synchronized" lang="en">Clears navigation history</p>
+    CLASS-METHODS clear_history.
+    "! <p class="shorttext synchronized" lang="en">Adds new history entry</p>
+    CLASS-METHODS add_new_entry
+      IMPORTING
+        !iv_entity      TYPE zdbbr_entity_id
+        !iv_type        TYPE zdbbr_entity_type
+        !iv_description TYPE ddtext .
+    "! <p class="shorttext synchronized" lang="en">Deletes the given entity from the history</p>
+    CLASS-METHODS delete_entity_from_history
+      IMPORTING
+        !iv_entity_id   TYPE zdbbr_entity_id
+        !iv_entity_type TYPE zdbbr_entity_type .
+    "! <p class="shorttext synchronized" lang="en">Gets the current history index</p>
+    CLASS-METHODS get_current_index
+      RETURNING
+        VALUE(result) TYPE i .
+    "! <p class="shorttext synchronized" lang="en">Retrieves all History entries</p>
+    CLASS-METHODS get_history
+      RETURNING
+        VALUE(result) TYPE zdbbr_selscreen_history_t .
+    "! <p class="shorttext synchronized" lang="en">Checks if there is a next entry</p>
+    CLASS-METHODS has_next
+      RETURNING
+        VALUE(result) TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Checks if there is a previous entry</p>
+    CLASS-METHODS has_previous
+      RETURNING
+        VALUE(result) TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Get Previous history entry</p>
+    CLASS-METHODS navigate_back .
+    "! <p class="shorttext synchronized" lang="en">Get next history entry</p>
+    CLASS-METHODS navigate_forward .
+    "! <p class="shorttext synchronized" lang="en">Navigate to specific history entry</p>
+    CLASS-METHODS navigate_to
+      IMPORTING
+        !iv_index            TYPE i
+        !if_force_navigation TYPE abap_bool OPTIONAL
+      RETURNING
+        VALUE(rf_navigated)  TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Navigates to the current history entry</p>
+    CLASS-METHODS navigate_to_current
+      RETURNING
+        VALUE(rf_navigated) TYPE abap_bool .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  class-data ST_HISTORY type ZDBBR_SELSCREEN_HISTORY_T .
-  class-data SV_CURRENT_INDEX type I .
-  class-data SV_HISTORY_COUNT type I .
+    "! <p class="shorttext synchronized" lang="en">List of history entries of Selection screen</p>
+    CLASS-DATA st_history TYPE zdbbr_selscreen_history_t .
+    CLASS-DATA sv_current_index TYPE i .
+    CLASS-DATA sv_history_count TYPE i .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_SELSCREEN_HISTORY IMPLEMENTATION.
+CLASS zcl_dbbr_selscreen_history IMPLEMENTATION.
 
+  METHOD clear_history.
+    IF st_history IS NOT INITIAL AND sv_current_index > 0 AND sv_current_index <= sv_history_count.
+      DATA(ls_history) = st_history[ sv_current_index ].
+    ENDIF.
+
+    CLEAR: st_history,
+           sv_current_index,
+           sv_history_count.
+
+    IF ls_history IS NOT INITIAL.
+      st_history = value #( ( ls_history ) ).
+      sv_current_index = 1.
+      sv_history_count = 1.
+    ENDIF.
+
+    RAISE EVENT history_modified.
+  ENDMETHOD.
 
   METHOD add_new_entry.
 *.. Check if the entry to be inserted is already at the first position
@@ -105,7 +138,7 @@ CLASS ZCL_DBBR_SELSCREEN_HISTORY IMPLEMENTATION.
 
   METHOD has_next.
     result = abap_true.
-    IF sv_history_count = 0 or
+    IF sv_history_count = 0 OR
        sv_current_index = 1.
       result = abap_false.
     ENDIF.

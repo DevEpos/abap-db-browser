@@ -1,74 +1,87 @@
-class ZCL_DBBR_SELSCREEN_HIST_VIEW definition
-  public
-  final
-  create public .
+"! <p class="shorttext synchronized" lang="en">History View for Selection Screen</p>
+CLASS zcl_dbbr_selscreen_hist_view DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_UITB_VIEW .
-  interfaces ZIF_UITB_DISPOSABLE .
+    INTERFACES zif_uitb_view .
+    INTERFACES zif_uitb_disposable .
 
-  aliases DISPOSE
-    for ZIF_UITB_DISPOSABLE~DISPOSE .
-  aliases IS_VISIBLE
-    for ZIF_UITB_VIEW~IS_VISIBLE .
-  aliases SHOW
-    for ZIF_UITB_VIEW~SHOW .
+    ALIASES dispose
+      FOR zif_uitb_disposable~dispose .
+    ALIASES is_visible
+      FOR zif_uitb_view~is_visible .
+    ALIASES show
+      FOR zif_uitb_view~show .
 
-  class-methods CLASS_CONSTRUCTOR .
-  methods CONSTRUCTOR .
-protected section.
-private section.
+    "! <p class="shorttext synchronized" lang="en">CLASS_CONSTRUCTOR</p>
+    CLASS-METHODS class_constructor .
+    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    METHODS constructor .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 
-  aliases MF_VISIBLE
-    for ZIF_UITB_VIEW~MF_VISIBLE .
+    ALIASES mf_visible
+      FOR zif_uitb_view~mf_visible .
 
-  types:
-    BEGIN OF ty_history.
-  TYPES: type_icon TYPE iconname.
-          INCLUDE TYPE zdbbr_selscreen_history.
-  TYPES: color TYPE lvc_t_scol.
-  TYPES: END OF ty_history .
+    TYPES:
+      BEGIN OF ty_history.
+    TYPES: type_icon TYPE iconname.
+        INCLUDE TYPE zdbbr_selscreen_history.
+    TYPES: color TYPE lvc_t_scol.
+    TYPES: END OF ty_history .
 
-  data MR_TMPLT_PROG type ref to ZIF_UITB_TEMPLATE_PROG .
-  data MR_DOCK type ref to CL_GUI_DOCKING_CONTAINER .
-  data MR_ALV type ref to ZCL_UITB_ALV .
-  data:
-    mt_history TYPE STANDARD TABLE OF ty_history WITH EMPTY KEY .
-  class-data ST_YELLOW type LVC_T_SCOL .
-  data MR_PARENT type ref to CL_GUI_CONTAINER .
-  constants C_NAVBACK_FUNCTION type UI_FUNC value 'NAVBACK' ##NO_TEXT.
-  constants C_NAVFORWARD_FUNCTION type UI_FUNC value 'NAVFORWARD' ##NO_TEXT.
+    DATA mr_tmplt_prog TYPE REF TO zif_uitb_template_prog .
+    DATA mr_dock TYPE REF TO cl_gui_docking_container .
+    DATA mr_alv TYPE REF TO zcl_uitb_alv .
+    DATA:
+      mt_history TYPE STANDARD TABLE OF ty_history WITH EMPTY KEY .
+    CLASS-DATA st_yellow TYPE lvc_t_scol .
+    DATA mr_parent TYPE REF TO cl_gui_container .
 
-  methods UPDATE_FUNCTION_STATE .
-  methods INITIALIZE .
-  methods FILL_HISTORY_TABLE .
-  methods ON_HISTORY_MODIFIED
-    for event HISTORY_MODIFIED of ZCL_DBBR_SELSCREEN_HISTORY .
-  methods ON_HISTORY_NAVIGATION
-    for event NAVIGATED of ZCL_DBBR_SELSCREEN_HISTORY
-    importing
-      !ES_HISTORY_ENTRY
-      !EV_CURRENT_INDEX .
-  methods ON_USER_COMMAND
-    for event FUNCTION_CHOSEN of ZCL_UITB_ALV_EVENTS
-    importing
-      !EV_FUNCTION
-      !EV_TAG .
-  methods ON_LINK_CLICK
-    for event LINK_CLICK of ZCL_UITB_ALV_EVENTS
-    importing
-      !EV_ROW
-      !EV_COLUMN .
+    CONSTANTS c_navback_function TYPE ui_func VALUE 'NAVBACK' ##NO_TEXT.
+    CONSTANTS c_navforward_function TYPE ui_func VALUE 'NAVFORWARD' ##NO_TEXT.
+    CONSTANTS c_clear_function TYPE ui_func VALUE 'CLEAR' ##NO_TEXT.
+    CONSTANTS c_close_function TYPE ui_func VALUE 'CLOSE' ##NO_TEXT.
+
+    "! <p class="shorttext synchronized" lang="en">Update state of navigation functions in toolbar</p>
+    METHODS update_function_state .
+    "! <p class="shorttext synchronized" lang="en">Initilization</p>
+    METHODS initialize .
+    "! <p class="shorttext synchronized" lang="en">Fills the history table from the current navigation history</p>
+    METHODS fill_history_table .
+    "! <p class="shorttext synchronized" lang="en">Event handler for when history was modified</p>
+    METHODS on_history_modified
+        FOR EVENT history_modified OF zcl_dbbr_selscreen_history .
+    "! <p class="shorttext synchronized" lang="en">Event handler for history navigation</p>
+    METHODS on_history_navigation
+          FOR EVENT navigated OF zcl_dbbr_selscreen_history
+      IMPORTING
+          !es_history_entry
+          !ev_current_index .
+    "! <p class="shorttext synchronized" lang="en">Event handler for alv toolbar command</p>
+    METHODS on_user_command
+          FOR EVENT function_chosen OF zcl_uitb_alv_events
+      IMPORTING
+          !ev_function
+          !ev_tag .
+    "! <p class="shorttext synchronized" lang="en">Event Handler for link click on alv cell</p>
+    METHODS on_link_click
+          FOR EVENT link_click OF zcl_uitb_alv_events
+      IMPORTING
+          !ev_row
+          !ev_column .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_SELSCREEN_HIST_VIEW IMPLEMENTATION.
+CLASS zcl_dbbr_selscreen_hist_view IMPLEMENTATION.
 
 
   METHOD class_constructor.
-    st_yellow = value #(
+    st_yellow = VALUE #(
       ( color = zcl_uitb_alv_color_mapper=>string_to_struc( zif_uitb_c_alv_colors=>yellow ) )
     ).
   ENDMETHOD.
@@ -98,7 +111,7 @@ CLASS ZCL_DBBR_SELSCREEN_HIST_VIEW IMPLEMENTATION.
           zif_dbbr_c_icon=>database_table
         WHEN zif_dbbr_c_entity_type=>query THEN
           zif_dbbr_c_icon=>query
-        when zif_dbbr_c_entity_type=>view then
+        WHEN zif_dbbr_c_entity_type=>view THEN
           zif_dbbr_c_icon=>database_view
         WHEN zif_dbbr_c_entity_type=>cds_view THEN
           zif_dbbr_c_icon=>cds_view
@@ -123,7 +136,7 @@ CLASS ZCL_DBBR_SELSCREEN_HIST_VIEW IMPLEMENTATION.
 
     mr_alv = zcl_uitb_alv=>create_alv(
         ir_data                 = REF #( mt_history )
-        iv_description_language = zcl_dbbr_appl_util=>get_description_language( )
+        iv_description_language = zcl_dbbr_system_helper=>get_system_language( )
         ir_container            = mr_dock
         if_editable             = abap_false
     ).
@@ -148,7 +161,7 @@ CLASS ZCL_DBBR_SELSCREEN_HIST_VIEW IMPLEMENTATION.
     lr_col = lr_columns->get_column( 'DESCRIPTION' ).
     lr_col->set_output_length( 60 ).
 
-    data(lr_disp_settings) = mr_alv->get_display_settings( ).
+    DATA(lr_disp_settings) = mr_alv->get_display_settings( ).
     lr_disp_settings->set_small_title( ).
     lr_disp_settings->set_title( 'Navigation Stack' ).
     lr_disp_settings->set_row_marks( abap_false ).
@@ -169,6 +182,14 @@ CLASS ZCL_DBBR_SELSCREEN_HIST_VIEW IMPLEMENTATION.
         iv_tooltip               = CONV #( 'Next Object'(002) )
         if_start_of_toolbar      = abap_true
     ).
+    lr_functions->add_function( iv_type = zcl_uitb_alv_functions=>separator ).
+    lr_functions->add_function(
+        iv_name                  = c_clear_function
+        iv_icon                  = |{ icon_delete }|
+        iv_tooltip               = |{ 'Clear History'(004) }|
+        if_start_of_toolbar      = abap_true
+    ).
+    lr_functions->add_function( iv_type = zcl_uitb_alv_functions=>separator ).
     lr_functions->add_function(
         iv_name                  = 'CLOSE'
         iv_icon                  = |{ icon_close }|
@@ -207,7 +228,7 @@ CLASS ZCL_DBBR_SELSCREEN_HIST_VIEW IMPLEMENTATION.
     update_function_state( ).
 
     mr_alv->get_selections( )->set_current_cell(
-      value #( row    = ev_current_index
+      VALUE #( row    = ev_current_index
                column = 'ENTITY_ID' )
     ).
     mr_alv->refresh( if_soft = abap_true ).
@@ -222,13 +243,17 @@ CLASS ZCL_DBBR_SELSCREEN_HIST_VIEW IMPLEMENTATION.
   METHOD on_user_command.
     CASE ev_function.
 
-      WHEN 'CLOSE'.
+      WHEN c_close_function.
         dispose( ).
 
-      WHEN 'NAVBACK'.
+      WHEN c_navback_function.
         zcl_dbbr_selscreen_history=>navigate_back( ).
 
-      WHEN 'NAVFORWARD'.
+      WHEN c_clear_function.
+        dispose( ).
+        zcl_dbbr_selscreen_history=>clear_history( ).
+
+      WHEN c_navforward_function.
         zcl_dbbr_selscreen_history=>navigate_forward( ).
     ENDCASE.
 

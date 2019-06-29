@@ -5,6 +5,8 @@ CLASS zcl_dbbr_cds_view_factory DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+    "! <p class="shorttext synchronized" lang="en">Tables for calculated fields in CDS view</p>
+    CLASS-DATA gt_helper_ddl_tab_names TYPE RANGE OF tabname READ-ONLY.
     "! <p class="shorttext synchronized" lang="en">Checks if the given CDS view was recently changed</p>
     CLASS-METHODS has_cds_view_changed
       IMPORTING
@@ -178,11 +180,11 @@ CLASS zcl_dbbr_cds_view_factory DEFINITION
         VALUE(result) TYPE zdbbr_cds_association_t .
     "! <p class="shorttext synchronized" lang="en">Retrieves the source type of a cds view</p>
     "!
-    "! @parameter iv_cds_view_name | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter iv_ddl_name | <p class="shorttext synchronized" lang="en"></p>
     "! @parameter rv_source_type | <p class="shorttext synchronized" lang="en"></p>
     CLASS-METHODS get_source_type
       IMPORTING
-        !iv_cds_view_name     TYPE zdbbr_cds_view_name
+        iv_ddl_name           TYPE ddlname
       RETURNING
         VALUE(rv_source_type) TYPE zdbbr_cds_source_type .
     "! <p class="shorttext synchronized" lang="en">Handler for REQUEST_ANNOTATIONS</p>
@@ -230,6 +232,7 @@ CLASS zcl_dbbr_cds_view_factory DEFINITION
         iv_cds_view  TYPE zdbbr_cds_view_name
       CHANGING
         ct_parameter TYPE zdbbr_cds_parameter_t .
+
 ENDCLASS.
 
 
@@ -289,6 +292,16 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
     st_cds_source_vals = lr_cds_sourc_typedescr->get_ddic_fixed_values(
         p_langu = 'E'
     ).
+
+    gt_helper_ddl_tab_names =  VALUE #(
+      LET sign = 'I' opt = 'EQ' IN
+      ( sign = sign option = opt low = 'DDDDLCHARTYPES' )
+      ( sign = sign option = opt low = 'DDDDLCURRTYPES' )
+      ( sign = sign option = opt low = 'DDDDLDECTYPES' )
+      ( sign = sign option = opt low = 'DDDDLNUMTYPES' )
+      ( sign = sign option = opt low = 'DDDDLNUM_DUMMY' )
+      ( sign = sign option = opt low = 'DDDDLQUANTYPES' )
+    ).
   ENDMETHOD.
 
 
@@ -319,7 +332,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
     SORT lt_assoc_cds_view_range.
     DELETE ADJACENT DUPLICATES FROM lt_assoc_cds_view_range.
 
-    DATA(lv_descr_lang) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_descr_lang) = zcl_dbbr_system_helper=>get_system_language( ).
 
 *.. Read database table+text if there are any association which point to database tables
     IF line_exists( it_header[ typekind_t = zif_dbbr_c_cds_assoc_type=>table ] ).
@@ -358,6 +371,8 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
           entity_type      = SWITCH #(
             <ls_header>-typekind_t
             WHEN zif_dbbr_c_cds_assoc_type=>entity OR
+                 zif_dbbr_c_cds_assoc_type=>abstract_entity OR
+                 zif_dbbr_c_cds_assoc_type=>custom_entity OR
                  zif_dbbr_c_cds_assoc_type=>table_function THEN zif_dbbr_c_entity_type=>cds_view
             WHEN zif_dbbr_c_cds_assoc_type=>table OR
                  zif_dbbr_c_cds_assoc_type=>view THEN zif_dbbr_c_entity_type=>table
@@ -415,7 +430,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
       lt_description_range = VALUE #( ( sign = 'I' option = COND #( WHEN iv_description CS '*' THEN 'CP' ELSE 'EQ' ) low = iv_description ) ).
     ENDIF.
 
-    DATA(lv_descr_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_descr_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT entityid AS entity_id,
            rawentityid AS entity_id_raw,
@@ -510,7 +525,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
 
 
   METHOD get_description.
-    DATA(lv_description_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_description_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT SINGLE description
       FROM zdbbr_i_cdsentity( p_language = @lv_description_language )
@@ -526,7 +541,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
       DATA(lv_select) = 'SOURCE_TYPE'.
       SELECT SINGLE (lv_select)
         FROM ddddlsrc
-        WHERE ddlname = @iv_cds_view_name
+        WHERE ddlname = @iv_ddl_name
       INTO @rv_source_type.
 
       IF sy-subrc <> 0.
@@ -542,7 +557,8 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
   METHOD on_annotation_read_request.
     SELECT *
       FROM zdbbr_i_cdsannotation
-      WHERE name IN @et_anno_name_range
+      WHERE entityid = @sender->mv_view_name
+        AND name IN @et_anno_name_range
     APPENDING CORRESPONDING FIELDS OF TABLE @sender->mt_annotations.
 
     IF sy-subrc = 0.
@@ -586,148 +602,127 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
 
 
   METHOD read_cds_base_tables.
-    TYPES:
-      BEGIN OF lty_s_base_table,
-        ddlview   TYPE zdbbrdd26s_v-ddlview,
-        basetable TYPE char40,
-        tabpos    TYPE zdbbrdd26s_v-tabpos,
-        pgmid     TYPE zdbbrdd26s_v-pgmid,
-        ddictype  TYPE zdbbrdd26s_v-ddictype,
-      END OF lty_s_base_table.
+    CONSTANTS: lc_table_type TYPE trobjtype VALUE 'TABL',
+               lc_view_type  TYPE trobjtype VALUE 'VIEW'.
 
-    DATA: lt_ddnames              TYPE if_dd_ddl_types=>ty_t_ddobj,
-          lt_base_tables          TYPE TABLE OF lty_s_base_table,
-          lt_ddls_base_dependency TYPE TABLE OF zdbbr_i_ddldependency,
-          lt_ddls_base_tables     TYPE zdbbr_cds_view_name_t,
-          lt_db_obj_range         TYPE RANGE OF tabname.
+    TYPES: BEGIN OF lty_base_table.
+        INCLUDE TYPE zdbbr_cds_view_base_table.
+    TYPES: ddictype TYPE trobjtype,
+           genflag  TYPE genflag.
+    TYPES: END OF lty_base_table.
 
-    SELECT *
+    DATA: lt_base_tables    TYPE STANDARD TABLE OF lty_base_table,
+          lt_cds_view_range TYPE RANGE OF viewname,
+          lt_view_range     TYPE RANGE OF viewname,
+          lt_tab_range      TYPE RANGE OF tabname.
+
+    FIELD-SYMBOLS: <ls_base> TYPE lty_base_table.
+
+*.. Select all base tables for the given generated SQL View
+    SELECT basetable AS entityname,
+           basetable AS original_base_name,
+           ddictype,
+           genflag
       FROM zdbbrdd26s_v
       WHERE ddlview = @iv_view_name
+        AND basetable NOT IN @gt_helper_ddl_tab_names
       ORDER BY tabpos
       INTO CORRESPONDING FIELDS OF TABLE @lt_base_tables.
 
     CHECK sy-subrc = 0.
 
-*... collect all base tables of type VIEW and try to retrieve then DDLS entities for them
-    lt_ddnames = VALUE #(
-      FOR view IN lt_base_tables
-      WHERE ( ddictype = 'VIEW' )
-      ( name = view-basetable )
-    ).
+    DATA(lv_description_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
-    DATA(lr_dd_handler) = cl_dd_ddl_handler_factory=>create( ).
+    lt_tab_range = VALUE #( FOR table IN lt_base_tables WHERE ( ddictype = lc_table_type ) ( sign = 'I' option = 'EQ' low = table-entityname ) ).
+    lt_cds_view_range = VALUE #( FOR view IN lt_base_tables
+                                 WHERE ( genflag = abap_true )
+                                 ( sign = 'I' option = 'EQ' low = view-entityname ) ).
+    lt_view_range = VALUE #( FOR view IN lt_base_tables
+                             WHERE ( genflag = abap_false AND ddictype = lc_view_type )
+                             ( sign = 'I' option = 'EQ' low = view-entityname ) ).
 
-    lr_dd_handler->get_entityname_from_viewname(
-      EXPORTING
-        ddnames        = lt_ddnames
-      IMPORTING
-        entity_of_view = DATA(lt_entity_of_view)
-    ).
-
-*.. Collect all DDLS base tables
-    IF line_exists( lt_base_tables[ ddictype = 'DDLS' ] ).
-      SELECT
-        FROM zdbbr_i_ddldependency
-        FIELDS ddlname,
-               entityname,
-               viewname
-        FOR ALL ENTRIES IN @lt_base_tables
-        WHERE ddlname = @lt_base_tables-basetable
-      INTO TABLE @DATA(lt_dependency).
-      IF sy-subrc = 0.
-        lt_ddls_base_tables = VALUE #(
-          FOR ddls IN lt_dependency ( ddls-entityname )
-        ).
-      ENDIF.
-    ENDIF.
-
-*... read headers for DDL found entities
-    DATA(lt_header) = read_cds_view_header_multi(
-        VALUE #(
-          ( LINES OF VALUE #( FOR ddl IN lt_entity_of_view ( ddl-entityname ) ) )
-          ( LINES OF lt_ddls_base_tables )
-        )
-    ).
-
-    IF lt_header IS NOT INITIAL.
-      SELECT
-        FROM zdbbr_i_ddldependency
-        FIELDS ddlname,
-               entityname,
-               viewname
-        FOR ALL ENTRIES IN @lt_ddnames
-        WHERE viewname = @lt_ddnames-name
-      APPENDING CORRESPONDING FIELDS OF TABLE @lt_dependency.
-    ENDIF.
-
-    LOOP AT lt_base_tables ASSIGNING FIELD-SYMBOL(<ls_base_table>).
-*... exclude some tables which some get mixed up inside dd26s ( they are not really used in the select clause )
-      CHECK: <ls_base_table>-basetable <> 'DDDDLCHARTYPES',
-             <ls_base_table>-basetable <> 'DDDDLCURRTYPES',
-             <ls_base_table>-basetable <> 'DDDDLDECTYPES',
-             <ls_base_table>-basetable <> 'DDDDLNUMTYPES',
-             <ls_base_table>-basetable <> 'DDDDLQUANTYPES'.
-
-      DATA(ls_base_table) = VALUE zdbbr_cds_view_base_table(
-          table_order    = <ls_base_table>-tabpos
-      ).
-      IF <ls_base_table>-ddictype = 'VIEW'.
-        DATA(lr_s_entity) = REF #( lt_entity_of_view[ viewname = <ls_base_table>-basetable ] OPTIONAL ).
-        IF lr_s_entity IS BOUND.
-          ls_base_table-entityname = lr_s_entity->entityname.
-          ls_base_table-secondary_entity_id = VALUE #( lt_dependency[ viewname = <ls_base_table>-basetable ]-ddlname ).
-          ls_base_table-table_kind = zif_dbbr_c_entity_type=>cds_view.
-*........ retrieve header to get raw name and description
-          DATA(lr_s_header) = REF #( lt_header[ strucobjn = ls_base_table-entityname ] ).
-          ls_base_table-entityname_raw = lr_s_header->strucobjn_raw.
-          ls_base_table-description = lr_s_header->ddtext.
-        ELSE.
-*........ view is a normal database view
-          ls_base_table-table_kind = zif_dbbr_c_entity_type=>table.
-          ls_base_table-is_db_view = abap_true.
-          ls_base_table-entityname =
-          ls_base_table-entityname_raw = <ls_base_table>-basetable.
-          lt_db_obj_range = VALUE #( BASE lt_db_obj_range ( sign = 'I' option = 'EQ' low = <ls_base_table>-basetable ) ).
-        ENDIF.
-      ELSEIF <ls_base_table>-ddictype = 'DDLS'.
-*........ DDLS types are normally only CDS Table functions
-        ls_base_table-entityname = VALUE #( lt_dependency[ ddlname = <ls_base_table>-basetable ]-entityname ).
-        lr_s_header = REF #( lt_header[ strucobjn = ls_base_table-entityname ] ).
-        ls_base_table-entityname_raw = lr_s_header->strucobjn_raw.
-        ls_base_table-description = lr_s_header->ddtext.
-        ls_base_table-secondary_entity_id = <ls_base_table>-basetable.
-        ls_base_table-table_kind = zif_dbbr_c_entity_type=>cds_view.
-      ELSE.
-        ls_base_table-table_kind = zif_dbbr_c_entity_type=>table.
-        ls_base_table-entityname =
-        ls_base_table-entityname_raw = <ls_base_table>-basetable.
-        lt_db_obj_range = VALUE #( BASE lt_db_obj_range ( sign = 'I' option = 'EQ' low = <ls_base_table>-basetable ) ).
-      ENDIF.
-
-      rt_base_tables = VALUE #( BASE rt_base_tables ( ls_base_table ) ).
-    ENDLOOP.
-
-*... get descriptions for db tables and views
-    IF lt_db_obj_range IS NOT INITIAL.
-      DATA(lv_description_language) = zcl_dbbr_appl_util=>get_description_language( ).
-      SELECT tabname, ddtext
-        FROM dd02t
-        WHERE tabname   IN @lt_db_obj_range
-          AND ddlanguage = @lv_description_language
-      INTO TABLE @DATA(lt_db_obj_descr).
+*.. Fill additional information for CDS views bases
+    IF lt_cds_view_range IS NOT INITIAL.
+      SELECT viewname,
+             ddlname,
+             entityid,
+             rawentityid,
+             sourcetype,
+             description,
+             \_apistate-filtervalue AS apistate
+        FROM zdbbr_i_cdsentity( p_language = @lv_description_language )
+        WHERE viewname IN @lt_cds_view_range
+           OR entityid IN @lt_cds_view_range
+      INTO TABLE @DATA(lt_cds_view).
 
       IF sy-subrc = 0.
-        LOOP AT rt_base_tables ASSIGNING FIELD-SYMBOL(<ls_db_obj>) WHERE table_kind = zif_dbbr_c_entity_type=>table.
-          <ls_db_obj>-description = VALUE #( lt_db_obj_descr[ tabname = <ls_db_obj>-entityname ]-ddtext OPTIONAL ).
+        LOOP AT lt_base_tables ASSIGNING <ls_base> WHERE genflag = abap_true.
+          ASSIGN lt_cds_view[ viewname = <ls_base>-entityname ] TO FIELD-SYMBOL(<ls_cds_view>).
+          IF sy-subrc <> 0.
+            ASSIGN lt_cds_view[ entityid = <ls_base>-entityname ] TO <ls_cds_view>.
+          ENDIF.
+
+          CHECK sy-subrc = 0.
+
+          <ls_base>-table_kind = zif_dbbr_c_entity_type=>cds_view.
+          <ls_base>-entityname = <ls_cds_view>-entityid.
+          <ls_base>-entityname_raw = <ls_cds_view>-rawentityid.
+          <ls_base>-description = <ls_cds_view>-description.
+          <ls_base>-api_state = <ls_cds_view>-apistate.
+          <ls_base>-source_type = <ls_cds_view>-sourcetype.
+          <ls_base>-secondary_entity_id = <ls_cds_view>-ddlname.
         ENDLOOP.
       ENDIF.
     ENDIF.
+
+*.. Add view information
+    IF lt_view_range IS NOT INITIAL.
+      SELECT viewname,
+             description
+        FROM zdbbr_i_databaseview( p_language = @lv_description_language )
+        WHERE viewname IN @lt_view_range
+      INTO TABLE @DATA(lt_view_data).
+
+      IF sy-subrc = 0.
+        LOOP AT lt_base_tables ASSIGNING <ls_base> WHERE ddictype = lc_view_type
+                                                     AND genflag  = abap_false.
+          ASSIGN lt_view_data[ viewname = <ls_base>-entityname ] TO FIELD-SYMBOL(<ls_view_data>).
+          CHECK sy-subrc = 0.
+
+          <ls_base>-table_kind = zif_dbbr_c_entity_type=>view.
+          <ls_base>-entityname_raw = <ls_view_data>-viewname.
+          <ls_base>-is_db_view = abap_true.
+          <ls_base>-description = <ls_view_data>-description.
+        ENDLOOP.
+      ENDIF.
+    ENDIF.
+
+*.. Add table information
+    IF lt_tab_range IS NOT INITIAL.
+      SELECT tablename,
+             description
+        FROM zdbbr_i_databasetable( p_language = @lv_description_language )
+        WHERE tablename IN @lt_tab_range
+      INTO TABLE @DATA(lt_table_data).
+
+      IF sy-subrc = 0.
+        LOOP AT lt_base_tables ASSIGNING <ls_base> WHERE ddictype = lc_table_type.
+          ASSIGN lt_table_data[ tablename = <ls_base>-entityname ] TO FIELD-SYMBOL(<ls_table_data>).
+          CHECK sy-subrc = 0.
+
+          <ls_base>-table_kind = zif_dbbr_c_entity_type=>table.
+          <ls_base>-entityname_raw = <ls_table_data>-tablename.
+          <ls_base>-description = <ls_table_data>-description.
+        ENDLOOP.
+      ENDIF.
+    ENDIF.
+
+    rt_base_tables = CORRESPONDING #( lt_base_tables ).
   ENDMETHOD.
 
 
   METHOD read_cds_view.
-    DATA(lv_description_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_description_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
 *... try to read view from cache
     result = VALUE #( st_cds_view_cache[ cds_view_name = iv_cds_view
@@ -794,7 +789,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
           ls_header-source_type = zif_dbbr_c_cds_view_type=>extend.
         ELSE.
 *... determine the correct source type of the cds
-          ls_header-source_type = get_source_type( iv_cds_view_name = iv_cds_view ).
+          ls_header-source_type = get_source_type( iv_ddl_name = ls_header-ddlname ).
         ENDIF.
 
         IF ls_header-source_type IS NOT INITIAL.
@@ -815,7 +810,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
         ENDIF.
 
         IF lt_assoc_header IS NOT INITIAL.
-
+          SORT lt_assoc_fields BY associationname fdposition.
           DATA(lt_association) = fill_associations(
             EXPORTING
               it_header = lt_assoc_header
@@ -836,6 +831,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
 *... set handler for lazy loading of base tables
         SET HANDLER:
           on_base_table_loading_request FOR result,
+          on_annotation_read_request FOR result,
           on_api_states_loading_request FOR result,
           on_tadir_info_loading_request FOR result,
           on_description_loading_request FOR result.
@@ -864,7 +860,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
           EXPORTING
             entitynames       = VALUE #( ( iv_cds_view ) )
             withtext          = abap_true    " ABAP_true: Read texts also
-            langu             = zcl_dbbr_appl_util=>get_description_language( )
+            langu             = zcl_dbbr_system_helper=>get_system_language( )
           IMPORTING
             header            = DATA(lt_header)
         ).
@@ -882,7 +878,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
     TRY.
         lr_dd_sobject->read(
           EXPORTING
-            langu             = zcl_dbbr_appl_util=>get_description_language( )
+            langu             = zcl_dbbr_system_helper=>get_system_language( )
             withtext          = abap_true
             sobjnames         = it_cds_view_name
           IMPORTING
@@ -906,7 +902,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
           EXPORTING
             name           = lv_ddl_name
             get_state      = 'A'    " Version of DDL source to be read
-            langu          = zcl_dbbr_appl_util=>get_description_language( )
+            langu          = zcl_dbbr_system_helper=>get_system_language( )
           IMPORTING
             ddddlsrcv_wa   = DATA(ls_ddddl_source)
         ).
@@ -1006,7 +1002,7 @@ CLASS zcl_dbbr_cds_view_factory IMPLEMENTATION.
               WHEN zif_dbbr_c_cds_anno_value=>c_environment_system_field-date.
                 lr_s_param->default_value = sy-datum.
               WHEN zif_dbbr_c_cds_anno_value=>c_environment_system_field-language.
-                lr_s_param->default_value = sy-langu.
+                lr_s_param->default_value = zcl_dbbr_system_helper=>get_system_language( ).
               WHEN zif_dbbr_c_cds_anno_value=>c_environment_system_field-time.
                 lr_s_param->default_value = sy-timlo.
               WHEN zif_dbbr_c_cds_anno_value=>c_environment_system_field-user.

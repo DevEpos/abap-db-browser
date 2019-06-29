@@ -41,7 +41,7 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
 
     " create and start selection controller
     DATA(lr_controller) = zcl_dbbr_selection_controller=>create_controller(
-      value #(
+      VALUE #(
          entity_type        = zif_dbbr_c_selscreen_mode=>table
          entity_id          = ms_global_data-primary_table
          selection_fields   = mt_selfields
@@ -68,14 +68,23 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
     fill_primary_entity( ).
     load_variant( ).
 
-    CHECK mv_variant_id <> zif_dbbr_global_consts=>c_dummy_variant.
+    IF mv_variant_id <> zif_dbbr_global_consts=>c_dummy_variant OR
+       ms_global_data-called_from_adt = abap_true.
 
-    NEW zcl_dbbr_favmenu_factory( )->refresh_most_used(
-        iv_entry     = mv_tabname
-        iv_entry_raw = mv_tabname
-        iv_type      = zif_dbbr_c_favmenu_type=>table
-        iv_text      = zcl_dbbr_dictionary_helper=>get_table_info( mv_tabname )-ddtext
-    ).
+      IF ms_global_data-called_from_adt = abap_true.
+        zcl_dbbr_usersettings_factory=>update_start_settings(
+          iv_entity_id   = mv_tabname
+          iv_entity_type = zif_dbbr_c_entity_type=>table
+        ).
+      ENDIF.
+
+      NEW zcl_dbbr_favmenu_factory( )->refresh_most_used(
+          iv_entry     = mv_tabname
+          iv_entry_raw = mv_tabname
+          iv_type      = zif_dbbr_c_favmenu_type=>table
+          iv_text      = zcl_dbbr_dictionary_helper=>get_table_info( mv_tabname )-ddtext
+      ).
+    ENDIF.
   ENDMETHOD.
 
   METHOD fill_primary_entity.

@@ -10,13 +10,13 @@ CLASS zcl_dbbr_f4_exporter DEFINITION
   PROTECTED SECTION.
 
     METHODS build_data_for_export
-         REDEFINITION .
+        REDEFINITION .
     METHODS create_internal_table_ref
-         REDEFINITION .
+        REDEFINITION .
     METHODS write_success_message
-         REDEFINITION .
+        REDEFINITION .
     METHODS write_error_message
-         REDEFINITION .
+        REDEFINITION .
   PRIVATE SECTION.
     DATA mt_f4_id TYPE zdbbr_id_itab.
 ENDCLASS.
@@ -36,10 +36,8 @@ CLASS zcl_dbbr_f4_exporter IMPLEMENTATION.
 
     ASSIGN mr_source_data_tab->* TO <lt_table>.
 
-    DATA(lr_f4_f) = NEW zcl_dbbr_custom_f4_factory( ).
-
     LOOP AT mt_f4_id ASSIGNING FIELD-SYMBOL(<lv_f4_id>).
-      lr_f4_f->get_f4(
+      zcl_dbbr_custom_f4_factory=>get_f4(
         EXPORTING
           iv_f4_id          = <lv_f4_id>
         IMPORTING

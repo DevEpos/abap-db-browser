@@ -19,8 +19,6 @@ CLASS zcl_dbbr_query_selscreen_util DEFINITION
         REDEFINITION .
     METHODS get_title
         REDEFINITION .
-    METHODS load_entity
-        REDEFINITION .
     METHODS set_custom_functions
         REDEFINITION .
     METHODS zif_dbbr_screen_util~get_deactivated_functions
@@ -28,6 +26,8 @@ CLASS zcl_dbbr_query_selscreen_util DEFINITION
     METHODS zif_dbbr_screen_util~handle_ui_function
         REDEFINITION .
   PROTECTED SECTION.
+    METHODS load_entity_internal
+        REDEFINITION .
     METHODS fill_primary_entity
         REDEFINITION.
     METHODS create_table_header
@@ -41,6 +41,7 @@ CLASS zcl_dbbr_query_selscreen_util DEFINITION
     DATA mo_query_f TYPE REF TO zcl_dbbr_query_factory .
     DATA mt_parameters TYPE zdbbr_query_data-parameters.
     DATA mf_sql_query TYPE abap_bool.
+    DATA: mv_query_id TYPE zdbbr_query_data-query_id.
 
     "! <p class="shorttext synchronized" lang="en">Delete the query</p>
     "!
@@ -240,6 +241,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
         ev_description = ev_description
     ).
     ev_type = zif_dbbr_c_favmenu_type=>query.
+    ev_entity_id = mv_query_id.
     ev_entity =
     ev_entity_raw = mv_query_name.
   ENDMETHOD.
@@ -254,7 +256,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD load_entity.
+  METHOD load_entity_internal.
     CHECK mv_query_name IS NOT INITIAL.
 
     zcl_dbbr_screen_helper=>show_progress( iv_text = `Selection Mask for query ` && mv_query_name && ` is loading...`
@@ -268,12 +270,12 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
 
 *... 1) load query from database
     DATA(ls_query_data) = mo_query_f->get_query( mv_query_name ).
+    mv_query_id = ls_query_data-query_id.
 
     mo_data->mr_s_query_info->* = CORRESPONDING #( ls_query_data ).
 *... fill name of query on screen
     mo_data->mr_v_selmask_entity_text->* = mo_data->mr_s_query_info->description.
     mo_data->mr_v_selmask_entity_name->* = mv_query_name.
-
 
     IF ls_query_data-source IS INITIAL.
       DATA(lf_enable_selfield_control) = abap_true.
@@ -367,6 +369,10 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
 
 
   METHOD zif_dbbr_screen_util~handle_ui_function.
+    IF cv_function NP 'ENTITY*'.
+      super->handle_ui_function( CHANGING cv_function = cv_function ).
+    ENDIF.
+
     CASE cv_function.
 
       WHEN zif_dbbr_c_selscreen_functions=>copy_query.
@@ -513,10 +519,10 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
 
 *.. load the default variant if it was supplied
     IF is_query_data-has_filter_values = abap_true.
-      DATA(lv_default_variant) = NEW zcl_dbbr_variant_factory( )->find_default_query_variant( is_query_data-query_id ).
+      DATA(lv_default_variant) = zcl_dbbr_variant_factory=>find_default_query_variant( is_query_data-query_id ).
       IF lv_default_variant IS NOT INITIAL.
 
-        NEW zcl_dbbr_variant_loader(
+        zcl_dbbr_variant_loader=>create_variant_loader(
             iv_variant_id        = lv_default_variant
             ir_t_multi_or        = mo_data->get_multi_or_all( )
             ir_t_selfields       = mo_data->mr_t_table_data
@@ -524,7 +530,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
             ir_tabfields         = mo_data->mo_tabfield_list
             ir_s_global_data     = mo_data->mr_s_global_data
             ir_tabfields_grouped = mo_data->mo_tabfield_aggr_list
-        )->load_variant( if_no_message = abap_true ).
+        )->load( if_no_message = abap_true ).
       ENDIF.
     ENDIF.
   ENDMETHOD.
@@ -556,25 +562,50 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
         is_range_param   = <ls_param>-is_range
         selection_active = abap_true
         default_option   = COND #( WHEN <ls_param>-is_range = abap_false THEN zif_dbbr_c_options=>equals )
-        default_sign     = zif_dbbr_c_options=>includes
+        default_sign     = zif_dbbr_c_options=>including
         default_low      = <ls_param>-default_value
       ).
 
 *... get the data element
       IF <ls_param>-type IS NOT  INITIAL.
-        DATA(lo_elem_type) = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_name( <ls_param>-type ) ).
-        DATA(ls_dfies) = lo_elem_type->get_ddic_field( ).
-        ls_tabfield-rollname = ls_dfies-rollname.
-        ls_tabfield-domname = ls_dfies-domname.
-        ls_tabfield-inttype = ls_dfies-inttype.
-        ls_tabfield-length = ls_dfies-leng.
-        ls_tabfield-outputlen = ls_dfies-outputlen.
-        ls_tabfield-convexit = ls_dfies-convexit.
-        ls_tabfield-is_lowercase = ls_dfies-lowercase.
+        DATA(lv_type) = <ls_param>-type.
+        IF <ls_param>-type = cl_abap_typedescr=>typekind_date.
+          lv_type = 'DATS'.
+        ENDIF.
+
+        DATA(lo_elem_type) = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_name( lv_type ) ).
+
+        IF lo_elem_type->is_ddic_type( ).
+          DATA(ls_dfies) = lo_elem_type->get_ddic_field( ).
+          ls_tabfield-rollname = ls_dfies-rollname.
+          ls_tabfield-domname = ls_dfies-domname.
+          ls_tabfield-inttype = ls_dfies-inttype.
+          ls_tabfield-length = ls_dfies-leng.
+          ls_tabfield-outputlen = ls_dfies-outputlen.
+          ls_tabfield-convexit = ls_dfies-convexit.
+          ls_tabfield-is_lowercase = ls_dfies-lowercase.
+        ELSE.
+          ls_tabfield-inttype = lo_elem_type->type_kind.
+          ls_tabfield-length = lo_elem_type->output_length.
+          ls_tabfield-outputlen = lo_elem_type->length.
+          ls_tabfield-decimals = lo_elem_type->decimals.
+        ENDIF.
       ELSE.
         ls_tabfield-decimals = <ls_param>-decimals.
         ls_tabfield-inttype = <ls_param>-inttype.
         ls_tabfield-length = <ls_param>-length.
+      ENDIF.
+
+      IF ls_tabfield-rollname IS NOT INITIAL OR ls_tabfield-datatype IS NOT INITIAL.
+        ls_tabfield-has_custom_f4 = mo_data->mo_custom_f4_map->entry_exists(
+            iv_tabname       = space
+            iv_fieldname     = <ls_param>-name
+            iv_rollname      = ls_tabfield-rollname
+            is_built_in_type = VALUE #(
+              datatype = ls_tabfield-datatype
+              leng     = ls_tabfield-length
+            )
+        ).
       ENDIF.
 
       mo_data->mo_tabfield_list->add( REF #( ls_tabfield ) ).

@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Creates Variant Data out of Selection Screen Information</p>
 CLASS zcl_dbbr_variant_creator DEFINITION
   PUBLIC
   FINAL
@@ -5,13 +6,14 @@ CLASS zcl_dbbr_variant_creator DEFINITION
 
   PUBLIC SECTION.
 
+    "! <p class="shorttext synchronized" lang="en">Create Variant data from selection screen information</p>
     CLASS-METHODS create_variant
       IMPORTING
         !iv_variant_id          TYPE zdbbr_variant_id OPTIONAL
         !iv_variant_name        TYPE zdbbr_variant_name OPTIONAL
         !iv_entity_id           TYPE zdbbr_entity_id
         !iv_entity_type         TYPE zdbbr_entity_type
-        !iv_variant_description TYPE ddtext
+        !iv_variant_description TYPE ddtext OPTIONAL
         !if_has_output_fields   TYPE abap_bool OPTIONAL
         !if_has_sort_fields     TYPE abap_bool OPTIONAL
         !it_selfields           TYPE zdbbr_selfield_itab
@@ -22,6 +24,7 @@ CLASS zcl_dbbr_variant_creator DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
 
+    "! <p class="shorttext synchronized" lang="en">Add special attribute to variant data</p>
     CLASS-METHODS add_special_variant_data
       IMPORTING
         !iv_layout_data_type TYPE zdbbr_variant_datatype
@@ -31,6 +34,7 @@ CLASS zcl_dbbr_variant_creator DEFINITION
         !cs_layout_data      TYPE zdbbr_vardata
         !ct_layout_data      TYPE zdbbr_vardata_itab
         !cv_line_counter     TYPE sy-tabix .
+    "! <p class="shorttext synchronized" lang="en">Add normal value to variant data</p>
     CLASS-METHODS add_value_variant_data
       IMPORTING
         !is_selfield     TYPE zdbbr_selfield
@@ -39,6 +43,7 @@ CLASS zcl_dbbr_variant_creator DEFINITION
         !cs_layout_data  TYPE zdbbr_vardata
         !ct_layout_data  TYPE zdbbr_vardata_itab
         !cv_line_counter TYPE sy-tabix .
+    "! <p class="shorttext synchronized" lang="en">Add mutli or values to variant data</p>
     CLASS-METHODS add_multi_or_variant_data
       IMPORTING
         !is_selfield_info TYPE zdbbr_selfield_info
@@ -114,19 +119,19 @@ CLASS zcl_dbbr_variant_creator IMPLEMENTATION.
       cs_layout_data-sign_val  = is_selfield-sign.
       cs_layout_data-data_type = is_selfield-option.
       APPEND cs_layout_data TO ct_layout_data.
-    ENDIF.
+    ELSE.
+      IF is_selfield-low IS NOT INITIAL OR
+         is_selfield-high IS NOT INITIAL OR
+         is_selfield-option IS NOT INITIAL.
 
-    IF is_selfield-low IS NOT INITIAL OR
-       is_selfield-high IS NOT INITIAL OR
-       is_selfield-option IS NOT INITIAL.
-
-      ADD 1 TO cv_line_counter.
-      cs_layout_data-counter   = cv_line_counter.
-      cs_layout_data-low_val   = is_selfield-low.
-      cs_layout_data-high_val  = is_selfield-high.
-      cs_layout_data-sign_val  = is_selfield-sign.
-      cs_layout_data-data_type = is_selfield-option.
-      APPEND cs_layout_data TO ct_layout_data.
+        ADD 1 TO cv_line_counter.
+        cs_layout_data-counter   = cv_line_counter.
+        cs_layout_data-low_val   = is_selfield-low.
+        cs_layout_data-high_val  = is_selfield-high.
+        cs_layout_data-sign_val  = is_selfield-sign.
+        cs_layout_data-data_type = is_selfield-option.
+        APPEND cs_layout_data TO ct_layout_data.
+      ENDIF.
     ENDIF.
 
     " get multi select values
@@ -225,5 +230,7 @@ CLASS zcl_dbbr_variant_creator IMPLEMENTATION.
         ).
       ENDLOOP.
     ENDLOOP.
+
+    rs_variant-has_criteria = xsdbool( rs_variant-variant_data IS NOT INITIAL ).
   ENDMETHOD.
 ENDCLASS.

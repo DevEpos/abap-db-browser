@@ -93,6 +93,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
     DATA(lo_param_popup) = NEW zcl_dbbr_cds_param_popup(
         io_tabfields = mo_tabfields_all
+        iv_cds_view_name = mv_cds_view
         it_param_values = VALUE #(
           FOR param IN mt_param_values WHERE ( is_parameter = abap_true ) ( name = param-fieldname value = param-low )
         )
@@ -126,7 +127,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     DATA(lf_show_docked) = xsdbool( ms_technical_info-assoc_sel_mode = zif_dbbr_c_assoc_select_mode=>docked ).
 
     IF lf_show_docked = abap_false.
-      mt_selected_rows = mr_alv_grid->get_all_selected_rows( ).
+      mt_selected_rows = mo_alv_grid->get_all_selected_rows( ).
 *... check if at leas on row was selected
       IF mt_selected_rows IS INITIAL.
         MESSAGE i074(zdbbr_info) DISPLAY LIKE 'W'.
@@ -251,8 +252,13 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
     " if no selection occurred, prevent screen visibility
     IF ms_control_info-number <= 0.
-      RAISE EVENT no_data.
-      RETURN.
+*.... Show the ALV even if no results were found if
+*...... ADT is active and CDS view has parameters
+      raise_no_data_event( ).
+      IF NOT (     mr_s_global_data->called_from_adt = abap_true
+               AND mo_cds_view->has_parameters( if_exclude_system_params = abap_true ) ).
+        RETURN.
+      ENDIF.
     ENDIF.
 
     set_miscinfo_for_selected_data( ).
@@ -307,7 +313,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
     " if no selection occurred, prevent screen visibility
     IF ms_control_info-number <= 0.
-      RAISE EVENT no_data.
+      raise_no_data_event( ).
       RETURN.
     ENDIF.
 
@@ -428,7 +434,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     CHECK es_chosen_association IS NOT INITIAL.
 
 *... determine selected rows
-    mt_selected_rows = mr_alv_grid->get_all_selected_rows( ).
+    mt_selected_rows = mo_alv_grid->get_all_selected_rows( ).
     IF mt_selected_rows IS INITIAL.
       MESSAGE i074(zdbbr_info) DISPLAY LIKE 'W'.
       RETURN.
@@ -455,7 +461,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     CHECK select_data( if_refresh_only = abap_true ).
 
     IF ms_control_info-number = 0.
-      RAISE EVENT no_data.
+      raise_no_data_event( ).
       RETURN.
     ENDIF.
 

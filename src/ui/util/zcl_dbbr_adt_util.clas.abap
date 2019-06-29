@@ -85,13 +85,6 @@ CLASS zcl_dbbr_adt_util IMPLEMENTATION.
 
     DATA(lr_adt_tools) = cl_adt_tools_core_factory=>get_instance( ).
 
-
-***    IF is_adt_jump_possible( ir_wb_object = lr_wb_object
-***                             ir_adt       = lr_adt_tools ) = abap_false.
-***      zcx_dbbr_adt_error=>raise_adt_error_with_text( |ADT Jump is not possible for { iv_obj_type } - { iv_obj_name }| ).
-***    ENDIF.
-
-
     cl_wb_request=>create_from_object_ref(
       EXPORTING
         p_wb_object       = lr_wb_object

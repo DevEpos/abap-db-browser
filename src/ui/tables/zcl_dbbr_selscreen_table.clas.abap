@@ -464,7 +464,17 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
 
 
   METHOD handle_column_optimization.
+
     FIELD-SYMBOLS: <ls_table_column> TYPE scxtab_column.
+
+    DATA: lv_low_high_width  TYPE i VALUE 25,
+          lv_fieldname_width TYPE i VALUE 20,
+          lv_group_by_width  TYPE i VALUE 8.
+
+    IF mr_global_data->selscr_compact_col_widths = abap_true.
+      lv_low_high_width = 17.
+      lv_group_by_width = 5.
+    ENDIF.
 
     " try to condense the fields to make more columns visible
     LOOP AT mr_tableview->cols ASSIGNING <ls_table_column>.
@@ -472,13 +482,13 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
         WHEN 'GS_SELFIELDS-DESCRIPTION'.
           <ls_table_column>-vislength = 25.
         WHEN c_fields-low_value.
-          <ls_table_column>-vislength = 25.
+          <ls_table_column>-vislength = lv_low_high_width.
         WHEN c_fields-high_value.
-          <ls_table_column>-vislength = 25.
-        WHEN 'GS_SELFIELDS-MARK'.
-          <ls_table_column>-vislength = 8.
-        WHEN 'GS_SELFIELDS-FIELDNAME'.
-          <ls_table_column>-vislength = 20.
+          <ls_table_column>-vislength = lv_low_high_width.
+        WHEN 'GS_SELFIELDS-GROUP_BY'.
+          <ls_table_column>-vislength = lv_group_by_width.
+        WHEN 'GS_SELFIELDS-FIELDNAME_RAW'.
+          <ls_table_column>-vislength = lv_fieldname_width.
       ENDCASE.
     ENDLOOP.
 
@@ -603,56 +613,31 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
 
 
   METHOD search_value.
-*&---------------------------------------------------------------------*
 *& Description: Search for a value, that the user enters
 *&---------------------------------------------------------------------*
     DATA: lv_rcode(1),
-          lt_fields TYPE TABLE OF sval
-          .
+          lt_table_fields TYPE lty_t_col_selection,
+          lt_fields       TYPE TABLE OF sval.
 
-    IF iv_code = 'SEARCH'.
-      lt_fields = VALUE #( ( tabname = 'SE16N_SELFIELDS' fieldname = 'FIELDNAME' ) ).
+    LOOP AT mr_table_data->* ASSIGNING FIELD-SYMBOL(<ls_table_field>) WHERE is_table_header = abap_false.
+      DATA(lv_tabix) = sy-tabix.
+      lt_table_fields = VALUE #(
+         BASE lt_table_fields
+         ( idx            = lv_tabix
+           tabname        = <ls_table_field>-tabname_alias
+           tech_fieldname = <ls_table_field>-fieldname
+           fieldname      = <ls_table_field>-fieldname_raw
+           description    = <ls_table_field>-description )
+      ).
+    ENDLOOP.
 
-      CALL FUNCTION 'POPUP_GET_VALUES'
-        EXPORTING
-          popup_title = 'Search'
-        IMPORTING
-          returncode  = lv_rcode
-        TABLES
-          fields      = lt_fields
-        EXCEPTIONS
-          OTHERS      = 1.
-      CHECK: sy-subrc = 0.
-      CHECK: lv_rcode = space.
-
-      mv_search = to_upper( lt_fields[ 1 ]-value ).
-      DATA(lv_current_line) = 1.
-    ELSE. " continue search with previous value
-      lv_current_line = get_current_line( ) + 1.
-    ENDIF.
-
-    IF mv_search IS INITIAL.
-      RETURN.
-    ENDIF.
-
-    " use table searcher for actual search
-    DATA(lr_table_searcher) = NEW zcl_uitb_table_func_executor( ir_table = mr_table_data  ).
-    DATA(lv_index) = lr_table_searcher->search(
-      iv_search_value  = mv_search
-      it_search_fields = VALUE #(
-        ( |FIELDNAME|   )
-        ( |SCRTEXT_M|   )
-        ( |SCRTEXT_L|   )
-        ( |DESCRIPTION| )
-      )
-      iv_start_index   = lv_current_line
-    ).
-
-    IF lv_index > 0.
-      mr_tableview->top_line = lv_index.
+    DATA(lv_chosen_index) = NEW lcl_find_table_field_view(
+        it_col                = lt_table_fields
+        if_hide_tabname_field = xsdbool( NOT get_util( )->mo_data->mo_tabfield_list->has_multiple_tables( ) )
+    )->get_chosen_field_index( ).
+    IF lv_chosen_index <> 0.
+      mr_tableview->top_line = lv_chosen_index.
       rf_search_successful = abap_true.
-    ELSE.
-      MESSAGE mv_search && ` was not found` TYPE 'S'.
     ENDIF.
   ENDMETHOD.
 

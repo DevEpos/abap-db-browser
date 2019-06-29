@@ -10,12 +10,9 @@ CLASS zcl_dbbr_cds_selscreen_util DEFINITION
       IMPORTING
         !ir_selscreen_data TYPE REF TO zcl_dbbr_selscreen_data .
 
-
     METHODS get_entity_information
         REDEFINITION .
     METHODS get_title
-        REDEFINITION .
-    METHODS load_entity
         REDEFINITION .
     METHODS set_custom_functions
         REDEFINITION .
@@ -33,14 +30,14 @@ CLASS zcl_dbbr_cds_selscreen_util DEFINITION
         REDEFINITION .
   PROTECTED SECTION.
 
+    METHODS load_entity_internal
+        REDEFINITION .
     METHODS create_table_header
         REDEFINITION .
     METHODS fill_selection_mask
         REDEFINITION .
     METHODS fill_primary_entity
         REDEFINITION .
-
-
   PRIVATE SECTION.
 
     DATA mo_cds_view TYPE REF TO zcl_dbbr_cds_view .
@@ -52,10 +49,12 @@ CLASS zcl_dbbr_cds_selscreen_util DEFINITION
 
     METHODS choose_cds_sub_entity
       IMPORTING
-        !if_return_chosen_directly   TYPE abap_bool OPTIONAL
-        !if_only_associations        TYPE abap_bool OPTIONAL
+        if_return_chosen_directly    TYPE abap_bool OPTIONAL
+        if_only_associations         TYPE abap_bool OPTIONAL
       RETURNING
         VALUE(rs_chosen_association) TYPE zdbbr_cds_association .
+    METHODS build_default_custom_function.
+    METHODS build_cust_func_for_cds_qry.
 ENDCLASS.
 
 
@@ -68,7 +67,8 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
         ev_description = ev_description
     ).
     ev_type = zif_dbbr_c_favmenu_type=>cds_view.
-    ev_entity = mv_cds_view.
+    ev_entity =
+    ev_entity_id = mv_cds_view.
     ev_entity_raw = mv_cds_view_name_raw.
   ENDMETHOD.
 
@@ -83,7 +83,7 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD load_entity.
+  METHOD load_entity_internal.
     CHECK mv_cds_view IS NOT INITIAL.
 
     TRY.
@@ -108,7 +108,13 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
     mv_cds_view_description = mo_cds_view->get_description( ).
     mv_cds_view_name_raw = ls_cds_header-entityname_raw.
 
-    zcl_dbbr_screen_helper=>show_progress( iv_text = `Selection Mask for ` && get_title( ) && ` is loading...`
+    IF mo_cds_view->is_analytics_query( ).
+      mo_custom_menu->clear( ).
+      build_default_custom_function( ).
+      build_cust_func_for_cds_qry( ).
+    ENDIF.
+
+    zcl_dbbr_screen_helper=>show_progress( iv_text = `Selection Mask for CDS View ` && ls_cds_header-entityname_raw && ` is loading...`
                                            iv_progress = 1 ).
 
     clear_edit_flags( ).
@@ -253,15 +259,17 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
 
     check_edit_mode( ).
 
+    mo_data->mo_custom_f4_map->read_custom_f4_definitions( mv_cds_view ).
+
 *... create parameters
     zcl_dbbr_cds_tabfield_util=>add_parameters(
         ir_tabfield_list = mo_data->mo_tabfield_list
+        io_custom_f4_map = mo_data->mo_custom_f4_map
         it_parameters    = mo_cds_view->get_parameters( )
     ).
 *... create table fields for cds view
     DATA(ls_header) = mo_cds_view->get_header( ).
 
-    mo_data->mo_custom_f4_map->read_custom_f4_definitions( mv_cds_view ).
 
     zcl_dbbr_cds_tabfield_util=>add_view_colums(
         io_custom_f4_map = mo_data->mo_custom_f4_map
@@ -323,27 +331,7 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
     ).
 
     mo_custom_menu = NEW cl_ctmenu( ).
-    mo_custom_menu->add_function(
-      fcode = zif_dbbr_c_selscreen_functions=>open_cds_view_with_adt
-      text  = |{ 'Open with ADT'(005) }|
-    ).
-    mo_custom_menu->add_function(
-      fcode = zif_dbbr_c_selscreen_functions=>go_to_ddic_view_of_cds
-      text  = |{ 'Go to DDIC View'(006) }|
-    ).
-    mo_custom_menu->add_function(
-      fcode = zif_dbbr_c_selscreen_functions=>choose_cds_sub_entity
-      text  = |{ 'Navigate to Sub Entity'(003) }|
-    ).
-    mo_custom_menu->add_separator( ).
-    mo_custom_menu->add_function(
-      fcode = zif_dbbr_c_selscreen_functions=>show_ddls_source
-      text  = |{ 'Show DDL Source'(002) }|
-    ).
-    mo_custom_menu->add_function(
-      fcode = zif_dbbr_c_selscreen_functions=>show_cds_dependency_tree
-      text  = |{ 'Show Dependency Tree'(011) }|
-    ).
+    build_default_custom_function( ).
 
     DATA(lo_toolbar) = fill_toolbar( if_create_extended_search = abap_true ).
 
@@ -405,6 +393,9 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
 
 
   METHOD zif_dbbr_screen_util~handle_ui_function.
+    super->handle_ui_function( CHANGING cv_function = cv_function ).
+    CHECK mo_cds_view IS BOUND.
+
     CASE cv_function.
 
       WHEN zif_dbbr_c_selscreen_functions=>show_ddls_source.
@@ -443,6 +434,58 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
       WHEN zif_dbbr_c_selscreen_functions=>go_to_ddic_view_of_cds.
         zcl_dbbr_dictionary_helper=>navigate_to_table( iv_tabname = mo_cds_view->get_header( )-ddlview ).
 
+      WHEN zif_dbbr_c_selscreen_functions=>open_cds_query_in_aox.
+        zcl_dbbr_query_monitor_util=>open_in_analyis_for_office( iv_query_ddlname = mo_cds_view->get_header( )-ddlview ).
+
+      WHEN zif_dbbr_c_selscreen_functions=>open_cds_query_in_qry_mon.
+        DATA(lt_base_tables) = mo_cds_view->get_base_tables( ).
+        IF lt_base_tables IS NOT INITIAL.
+          DATA(lv_cube_view) = VALUE #( lt_base_tables[ 1 ]-original_base_name OPTIONAL ).
+          IF lv_cube_view IS NOT INITIAL.
+            zcl_dbbr_query_monitor_util=>open_in_query_monitor(
+                iv_query_ddlname = mo_cds_view->get_header( )-ddlview
+                iv_cube_ddlname  = lv_cube_view
+            ).
+          ENDIF.
+        ENDIF.
+
     ENDCASE.
   ENDMETHOD.
+
+  METHOD build_default_custom_function.
+    mo_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>open_cds_view_with_adt
+      text  = |{ 'Open with ADT'(005) }|
+    ).
+    mo_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>go_to_ddic_view_of_cds
+      text  = |{ 'Go to DDIC View'(006) }|
+    ).
+    mo_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>choose_cds_sub_entity
+      text  = |{ 'Navigate to Sub Entity'(003) }|
+    ).
+    mo_custom_menu->add_separator( ).
+    mo_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>show_ddls_source
+      text  = |{ 'Show DDL Source'(002) }|
+    ).
+    mo_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>show_cds_dependency_tree
+      text  = |{ 'Show Dependency Tree'(011) }|
+    ).
+  ENDMETHOD.
+
+  METHOD build_cust_func_for_cds_qry.
+    mo_custom_menu->add_separator( ).
+    mo_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>open_cds_query_in_aox
+      text  = |{ 'Open with SAP Analysis for Office'(012) }|
+    ).
+    mo_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>open_cds_query_in_qry_mon
+      text  = |{ 'Open with Query Monitor (RSRT)'(013) }|
+    ).
+  ENDMETHOD.
+
 ENDCLASS.

@@ -63,6 +63,7 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
 
     DATA mt_history_stack TYPE ty_t_history.
     DATA mt_fav_func_query_map TYPE STANDARD TABLE OF ty_s_fav_func_query_map.
+    DATA mf_use_and_for_filter_opt TYPE abap_bool.
 
     CONSTANTS: c_max_history TYPE i VALUE 25.
     CONSTANTS c_text_class TYPE i VALUE cl_item_tree_model=>item_class_text.
@@ -79,6 +80,8 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
         edit_favorites             TYPE ui_func VALUE 'EDITFAV' ##NO_TEXT,
         to_parent                  TYPE ui_func VALUE 'TO_PARENT' ##NO_TEXT,
         favorite_dropdown          TYPE ui_func VALUE 'FAVMENU' ##NO_TEXT,
+        use_and_instead_of_or      TYPE ui_func VALUE 'USEAND' ##NO_TEXT,
+        search_settings_menu       TYPE ui_func VALUE 'SEARCHSETTINGS_M' ##NO_TEXT,
         show_ddl_source            TYPE ui_func VALUE 'SHOWSOURCE' ##no_text,
         analyze_dependencies       TYPE ui_func VALUE 'ANALYZEDEP' ##no_text,
         my_cds_views_search        TYPE ui_func VALUE 'MY_CDSVIEWS',
@@ -124,6 +127,7 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     DATA mo_favorite_dd_menu TYPE REF TO cl_ctmenu .
     DATA mo_toolbar TYPE REF TO cl_gui_toolbar.
     DATA mv_theme TYPE zuitb_code_viewer_theme.
+    DATA: mo_settings_menu TYPE REF TO cl_ctmenu.
 
     "! <p class="shorttext synchronized" lang="en">Clears tree of all nodes</p>
     "!
@@ -411,6 +415,8 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     METHODS adapt_and_display_html_inp
       IMPORTING
         if_assign_parent TYPE abap_bool OPTIONAL.
+    "! <p class="shorttext synchronized" lang="en">Updates the search settings menu</p>
+    METHODS update_search_settings_menu.
 ENDCLASS.
 
 
@@ -443,7 +449,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         cl_gui_html_viewer=>uiflag_use_sapgui_charset
       ).
 
-      lt_events = value #( ( eventid = mo_html_control->m_id_sapevent ) ).
+      lt_events = VALUE #( ( eventid = mo_html_control->m_id_sapevent ) ).
       mo_html_control->set_registered_events( lt_events ).
     ENDIF.
 
@@ -1216,6 +1222,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           ( function  = c_functions-to_parent
             icon      = icon_previous_hierarchy_level
             quickinfo = |{ 'Superordinate Object List'(011) }| )
+          ( function  = c_functions-search_settings_menu
+            icon      = icon_settings
+            butn_type = cntb_btype_menu
+            quickinfo = 'Search Settings' )
           ( function  = c_functions-import_queries
             icon      = icon_import
             butn_type = cntb_btype_first
@@ -1238,9 +1248,16 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         eo_client    = DATA(lo_container)
     ).
 
+    update_search_settings_menu( ).
+
     mo_toolbar->set_button_state( fcode = c_functions-next_history     enabled = abap_false ).
     mo_toolbar->set_button_state( fcode = c_functions-previous_history enabled = abap_false ).
 
+    mo_toolbar->set_static_ctxmenu(
+      EXPORTING  fcode   = c_functions-search_settings_menu
+                 ctxmenu = mo_settings_menu
+      EXCEPTIONS OTHERS  = 1
+    ).
     mo_toolbar->set_static_ctxmenu(
       EXPORTING  fcode   = c_functions-favorite_dropdown
                  ctxmenu = mo_favorite_dd_menu
@@ -1553,7 +1570,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD expand_tech_settings_node.
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
     SELECT SINGLE *
      FROM zdbbr_i_dbtabletechsettings( p_language = @lv_language )
      WHERE tablename = @iv_tabname
@@ -1735,8 +1752,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
            mo_search_query->mv_query <> ev_entity_id OR
            mo_search_query->mv_type <> ev_entity_type.
           mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
-             iv_query       = |{ ev_entity_id }|
-             iv_search_type = mv_current_search_type
+             iv_query                = |{ ev_entity_id }|
+             is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+             iv_search_type          = mv_current_search_type
           ).
           CHECK mo_search_query->has_search_string( ).
 
@@ -1838,8 +1856,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
           mv_current_search_type = ev_object_type.
           mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
-             iv_query       = |{ ev_search_query }|
-             iv_search_type = mv_current_search_type
+             iv_query                = |{ ev_search_query }|
+             is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+             iv_search_type          = mv_current_search_type
           ).
           add_history_entry( ).
         ENDIF.
@@ -2019,7 +2038,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         TRY.
             lo_variant_starter->execute_variant( ).
           CATCH zcx_dbbr_variant_error INTO DATA(lx_variant_error).
-            lx_variant_error->show_message( ).
+            lx_variant_error->show_message( iv_message_type = 'S' ).
         ENDTRY.
 
       WHEN c_functions-show_ddl_source.
@@ -2084,11 +2103,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 
   METHOD on_node_double_click.
-    DATA(lr_user_data) = mo_tree->get_nodes( )->get_node( ev_node_key )->get_user_data( ).
-    IF lr_user_data IS INITIAL.
-*.... if the node is just a folder toggle the expansion state
-      RETURN.
-    ENDIF.
+    DATA(lo_node) = mo_tree->get_nodes( )->get_node( ev_node_key ).
+    CHECK lo_node IS BOUND.
+    DATA(lr_user_data) = lo_node->get_user_data( ).
+    CHECK lr_user_data IS BOUND.
 
     ASSIGN CAST ty_s_user_data( lr_user_data )->* TO FIELD-SYMBOL(<ls_user_data>).
 
@@ -2163,8 +2181,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       TRY.
           mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
-             iv_query       = |{ mo_search_input->value }|
-             iv_search_type = mv_current_search_type
+             iv_query                = |{ mo_search_input->value }|
+             is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+             iv_search_type          = mv_current_search_type
           ).
           add_history_entry( ).
         CATCH zcx_dbbr_application_exc INTO DATA(lx_parse_error).
@@ -2187,8 +2206,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       TRY.
           mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
-             iv_query       = |{ mo_search_input->value }|
-             iv_search_type = mv_current_search_type
+             iv_query                = |{ mo_search_input->value }|
+             is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+             iv_search_type          = mv_current_search_type
           ).
           add_history_entry( ).
         CATCH zcx_dbbr_application_exc INTO DATA(lx_parse_error).
@@ -2263,6 +2283,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       WHEN c_functions-show_help.
         zcl_dbbr_help_repository=>show_help( zcl_dbbr_help_repository=>c_help_id-object_search ).
+
+      WHEN c_functions-use_and_instead_of_or.
+        zcl_uitb_appl_util=>toggle( CHANGING value = mf_use_and_for_filter_opt ).
+        update_search_settings_menu( ).
 
       WHEN c_functions-expand_all.
         lt_selected_nodes = mo_tree->get_selections( )->get_selected_nodes( ).
@@ -2354,8 +2378,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>package }| ).
     TRY.
         mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
-            iv_query = |{ lv_package }|
-            iv_search_type = zif_dbbr_c_object_browser_mode=>package
+            iv_query                = |{ lv_package }|
+            is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+            iv_search_type          = zif_dbbr_c_object_browser_mode=>package
         ).
       CATCH zcx_dbbr_object_search.
     ENDTRY.
@@ -2720,8 +2745,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 *.. Parse the query again to prevent storing favorite with invalid query
     TRY.
         zcl_dbbr_object_search_query=>parse_query_string(
-           iv_query       = |{ mo_search_input->value }|
-           iv_search_type = mv_current_search_type
+           iv_query                = |{ mo_search_input->value }|
+           is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+           iv_search_type          = mv_current_search_type
         ).
       CATCH zcx_dbbr_application_exc INTO DATA(lx_parse_error).
         MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
@@ -2757,8 +2783,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     TRY.
         mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
-          iv_query       = ls_map_entry-query
-          iv_search_type = ls_map_entry-type
+          iv_query                 = ls_map_entry-query
+          is_search_engine_params  = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+          iv_search_type           = ls_map_entry-type
         ).
         show_historic_query( ).
         add_history_entry( ).
@@ -2767,8 +2794,19 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     ENDTRY.
   ENDMETHOD.
 
+  METHOD update_search_settings_menu.
+    IF mo_settings_menu IS INITIAL.
+      mo_settings_menu = NEW cl_ctmenu( ).
+    ELSE.
+      mo_settings_menu->clear( ).
+    ENDIF.
 
-
-
+    mo_settings_menu->add_function(
+        fcode   = c_functions-use_and_instead_of_or
+        text    = |{ 'Use "AND" for search options'(044) }|
+        checked = mf_use_and_for_filter_opt
+    ).
+    CLEAR mo_search_query.
+  ENDMETHOD.
 
 ENDCLASS.

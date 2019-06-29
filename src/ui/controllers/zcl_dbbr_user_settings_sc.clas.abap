@@ -9,10 +9,11 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
 
     CONSTANTS:
       BEGIN OF c_tab_ids,
-        general_tab   TYPE string VALUE 'INTRO',
-        selscreen_tab TYPE string VALUE 'SEL',
-        favorites_tab TYPE string VALUE 'FAVS',
-        output_tab    TYPE string VALUE 'ALV',
+        general_tab        TYPE string VALUE 'INTRO',
+        selscreen_tab      TYPE string VALUE 'SEL',
+        data_selection_tab TYPE string VALUE 'DSEL',
+        favorites_tab      TYPE string VALUE 'FAVS',
+        output_tab         TYPE string VALUE 'ALV',
       END OF c_tab_ids.
 
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
@@ -48,39 +49,42 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
     DATA mv_start_dynnr TYPE string.
     DATA:
       BEGIN OF ms_user_settings_refs,
-        color_sort_columns         TYPE REF TO zdbbr_user_settings_a-color_sort_columns,
-        tech_names                 TYPE REF TO zdbbr_user_settings_a-tech_names,
-        no_merging_on              TYPE REF TO zdbbr_user_settings_a-no_merging_on,
-        no_convexit                TYPE REF TO zdbbr_user_settings_a-no_convexit,
-        zero_val_as_blank          TYPE REF TO zdbbr_user_settings_a-zero_val_as_blank,
-        tech_first                 TYPE REF TO zdbbr_user_settings_a-tech_first,
-        tech_view                  TYPE REF TO zdbbr_user_settings_a-tech_view,
-        max_lines                  TYPE REF TO zdbbr_user_settings_a-max_lines,
-        no_trailing_sign           TYPE REF TO zdbbr_user_settings_a-no_trailing_sign,
-        emphasize_text_fields      TYPE REF TO zdbbr_user_settings_a-emphasize_text_fields,
-        key_cols_not_fixed         TYPE REF TO zdbbr_user_settings_a-key_cols_not_fixed,
-        fav_user_mode              TYPE REF TO zdbbr_user_settings_a-fav_user_mode,
-        use_reduced_memory         TYPE REF TO zdbbr_user_settings_a-use_reduced_memory,
-        auto_layout_transfer       TYPE REF TO zdbbr_user_settings_a-auto_layout_transfer,
-        advanced_mode              TYPE REF TO zdbbr_user_settings_a-advanced_mode,
-        object_navigator_open      TYPE REF TO zdbbr_user_settings_a-object_navigator_open,
-        last_used_count            TYPE REF TO zdbbr_user_settings_a-last_used_count,
-        color_formula_fields       TYPE REF TO zdbbr_user_settings_a-color_formula_fields,
-        experimental_mode          TYPE REF TO zdbbr_user_settings_a-experimental_mode,
-        show_db_size_in_title      TYPE REF TO zdbbr_user_settings_a-show_db_size_in_title,
-        enable_alv_default_variant TYPE REF TO zdbbr_user_settings_a-enable_alv_default_variant,
-        maintain_entries           TYPE REF TO zdbbr_user_settings_a-maintain_entries,
-        description_language       TYPE REF TO zdbbr_user_settings_a-description_language,
-        search_ignore_case         TYPE REF TO zdbbr_user_settings_a-search_ignore_case,
-        assoc_sel_mode             TYPE REF TO zdbbr_user_settings_a-assoc_sel_mode,
-        show_assoc_brws_at_start   TYPE REF TO zdbbr_user_settings_a-show_assoc_brws_at_start,
-        activate_alv_live_filter   TYPE REF TO zdbbr_user_settings_a-activate_alv_live_filter,
-        initial_obj_brws_mode      TYPE REF TO zdbbr_user_settings_a-initial_obj_brws_mode,
-        initial_obj_nav_mode       TYPE REF TO zdbbr_user_settings_a-initial_obj_nav_mode,
-        disable_date_to_times_conv TYPE REF TO zdbbr_user_settings_a-disable_date_to_times_conv,
-        use_ddl_view_for_select    TYPE REF TO zdbbr_user_settings_a-use_ddl_view_for_select,
-        deactvt_highltng_in_cqe    TYPE REF TO zdbbr_user_settings_a-deactvt_highltng_in_cqe,
-        code_viewer_theme          TYPE REF TO zdbbr_user_settings_a-code_viewer_theme,
+        color_sort_columns            TYPE REF TO zdbbr_user_settings_a-color_sort_columns,
+        tech_names                    TYPE REF TO zdbbr_user_settings_a-tech_names,
+        no_merging_on                 TYPE REF TO zdbbr_user_settings_a-no_merging_on,
+        no_convexit                   TYPE REF TO zdbbr_user_settings_a-no_convexit,
+        zero_val_as_blank             TYPE REF TO zdbbr_user_settings_a-zero_val_as_blank,
+        tech_first                    TYPE REF TO zdbbr_user_settings_a-tech_first,
+        tech_view                     TYPE REF TO zdbbr_user_settings_a-tech_view,
+        max_lines                     TYPE REF TO zdbbr_user_settings_a-max_lines,
+        no_trailing_sign              TYPE REF TO zdbbr_user_settings_a-no_trailing_sign,
+        emphasize_text_fields         TYPE REF TO zdbbr_user_settings_a-emphasize_text_fields,
+        key_cols_not_fixed            TYPE REF TO zdbbr_user_settings_a-key_cols_not_fixed,
+        fav_user_mode                 TYPE REF TO zdbbr_user_settings_a-fav_user_mode,
+        use_reduced_memory            TYPE REF TO zdbbr_user_settings_a-use_reduced_memory,
+        auto_layout_transfer          TYPE REF TO zdbbr_user_settings_a-auto_layout_transfer,
+        advanced_mode                 TYPE REF TO zdbbr_user_settings_a-advanced_mode,
+        object_navigator_open         TYPE REF TO zdbbr_user_settings_a-object_navigator_open,
+        last_used_count               TYPE REF TO zdbbr_user_settings_a-last_used_count,
+        color_formula_fields          TYPE REF TO zdbbr_user_settings_a-color_formula_fields,
+        experimental_mode             TYPE REF TO zdbbr_user_settings_a-experimental_mode,
+        show_db_size_in_title         TYPE REF TO zdbbr_user_settings_a-show_db_size_in_title,
+        enable_alv_default_variant    TYPE REF TO zdbbr_user_settings_a-enable_alv_default_variant,
+        maintain_entries              TYPE REF TO zdbbr_user_settings_a-maintain_entries,
+        search_ignore_case            TYPE REF TO zdbbr_user_settings_a-search_ignore_case,
+        assoc_sel_mode                TYPE REF TO zdbbr_user_settings_a-assoc_sel_mode,
+        show_assoc_brws_at_start      TYPE REF TO zdbbr_user_settings_a-show_assoc_brws_at_start,
+        activate_alv_live_filter      TYPE REF TO zdbbr_user_settings_a-activate_alv_live_filter,
+        initial_obj_brws_mode         TYPE REF TO zdbbr_user_settings_a-initial_obj_brws_mode,
+        initial_obj_nav_mode          TYPE REF TO zdbbr_user_settings_a-initial_obj_nav_mode,
+        disable_date_to_times_conv    TYPE REF TO zdbbr_user_settings_a-disable_date_to_times_conv,
+        use_ddl_view_for_select       TYPE REF TO zdbbr_user_settings_a-use_ddl_view_for_select,
+        deactvt_highltng_in_cqe       TYPE REF TO zdbbr_user_settings_a-deactvt_highltng_in_cqe,
+        code_viewer_theme             TYPE REF TO zdbbr_user_settings_a-code_viewer_theme,
+        auto_sel_filter_saving        TYPE REF TO zdbbr_user_settings_a-auto_sel_filter_saving,
+        always_load_def_variant_first TYPE REF TO zdbbr_user_settings_a-always_load_def_variant_first,
+        dock_obj_nav_on_right         TYPE REF TO zdbbr_user_settings_a-dock_obj_nav_on_right,
+        selscr_compact_col_widths     TYPE REF TO zdbbr_user_settings_a-selscr_compact_col_widths,
       END OF ms_user_settings_refs .
     DATA mf_data_changed TYPE abap_bool .
 
@@ -110,39 +114,42 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>user_settings ).
 
     read_parameter_reference:
-        color_sort_columns          c_color_sorted_columns,
-        tech_names                  c_technical_names,
-        no_merging_on               c_no_merging_of_srt_cols,
-        no_convexit                 c_no_conv_exit,
-        zero_val_as_blank           c_zeros_as_blanks,
-        tech_first                  c_technical_fields_first,
-        tech_view                   c_technical_view,
-        max_lines                   c_max_result_lines,
-        no_trailing_sign            c_no_trailing_sign,
-        emphasize_text_fields       c_color_add_text_fields,
-        key_cols_not_fixed          c_no_fixed_key_cols,
-        fav_user_mode               c_favorite_mode_entry,
-        use_reduced_memory          c_use_reduced_memory,
-        auto_layout_transfer        c_auto_layout_transfer,
-        advanced_mode               c_advanced_mode,
-        object_navigator_open       c_object_navigator_at_start,
-        initial_obj_brws_mode       c_initial_obj_browser_mode,
-        initial_obj_nav_mode        c_initial_obj_nav_mode,
-        last_used_count             c_number_fav_most_used,
-        color_formula_fields        c_color_formula_fields,
-        experimental_mode           c_experimental_mode,
-        show_db_size_in_title       c_read_db_table_length,
-        enable_alv_default_variant  c_enable_alv_default_var,
-        maintain_entries            c_activate_maintain_entries,
-        description_language        c_description_language,
-        search_ignore_case          c_search_ignore_case,
-        assoc_sel_mode              c_assocation_sel_mode,
-        show_assoc_brws_at_start    c_show_assoc_sel_at_start,
-        activate_alv_live_filter    c_activate_alv_live_filter,
-        disable_date_to_times_conv  c_disable_date_to_timest_conv,
-        use_ddl_view_for_select     c_use_ddl_view_for_select,
-        deactvt_highltng_in_cqe     c_deactvt_highltng_in_cqe,
-        code_viewer_theme           c_code_viewer_theme.
+        color_sort_columns            c_color_sorted_columns,
+        tech_names                    c_technical_names,
+        no_merging_on                 c_no_merging_of_srt_cols,
+        no_convexit                   c_no_conv_exit,
+        zero_val_as_blank             c_zeros_as_blanks,
+        tech_first                    c_technical_fields_first,
+        tech_view                     c_technical_view,
+        max_lines                     c_max_result_lines,
+        no_trailing_sign              c_no_trailing_sign,
+        emphasize_text_fields         c_color_add_text_fields,
+        key_cols_not_fixed            c_no_fixed_key_cols,
+        fav_user_mode                 c_favorite_mode_entry,
+        use_reduced_memory            c_use_reduced_memory,
+        auto_layout_transfer          c_auto_layout_transfer,
+        advanced_mode                 c_advanced_mode,
+        object_navigator_open         c_object_navigator_at_start,
+        initial_obj_brws_mode         c_initial_obj_browser_mode,
+        initial_obj_nav_mode          c_initial_obj_nav_mode,
+        last_used_count               c_number_fav_most_used,
+        color_formula_fields          c_color_formula_fields,
+        experimental_mode             c_experimental_mode,
+        show_db_size_in_title         c_read_db_table_length,
+        enable_alv_default_variant    c_enable_alv_default_var,
+        maintain_entries              c_activate_maintain_entries,
+        search_ignore_case            c_search_ignore_case,
+        assoc_sel_mode                c_assocation_sel_mode,
+        show_assoc_brws_at_start      c_show_assoc_sel_at_start,
+        activate_alv_live_filter      c_activate_alv_live_filter,
+        disable_date_to_times_conv    c_disable_date_to_timest_conv,
+        use_ddl_view_for_select       c_use_ddl_view_for_select,
+        deactvt_highltng_in_cqe       c_deactvt_highltng_in_cqe,
+        code_viewer_theme             c_code_viewer_theme,
+        auto_sel_filter_saving        c_auto_select_criteria_saving,
+        always_load_def_variant_first c_always_load_def_var_first,
+        dock_obj_nav_on_right         c_dock_obj_nav_on_right,
+        selscr_compact_col_widths     c_selscr_compact_col_widths.
   ENDMETHOD.
 
   METHOD initialize_screen.
@@ -229,14 +236,11 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     CASE lv_function.
 
       WHEN 'OK'.
-        mf_data_changed = abap_true.
         transfer_ui_data( if_from_screen = abap_true ).
-        zcl_dbbr_screen_helper=>leave_screen( ).
-
-      WHEN 'SAVE'.
-        transfer_ui_data( if_from_screen = abap_true ).
-        save_settings( ).
-        MESSAGE s011(zdbbr_info).
+        IF mf_disable_save = abap_false.
+          save_settings( ).
+          MESSAGE s011(zdbbr_info).
+        ENDIF.
         mf_data_changed = abap_true.
         zcl_dbbr_screen_helper=>leave_screen( ).
 
@@ -260,7 +264,7 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
 
 
   METHOD zif_uitb_screen_controller~set_status.
-    CHECK sy-dynnr = '0100'.
+    CHECK sy-dynnr = zif_dbbr_screen_ids=>c_user_settings-main_screen.
 
     zcl_dbbr_screen_helper=>set_selscreen_status(
         iv_status              = '0100'

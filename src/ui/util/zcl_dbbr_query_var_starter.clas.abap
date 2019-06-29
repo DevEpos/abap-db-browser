@@ -70,7 +70,7 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
   METHOD load_variant.
     IF mv_variant_id = zif_dbbr_global_consts=>c_dummy_variant.
 *.... Check if there is a default variant for the query
-      DATA(lv_default_variant_id) = mo_variant_f->find_default_query_variant( iv_query_id = ms_query-query_id ).
+      DATA(lv_default_variant_id) = zcl_dbbr_variant_factory=>find_default_query_variant( iv_query_id = ms_query-query_id ).
       IF lv_default_variant_id IS NOT INITIAL.
         mv_variant_id = lv_default_variant_id.
       ENDIF.
@@ -177,7 +177,7 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
 
     " create and start selection controller
     DATA(lr_controller) = zcl_dbbr_selection_controller=>create_controller(
-      value #(
+      VALUE #(
          entity_type        = zif_dbbr_c_selscreen_mode=>query
          entity_id          = ms_query-query_name
          selection_fields   = mt_selfields
@@ -205,14 +205,23 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
     fill_secondary_data( ).
     load_variant( ).
 
-    CHECK mv_variant_id <> zif_dbbr_global_consts=>c_dummy_variant.
+    IF mv_variant_id <> zif_dbbr_global_consts=>c_dummy_variant OR
+       ms_global_data-called_from_adt = abap_true.
 
-    NEW zcl_dbbr_favmenu_factory( )->refresh_most_used(
-        iv_entry     = ms_query-query_name
-        iv_entry_raw = ms_query-query_name
-        iv_type      = zif_dbbr_c_favmenu_type=>query
-        iv_text      = ms_query-description
-    ).
+      IF ms_global_data-called_from_adt = abap_true.
+        zcl_dbbr_usersettings_factory=>update_start_settings(
+          iv_entity_id   = ms_query-query_name
+          iv_entity_type = zif_dbbr_c_entity_type=>query
+        ).
+      ENDIF.
+
+      NEW zcl_dbbr_favmenu_factory( )->refresh_most_used(
+          iv_entry     = ms_query-query_name
+          iv_entry_raw = ms_query-query_name
+          iv_type      = zif_dbbr_c_favmenu_type=>query
+          iv_text      = ms_query-description
+      ).
+    ENDIF.
   ENDMETHOD.
 
 ENDCLASS.

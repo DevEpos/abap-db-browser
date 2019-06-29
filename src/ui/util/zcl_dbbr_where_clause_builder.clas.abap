@@ -5,6 +5,35 @@ CLASS zcl_dbbr_where_clause_builder DEFINITION
 
   PUBLIC SECTION.
 
+    "! <p class="shorttext synchronized" lang="en">Add selopt table as new OR seltab to AND tab</p>
+    CLASS-METHODS add_selopt_as_or_seltab
+      IMPORTING
+        it_select_option TYPE ANY TABLE
+        iv_sqlfieldname  TYPE char62
+        iv_sql_function  TYPE zdbbr_sql_function OPTIONAL
+      CHANGING
+        ct_and_seltab    TYPE zdbbr_and_seltab_t.
+    "! <p class="shorttext synchronized" lang="en">Add selopt values as new Line in OR seltab list</p>
+    CLASS-METHODS add_selopt_to_or_seltab
+      IMPORTING
+        it_select_option TYPE ANY TABLE
+        iv_sqlfieldname  TYPE char62
+        iv_sql_function  TYPE zdbbr_sql_function OPTIONAL
+      CHANGING
+        ct_or_seltab     TYPE zdbbr_or_seltab_sql_t.
+    "! <p class="shorttext synchronized" lang="en">Creates OR seltab from the given selopt</p>
+    "!
+    "! @parameter it_select_option | <p class="shorttext synchronized" lang="en">Selopt to be tranferred</p>
+    "! @parameter iv_sqlfieldname | <p class="shorttext synchronized" lang="en">The fieldname to be used</p>
+    "! @parameter rs_or_seltab | <p class="shorttext synchronized" lang="en">The created OR seltab</p>
+    CLASS-METHODS create_or_seltab
+      IMPORTING
+        it_select_option    TYPE ANY TABLE
+        iv_sqlfieldname     TYPE char62
+        iv_sql_function     TYPE zdbbr_sql_function OPTIONAL
+      RETURNING
+        VALUE(rs_or_seltab) TYPE zdbbr_or_seltab_sql.
+
     "! <p class="shorttext synchronized" lang="en">Creates where condition table connected with AND keyword</p>
     "!
     "! @parameter it_and_seltab | List of or conditions to be connected via AND
@@ -35,12 +64,18 @@ CLASS zcl_dbbr_where_clause_builder DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
     TYPES: ty_filter_value TYPE c LENGTH 100.
+    TYPES: BEGIN OF ty_s_selopt.
+        INCLUDE TYPE zdbbr_selopt.
+    TYPES: subquery TYPE string.
+    TYPES: END OF ty_s_selopt.
+    TYPES: ty_t_selopt TYPE STANDARD TABLE OF ty_s_selopt WITH EMPTY KEY.
+
     TYPES:
       BEGIN OF ty_s_field_selection,
         sqlfieldname TYPE char62,
         field        TYPE zdbbr_fieldname_with_alias,
         sql_function TYPE zdbbr_sql_function,
-        options      TYPE rsdsselopt_t,
+        options      TYPE ty_t_selopt,
         convert      TYPE rsconvert,
       END OF ty_s_field_selection.
     TYPES: ty_where_line TYPE c LENGTH 120.
@@ -77,8 +112,8 @@ CLASS zcl_dbbr_where_clause_builder DEFINITION
         ct_where        TYPE ty_t_where_clause
         cv_where        TYPE ty_where_line
         cv_offset       TYPE i
-        cv_low          TYPE ty_filter_value
-        cv_high         TYPE ty_filter_value.
+        cv_low          TYPE ty_filter_value OPTIONAL
+        cv_high         TYPE ty_filter_value OPTIONAL.
     CLASS-METHODS where_single_word_new
       IMPORTING
         iv_word        TYPE string
@@ -91,18 +126,80 @@ CLASS zcl_dbbr_where_clause_builder DEFINITION
       IMPORTING
         iv_fieldname        TYPE char62
         iv_sql_function     TYPE zdbbr_sql_function OPTIONAL
-        is_option           TYPE rsdsselopt
+        is_option           TYPE ty_s_selopt
         iv_fieldname_length TYPE i
       CHANGING
         ct_where            TYPE ty_t_where_clause
         cv_where            TYPE ty_where_line
         cv_offset           TYPE i.
+    CLASS-METHODS single_subquery_clause_new
+      IMPORTING
+        iv_fieldname        TYPE char62
+        iv_subquery         TYPE string
+        iv_option           TYPE ddoption
+        iv_fieldname_length TYPE i
+      CHANGING
+        ct_where            TYPE ty_t_where_clause
+        cv_where            TYPE ty_where_line
+        cv_offset           TYPE i.
+    CLASS-METHODS start_new_line
+      CHANGING
+        ct_where  TYPE ty_t_where_clause
+        cv_where  TYPE ty_where_line
+        cv_offset TYPE i.
 ENDCLASS.
 
 
 
 CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
 
+  METHOD add_selopt_as_or_seltab.
+    DATA(lt_or_seltab) = VALUE zdbbr_or_seltab_sql_t( ).
+    add_selopt_to_or_seltab(
+      EXPORTING it_select_option = it_select_option
+                iv_sqlfieldname  = iv_sqlfieldname
+                iv_sql_function  = iv_sql_function
+      CHANGING  ct_or_seltab     = lt_or_seltab
+    ).
+    CHECK lt_or_seltab IS NOT INITIAL.
+
+    ct_and_seltab = VALUE #( BASE ct_and_seltab ( lt_or_seltab ) ).
+  ENDMETHOD.
+
+  METHOD add_selopt_to_or_seltab.
+    DATA(ls_or_seltab) = create_or_seltab(
+       it_select_option = it_select_option
+       iv_sqlfieldname  = iv_sqlfieldname
+       iv_sql_function  = iv_sql_function
+    ).
+    CHECK ls_or_seltab-values IS NOT INITIAL.
+    ct_or_seltab = VALUE #( BASE ct_or_seltab ( ls_or_seltab ) ).
+  ENDMETHOD.
+
+  METHOD create_or_seltab.
+    CHECK it_select_option IS NOT INITIAL.
+
+    LOOP AT it_select_option ASSIGNING FIELD-SYMBOL(<ls_selopt>).
+      ASSIGN COMPONENT 'SIGN' OF STRUCTURE <ls_selopt> TO FIELD-SYMBOL(<lv_sign>).
+      ASSIGN COMPONENT 'OPTION' OF STRUCTURE <ls_selopt> TO FIELD-SYMBOL(<lv_option>).
+      ASSIGN COMPONENT 'LOW' OF STRUCTURE <ls_selopt> TO FIELD-SYMBOL(<lv_low>).
+      ASSIGN COMPONENT 'HIGH' OF STRUCTURE <ls_selopt> TO FIELD-SYMBOL(<lv_high>).
+
+      CHECK <lv_sign> IS ASSIGNED AND
+            <lv_option> IS ASSIGNED AND
+            <lv_low> IS ASSIGNED AND
+            <lv_high> IS ASSIGNED.
+
+      rs_or_seltab-values = VALUE #( BASE rs_or_seltab-values
+        ( sqlfieldname = iv_sqlfieldname
+          sql_function = iv_sql_function
+          sign         = <lv_sign>
+          option       = <lv_option>
+          low          = |{ <lv_low> ALIGN = LEFT }|
+          high         = |{ <lv_high> ALIGN = LEFT }| )
+      ).
+    ENDLOOP.
+  ENDMETHOD.
 
   METHOD create_and_condition.
     DATA(lf_multi_and) = xsdbool( lines( it_and_seltab ) > 1 ).
@@ -152,7 +249,7 @@ CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
   METHOD create_condition.
     DATA: lt_field_range  TYPE ty_t_field_selection,
           ls_field_range  TYPE ty_s_field_selection,
-          ls_selopt       TYPE rsdsselopt,
+          ls_selopt       TYPE ty_s_selopt,
           lv_field_length TYPE i,
           lv_old_field    TYPE char62.
 
@@ -185,10 +282,11 @@ CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
       ls_field_range-convert-type = 'C'.
 
       ls_selopt = VALUE #(
-        sign   = COND #( WHEN <ls_selfield>-sign = space THEN 'I' ELSE <ls_selfield>-sign )
-        low    = <ls_selfield>-low
-        high   = <ls_selfield>-high
-        option = <ls_selfield>-option
+        sign     = COND #( WHEN <ls_selfield>-sign = space THEN 'I' ELSE <ls_selfield>-sign )
+        low      = <ls_selfield>-low
+        high     = <ls_selfield>-high
+        option   = <ls_selfield>-option
+        subquery = <ls_selfield>-subquery
       ).
 
       get_option(
@@ -360,7 +458,7 @@ CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
           l_info              TYPE ty_s_where_info,
           lv_where            TYPE ty_where_line.
 
-    FIELD-SYMBOLS: <ls_option> TYPE rsdsselopt.
+    FIELD-SYMBOLS: <ls_option> TYPE ty_s_selopt.
 
 *.. always use length of name to spare some spaces
     lv_fieldname_length = strlen( is_field_sel-sqlfieldname ).
@@ -474,6 +572,14 @@ CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+  METHOD start_new_line.
+    CHECK cv_where IS NOT INITIAL.
+
+    ct_where = VALUE #( BASE ct_where ( cv_where ) ).
+    cv_offset = 4.
+    CLEAR cv_where.
+  ENDMETHOD.
+
   METHOD add_fieldname_to_clause.
     DATA: lv_fieldname LIKE iv_fieldname.
 
@@ -509,6 +615,77 @@ CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
     ).
   ENDMETHOD.
 
+  METHOD single_subquery_clause_new.
+    DATA: lt_subquery TYPE string_table.
+
+*.. Always start a new row for a subquery clause
+    start_new_line( CHANGING ct_where  = ct_where
+                             cv_where  = cv_where
+                             cv_offset = cv_offset ).
+
+    IF  iv_option = zif_dbbr_c_options=>not_in_subquery OR
+        iv_option = zif_dbbr_c_options=>in_subquery.
+
+      add_fieldname_to_clause(
+        EXPORTING iv_fieldname    = iv_fieldname
+        CHANGING  ct_where        = ct_where
+                  cv_where        = cv_where
+                  cv_offset       = cv_offset
+      ).
+
+      IF iv_option = zif_dbbr_c_options=>not_in_subquery.
+
+        where_single_word_new(
+          EXPORTING iv_word        = 'NOT'
+                    iv_word_length = 3
+          CHANGING  ct_where       = ct_where
+                    cv_where       = cv_where
+                    cv_offset      = cv_offset
+        ).
+      ENDIF.
+      where_single_word_new(
+        EXPORTING iv_word        = 'IN'
+                  iv_word_length = 2
+        CHANGING  ct_where       = ct_where
+                  cv_where       = cv_where
+                  cv_offset      = cv_offset
+      ).
+*.... Wrap subquery in parenthesis
+      where_single_word_new(
+        EXPORTING iv_word        = '('
+                  iv_word_length = 1
+        CHANGING  ct_where       = ct_where
+                  cv_where       = cv_where
+                  cv_offset      = cv_offset
+      ).
+*.... Add subquery clause
+      SPLIT iv_subquery AT cl_abap_char_utilities=>cr_lf INTO TABLE lt_subquery.
+      LOOP AT lt_subquery ASSIGNING FIELD-SYMBOL(<lv_query_line>).
+        start_new_line( CHANGING ct_where  = ct_where
+                                 cv_where  = cv_where
+                                 cv_offset = cv_offset  ).
+        where_single_word_new(
+          EXPORTING iv_word        = <lv_query_line>
+                    iv_word_length = strlen( <lv_query_line> )
+          CHANGING  ct_where       = ct_where
+                    cv_where       = cv_where
+                    cv_offset      = cv_offset
+        ).
+      ENDLOOP.
+*.... Close the subquery clause
+      where_single_word_new(
+        EXPORTING iv_word        = ')'
+                  iv_word_length = 1
+        CHANGING  ct_where       = ct_where
+                  cv_where       = cv_where
+                  cv_offset      = cv_offset
+      ).
+
+    ELSE.
+*.... Exists is not supported yet
+    ENDIF.
+  ENDMETHOD.
+
   METHOD single_clause_new.
 
     DATA: lv_low        TYPE ty_filter_value,
@@ -527,6 +704,28 @@ CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
           END   OF ls_escape.
 
     FIELD-SYMBOLS <l_f> TYPE c.
+
+*.. Handle some special options
+    CASE is_option-option.
+
+      WHEN zif_dbbr_c_options=>not_in_subquery OR
+           zif_dbbr_c_options=>in_subquery OR
+           zif_dbbr_c_options=>not_exists_subquery OR
+           zif_dbbr_c_options=>exists_subquery.
+
+        single_subquery_clause_new(
+          EXPORTING
+            iv_fieldname        = iv_fieldname
+            iv_subquery         = is_option-subquery
+            iv_option           = is_option-option
+            iv_fieldname_length = iv_fieldname_length
+          CHANGING
+            ct_where            = ct_where
+            cv_where            = cv_where
+            cv_offset           = cv_offset
+        ).
+        RETURN.
+    ENDCASE.
 
 *.. always use the original length of literals to prevent trailing spaces
     lv_lowlength  =  strlen( is_option-low ).
@@ -599,7 +798,7 @@ CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
 
     MOVE is_option-option TO lv_option.
 
-    IF is_option-sign = zif_dbbr_c_options=>excludes.
+    IF is_option-sign = zif_dbbr_c_options=>excluding.
       CASE lv_option.
         WHEN zif_dbbr_c_options=>equals.
           lv_option = zif_dbbr_c_options=>not_equals.
@@ -797,4 +996,5 @@ CLASS zcl_dbbr_where_clause_builder IMPLEMENTATION.
         ).
     ENDCASE.
   ENDMETHOD.
+
 ENDCLASS.

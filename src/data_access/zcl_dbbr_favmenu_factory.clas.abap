@@ -212,10 +212,8 @@ CLASS zcl_dbbr_favmenu_factory IMPLEMENTATION.
     SELECT * FROM zdbbr_favmenu INTO CORRESPONDING FIELDS OF TABLE et_favmenu_entries
       WHERE uname = lv_username.
 
-    DATA(lr_variant_f) = NEW zcl_dbbr_variant_factory( ).
-
     LOOP AT et_favmenu_entries ASSIGNING FIELD-SYMBOL(<ls_fav_entry>) WHERE favtype <> zif_dbbr_c_favmenu_type=>folder.
-      <ls_fav_entry>-has_variants = lr_variant_f->variant_exists_for_entity(
+      <ls_fav_entry>-has_variants = zcl_dbbr_variant_factory=>variant_exists_for_entity(
           iv_entity_id = <ls_fav_entry>-fav_entry
           iv_entity_type = <ls_fav_entry>-favtype
       ).
@@ -237,10 +235,8 @@ CLASS zcl_dbbr_favmenu_factory IMPLEMENTATION.
     INTO CORRESPONDING FIELDS OF TABLE @rt_most_used
       UP TO @lv_last_used_count ROWS.
 
-    DATA(lr_variant_f) = NEW zcl_dbbr_variant_factory( ).
-
     LOOP AT rt_most_used ASSIGNING FIELD-SYMBOL(<ls_fav_entry>).
-      <ls_fav_entry>-has_variants = lr_variant_f->variant_exists_for_entity(
+      <ls_fav_entry>-has_variants = zcl_dbbr_variant_factory=>variant_exists_for_entity(
           iv_entity_id   = <ls_fav_entry>-most_used_entry
           iv_entity_type = <ls_fav_entry>-type
       ).

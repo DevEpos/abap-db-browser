@@ -21,6 +21,7 @@ START-OF-SELECTION.
 
   data(lo_param_popup) = NEW zcl_dbbr_cds_param_popup(
       io_tabfields = lr_tabfields
+      iv_cds_view_name = p_cds
   ).
   lo_param_popup->show( ).
   data(lt_entered_params) = lo_param_popup->get_param_values( ).

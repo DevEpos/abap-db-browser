@@ -90,6 +90,10 @@ CLASS zcl_dbbr_cds_view DEFINITION
         if_exclude_system_params TYPE abap_bool OPTIONAL
       RETURNING
         VALUE(result)            TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Returns 'X' if this CDS is of type Analytics.query = true</p>
+    METHODS is_analytics_query
+      RETURNING
+        VALUE(rf_is_query) TYPE abap_bool.
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -233,6 +237,14 @@ CLASS zcl_dbbr_cds_view IMPLEMENTATION.
       result = xsdbool( line_exists( mt_parameters[ has_system_anno = abap_false ] ) ).
     ELSE.
       result = xsdbool( mt_parameters IS NOT INITIAL ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD is_analytics_query.
+    DATA(lt_anno) = get_annotations( VALUE #( ( sign = 'I' option = 'EQ' low = 'ANALYTICS.QUERY' ) ) ).
+    IF lt_anno IS NOT INITIAL.
+      DATA(lv_query_anno_val) = VALUE #( lt_anno[ 1 ]-value DEFAULT 'FALSE' ).
+      rf_is_query = xsdbool( lv_query_anno_val = 'TRUE' ).
     ENDIF.
   ENDMETHOD.
 ENDCLASS.

@@ -8,8 +8,7 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
 
   PUBLIC SECTION.
 
-    INTERFACES zif_dbbr_screen_util
-      ABSTRACT METHODS handle_ui_function .
+    INTERFACES zif_dbbr_screen_util.
     INTERFACES zif_dbbr_screen_table_util .
 
     ALIASES free_resources
@@ -43,7 +42,7 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
         VALUE(ev_entity_type) TYPE zdbbr_entity_type .
 
     "! <p class="shorttext synchronized" lang="en">CLASS_CONSTRUCTOR</p>
-    CLASS-METHODS class_constructor .
+    CLASS-METHODS init_selscreen_table_tb .
     "! <p class="shorttext synchronized" lang="en">Choose select option</p>
     CLASS-METHODS choose_sel_option
       IMPORTING
@@ -75,12 +74,14 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
         !iv_entity_type    TYPE zdbbr_entity_type .
     "! <p class="shorttext synchronized" lang="en">Deletes and Updates the join definition</p>
     METHODS delete_join_definition .
+    "! <p class="shorttext synchronized" lang="en">Retrieve information about current entity</p>
     METHODS get_entity_information
       EXPORTING
-        !ev_entity      TYPE tabname
-        ev_entity_raw   TYPE zdbbr_entity_id_raw
-        !ev_type        TYPE zdbbr_favmenu_type
-        !ev_description TYPE ddtext .
+        ev_entity      TYPE tabname
+        ev_entity_raw  TYPE zdbbr_entity_id_raw
+        ev_entity_id   TYPE zdbbr_entity_id
+        ev_type        TYPE zdbbr_favmenu_type
+        ev_description TYPE ddtext .
     "! <p class="shorttext synchronized" lang="en">Retrieve the primary entity type for a join definition</p>
     "!
     METHODS get_entity_type_for_join
@@ -108,7 +109,6 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
         VALUE(result)   TYPE abap_bool .
     "! <p class="shorttext synchronized" lang="en">Loads the entity into the selection screen</p>
     METHODS load_entity
-          ABSTRACT
       RETURNING
         VALUE(rf_entity_loaded) TYPE abap_bool .
     "! <p class="shorttext synchronized" lang="en">Sets custom entity functions and menus</p>
@@ -123,6 +123,13 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     METHODS update_join_definition
       IMPORTING
         it_table_info TYPE ty_t_table_info OPTIONAL.
+    "! <p class="shorttext synchronized" lang="en">Saves the currently entered filter criteria</p>
+    METHODS save_current_criteria.
+    "! <p class="shorttext synchronized" lang="en">Update the value help status for given table field</p>
+    METHODS update_value_helps_for_field
+      IMPORTING
+        iv_tabname   TYPE tabname
+        iv_fieldname TYPE fieldname.
   PROTECTED SECTION.
 
     TYPES:
@@ -149,8 +156,13 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     DATA mv_entity_type TYPE zdbbr_entity_type .
     DATA mo_custom_menu TYPE REF TO cl_ctmenu .
     "! <p class="shorttext synchronized" lang="en">Context Menu</p>
-    CLASS-DATA gr_delete_tb_menu TYPE REF TO cl_ctmenu .
+    CLASS-DATA go_delete_tb_menu TYPE REF TO cl_ctmenu .
 
+    "! <p class="shorttext synchronized" lang="en">Internal logic to load an entity</p>
+    METHODS load_entity_internal
+          ABSTRACT
+      RETURNING
+        VALUE(rf_entity_loaded) TYPE abap_bool .
     "! <p class="shorttext synchronized" lang="en">Update buttons for multiple table mode</p>
     METHODS update_multiple_table_buttons
       IMPORTING
@@ -223,7 +235,6 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Refresh the selection mask for a single table setup</p>
     "!
     METHODS update_selection_mask .
-
   PRIVATE SECTION.
 ENDCLASS.
 
@@ -231,8 +242,85 @@ ENDCLASS.
 
 CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
+  METHOD constructor.
+    mo_data = ir_selscreen_data.
+    mv_entity_type = iv_entity_type.
+    mo_altcoltext_f = NEW #( ).
+    mo_favmenu_f = NEW #( ).
+
+*... update entity type table fields
+    mo_data->mo_tabfield_aggr_list->set_entity_type( mv_entity_type ).
+    mo_data->mo_tabfield_list->set_entity_type( mv_entity_type ).
+
+    zcl_dbbr_toolbar_util=>get_selscreen_table_tb( )->set_button_state( enabled = abap_true fcode = zif_dbbr_c_selscreen_functions=>control_sel_fields ).
+    cl_gui_cfw=>flush( ).
+  ENDMETHOD.
 
   METHOD check_edit_mode ##needed.
+  ENDMETHOD.
+
+  METHOD save_current_criteria.
+    CHECK mo_data->mr_s_global_data->auto_sel_filter_saving = abap_true.
+
+    get_entity_information(
+      IMPORTING
+        ev_entity_id   = DATA(lv_entity_id)
+        ev_type        = DATA(lv_entity_type)
+    ).
+    DATA(lr_t_multi_or) = mo_data->get_multi_or_all( ).
+
+    DATA(ls_auto_variant) = zcl_dbbr_variant_creator=>create_variant(
+        iv_entity_id           = lv_entity_id
+        iv_entity_type         = lv_entity_type
+        it_selfields           = mo_data->mr_t_table_data->*
+        it_multi_selfields     = mo_data->mr_t_selfields_multi->*
+        it_multi_or            = lr_t_multi_or->*
+    ).
+
+*.. Currently only filter criteria will be stored in automatic variant
+*... Later on it could be possible to provide settings which options should be
+*... stored inside the automatic variant
+    IF ls_auto_variant-has_criteria = abap_true.
+      zcl_dbbr_variant_factory=>save_auto_variant( ls_auto_variant ).
+    ELSE.
+*.... No criteria found, delete any existing automatic variant
+      zcl_dbbr_variant_factory=>delete_auto_variant(
+          iv_entity_id   = lv_entity_id
+          iv_entity_type = lv_entity_type
+      ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD update_value_helps_for_field.
+    mo_data->mo_custom_f4_map->clear_f4_for_field(
+        iv_tabname   = iv_tabname
+        iv_fieldname = iv_fieldname
+    ).
+    mo_data->mo_custom_f4_map->determine_f4_for_field(
+        iv_tabname   = iv_tabname
+        iv_fieldname = iv_fieldname
+    ).
+    DATA(lr_t_fields) = mo_data->mo_tabfield_list->get_fields_ref( ).
+    LOOP AT lr_t_fields->* ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE tabname = iv_tabname
+                                                                AND fieldname = iv_fieldname.
+      DATA(lf_custom_f4_old) = <ls_field>-has_custom_f4.
+      <ls_field>-has_custom_f4 = mo_data->mo_custom_f4_map->entry_exists(
+         iv_tabname       = <ls_field>-tabname
+         iv_fieldname     = <ls_field>-fieldname
+         iv_rollname      = <ls_field>-rollname
+         is_built_in_type = VALUE #(
+           datatype = <ls_field>-datatype
+           inttype  = <ls_field>-inttype
+           leng     = <ls_field>-length
+         )
+      ).
+*.... update field on selscreen if necessary
+      IF <ls_field>-has_custom_f4 <> lf_custom_f4_old.
+        DATA(lr_selfield) = REF #( mo_data->mr_t_table_data->*[ tabname_alias = <ls_field>-tabname_alias
+                                                                fieldname     = <ls_field>-fieldname ] ).
+        lr_selfield->has_cust_f4_help = <ls_field>-has_custom_f4.
+      ENDIF.
+    ENDLOOP.
   ENDMETHOD.
 
 
@@ -384,13 +472,47 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+  METHOD load_entity.
+    rf_entity_loaded = load_entity_internal( ).
+
+    IF rf_entity_loaded = abap_false.
+      RETURN.
+    ENDIF.
+
+    get_entity_information( IMPORTING ev_entity_id = DATA(lv_entity_id)
+                                      ev_type      = DATA(lv_entity_type) ).
+
+*.. Check if there is default variant for this entity and if it should be loaded
+    DATA(lf_default_var_loaded) = zcl_dbbr_default_variant_util=>load_default_variant(
+        io_data           = mo_data
+        io_selscreen_util = me
+    ).
+    IF lf_default_var_loaded = abap_true AND
+       mo_data->mr_s_global_data->always_load_def_variant_first = abap_true.
+      RETURN.
+    ENDIF.
+
+*.. Load automatic variant
+    IF mo_data->mr_s_global_data->auto_sel_filter_saving = abap_true.
+      zcl_dbbr_variant_loader=>create_auto_variant_loader(
+        iv_entity_type       = lv_entity_type
+        iv_entity_id         = lv_entity_id
+        ir_t_multi_or        = mo_data->get_multi_or_all( )
+        ir_t_selfields       = mo_data->mr_t_table_data
+        ir_t_selfields_multi = mo_data->mr_t_selfields_multi
+        ir_s_global_data     = mo_data->mr_s_global_data
+        ir_tabfields         = mo_data->mo_tabfield_list
+        ir_tabfields_grouped = mo_data->mo_tabfield_aggr_list
+      )->load( ).
+    ENDIF.
+  ENDMETHOD.
 
   METHOD choose_sort_fields.
     FIELD-SYMBOLS: <lr_tabfields> TYPE REF TO zcl_dbbr_tabfield_list.
 
     DATA(lf_field_aggr_active) = mo_data->mo_selection_table->aggregation_is_active( ).
     IF lf_field_aggr_active = abap_true.
-      ASSIGN mo_data->mo_tabfield_list TO <lr_tabfields>.
+      ASSIGN mo_data->mo_tabfield_aggr_list TO <lr_tabfields>.
     ELSE.
       ASSIGN mo_data->mo_tabfield_list TO <lr_tabfields>.
     ENDIF.
@@ -463,62 +585,94 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD class_constructor.
+  METHOD init_selscreen_table_tb.
 *.. create/fill delete menu
-    gr_delete_tb_menu = NEW #( ).
-    gr_delete_tb_menu->add_function(
+    go_delete_tb_menu = NEW #( ).
+    go_delete_tb_menu->add_function(
        fcode = zif_dbbr_c_selscreen_functions=>delete_aggregations
-       text  = 'Delete all aggregations'
+       text  = |{ 'Delete all aggregations'(003) }|
     ).
-    gr_delete_tb_menu->add_function(
+    go_delete_tb_menu->add_function(
        fcode = zif_dbbr_c_selscreen_functions=>delete_all_or_tuple
-       text  = 'Delete all OR Tuple'
+       text  = |{ 'Delete all OR Tuple'(004) }|
     ).
 
-    DATA(lr_table_toolbar) = zcl_dbbr_toolbar_util=>get_selscreen_table_tb( ).
-    lr_table_toolbar->add_button_group(
+    DATA(lo_default_var_menu) = NEW cl_ctmenu( ).
+    lo_default_var_menu->add_function(
+        fcode = zif_dbbr_c_selscreen_functions=>create_default_variant
+        text  = |{ 'Create Default Variant'(005) }|
+    ).
+    lo_default_var_menu->add_function(
+        fcode = zif_dbbr_c_selscreen_functions=>delete_default_variant
+        text  = |{ 'Delete Default Variant'(006) }|
+    ).
+
+    DATA(lo_variant_menu) = NEW cl_ctmenu( ).
+    lo_variant_menu->add_function(
+        fcode = zif_dbbr_c_selscreen_functions=>save_variant
+        text  = |{ 'Save Variant' }  (Ctrl+S)|
+    ).
+
+    DATA(lo_table_toolbar) = zcl_dbbr_toolbar_util=>get_selscreen_table_tb( ).
+    lo_table_toolbar->add_button_group(
         data_table = VALUE #(
           ( butn_type = cntb_btype_button
             icon      = icon_expand_all
-            quickinfo = 'Expand all Tables'
+            quickinfo = 'Expand all Tables'(007)
             function  = zif_dbbr_c_selscreen_functions=>expand_all_tables )
           ( butn_type = cntb_btype_button
             icon      = icon_collapse_all
-            quickinfo = 'Collapse all tables'
+            quickinfo = 'Collapse all tables'(008)
             function  = zif_dbbr_c_selscreen_functions=>collapse_all_tables )
           ( butn_type = cntb_btype_sep )
           ( butn_type = cntb_btype_button
             icon      = icon_previous_page
-            quickinfo = 'Go to previous table'
+            quickinfo = 'Go to previous table'(009)
             function  = zif_dbbr_c_selscreen_functions=>go_to_previous_table )
           ( butn_type = cntb_btype_button
             icon      = icon_next_page
-            quickinfo = 'Go to next table'
+            quickinfo = 'Go to next table'(010)
             function  = zif_dbbr_c_selscreen_functions=>go_to_next_table )
           ( butn_type = cntb_btype_sep )
           ( butn_type = cntb_btype_button
             icon      = icon_delete_row
-            quickinfo = 'Delete current line values'
+            quickinfo = 'Delete current line values'(011)
             function  = zif_dbbr_c_selscreen_functions=>delete_line_input )
           ( butn_type = cntb_btype_dropdown
-            text      = 'All Entries'
+            text      = 'All Entries'(012)
             icon      = icon_delete_row
             function  = zif_dbbr_c_selscreen_functions=>delete_all_input )
           ( butn_type = cntb_btype_sep )
+          ( function  = zif_dbbr_c_selscreen_functions=>get_variant
+            icon      = icon_variants
+            butn_type = cntb_btype_dropdown
+            quickinfo = |{ 'Choose Variant' } (F6)| )
+          ( butn_type = cntb_btype_dropdown
+            text      = 'Default'(013)
+            quickinfo = 'Load Default Variant'(014)
+            icon      = icon_variants
+            function  = zif_dbbr_c_selscreen_functions=>load_default_variant )
+          ( butn_type = cntb_btype_sep )
           ( butn_type = cntb_btype_button
-            quickinfo = 'Choose Selection Fields'
+            quickinfo = 'Choose Selection Fields'(015)
             icon      = icon_align
             function  = zif_dbbr_c_selscreen_functions=>control_sel_fields )
           ( butn_type = cntb_btype_button
-            quickinfo = 'Technical View On/Off'
+            quickinfo = 'Technical View On/Off'(016)
             icon      = icon_tools
             function  = zif_dbbr_c_selscreen_functions=>activate_tech_view )
         )
     ).
 
-    lr_table_toolbar->set_static_ctxmenu(
+    lo_table_toolbar->set_static_ctxmenu( fcode = zif_dbbr_c_selscreen_functions=>get_variant ctxmenu = lo_variant_menu ).
+
+    lo_table_toolbar->set_static_ctxmenu(
         fcode   = zif_dbbr_c_selscreen_functions=>delete_all_input
-        ctxmenu = gr_delete_tb_menu
+        ctxmenu = go_delete_tb_menu
+    ).
+    lo_table_toolbar->set_static_ctxmenu(
+        fcode   = zif_dbbr_c_selscreen_functions=>load_default_variant
+        ctxmenu = lo_default_var_menu
     ).
   ENDMETHOD.
 
@@ -539,22 +693,6 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     CLEAR: mo_data->mr_s_global_data->edit,
            mo_data->mr_s_global_data->delete_mode.
   ENDMETHOD.
-
-
-  METHOD constructor.
-    mo_data = ir_selscreen_data.
-    mv_entity_type = iv_entity_type.
-    mo_altcoltext_f = NEW #( ).
-    mo_favmenu_f = NEW #( ).
-
-*... update entity type table fields
-    mo_data->mo_tabfield_aggr_list->set_entity_type( mv_entity_type ).
-    mo_data->mo_tabfield_list->set_entity_type( mv_entity_type ).
-
-    zcl_dbbr_toolbar_util=>get_selscreen_table_tb( )->set_button_state( enabled = abap_true fcode = zif_dbbr_c_selscreen_functions=>control_sel_fields ).
-    cl_gui_cfw=>flush( ).
-  ENDMETHOD.
-
 
   METHOD convert_to_selfield.
     rs_selfield = CORRESPONDING #(
@@ -631,6 +769,11 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       has_custom_f4         = mo_data->mo_custom_f4_map->entry_exists(
           iv_tabname   = is_field-tabname
           iv_fieldname = is_field-fieldname
+          iv_rollname  = is_field-rollname
+          is_built_in_type = VALUE #(
+            datatype  = is_field-datatype
+            leng      = is_field-leng
+          )
       )
 *...... check if field is numeric
       is_numeric            = zcl_dbbr_dictionary_helper=>is_type_numeric( is_field-inttype )
@@ -797,7 +940,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       lt_data_table = VALUE #(
         ( function  = zif_dbbr_c_selscreen_functions=>open_specific_extended_search
           icon      = icon_extended_search
-          quickinfo = 'Extended Search' )
+          quickinfo = |{ 'Extended Search'(001) } (Ctrl+Shift+F2)| )
       ).
     ENDIF.
 
@@ -806,18 +949,18 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
           ( LINES OF it_custom_buttons )
           ( function  = 'CUST_FUNC'
             icon      = icon_reference_list
-            quickinfo = 'Custom Functions'
+            quickinfo = |{ 'Custom Functions'(002) }|
             butn_type = cntb_btype_menu      )
         )
     ).
 
 *.... set custom menu for cust function
-    CHECK mo_custom_menu IS BOUND.
-
-    lo_toolbar->set_static_ctxmenu(
-        fcode   = 'CUST_FUNC'
-        ctxmenu = mo_custom_menu
-    ).
+    IF mo_custom_menu IS BOUND.
+      lo_toolbar->set_static_ctxmenu(
+          fcode   = 'CUST_FUNC'
+          ctxmenu = mo_custom_menu
+      ).
+    ENDIF.
 
     ro_toolbar = lo_toolbar.
   ENDMETHOD.
@@ -1191,7 +1334,8 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         ( zif_dbbr_c_selscreen_functions=>delete_variant )
         ( zif_dbbr_c_selscreen_functions=>save_variant )
         ( zif_dbbr_c_selscreen_functions=>get_variant )
-        ( zif_dbbr_c_selscreen_functions=>save_f4_at_field )
+        ( zif_dbbr_c_selscreen_functions=>assign_built_in_f4_at_field )
+        ( zif_dbbr_c_selscreen_functions=>assign_custom_f4_at_field )
         ( zif_dbbr_c_selscreen_functions=>delete_f4_from_field )
         ( zif_dbbr_c_selscreen_functions=>cross_reference_table )
         ( zif_dbbr_c_selscreen_functions=>copy_query )
@@ -1217,7 +1361,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
           ( zif_dbbr_c_selscreen_functions=>edit_alternative_coltexts )
           ( zif_dbbr_c_selscreen_functions=>activate_optional_or_select )
           ( zif_dbbr_c_selscreen_functions=>select_additional_texts )
-          ( zif_dbbr_c_selscreen_functions=>save_f4_at_field )
+          ( zif_dbbr_c_selscreen_functions=>assign_built_in_f4_at_field )
           ( zif_dbbr_c_selscreen_functions=>delete_f4_from_field )
           ( zif_dbbr_c_selscreen_functions=>multi_or_selection )
           ( zif_dbbr_c_selscreen_functions=>show_formula_manager )
@@ -1230,11 +1374,33 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+  METHOD zif_dbbr_screen_util~handle_ui_function.
+    CASE cv_function.
+
+      WHEN zif_dbbr_c_selscreen_functions=>create_default_variant.
+        CLEAR cv_function.
+        zcl_dbbr_default_variant_util=>create_default_variant(
+            io_data           = mo_data
+            io_selscreen_util = me
+        ).
+
+      WHEN zif_dbbr_c_selscreen_functions=>load_default_variant.
+        CLEAR cv_function.
+        zcl_dbbr_default_variant_util=>load_default_variant(
+            if_show_loaded_message = abap_true
+            io_data                = mo_data
+            io_selscreen_util      = me
+        ).
+
+      WHEN zif_dbbr_c_selscreen_functions=>delete_default_variant.
+        CLEAR cv_function.
+        zcl_dbbr_default_variant_util=>delete_default_variant( me ).
+
+    ENDCASE.
+  ENDMETHOD.
 
   METHOD zif_dbbr_screen_util~handle_pbo.
     update_multiple_table_buttons( mo_data->mo_tabfield_list->has_multiple_tables( ) ).
   ENDMETHOD.
-
-
 
 ENDCLASS.

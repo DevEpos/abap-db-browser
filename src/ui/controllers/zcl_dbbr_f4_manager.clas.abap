@@ -1,4 +1,4 @@
-CLASS zcl_DBBR_f4_manager DEFINITION
+CLASS zcl_dbbr_f4_manager DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -23,18 +23,17 @@ CLASS zcl_DBBR_f4_manager DEFINITION
                END OF c_functions.
     DATA mr_template_prog TYPE REF TO zif_uitb_template_prog.
     DATA mr_f4_helps_alv TYPE REF TO cl_salv_table.
-    DATA mr_custom_f4_factory TYPE REF TO zcl_DBBR_custom_f4_factory.
-    DATA mt_f4_overview TYPE zDBBR_f4_overview_itab.
+    DATA mt_f4_overview TYPE zdbbr_f4_overview_itab.
     DATA mt_edit_functions TYPE ui_functions.
-    DATA mt_assignments TYPE zDBBR_f4_assignment_itab.
-    DATA mt_deleted_f4 TYPE STANDARD TABLE OF zDBBR_f4_id.
-    DATA mt_deleted_f4_assngmnt TYPE zDBBR_f4_assignment_itab.
-    DATA mt_new_f4_assngmnt TYPE zDBBR_f4_assignment_itab.
+    DATA mt_assignments TYPE zdbbr_f4_assignment_itab.
+    DATA mt_deleted_f4 TYPE STANDARD TABLE OF zdbbr_f4_id.
+    DATA mt_deleted_f4_assngmnt TYPE zdbbr_f4_assignment_itab.
+    DATA mt_new_f4_assngmnt TYPE zdbbr_f4_assignment_itab.
 
     DATA mf_read_only TYPE abap_bool.
     DATA mv_title TYPE cua_tit_tx .
 
-    DATA mv_selected_f4_id TYPE zDBBR_f4_id.
+    DATA mv_selected_f4_id TYPE zdbbr_f4_id.
     DATA: mt_disabled_style TYPE lvc_t_styl.
 
     METHODS on_before_output
@@ -76,18 +75,19 @@ CLASS zcl_DBBR_f4_manager DEFINITION
     METHODS change_f4.
     METHODS manage_f4
       IMPORTING
-        iv_display_mode TYPE zDBBR_display_mode.
+        iv_display_mode TYPE zdbbr_display_mode.
     METHODS export_value_helps.
     METHODS import_value_helps.
+    METHODS create_built_in_value_help.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
+CLASS zcl_dbbr_f4_manager IMPLEMENTATION.
 
 
   METHOD change_f4.
-    manage_f4( zif_DBBR_global_consts=>gc_display_modes-edit ).
+    manage_f4( zif_dbbr_global_consts=>gc_display_modes-edit ).
   ENDMETHOD.
 
 
@@ -103,8 +103,6 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
       on_user_command FOR mr_template_prog,
       on_exit FOR mr_template_prog.
 
-    mr_custom_f4_factory = NEW #( ).
-
     mt_edit_functions = VALUE #(
       ( c_functions-define_built_in )
       ( c_functions-change_f4 )
@@ -115,6 +113,14 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
 
     mt_disabled_style = VALUE #( ( style = zif_uitb_c_alv_cell_style=>disabled  ) ).
 
+  ENDMETHOD.
+
+
+  METHOD create_built_in_value_help.
+    DATA(lo_built_in_f4_controller) = NEW zcl_dbbr_built_in_f4_sc(
+      iv_display_mode  = zif_dbbr_global_consts=>gc_display_modes-create
+    ).
+    lo_built_in_f4_controller->zif_uitb_screen_controller~call_screen( ).
   ENDMETHOD.
 
 
@@ -136,8 +142,9 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
     DATA(lr_columns) = CAST cl_salv_columns_table( mr_f4_helps_alv->get_columns( ) ).
     lr_columns->set_optimize( ).
 
-    lr_columns->set_column_position( columnname = 'SEARCH_TABLE' position = 1 ).
-    lr_columns->set_column_position( columnname = 'SEARCH_FIELD' position = 2 ).
+    lr_columns->set_column_position( columnname = 'DESCRIPTION' position = 1 ).
+    lr_columns->set_column_position( columnname = 'SEARCH_TABLE' position = 2 ).
+    lr_columns->set_column_position( columnname = 'SEARCH_FIELD' position = 3 ).
 
     lr_column ?= lr_columns->get_column( 'SEARCH_TABLE' ).
 
@@ -164,7 +171,7 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    DATA(lt_f4_id) = VALUE zDBBR_selopt_itab(
+    DATA(lt_f4_id) = VALUE zdbbr_selopt_itab(
         FOR selected IN lt_selected_rows
         LET f4 = REF #( mt_f4_overview[ selected ] ) IN
         ( sign   = 'I'
@@ -172,14 +179,14 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
           low    = f4->f4_id )
     ).
 
-    DATA(lv_answer) = zcl_DBBR_appl_util=>popup_to_confirm(
+    DATA(lv_answer) = zcl_dbbr_appl_util=>popup_to_confirm(
         iv_title     = 'Delete Value Helps?'
         iv_query     = |Do you really want to delete { lines( lt_selected_rows ) } Value Help(s)?|
         iv_icon_type = 'ICON_QUESTION'
     ).
 
     IF lv_answer = '1'.
-      mr_custom_f4_factory->delete_multiple_by_id( lt_f4_id ).
+      zcl_dbbr_custom_f4_factory=>delete_multiple_by_id( lt_f4_id ).
       DELETE mt_f4_overview WHERE f4_id IN lt_f4_id.
 
       mr_f4_helps_alv->refresh( ).
@@ -278,7 +285,7 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    DATA(lr_f4_exporter) = NEW zcl_DBBR_f4_exporter(
+    DATA(lr_f4_exporter) = NEW zcl_dbbr_f4_exporter(
         VALUE #(
           FOR row IN lt_selected_rows
           LET <ls_f4_id> = mt_f4_overview[ row ] IN
@@ -291,18 +298,18 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
 
 
   METHOD get_f4_overviews.
-    mt_f4_overview = mr_custom_f4_factory->get_f4_overviews( ).
+    mt_f4_overview = zcl_dbbr_custom_f4_factory=>get_f4_overviews( ).
   ENDMETHOD.
 
 
   METHOD get_title.
 
-    r_result = COND string( WHEN mf_read_only = abap_true THEN text-001 ELSE text-002 ).
+    r_result = COND string( WHEN mf_read_only = abap_true THEN TEXT-001 ELSE TEXT-002 ).
   ENDMETHOD.
 
 
   METHOD import_value_helps.
-    DATA(lr_f4_importer) = NEW zcl_DBBR_f4_importer( ).
+    DATA(lr_f4_importer) = NEW zcl_dbbr_f4_importer( ).
 
     lr_f4_importer->import_data( ).
 
@@ -371,6 +378,7 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
         toggle_mode( ).
 
       WHEN c_functions-define_built_in.
+        create_built_in_value_help( ).
 
       WHEN c_functions-view_f4.
         show_f4_help( ).
@@ -401,7 +409,7 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
 
 
   METHOD show_f4_help.
-    manage_f4( zif_DBBR_global_consts=>gc_display_modes-view ).
+    manage_f4( zif_dbbr_global_consts=>gc_display_modes-view ).
   ENDMETHOD.
 
 
@@ -417,14 +425,14 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
 
     IF mf_read_only = abap_true.
       lf_editable = abap_true.
-      lv_title_suffix = text-m02.
+      lv_title_suffix = TEXT-m02.
     ELSE.
       lf_editable = abap_false.
-      lv_title_suffix = text-m01.
+      lv_title_suffix = TEXT-m01.
     ENDIF.
 
     IF lf_editable = abap_true.
-      IF NOT zcl_DBBR_lock_util=>lock( EXPORTING iv_use_case  = zif_DBBR_c_use_case=>value_help_management
+      IF NOT zcl_dbbr_lock_util=>lock( EXPORTING iv_use_case  = zif_dbbr_c_use_case=>value_help_management
                                         IMPORTING ev_locked_by = lv_locked_by_user ).
         " locking failed
         MESSAGE |Locked by User { lv_locked_by_user }| TYPE 'S' DISPLAY LIKE 'E'.
@@ -444,7 +452,7 @@ CLASS ZCL_DBBR_F4_MANAGER IMPLEMENTATION.
 
 
   METHOD unlock.
-    zcl_DBBR_lock_util=>unlock( zif_DBBR_c_use_case=>value_help_management ).
+    zcl_dbbr_lock_util=>unlock( zif_dbbr_c_use_case=>value_help_management ).
   ENDMETHOD.
 
 

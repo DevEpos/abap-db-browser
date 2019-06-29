@@ -1,4 +1,4 @@
-"! <p class="shorttext synchronized" lang="en">Controlller zum Speichern/Lesen/Löschen von Varianten</p>
+"! <p class="shorttext synchronized" lang="en">Controlller zum Speichern/Lesen/LÃ¶schen von Varianten</p>
 CLASS zcl_dbbr_variant_controller DEFINITION
   PUBLIC
   CREATE PUBLIC .
@@ -8,22 +8,26 @@ CLASS zcl_dbbr_variant_controller DEFINITION
     INTERFACES zif_uitb_screen_controller .
 
     CONSTANTS:
-      BEGIN OF mc_modes,
+      BEGIN OF c_modes,
         save   TYPE int1 VALUE 1,
-        read   TYPE int1 VALUE 2,
         delete TYPE int1 VALUE 3,
-      END OF mc_modes .
+      END OF c_modes .
 
     METHODS constructor
       IMPORTING
-        !iv_screen_mode    TYPE zdbbr_selscreen_mode
-        !iv_mode           TYPE int1
-        !is_query_info     TYPE zdbbr_query_info
-        !ir_multi_or_itab  TYPE REF TO zdbbr_or_seltab_itab
-        !ir_tabfields      TYPE REF TO zcl_dbbr_tabfield_list
-        !ir_tabfields_grpd TYPE REF TO zcl_dbbr_tabfield_list .
+        iv_screen_mode          TYPE zdbbr_selscreen_mode
+        if_default_variant_mode TYPE abap_bool OPTIONAL
+        if_alv_mode             TYPE abap_bool OPTIONAL
+        iv_entity_id            TYPE zdbbr_entity_id
+        iv_entity_name          TYPE zdbbr_entity_id_raw
+        iv_mode                 TYPE int1
+        ir_s_global_data        TYPE REF TO zdbbr_global_data
+        ir_t_selfields          TYPE REF TO zdbbr_selfield_itab OPTIONAL
+        ir_t_selfields_multi    TYPE REF TO zdbbr_selfield_itab OPTIONAL
+        ir_t_multi_or           TYPE REF TO zdbbr_or_seltab_itab OPTIONAL
+        io_tabfields            TYPE REF TO zcl_dbbr_tabfield_list
+        io_tabfields_grpd       TYPE REF TO zcl_dbbr_tabfield_list .
     METHODS call_variant_f4 .
-    METHODS leave_screen .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -34,14 +38,12 @@ CLASS zcl_dbbr_variant_controller DEFINITION
 
     DATA:
       BEGIN OF ms_ui_refs,
-        selfields_multi         TYPE REF TO zdbbr_selfield_itab,
-        global_data             TYPE REF TO zdbbr_global_data,
-        table_data              TYPE REF TO zdbbr_selfield_itab,
         variant_name            TYPE REF TO zdbbr_variant_name,
         variant_text            TYPE REF TO ddtext,
         xfilter_fields          TYPE REF TO abap_bool,
         xoutput_fields          TYPE REF TO abap_bool,
         xsort_fields            TYPE REF TO abap_bool,
+        xcolumn_widths          TYPE REF TO abap_bool,
         variant_table_name      TYPE REF TO tabname16,
         variant_query_name      TYPE REF TO zdbbr_query_name,
         variant_for_table_title TYPE REF TO syst_title,
@@ -49,28 +51,37 @@ CLASS zcl_dbbr_variant_controller DEFINITION
         variant_for_cds_title   TYPE REF TO syst_title,
         variant_cds_name        TYPE REF TO zdbbr_cds_view_name,
       END OF ms_ui_refs .
-    DATA ms_query_info TYPE zdbbr_query_info .
-    DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
-    DATA mr_tabfields_grouped TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mr_t_selfields TYPE REF TO zdbbr_selfield_itab.
+    DATA mr_t_selfields_multi TYPE REF TO zdbbr_selfield_itab.
+    DATA mr_s_global_data TYPE REF TO zdbbr_global_data.
+    DATA mo_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_tabfields_grouped TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mv_mode TYPE int1 .
     DATA mr_multi_or_itab TYPE REF TO zdbbr_or_seltab_itab .
     "! <p class="shorttext synchronized" lang="en">Mode for Seleciton Screen of DB Browser</p>
     DATA mv_selscreen_mode TYPE zdbbr_selscreen_mode .
+    DATA mv_entity_id   TYPE zdbbr_entity_id.
+    DATA mv_entity_name TYPE zdbbr_entity_id_raw.
+    DATA mf_default_variant_mode TYPE abap_bool.
+    DATA mf_alv_output TYPE abap_bool.
 
-    "! <p class="shorttext synchronized" lang="en">Read variant </p>
-    "!
-    METHODS read_variant .
     "! <p class="shorttext synchronized" lang="en">Delete variant</p>
-    "!
     METHODS delete_variant .
+
     "! <p class="shorttext synchronized" lang="en">Create new variant</p>
-    "!
     METHODS create_variant .
+
+    "! <p class="shorttext synchronized" lang="en">Creates/updates default variant for given entity</p>
+    METHODS create_default_variant.
+
+    "! <p class="shorttext synchronized" lang="en">Returns 'X' if there are selection criteria</p>
     METHODS exists_criteria
       RETURNING
         VALUE(rf_exists) TYPE abap_bool.
-
-
+    "! <p class="shorttext synchronized" lang="en">Persists the variant from the current data</p>
+    METHODS persist_variant
+      IMPORTING
+        iv_variant_id TYPE zdbbr_variant_id OPTIONAL.
 ENDCLASS.
 
 
@@ -93,17 +104,10 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
     DATA: lt_variants TYPE TABLE OF lty_variant_f4.
 
     " get variants from db
-    DATA(lr_variant_factory) = NEW zcl_dbbr_variant_factory( ).
-    lr_variant_factory->find_variants(
+    zcl_dbbr_variant_factory=>find_variants(
       EXPORTING
         iv_variant_name = ms_ui_refs-variant_name->*
-        iv_entity_id    = SWITCH #(
-          mv_selscreen_mode
-          WHEN zif_dbbr_c_selscreen_mode=>query THEN
-             ms_query_info-query_id
-          ELSE
-             ms_ui_refs-global_data->primary_table
-        )
+        iv_entity_id    = mv_entity_id
         iv_entity_type  = mv_selscreen_mode
       IMPORTING
         et_variant_info = DATA(lt_variant_info)
@@ -126,22 +130,26 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
   METHOD constructor.
 
     mv_mode = iv_mode.
+    mf_default_variant_mode = if_default_variant_mode.
+    mf_alv_output = if_alv_mode.
     mv_selscreen_mode = iv_screen_mode.
-    ms_query_info = is_query_info.
-    mr_tabfields = ir_tabfields.
-    mr_tabfields_grouped = ir_tabfields_grpd.
-    mr_multi_or_itab = ir_multi_or_itab.
+    mv_entity_id = iv_entity_id.
+    mv_entity_name = iv_entity_name.
+    mo_tabfields = io_tabfields.
+    mo_tabfields_grouped = io_tabfields_grpd.
+    mr_multi_or_itab = ir_t_multi_or.
+    mr_s_global_data = ir_s_global_data.
+    mr_t_selfields = ir_t_selfields.
+    mr_t_selfields_multi = ir_t_selfields_multi.
 
     " init some global data references
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
-    ms_ui_refs-table_data = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_selection_fields ) ).
-    ms_ui_refs-global_data = CAST zdbbr_global_data( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
-    ms_ui_refs-selfields_multi = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_selection_fields_multi ) ).
     ms_ui_refs-variant_name = CAST zdbbr_variant_name( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_p_varnam ) ).
     ms_ui_refs-variant_text = CAST ddtext( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_p_vartxt ) ).
     ms_ui_refs-xsort_fields = CAST boolean( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_p_xsort ) ).
-    ms_ui_refs-xfilter_fields = cast #( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_p_has_selection_criteria ) ).
+    ms_ui_refs-xcolumn_widths = CAST abap_bool( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_p_has_defined_column_widths ) ).
+    ms_ui_refs-xfilter_fields = CAST #( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_p_has_selection_criteria ) ).
     ms_ui_refs-xoutput_fields = CAST boolean( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_p_xfield ) ).
     ms_ui_refs-variant_table_name = CAST #( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_p_tab ) ).
     ms_ui_refs-variant_for_table_title = CAST syst_title( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_tvar_t ) ).
@@ -154,28 +162,10 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
 
 
   METHOD create_variant.
-*&---------------------------------------------------------------------*
-*& Description: Creates the variant
-*&---------------------------------------------------------------------*
-    DATA: lv_tabname             TYPE tabname,
-          lv_answer              TYPE char1,
-          lv_existing_variant_id TYPE zdbbr_variant_id,
-          ls_variant             TYPE zdbbr_variant_data,
-          ls_vardata_entry       TYPE zdbbr_vardata,
-          lv_entity_id           TYPE zdbbr_entity_id.
 
-    IF mv_selscreen_mode = zif_dbbr_c_selscreen_mode=>query.
-      lv_entity_id = ms_query_info-query_id.
-    ELSE.
-      lv_entity_id = ms_ui_refs-global_data->primary_table.
-    ENDIF.
-
-    DATA(lr_variant_factory) = NEW zcl_dbbr_variant_factory( ).
-
-    " 1) does variant for this name already exist?
-    IF lr_variant_factory->variant_exists( iv_variant_name = ms_ui_refs-variant_name->*
-                                           iv_entity_id    = lv_entity_id
-                                           iv_entity_type  = mv_selscreen_mode ).
+    IF zcl_dbbr_variant_factory=>variant_exists( iv_variant_name = ms_ui_refs-variant_name->*
+                                                 iv_entity_id    = mv_entity_id
+                                                 iv_entity_type  = mv_selscreen_mode ).
 
       IF zcl_dbbr_appl_util=>popup_to_confirm(
              iv_title      = |{ TEXT-ms2 }|
@@ -184,59 +174,75 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
         RETURN.
       ENDIF.
 
-      lr_variant_factory->get_variant(
+      zcl_dbbr_variant_factory=>get_variant(
         EXPORTING
           iv_variant_name    = ms_ui_refs-variant_name->*
-          iv_entity_id       = lv_entity_id
+          iv_entity_id       = mv_entity_id
           iv_entity_type     = mv_selscreen_mode
           if_load_completely = abap_false
         IMPORTING
           es_variant         = DATA(ls_existing_variant)
       ).
-
-      lv_existing_variant_id = ls_existing_variant-variant_id.
     ENDIF.
 
-    ls_variant = zcl_dbbr_variant_creator=>create_variant(
-        iv_variant_id          = ls_existing_variant-variant_id
-        iv_variant_name        = ms_ui_refs-variant_name->*
-        iv_entity_id           = lv_entity_id
-        iv_entity_type         = mv_selscreen_mode
-        iv_variant_description = ms_ui_refs-variant_text->*
-        if_has_output_fields   = ms_ui_refs-xoutput_fields->*
-        if_has_sort_fields     = ms_ui_refs-xsort_fields->*
-        it_selfields           = COND #( WHEN ms_ui_refs-xfilter_fields->* = abap_true THEN ms_ui_refs-table_data->* )
-        it_multi_selfields     = COND #( WHEN ms_ui_refs-xfilter_fields->* = abap_true THEN ms_ui_refs-selfields_multi->* )
-        it_multi_or            = COND #( WHEN ms_ui_refs-xfilter_fields->* = abap_true THEN mr_multi_or_itab->* )
-    ).
+    persist_variant( ls_existing_variant-variant_id ).
+
+  ENDMETHOD.
+
+  METHOD create_default_variant.
+    persist_variant( ).
+  ENDMETHOD.
+
+  METHOD persist_variant.
+
+    DATA(ls_variant) = zcl_dbbr_variant_creator=>create_variant(
+         iv_variant_id          = iv_variant_id
+         iv_variant_name        = ms_ui_refs-variant_name->*
+         iv_entity_id           = mv_entity_id
+         iv_entity_type         = mv_selscreen_mode
+         iv_variant_description = ms_ui_refs-variant_text->*
+         if_has_output_fields   = ms_ui_refs-xoutput_fields->*
+         if_has_sort_fields     = ms_ui_refs-xsort_fields->*
+         it_selfields           = COND #( WHEN ms_ui_refs-xfilter_fields->* = abap_true AND mr_t_selfields IS BOUND THEN mr_t_selfields->* )
+         it_multi_selfields     = COND #( WHEN ms_ui_refs-xfilter_fields->* = abap_true AND mr_t_selfields_multi IS BOUND THEN mr_t_selfields_multi->* )
+         it_multi_or            = COND #( WHEN ms_ui_refs-xfilter_fields->* = abap_true AND mr_multi_or_itab IS BOUND THEN mr_multi_or_itab->* )
+     ).
 
 *.. create user/ddic sort order for output / sorting fields
-    DATA(lr_tabfields) = mr_tabfields->copy( ).
-    lr_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
-    lr_tabfields->sort( ).
-    lr_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-sort ).
-    lr_tabfields->sort( ).
-    " clear flag for selected fields
-    lr_tabfields->clear_active_flag( if_clear_selection = abap_true
-                                     if_clear_output    = xsdbool( ms_ui_refs-xoutput_fields->* = abap_false )
-                                     if_clear_sort      = xsdbool( ms_ui_refs-xsort_fields->*   = abap_false ) ).
+    IF  ms_ui_refs-xoutput_fields->* = abap_true OR
+        ms_ui_refs-xsort_fields->* = abap_true.
 
-    " save output / order by fields
-    lr_tabfields->get_fields(
-      EXPORTING
-        if_include_only_checked = abap_true
-        if_consider_output      = ms_ui_refs-xoutput_fields->*
-        if_consider_sorted      = ms_ui_refs-xsort_fields->*
-      IMPORTING
-        et_fields               = DATA(lt_fields_ui)
-    ).
+      DATA(lr_tabfields) = mo_tabfields->copy( ).
+      lr_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
+      lr_tabfields->sort( ).
+      lr_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-sort ).
+      lr_tabfields->sort( ).
 
-    ls_variant-fields = CORRESPONDING #( lt_fields_ui ).
+*.... clear flag for selected fields
+      lr_tabfields->clear_active_flag( if_clear_selection = abap_true
+                                       if_clear_output    = xsdbool( ms_ui_refs-xoutput_fields->* = abap_false )
+                                       if_clear_sort      = xsdbool( ms_ui_refs-xsort_fields->*   = abap_false ) ).
+
+*.... save output / order by fields
+      lr_tabfields->get_fields(
+        EXPORTING if_include_only_checked = abap_true
+                  if_consider_output      = ms_ui_refs-xoutput_fields->*
+                  if_consider_sorted      = ms_ui_refs-xsort_fields->*
+        IMPORTING et_fields               = DATA(lt_fields_ui)
+      ).
+
+      ls_variant-fields = CORRESPONDING #( lt_fields_ui ).
+    ENDIF.
 
     " save the variant
-    NEW zcl_dbbr_variant_factory( )->save_variant( ls_variant ).
+    IF mf_default_variant_mode = abap_true.
+      zcl_dbbr_variant_factory=>save_default_variant( ls_variant ).
+      MESSAGE s095(zdbbr_info) WITH mv_entity_name.
+    ELSE.
+      zcl_dbbr_variant_factory=>save_variant( ls_variant ).
+      MESSAGE s028(zdbbr_info) WITH ms_ui_refs-variant_name->*.
+    ENDIF.
 
-    MESSAGE s028(zdbbr_info) WITH ms_ui_refs-variant_name->*.
     zcl_dbbr_screen_helper=>leave_screen( ).
 
   ENDMETHOD.
@@ -244,9 +250,11 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
   METHOD exists_criteria.
     CLEAR rf_exists.
 
-    LOOP AT ms_ui_refs-table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE low IS NOT INITIAL
-                                                                              OR high IS NOT INITIAL
-                                                                              OR option IS NOT INITIAL.
+    CHECK mr_t_selfields IS BOUND.
+
+    LOOP AT mr_t_selfields->* ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE low IS NOT INITIAL
+                                                                       OR high IS NOT INITIAL
+                                                                       OR option IS NOT INITIAL.
       EXIT.
     ENDLOOP.
 
@@ -261,24 +269,11 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
 
 
   METHOD delete_variant.
-*&---------------------------------------------------------------------*
-*& Description: Deletes specified variant
-*&---------------------------------------------------------------------*
-    DATA(lr_variant_factory) = NEW zcl_dbbr_variant_factory( ).
 
-    DATA(lv_entity_id) = SWITCH zdbbr_entity_id(
-      mv_selscreen_mode
-      WHEN zif_dbbr_c_entity_type=>query THEN
-        ms_query_info-query_id
-      WHEN zif_dbbr_c_entity_type=>table OR
-           zif_dbbr_c_entity_type=>cds_view THEN
-        ms_ui_refs-global_data->primary_table
-    ).
-
-    lr_variant_factory->get_variant(
+    zcl_dbbr_variant_factory=>get_variant(
         EXPORTING
           iv_variant_name    = ms_ui_refs-variant_name->*
-          iv_entity_id       = lv_entity_id
+          iv_entity_id       = mv_entity_id
           iv_entity_type     = mv_selscreen_mode
           if_load_completely = abap_false
         IMPORTING
@@ -290,61 +285,16 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    lr_variant_factory->delete_variant( ls_existing_variant-variant_id ).
+    zcl_dbbr_variant_factory=>delete_variant( ls_existing_variant-variant_id ).
 
     MESSAGE s029(zdbbr_info) WITH ms_ui_refs-variant_name->*.
     zcl_dbbr_screen_helper=>leave_screen( ).
 
   ENDMETHOD.
 
-
-  METHOD leave_screen.
-*& Description: Leaves the screen
-*&---------------------------------------------------------------------*
-    zcl_dbbr_screen_helper=>leave_screen( ).
-  ENDMETHOD.
-
-
-  METHOD read_variant.
-*& Description: Reads the specified variant
-*&---------------------------------------------------------------------*
-    DATA: ls_alv_variant TYPE disvariant.
-
-    DATA(lr_variant_factory) = NEW zcl_dbbr_variant_factory( ).
-
-    DATA(lr_variant_loader) = NEW zcl_dbbr_variant_loader(
-        iv_variant_name      = ms_ui_refs-variant_name->*
-        iv_entity_id         = COND #( WHEN mv_selscreen_mode = zif_dbbr_c_selscreen_mode=>query THEN
-                                          ms_query_info-query_id
-                                       ELSE
-                                          ms_ui_refs-global_data->primary_table )
-        iv_entity_type       = mv_selscreen_mode
-        ir_t_multi_or        = mr_multi_or_itab
-        ir_t_selfields       = ms_ui_refs-table_data
-        ir_t_selfields_multi = ms_ui_refs-selfields_multi
-        ir_tabfields         = mr_tabfields
-        ir_s_global_data     = ms_ui_refs-global_data
-        ir_tabfields_grouped = mr_tabfields_grouped
-    ).
-
-    TRY.
-        DATA(ls_variant_info) = lr_variant_loader->load_variant( ).
-        ms_ui_refs-xoutput_fields->* = ls_variant_info-has_output_fields.
-        ms_ui_refs-xsort_fields->* = ls_variant_info-has_sort_fields.
-        ms_ui_refs-variant_text->* = ls_variant_info-description.
-
-        zcl_dbbr_screen_helper=>leave_screen( ).
-      CATCH zcx_dbbr_validation_exception INTO DATA(lr_valid_error).
-        lr_valid_error->show_message( ).
-        RETURN.
-    ENDTRY.
-
-  ENDMETHOD.
-
-
   METHOD zif_uitb_screen_controller~call_screen.
 
-    IF mv_mode = mc_modes-save AND
+    IF mv_mode = c_modes-save AND
        ms_ui_refs-variant_name->* IS INITIAL.
 
       CLEAR: ms_ui_refs-xoutput_fields->*,
@@ -352,16 +302,15 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
     ENDIF.
 
     ms_ui_refs-xfilter_fields->* = exists_criteria( ).
-
     CASE mv_selscreen_mode.
       WHEN zif_dbbr_c_selscreen_mode=>table.
-        ms_ui_refs-variant_table_name->* = ms_ui_refs-global_data->primary_table.
+        ms_ui_refs-variant_table_name->* = mv_entity_name.
 
       WHEN zif_dbbr_c_selscreen_mode=>query.
-        ms_ui_refs-variant_query_name->* = ms_query_info-query_name.
+        ms_ui_refs-variant_query_name->* = mv_entity_name.
 
       WHEN zif_dbbr_c_selscreen_mode=>cds_view.
-        ms_ui_refs-variant_cds_name->* = ms_ui_refs-global_data->primary_table.
+        ms_ui_refs-variant_cds_name->* = mv_entity_name.
 
     ENDCASE.
 
@@ -407,13 +356,19 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
 
     CASE cv_function_code.
       WHEN 'ENTER'.
+
         CASE mv_mode.
-          WHEN mc_modes-read.
-            read_variant( ).
-          WHEN mc_modes-delete.
+
+          WHEN c_modes-delete.
             delete_variant( ).
-          WHEN mc_modes-save.
-            create_variant( ).
+
+          WHEN c_modes-save.
+            IF mf_default_variant_mode = abap_true.
+              create_default_variant( ).
+            ELSE.
+              create_variant( ).
+            ENDIF.
+
         ENDCASE.
 
       WHEN 'CANCEL'.
@@ -429,23 +384,35 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
 
     zif_uitb_screen_controller~set_status( ).
 
-    LOOP AT SCREEN INTO DATA(ls_screen).
-      IF ls_screen-name = zif_dbbr_main_report_var_ids=>c_p_tab OR
-         ls_screen-name = zif_dbbr_main_report_var_ids=>c_p_scrnam OR
-         ls_screen-name = zif_dbbr_main_report_var_ids=>c_p_cds_view_name.
-        ls_screen-input = 0.
-        MODIFY SCREEN FROM ls_screen.
-      ELSEIF ls_screen-group1 = 'GLO'.
-        ls_screen-active = 0.
-        MODIFY SCREEN FROM ls_screen.
-      ELSEIF ( ls_screen-name = zif_dbbr_main_report_var_ids=>c_p_vartxt OR
-               ls_screen-group1 = 'TXT'  ) AND
-             mv_mode <> mc_modes-save.
-        ls_screen-active = 0.
-        MODIFY SCREEN FROM ls_screen.
-      ELSEIF ls_screen-group1 = 'PAR' AND mv_mode <> mc_modes-save.
-        ls_screen-active = 0.
-        MODIFY SCREEN FROM ls_screen.
+    LOOP AT SCREEN.
+      IF mf_default_variant_mode = abap_true.
+        IF screen-group1 = 'TXT' OR screen-group1 = 'VRN'.
+          screen-active = 0.
+          MODIFY SCREEN.
+          CONTINUE.
+        ENDIF.
+      ENDIF.
+      IF screen-group1 = 'ALV' AND mf_alv_output = abap_false.
+        screen-active = 0.
+        MODIFY SCREEN.
+        CONTINUE.
+      ENDIF.
+      IF screen-name = zif_dbbr_main_report_var_ids=>c_p_tab OR
+         screen-name = zif_dbbr_main_report_var_ids=>c_p_scrnam OR
+         screen-name = zif_dbbr_main_report_var_ids=>c_p_cds_view_name.
+        screen-input = 0.
+        MODIFY SCREEN.
+      ELSEIF screen-group1 = 'GLO'.
+        screen-active = 0.
+        MODIFY SCREEN.
+      ELSEIF ( screen-name = zif_dbbr_main_report_var_ids=>c_p_vartxt OR
+               screen-group1 = 'TXT'  ) AND
+             mv_mode <> c_modes-save.
+        screen-active = 0.
+        MODIFY SCREEN.
+      ELSEIF screen-group1 = 'PAR' AND mv_mode <> c_modes-save.
+        screen-active = 0.
+        MODIFY SCREEN FROM screen.
       ENDIF.
     ENDLOOP.
 
@@ -454,22 +421,25 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
 
   METHOD zif_uitb_screen_controller~set_status.
 
-    DATA: lt_excl TYPE TABLE OF sy-ucomm.
+    zcl_uitb_screen_util=>set_selscreen_status(
+        iv_status = '0600'
+        iv_repid  = get_report_id( )
+    ).
 
-    CALL FUNCTION 'RS_SET_SELSCREEN_STATUS'
-      EXPORTING
-        p_status  = '0600'
-      TABLES
-        p_exclude = lt_excl.
-
-    DATA(lv_title) = SWITCH string(
-        mv_mode
-        WHEN mc_modes-read THEN
-            TEXT-v01
-        WHEN mc_modes-save THEN
-            TEXT-v02
-        WHEN mc_modes-delete THEN
-            TEXT-v03
+    DATA(lv_title) = SWITCH #(
+      mf_default_variant_mode
+      WHEN abap_false THEN SWITCH string(
+          mv_mode
+          WHEN c_modes-save THEN
+              'Save variant'(v02)
+          WHEN c_modes-delete THEN
+              'Delete variant'(v03)
+      )
+      WHEN abap_true THEN SWITCH string(
+          mv_mode
+          WHEN c_modes-save THEN
+              'Save Default Variant'(017)
+      )
     ).
 
     CASE mv_selscreen_mode.
@@ -490,4 +460,5 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
 
   METHOD zif_uitb_screen_controller~was_not_cancelled.
   ENDMETHOD.
+
 ENDCLASS.

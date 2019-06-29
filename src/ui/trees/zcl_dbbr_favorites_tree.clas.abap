@@ -131,7 +131,6 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
     DATA mf_global_fav_mode TYPE boolean .
     DATA mo_favmenu_f TYPE REF TO zcl_dbbr_favmenu_factory .
     DATA mo_tree_dnd_behaviour TYPE REF TO cl_dragdrop .
-    DATA mo_variant_f TYPE REF TO zcl_dbbr_variant_factory .
     DATA mo_query_f TYPE REF TO zcl_dbbr_query_factory .
     DATA mo_parent_container TYPE REF TO cl_gui_container .
     DATA mo_parent_view TYPE REF TO zif_uitb_gui_composite_view.
@@ -263,11 +262,7 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
           !er_drag_drop_object
           !et_node_key_table
           !ev_item_name .
-    "! <p class="shorttext synchronized" lang="en">Sets favorite menu data for node</p>
-    METHODS set_node_favmenu_data
-      IMPORTING
-        !io_node    TYPE REF TO zcl_uitb_ctm_node
-        !is_favmenu TYPE zdbbr_favmenu .
+
     "! <p class="shorttext synchronized" lang="en">Checks if node should be displayed as folder</p>
     METHODS should_display_as_folder
       IMPORTING
@@ -392,7 +387,6 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     mo_parent_view = io_parent_view.
     mo_favmenu_f = NEW zcl_dbbr_favmenu_factory( ).
     mo_query_f = NEW #( ).
-    mo_variant_f = NEW #( ).
     mo_parent_container = io_parent.
 
     SET HANDLER:
@@ -895,7 +889,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     ENDIF.
 
     mo_favmenu_f->update_favorite( ls_favmenu_data ).
-    lo_selected_node->set_user_object( NEW zcl_dbbr_favmenu_entry( ls_favmenu_data ) ).
+    lo_selected_node->set_user_data( NEW zdbbr_favmenu( ls_favmenu_data ) ).
 
     mo_tree_model->zif_uitb_gui_control~focus( ).
   ENDMETHOD.
@@ -1334,7 +1328,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     DATA(lr_user_data) = lo_node->get_user_data( ).
     DATA(ls_favmenu_data) = CAST zdbbr_favmenu( lr_user_data )->*.
 
-    DATA(lt_variants) = mo_variant_f->find_variant_infos_for_type(
+    DATA(lt_variants) = zcl_dbbr_variant_factory=>find_variant_infos_for_type(
         iv_entity_id   = ls_favmenu_data-fav_entry
         iv_entity_type = ls_favmenu_data-favtype
     ).
@@ -1617,7 +1611,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
                                               ls_favmenu_target_parent-object_id ).
       ls_favmenu_source-menu_level = lv_menulevel.
       mo_favmenu_f->update_favorite( ls_favmenu_source ).
-      lo_source_node->set_user_object( NEW zcl_dbbr_favmenu_entry( ls_favmenu_source ) ).
+      lo_source_node->set_user_data( new zdbbr_favmenu( ls_favmenu_source ) ).
 
 *.... update menu levels of node
       update_menulevel_of_children( lv_source_node ).
@@ -1636,12 +1630,6 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
   METHOD on_tree_drop_complete_multiple.
 
   ENDMETHOD.
-
-
-  METHOD set_node_favmenu_data.
-    io_node->set_user_object( NEW zcl_dbbr_favmenu_entry( is_favmenu ) ).
-  ENDMETHOD.
-
 
   METHOD should_display_as_folder.
     CLEAR result.
@@ -1718,7 +1706,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
       ls_favmenu_data = get_node_favmenu_data( <lo_child> ).
       ls_favmenu_data-menu_level = lv_menulevel.
       mo_favmenu_f->update_favorite( ls_favmenu_data ).
-      <lo_child>->set_user_object( NEW zcl_dbbr_favmenu_entry( ls_favmenu_data ) ).
+      <lo_child>->set_user_data( new zdbbr_favmenu( ls_favmenu_data ) ).
 
 *.... also update child nodes
       IF <lo_child>->is_folder( ).
@@ -1740,7 +1728,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
       ls_favmenu_data-sort_order = lv_sortorder.
 
       lo_favmenu_f->update_favorite( ls_favmenu_data ).
-      <lo_child>->set_user_object( NEW zcl_dbbr_favmenu_entry( ls_favmenu_data ) ).
+      <lo_child>->set_user_data( new zdbbr_favmenu( ls_favmenu_data ) ).
 
       ADD 10 TO lv_sortorder.
     ENDLOOP.

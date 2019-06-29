@@ -181,14 +181,12 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
 
     DATA(lv_new_query_id) = mr_query_f->save_query( ls_query_data ).
 
-    DATA(lr_variant_f) = NEW zcl_dbbr_variant_factory( ).
-
 *.. if query has filter criteria, store / overwrite them es well
     IF mr_ui_use_selection_criteria->* = abap_true.
 *.... Check if there already is a default variant for the query
       DATA(ls_variant) = zcl_dbbr_variant_creator=>create_variant(
           iv_entity_id           = CONV #( lv_new_query_id )
-          iv_variant_id          = lr_variant_f->find_default_query_variant( iv_query_id = lv_new_query_id )
+          iv_variant_id          = zcl_dbbr_variant_factory=>find_default_query_variant( iv_query_id = lv_new_query_id )
           iv_entity_type         = zif_dbbr_c_entity_type=>query
           iv_variant_description = 'Default'(013)
           it_selfields           = mr_t_selfields->*
@@ -196,13 +194,13 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
           it_multi_or            = mr_t_multi_or->*
       ).
       IF ls_variant-variant_data IS NOT INITIAL.
-        lr_variant_f->save_variant( is_var_data = ls_variant ).
+        zcl_dbbr_variant_factory=>save_variant( is_var_data = ls_variant ).
       ENDIF.
     ELSE.
 *.... Delete existing default variant
-      DATA(lv_default_variant_id) = lr_variant_f->find_default_query_variant( iv_query_id = lv_new_query_id ).
+      DATA(lv_default_variant_id) = zcl_dbbr_variant_factory=>find_default_query_variant( iv_query_id = lv_new_query_id ).
       IF lv_default_variant_id IS NOT INITIAL.
-        lr_variant_f->delete_variant( lv_default_variant_id ).
+        zcl_dbbr_variant_factory=>delete_variant( lv_default_variant_id ).
       ENDIF.
     ENDIF.
 
@@ -273,6 +271,14 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
   METHOD zif_uitb_screen_controller~pbo.
 
     zif_uitb_screen_controller~set_status( ).
+
+    LOOP AT SCREEN.
+      IF screen-group1 = 'ALV'.
+        screen-active = 0.
+        MODIFY SCREEN.
+        CONTINUE.
+      ENDIF.
+    ENDLOOP.
 
   ENDMETHOD.
 

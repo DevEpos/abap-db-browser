@@ -107,6 +107,9 @@ INTERFACE zif_dbbr_main_report_var_ids
   CONSTANTS c_p_xfield TYPE string VALUE 'P_XFIELD' ##NO_TEXT.
   "! Type - boolean
   CONSTANTS c_p_xsort TYPE string VALUE 'P_XSORT' ##NO_TEXT.
+  "! Type - abap_bool
+  CONSTANTS c_p_has_defined_column_widths TYPE string VALUE 'P_XCOLWD' ##NO_TEXT.
+  "! Type - abap_bool
   CONSTANTS c_p_has_selection_criteria TYPE string VALUE 'P_XFILTV' ##NO_TEXT.
   "! Type - tabname
   CONSTANTS c_p_idtab TYPE string VALUE 'P_IDTAB' ##NO_TEXT.

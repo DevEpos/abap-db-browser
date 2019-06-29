@@ -271,6 +271,12 @@
      <ENTRY>Add root package to current Query</ENTRY>
      <LENGTH>66</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>044</KEY>
+     <ENTRY>Use &quot;AND&quot; for search options</ENTRY>
+     <LENGTH>56</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -596,6 +602,12 @@
      <CMPNAME>UPDATE_HISTORY_BUTTONS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Update status of history navigation buttons</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>
+     <CMPNAME>UPDATE_SEARCH_SETTINGS_MENU</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Updates the search settings menu</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OBJECT_BROWSER_TREE</CLSNAME>

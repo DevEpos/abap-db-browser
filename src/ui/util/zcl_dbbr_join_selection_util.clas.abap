@@ -110,7 +110,7 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
 
     " if no selection occurred, prevent screen visibility
     IF ms_control_info-number <= 0.
-      RAISE EVENT no_data.
+      raise_no_data_event( ).
       RETURN.
     ENDIF.
 
@@ -223,7 +223,7 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
     CHECK select_data( if_refresh_only = abap_true ).
 
     IF ms_control_info-number = 0.
-      RAISE EVENT no_data.
+      raise_no_data_event( ).
       RETURN.
     ENDIF.
 
@@ -274,8 +274,9 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
     DATA: lf_trigger_select TYPE abap_bool.
 
     DATA(lo_param_popup) = NEW zcl_dbbr_cds_param_popup(
-        io_tabfields = mo_tabfields_all
-        it_param_values = VALUE #(
+        io_tabfields     = mo_tabfields_all
+        iv_cds_view_name = mv_entity_id
+        it_param_values  = VALUE #(
           FOR param IN mt_param_values WHERE ( is_parameter = abap_true ) ( name = param-fieldname value = param-low )
         )
     ).

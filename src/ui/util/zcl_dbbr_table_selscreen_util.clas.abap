@@ -10,23 +10,18 @@ CLASS zcl_dbbr_table_selscreen_util DEFINITION
       IMPORTING
         !ir_selscreen_data TYPE REF TO zcl_dbbr_selscreen_data
         !iv_entity_type    TYPE zdbbr_entity_type DEFAULT zif_dbbr_c_entity_type=>table .
-
     METHODS check_edit_mode
         REDEFINITION .
     METHODS check_primary_entity
         REDEFINITION .
-
     METHODS get_entity_information
         REDEFINITION .
     METHODS get_title
-        REDEFINITION .
-    METHODS load_entity
         REDEFINITION .
     METHODS set_custom_functions
         REDEFINITION .
     METHODS update_description_texts
         REDEFINITION .
-
     METHODS zif_dbbr_screen_util~get_deactivated_functions
         REDEFINITION .
     METHODS zif_dbbr_screen_util~handle_ui_function
@@ -36,6 +31,8 @@ CLASS zcl_dbbr_table_selscreen_util DEFINITION
     DATA mv_tab_size_text TYPE string .
     DATA mf_is_view TYPE abap_bool.
 
+    METHODS load_entity_internal
+        REDEFINITION .
     METHODS fill_selection_mask
         REDEFINITION .
     METHODS fill_primary_entity
@@ -147,6 +144,7 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
     ).
     ev_type = COND #( WHEN mf_is_view = abap_true THEN zif_dbbr_c_entity_type=>view ELSE zif_dbbr_c_entity_type=>table ).
     ev_entity =
+    ev_entity_id =
     ev_entity_raw = mo_data->mr_s_global_data->primary_table.
   ENDMETHOD.
 
@@ -160,7 +158,7 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD load_entity.
+  METHOD load_entity_internal.
     CHECK mo_data->mr_s_global_data->primary_table IS NOT INITIAL.
 
     zcl_dbbr_screen_helper=>show_progress( iv_text     = `Selection Mask for Table ` && mo_data->mr_s_global_data->primary_table && ` is loading...`
@@ -281,6 +279,8 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
 
 
   METHOD zif_dbbr_screen_util~handle_ui_function.
+    super->handle_ui_function( changing cv_function = cv_function ).
+
     CASE cv_function.
 
       WHEN zif_dbbr_c_selscreen_functions=>navigate_to_table_def.

@@ -158,8 +158,7 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
       DATA(lr_jumpdest_f) = NEW zcl_dbbr_jump_destination_f( ).
       lr_jumpdest_f->delete_jumpdest_by_query_id( iv_query_id ).
 
-      DATA(lr_variant_f) = NEW zcl_dbbr_variant_factory( ).
-      lr_variant_f->delete_variants_by_query_id( iv_query_id ).
+      zcl_dbbr_variant_factory=>delete_variants_by_query_id( iv_query_id ).
 
     ENDIF.
 
@@ -238,7 +237,7 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
 
     " 4) read existing variants
     IF if_load_variants = abap_true.
-      cs_query_data-variants = NEW zcl_dbbr_variant_factory( )->find_variants_for_query( cs_query_data-query_id ).
+      cs_query_data-variants = zcl_dbbr_variant_factory=>find_variants_for_query( cs_query_data-query_id ).
     ENDIF.
 
     " 6) load jump fields
@@ -396,7 +395,7 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     COMMIT WORK.
 
     IF is_query-variants IS NOT INITIAL.
-      NEW zcl_dbbr_variant_factory( )->save_variants( is_query-variants ).
+      zcl_dbbr_variant_factory=>save_variants( is_query-variants ).
     ENDIF.
 
     IF is_query-jump_fields IS NOT INITIAL.

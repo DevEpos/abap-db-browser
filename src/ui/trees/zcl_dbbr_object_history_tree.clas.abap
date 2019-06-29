@@ -69,7 +69,6 @@ CLASS zcl_dbbr_object_history_tree DEFINITION
     DATA mo_parent_container TYPE REF TO cl_gui_container .
     DATA mo_query_f TYPE REF TO zcl_dbbr_query_factory .
     DATA mo_tree TYPE REF TO zcl_uitb_column_tree_model .
-    DATA mo_variant_f TYPE REF TO zcl_dbbr_variant_factory .
     DATA mf_full_history TYPE abap_bool.
     DATA mt_node_map TYPE SORTED TABLE OF ty_node_map WITH UNIQUE KEY node_key .
     DATA mo_parent_view TYPE REF TO zif_uitb_gui_composite_view.
@@ -191,7 +190,6 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
     mo_parent_container = io_parent_container.
     mo_parent_view = io_parent_view.
     mo_favmenu_f = NEW #( ).
-    mo_variant_f = NEW #( ).
 
     create_tree( ).
     build_tree( ).
@@ -386,7 +384,7 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
     DATA(lo_node) = mo_tree->get_nodes( )->get_node( ev_node_key ).
     data(lr_most_used) = cast zdbbr_mostused( lo_node->get_user_data( ) ).
 
-    DATA(lt_variants) = mo_variant_f->find_variant_infos_for_type(
+    DATA(lt_variants) = zcl_dbbr_variant_factory=>find_variant_infos_for_type(
         iv_entity_id   = lr_most_used->most_used_entry
         iv_entity_type = lr_most_used->type
     ).

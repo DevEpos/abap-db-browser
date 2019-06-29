@@ -10,8 +10,9 @@ CLASS zcl_dbbr_cds_param_popup DEFINITION
     "!
     METHODS constructor
       IMPORTING
-        it_param_values TYPE zif_dbbr_global_types=>tt_cds_param_value OPTIONAL
-        !io_tabfields   TYPE REF TO zcl_dbbr_tabfield_list .
+        it_param_values  TYPE zif_dbbr_global_types=>tt_cds_param_value OPTIONAL
+        iv_cds_view_name TYPE zdbbr_cds_view_name
+        !io_tabfields    TYPE REF TO zcl_dbbr_tabfield_list .
     "! <p class="shorttext synchronized" lang="en">Get entered param values</p>
     "!
     METHODS get_param_values
@@ -40,12 +41,15 @@ CLASS zcl_dbbr_cds_param_popup DEFINITION
       BEGIN OF ty_param.
     TYPES: paramname_raw TYPE ddtext.
         INCLUDE TYPE zif_dbbr_global_types=>ty_cds_param_value.
+    TYPES: has_custom_f4 TYPE abap_bool.
     TYPES: t_style       TYPE lvc_t_styl.
     TYPES: END OF ty_param .
 
     DATA mo_alv TYPE REF TO zcl_uitb_alv .
     DATA mt_parameters TYPE STANDARD TABLE OF ty_param .
+    DATA mo_custom_f4_map TYPE REF TO zcl_dbbr_custom_f4_map.
     DATA mo_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mv_cds_view TYPE zdbbr_cds_view_name.
 
     "! <p class="shorttext synchronized" lang="en">Convert parameter to display format</p>
     "!
@@ -93,6 +97,8 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
     super->constructor( iv_title = |{ 'Enter Parameters'(001) }| ).
 
     mo_tabfields = io_tabfields.
+    mv_cds_view = iv_cds_view_name.
+    mo_custom_f4_map = NEW zcl_dbbr_custom_f4_map( ).
 
     DATA(lr_iterator) = io_tabfields->zif_uitb_data_ref_list~get_iterator(
         iv_where = 'IS_PARAMETER = abap_true'
@@ -104,6 +110,16 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
         name          = lr_s_next_param->fieldname
         t_style       = VALUE #( ( maxlen = lr_s_next_param->outputlen ) )
         value         = lr_s_next_param->default_low
+        has_custom_f4 = mo_custom_f4_map->entry_exists(
+          iv_tabname       = lr_s_next_param->tabname
+          iv_fieldname     = lr_s_next_param->fieldname
+          iv_rollname      = lr_s_next_param->rollname
+          is_built_in_type = value #(
+            datatype = lr_s_next_param->datatype
+            inttype  = lr_s_next_param->inttype
+            leng     = lr_s_next_param->length
+          )
+        )
       ).
       IF it_param_values IS NOT INITIAL.
 *...... Retrieve passed parameter value
@@ -204,6 +220,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
     lr_cols->set_style_column( 'T_STYLE' ).
 
     lr_cols->get_column( 'NAME' )->set_technical( ).
+    lr_cols->get_column( 'HAS_CUSTOM_F4' )->set_technical( ).
 
     lr_col = lr_cols->get_column( 'PARAMNAME_RAW' ).
     lr_col->set_descriptions( iv_long = 'Name' ).
@@ -336,7 +353,6 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
 
 
   METHOD on_f4.
-    DATA: lv_f4_result TYPE zdbbr_value.
     FIELD-SYMBOLS: <lt_modified> TYPE lvc_t_modi.
 
 *.. Retrieve param information for current field
@@ -345,7 +361,35 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
         iv_tabname = zif_dbbr_global_consts=>c_parameter_dummy_table
         iv_fieldname = lr_s_param->name
     ).
-    IF ls_param_field-rollname IS NOT INITIAL.
+    IF lr_s_param->has_custom_f4 = abap_true AND mo_custom_f4_map IS BOUND.
+      DATA(ls_selfield) = CORRESPONDING zdbbr_selfield(
+        ls_param_field
+        MAPPING lowercase        = is_lowercase
+                key              = is_key
+                option           = default_option
+                sign             = default_sign
+                low              = default_low
+                has_cust_f4_help = has_custom_f4
+
+      ).
+      ls_selfield-has_cust_f4_help = abap_true.
+      zcl_dbbr_f4_helper=>call_f4(
+        EXPORTING
+          io_custom_f4_map = mo_custom_f4_map
+        CHANGING
+          cs_selfield      = ls_selfield
+      ).
+      IF ls_selfield-low IS NOT INITIAL.
+        ev_fieldvalue = ls_selfield-low.
+        er_event_data->m_event_handled = abap_true.
+        ASSIGN er_event_data->m_data->* TO <lt_modified>.
+
+        <lt_modified> = VALUE #(
+          ( fieldname = 'VALUE' row_id = es_row_no-row_id value = ls_selfield-low )
+        ).
+      ENDIF.
+    ELSEIF ls_param_field-rollname IS NOT INITIAL.
+      DATA: lv_f4_result TYPE zdbbr_value.
 
       zcl_dbbr_f4_helper=>call_built_in_f4(
         EXPORTING iv_tablename = ls_param_field-rollname

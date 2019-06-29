@@ -113,7 +113,7 @@ CLASS zcl_dbbr_package_factory IMPLEMENTATION.
 
     lt_package_range = VALUE #( ( sign = 'I' option = 'CP' low = iv_package ) ).
 
-    DATA(lv_descr_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_descr_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT package~devclass AS package, text~ctext AS ddtext
       FROM tdevc AS package

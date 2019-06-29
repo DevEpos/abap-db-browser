@@ -192,13 +192,20 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
   METHOD create_dock.
     CHECK mo_dock IS INITIAL.
 
+    DATA(lr_global_data) = CAST zdbbr_global_data(
+                              zcl_uitb_data_cache=>get_instance(
+                                   zif_dbbr_c_report_id=>main
+                              )->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
+
     mo_dock = NEW cl_gui_docking_container(
-        side      = cl_gui_docking_container=>dock_at_left
+        side      = COND #( WHEN lr_global_data->tech_settings-dock_obj_nav_on_right = abap_false THEN
+                                 cl_gui_docking_container=>dock_at_left
+                            ELSE cl_gui_docking_container=>dock_at_right )
         dynnr     = zif_dbbr_screen_ids=>c_selection_screen
         repid     = zif_dbbr_c_report_id=>main
-        extension = 460
+        extension = 480
     ).
-
+    mo_dock->set_grid_handle( 0 ).
     mo_dock->set_visible( abap_false ).
   ENDMETHOD.
 

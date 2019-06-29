@@ -82,7 +82,6 @@ CLASS zcl_dbbr_usersettings_factory IMPLEMENTATION.
           fav_user_mode         = zif_dbbr_global_consts=>gc_fav_user_modes-global
           last_used_count       = zif_dbbr_global_consts=>c_default_last_used_favs
           color_formula_fields  = abap_true
-          description_language  = sy-langu
           object_navigator_open = abap_true
           initial_obj_nav_mode = zif_dbbr_c_obj_navigator_mode=>object_browser
           initial_obj_brws_mode = zif_dbbr_c_object_browser_mode=>cds_view

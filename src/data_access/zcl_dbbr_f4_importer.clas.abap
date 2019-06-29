@@ -8,20 +8,17 @@ CLASS zcl_dbbr_f4_importer DEFINITION
   PROTECTED SECTION.
 
     METHODS create_internal_table_ref
-         REDEFINITION .
+        REDEFINITION .
     METHODS persist_import_data
-         REDEFINITION .
+        REDEFINITION .
     METHODS process_import_data
-         REDEFINITION .
+        REDEFINITION .
     METHODS write_no_data_found_message
-         REDEFINITION .
+        REDEFINITION .
     METHODS write_start_message
-         REDEFINITION .
+        REDEFINITION .
   PRIVATE SECTION.
-    DATA mr_f4_f TYPE REF TO zcl_dbbr_custom_f4_factory.
-
     METHODS edit_f4_data.
-
 ENDCLASS.
 
 
@@ -29,9 +26,7 @@ ENDCLASS.
 CLASS zcl_dbbr_f4_importer IMPLEMENTATION.
 
   METHOD constructor.
-    super->constructor( 'SE16N-Advanced-F4' ).
-
-    mr_f4_f = NEW #( ).
+    super->constructor( 'DB-Browser-F4' ).
   ENDMETHOD.
 
   METHOD create_internal_table_ref.
@@ -47,7 +42,7 @@ CLASS zcl_dbbr_f4_importer IMPLEMENTATION.
     ASSIGN mr_import_data->* TO <lt_f4>.
 
     LOOP AT <lt_f4> ASSIGNING FIELD-SYMBOL(<ls_f4_export>).
-      DATA(lv_f4_id) = mr_f4_f->save_custom( CORRESPONDING #( <ls_f4_export> ) ).
+      DATA(lv_f4_id) = zcl_dbbr_custom_f4_factory=>save_custom( CORRESPONDING #( <ls_f4_export> ) ).
 
       DATA(lt_f4_assignments) = VALUE zdbbr_f4_assignment_itab(
         FOR assgnmnt IN <ls_f4_export>-assignments
@@ -55,7 +50,7 @@ CLASS zcl_dbbr_f4_importer IMPLEMENTATION.
           fieldname  = assgnmnt-fieldname
           ref_f4_id  = lv_f4_id )
       ).
-      mr_f4_f->update_f4_assignments( it_f4_assignments = lt_f4_assignments ).
+      zcl_dbbr_custom_f4_factory=>update_f4_assignments( it_f4_assignments = lt_f4_assignments ).
 
       ADD 1 TO lv_import_count.
     ENDLOOP.

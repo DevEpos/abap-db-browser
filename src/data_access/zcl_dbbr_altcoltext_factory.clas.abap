@@ -42,7 +42,7 @@ CLASS zcl_dbbr_altcoltext_factory IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD find_alternative_texts.
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT * FROM zdbbr_altcolt INTO CORRESPONDING FIELDS OF TABLE rt_alternative_texts
       WHERE tabname IN it_tabname_selopt
@@ -50,7 +50,7 @@ CLASS zcl_dbbr_altcoltext_factory IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD find_alternative_text.
-    DATA(lv_language) = zcl_dbbr_appl_util=>get_description_language( ).
+    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
 
     SELECT SINGLE * FROM zdbbr_altcolt INTO CORRESPONDING FIELDS OF rs_alternative_text
       WHERE tabname   = iv_tabname

@@ -240,7 +240,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
     mr_alv->get_selected_columns( IMPORTING et_index_columns = DATA(lt_columns) ).
 
     IF lt_columns IS INITIAL.
-      MESSAGE w062(zdbbr_info).
+      MESSAGE s062(zdbbr_info).
       RETURN.
     ENDIF.
 
@@ -432,10 +432,10 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
       LOOP AT <lt_data> ASSIGNING FIELD-SYMBOL(<ls_data>) WHERE (`HIDE_FLAG = abap_true`).
         ADD 1 TO result.
       ENDLOOP.
-    ELSE.
-      mr_alv->get_filtered_entries( IMPORTING et_filtered_entries = DATA(lt_filtered) ).
-      result = lines( lt_filtered ).
     ENDIF.
+
+    mr_alv->get_filtered_entries( IMPORTING et_filtered_entries = DATA(lt_filtered) ).
+    result = lines( lt_filtered ).
   ENDMETHOD.
 
 

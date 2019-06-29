@@ -225,35 +225,6 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
 *... create selection fields
     fill_selection_fields( ).
 
-****** Call screen again
-***    DATA(ls_tabfield_data) = mr_tabfields->convert_to_structure( ).
-***
-***    IF mt_nav_breadcrumbs IS INITIAL.
-***      mt_nav_breadcrumbs = VALUE #( ( mr_source_cds_view->get_header( )-entityname_raw ) ).
-***    ENDIF.
-***
-***    mt_nav_breadcrumbs = VALUE #( BASE mt_nav_breadcrumbs
-***      ( |{ ms_association-ref_cds_view_raw }| )
-***    ).
-***
-***    DATA(ls_controller_data) = VALUE zdbbr_sel_ctrl_serialized(
-***        entity_id              = ms_association-ref_cds_view
-***        entity_type            = mv_entity_type
-***        technical_info         = ms_tech_info
-***        tabfields_data         = ls_tabfield_data
-***        tabfields_all_data     = ls_tabfield_data
-***        navigation_info        = ms_association
-***        navigation_breadcrumbs = mt_nav_breadcrumbs
-***        navigation_count       = mv_nav_count + 1
-***    ).
-***
-***    DATA(lr_selection_controller) = zcl_dbbr_selection_controller=>create_controller_from_data(
-***      is_controller_serialized = ls_controller_data
-***      ir_t_for_all_data        = mr_t_for_all_data
-***      if_not_first_screen_call = abap_true
-***    ).
-***    lr_selection_controller->execute_selection( ).
-
 *... fill structure for memory export and
 *... export data to memory
     export_data_to_memory( ).

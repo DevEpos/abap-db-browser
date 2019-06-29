@@ -81,6 +81,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_CDS_VIEW</CLSNAME>
+     <CMPNAME>IS_ANALYTICS_QUERY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Returns &apos;X&apos; if this CDS is of type Analytics.query = true</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_VIEW</CLSNAME>
      <CMPNAME>MS_HEADER</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Header for CDS View</DESCRIPT>

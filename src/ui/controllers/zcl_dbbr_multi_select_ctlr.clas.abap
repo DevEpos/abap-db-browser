@@ -104,8 +104,13 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
     " 1) read f4 help definition
     mr_custom_f4_map->read_custom_f4_definition(
       EXPORTING
-        iv_tablename = mr_ui_multi_select_field->tabname
-        iv_fieldname = mr_ui_multi_select_field->fieldname
+        iv_tablename     = mr_ui_multi_select_field->tabname
+        iv_fieldname     = mr_ui_multi_select_field->fieldname
+        iv_rollname      = mr_ui_multi_select_field->rollname
+        is_built_in_type = value #(
+          datatype = mr_ui_multi_select_field->datatype
+          leng     = mr_ui_multi_select_field->intlen
+        )
       IMPORTING
         et_custom_f4_definitions = DATA(lt_f4_definition) ).
     IF lt_f4_definition IS INITIAL.

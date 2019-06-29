@@ -6,7 +6,7 @@
     <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
     <VERSION>1</VERSION>
     <LANGU>E</LANGU>
-    <DESCRIPT>Controlller zum Speichern/Lesen/Löschen von Varianten</DESCRIPT>
+    <DESCRIPT>Controlller zum Speichern/Lesen/LÃ¶schen von Varianten</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
@@ -36,6 +36,12 @@
      <KEY>016</KEY>
      <ENTRY>override the existing variant?</ENTRY>
      <LENGTH>35</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>017</KEY>
+     <ENTRY>Save Default Variant</ENTRY>
+     <LENGTH>40</LENGTH>
     </item>
     <item>
      <ID>I</ID>
@@ -71,6 +77,12 @@
    <DESCRIPTIONS>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
+     <CMPNAME>CREATE_DEFAULT_VARIANT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates/updates default variant for given entity</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
      <CMPNAME>CREATE_VARIANT</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Create new variant</DESCRIPT>
@@ -83,15 +95,21 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
+     <CMPNAME>EXISTS_CRITERIA</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Returns &apos;X&apos; if there are selection criteria</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
      <CMPNAME>MV_SELSCREEN_MODE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Mode for Seleciton Screen of DB Browser</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_VARIANT_CONTROLLER</CLSNAME>
-     <CMPNAME>READ_VARIANT</CMPNAME>
+     <CMPNAME>PERSIST_VARIANT</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Read variant</DESCRIPT>
+     <DESCRIPT>Persists the variant from the current data</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

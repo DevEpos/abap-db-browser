@@ -1,29 +1,38 @@
-CLASS ZCL_DBBR_generic_f4_sc DEFINITION
+CLASS zcl_dbbr_generic_f4_sc DEFINITION
   PUBLIC
   ABSTRACT
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    INTERFACES ZIF_UITB_SCREEN_CONTROLLER
+    INTERFACES zif_uitb_screen_controller
       ABSTRACT METHODS call_screen.
+
+    ALIASES was_saved
+      FOR zif_uitb_screen_controller~was_not_cancelled.
 
     METHODS constructor
       IMPORTING
-        iv_display_mode TYPE ZDBBR_display_mode.
+        iv_display_mode TYPE zdbbr_display_mode.
 
     CLASS-METHODS delete_f4_from_field
       IMPORTING
-        !ir_selfield_ref TYPE REF TO ZDBBR_selfield .
+        !ir_selfield_ref TYPE REF TO zdbbr_selfield .
   PROTECTED SECTION.
+    CONSTANTS c_save_func TYPE ui_func VALUE 'SAVE' ##NO_TEXT.
+    CONSTANTS c_enter_func TYPE ui_func VALUE 'ENTER' ##NO_TEXT.
+    CONSTANTS c_test_f4_func TYPE ui_func VALUE 'TEST_F4' ##NO_TEXT.
+    CONSTANTS c_cancel_func TYPE ui_func VALUE 'CANCEL' ##NO_TEXT.
+
     DATA mf_delete_existing TYPE boolean .
-    DATA mr_ui_global_data TYPE REF TO ZDBBR_global_data.
+    DATA mr_ui_global_data TYPE REF TO zdbbr_global_data.
+    DATA mt_function_exclude TYPE ui_functions.
 
     DATA mr_ui_ok_code TYPE REF TO syst_ucomm.
 
-    DATA mr_custom_f4_factory TYPE REF TO ZCL_DBBR_custom_f4_factory.
-    DATA mt_existing_f4 TYPE ZDBBR_f4_data_itab .
-    DATA ms_f4_def TYPE ZDBBR_f4_data .
-    DATA mv_display_mode TYPE ZDBBR_display_mode.
+    DATA mt_existing_f4 TYPE zdbbr_f4_data_itab .
+    DATA ms_f4_def TYPE zdbbr_f4_data .
+    DATA mf_saved TYPE abap_bool.
+    DATA mv_display_mode TYPE zdbbr_display_mode.
 
     METHODS test_f4.
     METHODS save_search_help ABSTRACT.
@@ -36,7 +45,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_GENERIC_F4_SC IMPLEMENTATION.
+CLASS zcl_dbbr_generic_f4_sc IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -44,12 +53,10 @@ CLASS ZCL_DBBR_GENERIC_F4_SC IMPLEMENTATION.
 
     mv_display_mode = iv_display_mode.
 
-    DATA(lr_data_cache) = ZCL_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
+    DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
-    mr_ui_global_data = CAST ZDBBR_global_data( lr_data_cache->get_data_ref( ZIF_DBBR_main_report_var_ids=>c_s_data ) ).
-    mr_ui_ok_code = CAST syst_ucomm( lr_data_cache->get_data_ref( ZIF_DBBR_main_report_var_ids=>c_ok_code ) ).
-
-    mr_custom_f4_factory = NEW #( ).
+    mr_ui_global_data = CAST zdbbr_global_data( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
+    mr_ui_ok_code = CAST syst_ucomm( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_ok_code ) ).
 
   ENDMETHOD.
 
@@ -62,7 +69,7 @@ CLASS ZCL_DBBR_GENERIC_F4_SC IMPLEMENTATION.
 
     IF ir_selfield_ref->has_cust_f4_help = abap_true.
 
-      IF ZCL_DBBR_appl_util=>popup_to_confirm(
+      IF zcl_dbbr_appl_util=>popup_to_confirm(
             iv_title                 = 'Remove all Value Helps?'
             iv_query                 = |Do you really want to remove all Value Helps for the Field { ir_selfield_ref->fieldname }| &&
                                        | in { ir_selfield_ref->tabname }?|
@@ -72,14 +79,14 @@ CLASS ZCL_DBBR_GENERIC_F4_SC IMPLEMENTATION.
       ENDIF.
 
       " first delete all user specific search helps
-      NEW ZCL_DBBR_custom_f4_factory( )->delete_f4_assignments(
+      zcl_dbbr_custom_f4_factory=>delete_f4_assignments(
           iv_tabname     = ir_selfield_ref->tabname
           iv_fieldname   = ir_selfield_ref->fieldname
       ).
       ir_selfield_ref->has_cust_f4_help = abap_false.
-      message s000(zdbbr_info) with ir_selfield_ref->fieldname ir_selfield_ref->tabname.
+      MESSAGE s000(zdbbr_info) WITH ir_selfield_ref->fieldname ir_selfield_ref->tabname.
     ELSE.
-      Message s055(zdbbr_info) with ir_selfield_ref->fieldname ir_selfield_ref->tabname.
+      MESSAGE s055(zdbbr_info) WITH ir_selfield_ref->fieldname ir_selfield_ref->tabname.
     ENDIF.
 
   ENDMETHOD.
@@ -89,18 +96,22 @@ CLASS ZCL_DBBR_GENERIC_F4_SC IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~cancel.
-    ZIF_UITB_SCREEN_CONTROLLER~free_screen_resources( ).
-    ZCL_DBBR_screen_helper=>leave_screen( ).
+  METHOD zif_uitb_screen_controller~cancel.
+    zif_uitb_screen_controller~free_screen_resources( ).
+    zcl_dbbr_screen_helper=>leave_screen( ).
+  ENDMETHOD.
+
+  METHOD zif_uitb_screen_controller~was_not_cancelled.
+    rf_not_cancelled = mf_saved.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~determine_cursor.
+  METHOD zif_uitb_screen_controller~determine_cursor.
     zcl_uitb_cursor=>get_cursor( ).
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~handle_user_command.
+  METHOD zif_uitb_screen_controller~handle_user_command.
 *&---------------------------------------------------------------------*
 *& Description: User command handling in dynpro 202
 *&---------------------------------------------------------------------*
@@ -110,39 +121,46 @@ CLASS ZCL_DBBR_GENERIC_F4_SC IMPLEMENTATION.
 
     TRY.
         CASE lv_function_code.
-          WHEN 'SAVE'.
+          WHEN c_save_func.
             save_search_help( ).
-            ZCL_DBBR_screen_helper=>leave_screen( ).
+            zcl_dbbr_screen_helper=>leave_screen( ).
 
-          WHEN 'ENTER'.
+          WHEN c_enter_func.
 
-          WHEN 'TEST_F4'.
+          WHEN c_test_f4_func.
             test_f4( ).
 
-          WHEN 'CANCEL'.
-            ZIF_UITB_SCREEN_CONTROLLER~free_screen_resources( ).
-            ZCL_DBBR_screen_helper=>leave_screen( ).
+          WHEN c_cancel_func.
+            zif_uitb_screen_controller~free_screen_resources( ).
+            zcl_dbbr_screen_helper=>leave_screen( ).
         ENDCASE.
-      CATCH ZCX_DBBR_validation_exception INTO DATA(lr_validation_exc).
+      CATCH zcx_dbbr_validation_exception INTO DATA(lr_validation_exc).
         lr_validation_exc->show_message( iv_message_type = 'I' ).
     ENDTRY.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~pbo.
-    ZIF_UITB_SCREEN_CONTROLLER~set_status( ).
+  METHOD zif_uitb_screen_controller~pbo.
+    zif_uitb_screen_controller~set_status( ).
     zcl_uitb_cursor=>refresh_cursor( ).
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~set_status.
-    DATA: lt_exclude TYPE ui_functions.
+  METHOD zif_uitb_screen_controller~set_status.
+    DATA(lt_exclude) = mt_function_exclude.
 
-    IF mv_display_mode = ZIF_DBBR_global_consts=>gc_display_modes-view.
-      lt_exclude = VALUE #( ( 'SAVE' ) ).
+    IF mv_display_mode = zif_dbbr_global_consts=>gc_display_modes-view.
+      lt_exclude = VALUE #( ( c_save_func ) ).
     ENDIF.
 
     SET PF-STATUS '0202' OF PROGRAM zif_dbbr_c_report_id=>main EXCLUDING lt_exclude.
-    SET TITLEBAR 'SAVE_F4_CUSTOM' OF PROGRAM zif_dbbr_c_report_id=>main.
+    DATA(lv_title) = SWITCH string(
+      mv_display_mode
+      WHEN zif_dbbr_global_consts=>gc_display_modes-view THEN |{ 'Display' }|
+      WHEN zif_dbbr_global_consts=>gc_display_modes-create THEN |{ 'Create' }|
+      WHEN zif_dbbr_global_consts=>gc_display_modes-edit THEN |{ 'Edit' }|
+    ).
+    DATA(lv_title2) = | { 'Value Help' }|.
+    SET TITLEBAR 'PROGTITLE' OF PROGRAM zif_dbbr_c_report_id=>main WITH lv_title lv_title2.
   ENDMETHOD.
 ENDCLASS.

@@ -21,7 +21,6 @@ CLASS zcl_dbbr_variant_starter DEFINITION
     DATA mt_selfields_multi TYPE zdbbr_selfield_itab .
     DATA mt_selfields_or TYPE zdbbr_or_seltab_itab .
     DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab .
-    DATA mo_variant_f TYPE REF TO zcl_dbbr_variant_factory .
     DATA ms_variant TYPE zdbbr_variant_data .
     "! Factory for alternative column texts
     DATA mo_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory .
@@ -88,7 +87,6 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
     mv_variant_id = iv_variant_id.
     mo_tabfield_list = NEW #( ).
     mo_tabfield_list_grouped = NEW #( ).
-    mo_variant_f = NEW #( ).
     mo_altcoltext_f = NEW #( ).
   ENDMETHOD.
 
@@ -424,7 +422,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
     IF mv_variant_id = zif_dbbr_global_consts=>c_dummy_variant.
       DATA(lv_tabname) = ms_global_data-primary_table.
     ELSE.
-      mo_variant_f->get_variant(
+      zcl_dbbr_variant_factory=>get_variant(
         EXPORTING iv_variant_id = mv_variant_id
         IMPORTING es_variant    = ms_variant
       ).

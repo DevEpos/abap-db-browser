@@ -103,6 +103,18 @@
      <ENTRY>Show Help</ENTRY>
      <LENGTH>19</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>016</KEY>
+     <ENTRY>Use &quot;AND&quot; for search options</ENTRY>
+     <LENGTH>58</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>017</KEY>
+     <ENTRY>Additional Search Settings</ENTRY>
+     <LENGTH>52</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -224,6 +236,12 @@
      <CMPNAME>TRIGGER_NEW_SEARCH</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Trigger new entity search</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OBJECT_CENTRAL_SEARCH</CLSNAME>
+     <CMPNAME>UPDATE_SEARCH_SETTINGS_MENU</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Updates the search settings menu</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

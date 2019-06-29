@@ -84,7 +84,7 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
           lt_or_selfields  TYPE STANDARD TABLE OF se16n_or_seltab.
 
     IF if_called_from_output = abap_true.
-      mr_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+      mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
       lt_output_fields = VALUE #(
         FOR output_field IN lt_fieldcat
         WHERE ( no_out = abap_false AND
@@ -194,7 +194,7 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
     " if no selection occurred, prevent screen visibility
     IF ms_control_info-number <= 0.
-      RAISE EVENT no_data.
+      raise_no_data_event( ).
       RETURN.
     ENDIF.
 
@@ -236,7 +236,7 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
     CHECK select_data( if_refresh_only = abap_true ).
 
     IF ms_control_info-number = 0.
-      RAISE EVENT no_data.
+      raise_no_data_event( ).
       RETURN.
     ENDIF.
 

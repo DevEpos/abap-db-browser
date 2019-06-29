@@ -1,102 +1,104 @@
-class ZCL_DBBR_FIELD_SORTER_CTRL definition
-  public
-  create public .
+"! <p class="shorttext synchronized" lang="en">Controller for defining sorting fields</p>
+CLASS zcl_dbbr_field_sorter_ctrl DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_UITB_SCREEN_CONTROLLER .
+    INTERFACES zif_uitb_screen_controller .
 
-  methods CONSTRUCTOR
-    importing
-      !IR_FIELDS type ref to ZCL_DBBR_TABFIELD_LIST .
-  methods WAS_UPDATED
-    returning
-      value(RF_UPDATED) type BOOLEAN .
-  methods GET_UPDATED_TABFIELDS
-    returning
-      value(RESULT) type ref to ZCL_DBBR_TABFIELD_LIST .
+    METHODS constructor
+      IMPORTING
+        !ir_fields TYPE REF TO zcl_dbbr_tabfield_list .
+    METHODS was_updated
+      RETURNING
+        VALUE(rf_updated) TYPE boolean .
+    "! <p class="shorttext synchronized" lang="en">Retrieves the updated table fields</p>
+    METHODS get_updated_tabfields
+      RETURNING
+        VALUE(result) TYPE REF TO zcl_dbbr_tabfield_list .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  aliases GET_REPORT_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_REPORT_ID .
-  aliases GET_SCREEN_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_SCREEN_ID .
+    ALIASES get_report_id
+      FOR zif_uitb_screen_controller~get_report_id .
+    ALIASES get_screen_id
+      FOR zif_uitb_screen_controller~get_screen_id .
 
-  types:
-    BEGIN OF mty_sorted,
+    TYPES:
+      BEGIN OF mty_sorted,
         fullfieldname   TYPE fieldname,
         fieldname       TYPE fieldname,
-        tabname         TYPE tabname,
-        sort_direction  TYPE ZDBBR_sort_direction,
+        tabname_alias   TYPE tabname,
+        sort_direction  TYPE zdbbr_sort_direction,
         sort_order      TYPE numc3,
         scrtext_l       TYPE scrtext_l,
         sort_ascending  TYPE tv_image,
         sort_descending TYPE tv_image,
         drop_handled    TYPE boolean,
       END OF mty_sorted .
-  types:
-    mtt_sorted TYPE STANDARD TABLE OF mty_sorted .
-  types:
-    BEGIN OF mty_available,
+    TYPES:
+      mtt_sorted TYPE STANDARD TABLE OF mty_sorted .
+    TYPES:
+      BEGIN OF mty_available,
         fullfieldname TYPE fieldname,
         fieldname     TYPE fieldname,
-        tabname       TYPE tabname,
-        alias         TYPE ZDBBR_table_alias,
+        tabname_alias TYPE tabname,
+        alias         TYPE zdbbr_table_alias,
         ddic_order    TYPE tabfdpos,
         scrtext_l     TYPE scrtext_l,
       END OF mty_available .
-  types:
-    mtt_available TYPE STANDARD TABLE OF mty_available .
+    TYPES:
+      mtt_available TYPE STANDARD TABLE OF mty_available .
 
-  constants MC_SORTED_CONTAINER type DYNFNAM value 'SORTED' ##NO_TEXT.
-  constants MC_AVAILABLE_CONTAINER type DYNFNAM value 'AVAILABLE' ##NO_TEXT.
-  constants MC_TOOLBAR type DYNFNAM value 'TOOLBAR' ##NO_TEXT.
-  data MR_FIELDS type ref to ZCL_DBBR_TABFIELD_LIST .
-  data MR_SORTED_ALV type ref to CL_ALV_DD_LISTBOX .
-  data MR_SORTED_CONTAINER type ref to CL_GUI_CUSTOM_CONTAINER .
-  data MR_AVAILABLE_FIELDS_ALV type ref to CL_ALV_DD_LISTBOX .
-  data MR_AVAILABLE_FIELDS_CONTAINER type ref to CL_GUI_CUSTOM_CONTAINER .
-  data MR_DND_DOUBLE_LISTBOX type ref to CL_ALV_DD_DOUBLE_LISTBOX .
-  data MT_SORTED_FIELDS type MTT_SORTED .
-  data MT_AVAILABLE_FIELDS type MTT_AVAILABLE .
-  data MF_UPDATED type BOOLEAN .
+    CONSTANTS mc_sorted_container TYPE dynfnam VALUE 'SORTED' ##NO_TEXT.
+    CONSTANTS mc_available_container TYPE dynfnam VALUE 'AVAILABLE' ##NO_TEXT.
+    CONSTANTS mc_toolbar TYPE dynfnam VALUE 'TOOLBAR' ##NO_TEXT.
+    DATA mr_fields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mr_sorted_alv TYPE REF TO cl_alv_dd_listbox .
+    DATA mr_sorted_container TYPE REF TO cl_gui_custom_container .
+    DATA mr_available_fields_alv TYPE REF TO cl_alv_dd_listbox .
+    DATA mr_available_fields_container TYPE REF TO cl_gui_custom_container .
+    DATA mr_dnd_double_listbox TYPE REF TO cl_alv_dd_double_listbox .
+    DATA mt_sorted_fields TYPE mtt_sorted .
+    DATA mt_available_fields TYPE mtt_available .
+    DATA mf_updated TYPE boolean .
 
-  methods CREATE_CONTROLS .
-  methods CREATE_SORTED_ALV .
-  methods CREATE_AVAILABLE_FIELDS_ALV .
-  methods UPDATE_SORTED_FIELDS .
-  methods SEARCH .
-  methods ON_AVAILABLE_ALV_TOOLBAR
-    for event TOOLBAR of CL_GUI_ALV_GRID
-    importing
-      !E_INTERACTIVE
-      !E_OBJECT .
-  methods ON_AVAILABLE_DROP_COMPLETE
-    for event DROP_COMPLETE of CL_ALV_DD_LISTBOX .
-  methods ON_SORTED_HOTSPOT
-    for event HOTSPOT_CLICK of CL_GUI_ALV_GRID
-    importing
-      !ES_ROW_NO
-      !E_COLUMN_ID
-      !E_ROW_ID .
-  methods ON_SORTED_DOUBLE_CLICK
-    for event DOUBLE_CLICK of CL_GUI_ALV_GRID
-    importing
-      !ES_ROW_NO
-      !E_COLUMN
-      !E_ROW .
-  methods ON_AVAILABLE_DOUBLE_CLICK
-    for event DOUBLE_CLICK of CL_GUI_ALV_GRID
-    importing
-      !ES_ROW_NO
-      !E_COLUMN
-      !E_ROW .
+    METHODS create_controls .
+    METHODS create_sorted_alv .
+    METHODS create_available_fields_alv .
+    METHODS update_sorted_fields .
+    METHODS search .
+    METHODS on_available_alv_toolbar
+          FOR EVENT toolbar OF cl_gui_alv_grid
+      IMPORTING
+          !e_interactive
+          !e_object .
+    METHODS on_available_drop_complete
+        FOR EVENT drop_complete OF cl_alv_dd_listbox .
+    METHODS on_sorted_hotspot
+          FOR EVENT hotspot_click OF cl_gui_alv_grid
+      IMPORTING
+          !es_row_no
+          !e_column_id
+          !e_row_id .
+    METHODS on_sorted_double_click
+          FOR EVENT double_click OF cl_gui_alv_grid
+      IMPORTING
+          !es_row_no
+          !e_column
+          !e_row .
+    METHODS on_available_double_click
+          FOR EVENT double_click OF cl_gui_alv_grid
+      IMPORTING
+          !es_row_no
+          !e_column
+          !e_row .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
+CLASS zcl_dbbr_field_sorter_ctrl IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -121,7 +123,7 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
         APPEND VALUE mty_sorted(
             fullfieldname   = lv_fullfieldname
             fieldname       = lr_current_entry->fieldname
-            tabname         = lr_current_entry->tabname
+            tabname_alias   = lr_current_entry->tabname_alias
             scrtext_l       = lr_current_entry->field_ddtext
             sort_direction  = lr_current_entry->sort_direction
             sort_order      = lr_current_entry->sort_order
@@ -140,11 +142,11 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
       ELSE.
         APPEND VALUE mty_available(
             fullfieldname = lv_fullfieldname
-            fieldname     = lr_current_entry->fieldname_raw
+            fieldname     = lr_current_entry->fieldname
+            tabname_alias = lr_current_entry->tabname
+            scrtext_l     = lr_current_entry->field_ddtext
             alias         = lr_current_entry->alias
             ddic_order    = lr_current_entry->ddic_order
-            tabname       = lr_current_entry->tabname
-            scrtext_l     = lr_current_entry->field_ddtext
         ) TO mt_available_fields.
       ENDIF.
     ENDWHILE.
@@ -187,7 +189,6 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
         on_available_alv_toolbar FOR mr_available_fields_alv,
         on_available_drop_complete FOR mr_available_fields_alv,
         on_available_double_click FOR mr_available_fields_alv.
-*        on_user_command FOR mr_available_fields_alv.
 
     mr_available_fields_alv->set_table_for_first_display(
       EXPORTING
@@ -280,14 +281,6 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
 
     DELETE e_object->mt_toolbar WHERE function <> cl_gui_alv_grid=>mc_fc_find.
 
-*    e_object->mt_toolbar = VALUE #(
-*      BASE e_object->mt_toolbar
-*      ( butn_type = cntb_btype_menu
-*        function  = '$FILT_MENU'
-*        icon      = icon_filter
-*        text      = 'Alles' )
-*    ).
-
   ENDMETHOD.
 
 
@@ -306,7 +299,7 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
     """ get selected lines of `availabe fields` alv
     LOOP AT mt_sorted_fields ASSIGNING FIELD-SYMBOL(<ls_sorted_fields>) WHERE drop_handled = abap_false.
       <ls_sorted_fields>-sort_descending = zif_dbbr_c_icon=>radio_button_empty.
-      <ls_sorted_fields>-sort_direction = ZIF_DBBR_global_consts=>gc_sort_direction-ascending.
+      <ls_sorted_fields>-sort_direction = zif_dbbr_global_consts=>gc_sort_direction-ascending.
       <ls_sorted_fields>-sort_ascending = zif_dbbr_c_icon=>radio_button.
       <ls_sorted_fields>-drop_handled = abap_true.
       DATA(lf_updated) = abap_true.
@@ -336,19 +329,19 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
 
     CASE e_column_id.
       WHEN 'SORT_ASCENDING'.
-        IF lr_sort_field->sort_direction = ZIF_DBBR_global_consts=>gc_sort_direction-ascending.
+        IF lr_sort_field->sort_direction = zif_dbbr_global_consts=>gc_sort_direction-ascending.
           RETURN.
         ENDIF.
 
-        lr_sort_field->sort_direction = ZIF_DBBR_global_consts=>gc_sort_direction-ascending.
+        lr_sort_field->sort_direction = zif_dbbr_global_consts=>gc_sort_direction-ascending.
         lr_sort_field->sort_ascending = zif_dbbr_c_icon=>radio_button.
         lr_sort_field->sort_descending = zif_dbbr_c_icon=>radio_button_empty.
 
       WHEN 'SORT_DESCENDING'.
-        IF lr_sort_field->sort_direction = ZIF_DBBR_global_consts=>gc_sort_direction-descending.
+        IF lr_sort_field->sort_direction = zif_dbbr_global_consts=>gc_sort_direction-descending.
           RETURN.
         ENDIF.
-        lr_sort_field->sort_direction = ZIF_DBBR_global_consts=>gc_sort_direction-descending.
+        lr_sort_field->sort_direction = zif_dbbr_global_consts=>gc_sort_direction-descending.
         lr_sort_field->sort_descending = zif_dbbr_c_icon=>radio_button.
         lr_sort_field->sort_ascending = zif_dbbr_c_icon=>radio_button_empty.
     ENDCASE.
@@ -404,9 +397,9 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
       CHECK lr_current_entry->is_text_field = abap_false.
       CHECK lr_current_entry->is_formula_field = abap_false.
 
-      IF line_exists( mt_sorted_fields[ tabname   = lr_current_entry->tabname
-                                        fieldname = lr_current_entry->fieldname ] ).
-        DATA(lr_sorted_field) = REF #( mt_sorted_fields[ tabname   = lr_current_entry->tabname
+      IF line_exists( mt_sorted_fields[ tabname_alias   = lr_current_entry->tabname_alias
+                                        fieldname       = lr_current_entry->fieldname ] ).
+        DATA(lr_sorted_field) = REF #( mt_sorted_fields[ tabname_alias   = lr_current_entry->tabname
                                                          fieldname = lr_current_entry->fieldname ] ).
         lr_current_entry->sort_active = abap_true.
         lr_current_entry->sort_direction = lr_sorted_field->sort_direction.
@@ -442,22 +435,22 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~cancel.
+  METHOD zif_uitb_screen_controller~cancel.
 
     CASE iv_function_code.
-      WHEN ZIF_DBBR_global_consts=>gc_function_codes-leave_screen OR
-           ZIF_DBBR_global_consts=>gc_function_codes-quit_program OR
-           ZIF_DBBR_global_consts=>gc_function_codes-cancel_screen OR
-           ZIF_DBBR_global_consts=>gc_function_codes-cancel.
+      WHEN zif_dbbr_global_consts=>gc_function_codes-leave_screen OR
+           zif_dbbr_global_consts=>gc_function_codes-quit_program OR
+           zif_dbbr_global_consts=>gc_function_codes-cancel_screen OR
+           zif_dbbr_global_consts=>gc_function_codes-cancel.
 
-        ZCL_DBBR_screen_helper=>leave_screen( ).
+        zcl_dbbr_screen_helper=>leave_screen( ).
 
     ENDCASE.
 
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~free_screen_resources.
+  METHOD zif_uitb_screen_controller~free_screen_resources.
 
     mr_sorted_container->free( ).
     mr_available_fields_container->free( ).
@@ -475,7 +468,7 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~handle_user_command.
+  METHOD zif_uitb_screen_controller~handle_user_command.
 
     cl_gui_cfw=>dispatch( IMPORTING return_code = DATA(lv_function) ).
     IF lv_function <> cl_gui_cfw=>rc_noevent.
@@ -488,7 +481,7 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
       WHEN 'OK'.
         mf_updated = abap_true.
         update_sorted_fields( ).
-        ZCL_DBBR_screen_helper=>leave_screen( ).
+        zcl_dbbr_screen_helper=>leave_screen( ).
 
       WHEN 'MOVE_LEFT'.
         mr_dnd_double_listbox->movetogrid1(
@@ -510,15 +503,15 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~pbo.
+  METHOD zif_uitb_screen_controller~pbo.
 
-    ZIF_UITB_SCREEN_CONTROLLER~set_status( ).
+    zif_uitb_screen_controller~set_status( ).
     create_controls( ).
 
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~set_status.
+  METHOD zif_uitb_screen_controller~set_status.
 
     SET PF-STATUS '0820' OF PROGRAM zif_dbbr_c_report_id=>main.
     SET TITLEBAR 'SORT_FIELDS_TITLE' OF PROGRAM zif_dbbr_c_report_id=>main.
@@ -526,6 +519,6 @@ CLASS ZCL_DBBR_FIELD_SORTER_CTRL IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD ZIF_UITB_SCREEN_CONTROLLER~was_not_cancelled.
+  METHOD zif_uitb_screen_controller~was_not_cancelled.
   ENDMETHOD.
 ENDCLASS.

@@ -12,6 +12,22 @@
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
    </VSEOCLASS>
+   <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>001</KEY>
+     <ENTRY>Add fields from used tables</ENTRY>
+     <LENGTH>54</LENGTH>
+    </item>
+   </TPOOL>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CUSTOM_F4_SC</CLSNAME>
+     <CMPNAME>GET_CDS_VIEW_FIELDS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Returns Fields/Parameters of CDS view</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
   </asx:values>
  </asx:abap>
 </abapGit>

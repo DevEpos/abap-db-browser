@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Data Wrapper for Selection Screen</p>
 CLASS zcl_dbbr_selscreen_data DEFINITION
   PUBLIC
   FINAL
@@ -18,7 +19,9 @@ CLASS zcl_dbbr_selscreen_data DEFINITION
     DATA mr_v_seltext_gui TYPE REF TO smp_dyntxt READ-ONLY .
     DATA mr_s_browser_mode TYPE REF TO zdbbr_browser_mode_data READ-ONLY .
     DATA mr_v_selmask_entity_text TYPE REF TO ddtext READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Char 15</p>
     DATA mr_v_selmask_entity_type TYPE REF TO char20 READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Table Name</p>
     DATA mr_v_selmask_entity_name TYPE REF TO tabname READ-ONLY .
     DATA mr_v_variant_description TYPE REF TO ddtext READ-ONLY .
     DATA mr_v_variant_name TYPE REF TO zdbbr_variant_name READ-ONLY .
@@ -31,17 +34,27 @@ CLASS zcl_dbbr_selscreen_data DEFINITION
     DATA mo_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list READ-ONLY .
     DATA mo_tabfield_aggr_list TYPE REF TO zcl_dbbr_tabfield_list READ-ONLY .
     DATA mr_s_settings TYPE REF TO zdbbr_selscreen_settings READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Short information about query</p>
     DATA mr_s_query_info TYPE REF TO zdbbr_query_info READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Menu Painter: Program interface for dynamic texts</p>
     DATA mr_s_top_custom_menu TYPE REF TO smp_dyntxt READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Menu Painter: Program interface for dynamic texts</p>
     DATA mr_s_entity_function1 TYPE REF TO smp_dyntxt READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Menu Painter: Program interface for dynamic texts</p>
     DATA mr_s_entity_function2 TYPE REF TO smp_dyntxt READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Menu Painter: Program interface for dynamic texts</p>
     DATA mr_s_entity_function3 TYPE REF TO smp_dyntxt READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Menu Painter: Program interface for dynamic texts</p>
     DATA mr_s_entity_function4 TYPE REF TO smp_dyntxt READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Menu Painter: Program interface for dynamic texts</p>
     DATA mr_s_entity_function5 TYPE REF TO smp_dyntxt READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Definition of a Join</p>
     DATA mr_s_join_def TYPE REF TO zdbbr_join_def READ-ONLY .
+    "! <p class="shorttext synchronized" lang="en">Button for DB Browser</p>
     DATA mr_v_interval_on_off TYPE REF TO zdbbr_button READ-ONLY .
     DATA mr_f_from_central_search TYPE REF TO abap_bool READ-ONLY.
 
+    "! <p class="shorttext synchronized" lang="en">Stores current join definition for comparison reasons</p>
     METHODS store_old_join .
     METHODS get_mode
       RETURNING
@@ -82,14 +95,19 @@ CLASS zcl_dbbr_selscreen_data DEFINITION
     METHODS set_tabfield_list
       IMPORTING
         !value TYPE REF TO zcl_dbbr_tabfield_list .
+    "! <p class="shorttext synchronized" lang="en">Selection screen resides in multi table mode</p>
     METHODS is_multi_table_mode
       RETURNING
         VALUE(result) TYPE abap_bool .
     METHODS constructor
       IMPORTING
         !ir_selection_table TYPE REF TO zcl_dbbr_selscreen_table .
+    "! <p class="shorttext synchronized" lang="en">Clears all custom functions</p>
     METHODS clear_custom_functions .
+    "! <p class="shorttext synchronized" lang="en">Clear all references values</p>
     METHODS clear .
+    "! <p class="shorttext synchronized" lang="en">Clears multi or tuple values</p>
+    METHODS clear_multi_or.
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -268,4 +286,9 @@ CLASS zcl_dbbr_selscreen_data IMPLEMENTATION.
       mr_s_old_join_def->primary_table_alias = mr_s_join_def->primary_table.
     ENDIF.
   ENDMETHOD.
+
+  METHOD clear_multi_or.
+    CLEAR mt_multi_or_all.
+  ENDMETHOD.
+
 ENDCLASS.

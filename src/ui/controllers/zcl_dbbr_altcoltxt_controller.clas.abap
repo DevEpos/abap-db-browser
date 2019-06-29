@@ -62,7 +62,7 @@ CLASS ZCL_DBBR_ALTCOLTXT_CONTROLLER IMPLEMENTATION.
       APPEND VALUE ZDBBR_altcoltext_data(
             tabname        = lr_current_entry->tabname
             fieldname      = lr_current_entry->fieldname
-            language       = zcl_dbbr_appl_util=>get_description_language( )
+            language       = zcl_dbbr_system_helper=>get_system_language( )
             alt_short_text = lr_current_entry->alt_medium_text
             alt_long_text  = lr_current_entry->alt_long_text
             std_short_text = lr_current_entry->std_medium_text

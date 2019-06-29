@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Factory for variant accesses</p>
 CLASS zcl_dbbr_variant_factory DEFINITION
   PUBLIC
   FINAL
@@ -5,43 +6,72 @@ CLASS zcl_dbbr_variant_factory DEFINITION
 
   PUBLIC SECTION.
 
-    METHODS variant_exists
+    "! <p class="shorttext synchronized" lang="en">Checks if the variant exists</p>
+    CLASS-METHODS variant_exists
       IMPORTING
         !iv_variant_name TYPE zdbbr_variant_name
         !iv_entity_id    TYPE zdbbr_entity_id OPTIONAL
         !iv_entity_type  TYPE zdbbr_entity_type OPTIONAL
       RETURNING
         VALUE(rf_exists) TYPE boolean .
-    METHODS find_variants
+    "! <p class="shorttext synchronized" lang="en">Finds variants for several criteria</p>
+    CLASS-METHODS find_variants
       IMPORTING
         !iv_variant_name TYPE zdbbr_variant_name OPTIONAL
         !iv_entity_id    TYPE zdbbr_entity_id OPTIONAL
         !iv_entity_type  TYPE zdbbr_entity_type OPTIONAL
       EXPORTING
         !et_variant_info TYPE zdbbr_variant_info_itab .
-    METHODS find_variants_for_query
+    "! <p class="shorttext synchronized" lang="en">Finds variants for the given query id</p>
+    CLASS-METHODS find_variants_for_query
       IMPORTING
         !iv_query_id       TYPE zdbbr_query_id
       RETURNING
         VALUE(rt_variants) TYPE zdbbr_variant_data_itab .
-    METHODS find_variant_infos_for_query
+    "! <p class="shorttext synchronized" lang="en">Finds variant information for the given query id</p>
+    CLASS-METHODS find_variant_infos_for_query
       IMPORTING
         !iv_query_id       TYPE zdbbr_query_id
       RETURNING
         VALUE(rt_variants) TYPE zdbbr_variant_info_itab .
-    METHODS find_variant_infos_for_type
+    "! <p class="shorttext synchronized" lang="en">Finds variant information for the given entity/type</p>
+    CLASS-METHODS find_variant_infos_for_type
       IMPORTING
         !iv_entity_id      TYPE zdbbr_entity_id
         !iv_entity_type    TYPE zdbbr_entity_type
       RETURNING
         VALUE(rt_variants) TYPE zdbbr_variant_info_itab .
-    METHODS save_variant
+    "! <p class="shorttext synchronized" lang="en">Saves the given variant</p>
+    CLASS-METHODS save_variant
       IMPORTING
         !is_var_data TYPE zdbbr_variant_data .
-    METHODS save_variants
+    "! <p class="shorttext synchronized" lang="en">Saves the default variant of an entity</p>
+    CLASS-METHODS save_default_variant
+      IMPORTING
+        is_var_data TYPE zdbbr_variant_data.
+    "! <p class="shorttext synchronized" lang="en">Delete the default variant of an entity</p>
+    CLASS-METHODS delete_default_variant
+      IMPORTING
+        iv_entity_id      TYPE zdbbr_entity_id
+        iv_entity_type    TYPE zdbbr_entity_type
+      RETURNING
+        VALUE(rf_deleted) TYPE abap_bool.
+    "! <p class="shorttext synchronized" lang="en">Saves the auto variant of an entity</p>
+    CLASS-METHODS save_auto_variant
+      IMPORTING
+        is_var_data TYPE zdbbr_variant_data.
+    "! <p class="shorttext synchronized" lang="en">Deletes an auto variant of an entity</p>
+    CLASS-METHODS delete_auto_variant
+      IMPORTING
+        iv_entity_id   TYPE zdbbr_entity_id
+        iv_entity_type TYPE zdbbr_entity_type.
+
+    "! <p class="shorttext synchronized" lang="en">Saves a list of variants</p>
+    CLASS-METHODS save_variants
       IMPORTING
         !it_variants TYPE zdbbr_variant_data_itab .
-    METHODS get_variant
+    "! <p class="shorttext synchronized" lang="en">Retrieves a variant with all its stored information</p>
+    CLASS-METHODS get_variant
       IMPORTING
         !iv_variant_id      TYPE zdbbr_variant_id OPTIONAL
         !iv_variant_name    TYPE zdbbr_variant_name OPTIONAL
@@ -50,30 +80,59 @@ CLASS zcl_dbbr_variant_factory DEFINITION
         !if_load_completely TYPE boolean DEFAULT abap_true
       EXPORTING
         !es_variant         TYPE zdbbr_variant_data .
-    METHODS find_default_query_variant
+    "! <p class="shorttext synchronized" lang="en">Retrieves automatically saved variant for the given entity</p>
+    CLASS-METHODS get_automatic_variant
+      IMPORTING
+        !iv_entity_id       TYPE zdbbr_entity_id OPTIONAL
+        !iv_entity_type     TYPE zdbbr_entity_type OPTIONAL
+        !if_load_completely TYPE boolean DEFAULT abap_true
+      RETURNING
+        VALUE(rs_variant)   TYPE zdbbr_variant_data .
+    "! <p class="shorttext synchronized" lang="en">Retrieves default variant for the given entity</p>
+    CLASS-METHODS get_default_variant
+      IMPORTING
+        !iv_entity_id       TYPE zdbbr_entity_id OPTIONAL
+        !iv_entity_type     TYPE zdbbr_entity_type OPTIONAL
+        !if_load_completely TYPE boolean DEFAULT abap_true
+      RETURNING
+        VALUE(rs_variant)   TYPE zdbbr_variant_data .
+    "! <p class="shorttext synchronized" lang="en">Finds the default variant of a query</p>
+    CLASS-METHODS find_default_query_variant
       IMPORTING
         !iv_query_id         TYPE zdbbr_query_id
       RETURNING
         VALUE(rv_variant_id) TYPE zdbbr_variant_id .
-    METHODS delete_variant
+    "! <p class="shorttext synchronized" lang="en">Deletes the variant for the given id</p>
+    CLASS-METHODS delete_variant
       IMPORTING
         !iv_variant_id TYPE zdbbr_variant_id .
-    METHODS delete_variants_by_query_id
+    "! <p class="shorttext synchronized" lang="en">Deletes variants for the given query id</p>
+    CLASS-METHODS delete_variants_by_query_id
       IMPORTING
         !iv_query_id TYPE zdbbr_query_id .
-    METHODS variant_exists_for_entity
+    "! <p class="shorttext synchronized" lang="en">Checks if there is variant for the given entity</p>
+    CLASS-METHODS variant_exists_for_entity
       IMPORTING
         !iv_entity_id    TYPE zdbbr_entity_id
         !iv_entity_type  TYPE zdbbr_entity_type
       RETURNING
         VALUE(rf_exists) TYPE boolean .
+    "! <p class="shorttext synchronized" lang="en">Checks if there is a default variant for the given entity</p>
+    CLASS-METHODS default_variant_exists
+      IMPORTING
+        iv_entity_id     TYPE zdbbr_entity_id
+        iv_entity_type   TYPE zdbbr_entity_type
+      RETURNING
+        VALUE(rf_exists) TYPE abap_bool.
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    METHODS delete_corresponding_vardata
+    "! <p class="shorttext synchronized" lang="en">Deletes dependent data of the given variant id</p>
+    CLASS-METHODS delete_corresponding_vardata
       IMPORTING
         !iv_variant_id TYPE zdbbr_variant_id .
-    METHODS fill_corresponding_data
+    "! <p class="shorttext synchronized" lang="en">Loads dependent data of the passed variant</p>
+    CLASS-METHODS fill_corresponding_data
       CHANGING
         !cs_variant TYPE zdbbr_variant_data .
 ENDCLASS.
@@ -84,7 +143,6 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
 
 
   METHOD delete_corresponding_vardata.
-*&---------------------------------------------------------------------*
 *& Author:    stockbal     Date: 2016/12/05
 *&---------------------------------------------------------------------*
 *& Description: Delete corresponding data of variant
@@ -98,7 +156,6 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
 
 
   METHOD delete_variant.
-*&---------------------------------------------------------------------*
 *& Author:    stockbal     Date: 2016/12/11
 *&---------------------------------------------------------------------*
 *& Description: Deletes the variant with the specified name
@@ -201,11 +258,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
 
 
   METHOD get_variant.
-*&---------------------------------------------------------------------*
-*& Author:    stockbal     Date: 2016/12/05
-*&---------------------------------------------------------------------*
-*& Description: Reads and returns existing variant
-*&---------------------------------------------------------------------*
+
     IF iv_variant_id IS NOT INITIAL.
       " read variant for technical key
       SELECT SINGLE * FROM zdbbr_variant INTO CORRESPONDING FIELDS OF es_variant
@@ -234,13 +287,39 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
     fill_corresponding_data( CHANGING cs_variant = es_variant ).
   ENDMETHOD.
 
+  METHOD get_automatic_variant.
+    " read variant for technical key
+    SELECT SINGLE *
+      FROM zdbbr_variantaf
+      WHERE entity_id = @iv_entity_id
+        AND entity_type = @iv_entity_type
+        AND created_by  = @sy-uname
+    INTO CORRESPONDING FIELDS OF @rs_variant.
+
+    CHECK sy-subrc = 0.
+
+    " load corresponding data
+    fill_corresponding_data( CHANGING cs_variant = rs_variant ).
+  ENDMETHOD.
+
+  METHOD get_default_variant.
+    " read variant for technical key
+    SELECT SINGLE *
+      FROM zdbbr_variantd
+      WHERE entity_id = @iv_entity_id
+        AND entity_type = @iv_entity_type
+        AND created_by = @sy-uname
+    INTO CORRESPONDING FIELDS OF @rs_variant.
+
+    CHECK: sy-subrc = 0,
+           if_load_completely = abap_true.
+
+    " load corresponding data
+    fill_corresponding_data( CHANGING cs_variant = rs_variant ).
+  ENDMETHOD.
+
 
   METHOD save_variant.
-*&---------------------------------------------------------------------*
-*& Author:    stockbal     Date: 2016/12/05
-*&---------------------------------------------------------------------*
-*& Description: Saves variant information to db
-*&---------------------------------------------------------------------*
 
     DATA(ls_variant) = CORRESPONDING zdbbr_variant( is_var_data ).
     DATA(lt_fields) = is_var_data-fields.
@@ -290,6 +369,115 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
+  METHOD save_default_variant.
+    DATA(ls_variant) = CORRESPONDING zdbbr_variantd( is_var_data ).
+    DATA(lt_fields) = is_var_data-fields.
+    DATA(lt_vardata) = is_var_data-variant_data.
+
+    DATA(ls_existing_var) = get_default_variant(
+       iv_entity_id       = is_var_data-entity_id
+       iv_entity_type     = is_var_data-entity_type
+       if_load_completely = abap_false
+    ).
+
+*.. check if there are existing entries that need to be deleted
+    IF ls_existing_var IS NOT INITIAL AND ls_existing_var-variant_id IS NOT INITIAL.
+      delete_corresponding_vardata( ls_existing_var-variant_id ).
+      ls_variant-variant_id = ls_existing_var-variant_id.
+      ls_variant-created_by = ls_existing_var-created_by.
+      ls_variant-created_date = ls_existing_var-created_date.
+      MODIFY zdbbr_variantd FROM ls_variant.
+    ELSE.
+      ls_variant-variant_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      ls_variant-created_by = sy-uname.
+      ls_variant-created_date = sy-datum.
+      INSERT zdbbr_variantd FROM ls_variant.
+    ENDIF.
+
+*.. save variant data / fields
+    IF lt_fields IS NOT INITIAL.
+      LOOP AT lt_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
+        <ls_field>-ref_id = ls_variant-variant_id.
+        <ls_field>-table_field_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      ENDLOOP.
+
+      INSERT zdbbr_tabf FROM TABLE lt_fields.
+    ENDIF.
+
+    IF lt_vardata IS NOT INITIAL.
+      LOOP AT lt_vardata ASSIGNING FIELD-SYMBOL(<ls_var_data>).
+        <ls_var_data>-ref_variant_id = ls_variant-variant_id.
+        <ls_var_data>-variant_data_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      ENDLOOP.
+
+      INSERT zdbbr_vardata FROM TABLE lt_vardata.
+    ENDIF.
+
+    COMMIT WORK.
+  ENDMETHOD.
+
+  METHOD delete_default_variant.
+    SELECT SINGLE variant_id
+      FROM zdbbr_variantd
+      WHERE entity_id = @iv_entity_id
+        AND entity_type = @iv_entity_type
+        AND created_by = @sy-uname
+    INTO @DATA(lv_default_variant_id).
+
+    rf_deleted = xsdbool( sy-subrc = 0 ).
+    CHECK rf_deleted = abap_true.
+
+    delete_corresponding_vardata( iv_variant_id = lv_default_variant_id ).
+
+    DELETE FROM zdbbr_variantd WHERE variant_id = lv_default_variant_id.
+
+    COMMIT WORK.
+  ENDMETHOD.
+
+  METHOD save_auto_variant.
+    DATA(ls_variant) = CORRESPONDING zdbbr_variantaf( is_var_data ).
+    DATA(lt_fields) = is_var_data-fields.
+    DATA(lt_vardata) = is_var_data-variant_data.
+
+    delete_auto_variant(
+        iv_entity_id   = is_var_data-entity_id
+        iv_entity_type = is_var_data-entity_type
+    ).
+
+    ls_variant-variant_id = zcl_dbbr_system_helper=>create_guid_22( ).
+    ls_variant-created_by = sy-uname.
+    ls_variant-created_date = sy-datum.
+    INSERT zdbbr_variantaf FROM ls_variant.
+
+    IF lt_vardata IS NOT INITIAL.
+      LOOP AT lt_vardata ASSIGNING FIELD-SYMBOL(<ls_var_data>).
+        <ls_var_data>-ref_variant_id = ls_variant-variant_id.
+        <ls_var_data>-variant_data_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      ENDLOOP.
+
+      INSERT zdbbr_vardata FROM TABLE lt_vardata.
+    ENDIF.
+
+    COMMIT WORK.
+  ENDMETHOD.
+
+  METHOD delete_auto_variant.
+    SELECT SINGLE variant_id
+      FROM zdbbr_variantaf
+      WHERE entity_id = @iv_entity_id
+        AND entity_type = @iv_entity_type
+        AND created_by = @sy-uname
+    INTO @DATA(lv_auto_variant_id).
+
+    CHECK sy-subrc = 0.
+
+    delete_corresponding_vardata( iv_variant_id = lv_auto_variant_id ).
+
+    DELETE FROM zdbbr_variantaf WHERE variant_id = lv_auto_variant_id.
+
+    COMMIT WORK.
+  ENDMETHOD.
+
 
   METHOD variant_exists.
 *& Description: Checks if variant exists for business key
@@ -335,4 +523,13 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
 
     rf_exists = xsdbool( lv_count >= 1 ).
   ENDMETHOD.
+
+  METHOD default_variant_exists.
+    SELECT SINGLE @abap_true
+      FROM zdbbr_variantd
+      WHERE entity_id   = @iv_entity_id
+        AND entity_type = @iv_entity_type
+    INTO @rf_exists.
+  ENDMETHOD.
+
 ENDCLASS.

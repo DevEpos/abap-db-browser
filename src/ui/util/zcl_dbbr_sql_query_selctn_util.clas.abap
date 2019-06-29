@@ -25,6 +25,8 @@ CLASS zcl_dbbr_sql_query_selctn_util DEFINITION
         REDEFINITION.
     METHODS create_field_catalog
         REDEFINITION.
+    METHODS is_f4_saving_allowed
+        REDEFINITION.
   PRIVATE SECTION.
     DATA mo_query TYPE REF TO zcl_dbbr_sql_query.
     DATA mo_query_result_line_type TYPE REF TO cl_abap_structdescr.
@@ -61,7 +63,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
     ENDIF.
 
     IF mr_query_result IS NOT BOUND.
-      RAISE EVENT no_data.
+      raise_no_data_event( ).
       RETURN.
     ENDIF.
 
@@ -80,7 +82,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
 
     " if no selection occurred, prevent screen visibility
     IF ms_control_info-number <= 0.
-      RAISE EVENT no_data.
+      raise_no_data_event( ).
       RETURN.
     ENDIF.
 
@@ -105,7 +107,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
     ).
 
     IF mr_query_result IS INITIAL.
-      RAISE EVENT no_data.
+      raise_no_data_event( ).
       RETURN.
     ENDIF.
 
@@ -113,7 +115,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
     ms_control_info-number = lines( <lt_data> ).
 
     IF ms_control_info-number = 0.
-      RAISE EVENT no_data.
+      raise_no_data_event( ).
       RETURN.
     ENDIF.
 
@@ -241,7 +243,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
   METHOD create_field_catalog.
     DATA(lt_dfies) = zcl_uitb_alv_data_descr=>read_structdescr(
         ir_structdescr = mo_query_result_line_type
-        iv_language    = zcl_dbbr_appl_util=>get_description_language( )
+        iv_language    = zcl_dbbr_system_helper=>get_system_language( )
     ).
 
     LOOP AT lt_dfies ASSIGNING FIELD-SYMBOL(<ls_dfies>).
@@ -301,6 +303,9 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
+  METHOD is_f4_saving_allowed.
+    rf_allowed = abap_false.
+  ENDMETHOD.
 
   METHOD update_result.
 
