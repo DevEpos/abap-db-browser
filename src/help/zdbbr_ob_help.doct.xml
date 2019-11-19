@@ -117,7 +117,7 @@
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>owner,,Responsible Person,,X,,[*,sy-uname,me]</TDLINE>
+      <TDLINE>owner,,Responsible Person,,X,,[*&lt;(&gt;,&lt;)&gt;me]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
@@ -125,7 +125,11 @@
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>api,,API State,,X,,[released,key_user,add_custom_fields,remote,cloud]</TDLINE>
+      <TDLINE>api,,API State,,X,,[add_custom_fields&lt;(&gt;,&lt;)&gt;released</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>=</TDFORMAT>
+      <TDLINE>,use_in_key_user_apps,user_as_remote_api,use_in_sap_cloud_platform]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
@@ -157,7 +161,11 @@
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>params,,View with parameters,,-,,[true]</TDLINE>
+      <TDLINE>param,,View with specific parameter,,X,,*</TDLINE>
+     </TLINE>
+     <TLINE>
+      <TDFORMAT>T3</TDFORMAT>
+      <TDLINE>params,,View with parameters,,-,,[true,false]</TDLINE>
      </TLINE>
      <TLINE>
       <TDFORMAT>T3</TDFORMAT>
