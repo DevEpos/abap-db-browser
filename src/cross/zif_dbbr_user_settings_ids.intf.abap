@@ -20,7 +20,7 @@ INTERFACE zif_dbbr_user_settings_ids
   CONSTANTS c_object_navigator_at_start TYPE string VALUE 'P_ONAST' ##NO_TEXT.
   "! Type zdbbr_obj_navigator_Mode
   CONSTANTS c_initial_obj_nav_mode TYPE string VALUE 'P_IOBJM' ##no_text.
-  "! Type zdbbr_obj_browser_mode
+  "! Type ZSAT_OBJ_BROWSER_MODE
   CONSTANTS c_initial_obj_browser_mode TYPE string VALUE 'P_IOBBRM' ##no_text.
   "! Type ABAP_BOOL
   CONSTANTS c_no_fixed_key_cols TYPE string VALUE 'P_KCOLNF' ##NO_TEXT.

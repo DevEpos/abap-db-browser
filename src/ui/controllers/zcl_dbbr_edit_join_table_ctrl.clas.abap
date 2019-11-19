@@ -32,25 +32,25 @@ CLASS zcl_dbbr_edit_join_table_ctrl DEFINITION
 
     "! Type - tabname
     CONSTANTS c_p_join_table TYPE dynfnam VALUE 'P_JOINTB' ##NO_TEXT.
-    "! Type - zdbbr_jointype
+    "! Type - ZSAT_JOINTYPE
     CONSTANTS c_p_join_type TYPE dynfnam VALUE 'P_JOINTY' ##NO_TEXT.
     "! Type - abap_bool
     CONSTANTS c_f_is_virtual_join TYPE dynfnam VALUE 'P_XJVIRT' ##NO_TEXT.
     CONSTANTS c_r_edit_join_table_controller TYPE dynfnam VALUE 'GR_EDIT_JOIN_TABLE_CONTROLLER' ##NO_TEXT.
-    "! Type - zdbbr_entity_alias
+    "! Type - zsat_entity_alias
     CONSTANTS c_p_alias TYPE dynfnam VALUE 'P_JOINTA' ##no_text.
-    "! Type - zdbbr_entity_alias_alv
+    "! Type - zsat_entity_alias_alv
     CONSTANTS c_p_alias_alv TYPE dynfnam VALUE 'P_JONTIA' ##no_text.
 
     DATA mr_join_table TYPE REF TO tabname .
     DATA mr_is_virtual_join TYPE REF TO abap_bool .
-    DATA mr_alias TYPE REF TO zdbbr_entity_alias.
-    DATA mr_join_type TYPE REF TO zdbbr_jointype .
+    DATA mr_alias TYPE REF TO zsat_entity_alias.
+    DATA mr_join_type TYPE REF TO ZSAT_JOINTYPE .
     DATA mf_saved TYPE abap_bool .
-    data ms_entity_temp type zdbbr_entity.
+    data ms_entity_temp type ZSAT_ENTITY.
     "! <p class="shorttext synchronized" lang="en">Join table</p>
     DATA ms_join_table TYPE zdbbr_join_table_ui .
-    DATA mv_old_alias TYPE zdbbr_entity_alias.
+    DATA mv_old_alias TYPE zsat_entity_alias.
     DATA mf_is_new TYPE abap_bool .
     DATA mo_cursor TYPE REF TO zcl_uitb_cursor .
     DATA mr_save_func TYPE REF TO smp_dyntxt .
@@ -99,7 +99,7 @@ CLASS zcl_dbbr_edit_join_table_ctrl IMPLEMENTATION.
       CLEAR: mr_join_table->*,
              mr_alias->*,
              mr_is_virtual_join->*.
-      mr_join_type->* = zif_dbbr_c_join_types=>inner_join.
+      mr_join_type->* = ZIF_SAT_C_JOIN_TYPES=>inner_join.
     ELSE.
       mr_join_table->* = is_join_table-add_table.
       mr_join_type->* = is_join_table-join_type.
@@ -131,7 +131,7 @@ CLASS zcl_dbbr_edit_join_table_ctrl IMPLEMENTATION.
 *......... clear save flag for next saving
            mf_saved.
 
-    mr_join_type->* = zif_dbbr_c_join_types=>inner_join.
+    mr_join_type->* = ZIF_SAT_C_JOIN_TYPES=>inner_join.
     mf_is_new = abap_true.
     mo_cursor->set_field( c_p_join_table ).
     mo_cursor->request_update( ).
@@ -158,9 +158,9 @@ CLASS zcl_dbbr_edit_join_table_ctrl IMPLEMENTATION.
     TRANSLATE mr_join_table->* TO UPPER CASE.
 
     TRY.
-        ms_entity_temp = zcl_dbbr_dictionary_helper=>get_entity( mr_join_table->* ).
-      CATCH  zcx_dbbr_data_read_error INTO DATA(lx_read_error).
-        RAISE EXCEPTION TYPE zcx_dbbr_validation_exception
+        ms_entity_temp = zcl_sat_ddic_repo_access=>get_entity( mr_join_table->* ).
+      CATCH  zcx_sat_data_read_error INTO DATA(lx_read_error).
+        RAISE EXCEPTION TYPE ZCX_SAT_VALIDATION_EXCEPTION
           EXPORTING
             previous       = lx_read_error
             parameter_name = c_p_join_table.
@@ -187,17 +187,17 @@ CLASS zcl_dbbr_edit_join_table_ctrl IMPLEMENTATION.
         IF lf_do_not_check_alias = abap_false.
           zcl_dbbr_entity_alias_util=>check_entity_alias( mr_alias->* ).
         ENDIF.
-      CATCH zcx_dbbr_validation_exception INTO DATA(lx_valid_error).
+      CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lx_valid_error).
 *...... Re raise exception with screen parameter connection
-        zcx_dbbr_validation_exception=>raise_with_text(
+        ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text(
             iv_text      = lx_valid_error->get_text( )
             iv_parameter = c_p_alias
         ).
     ENDTRY.
 
-    IF mr_join_type->* = zif_dbbr_c_join_types=>right_outer_join AND
+    IF mr_join_type->* = ZIF_SAT_C_JOIN_TYPES=>right_outer_join AND
        mr_is_virtual_join->* = abap_true.
-      zcx_dbbr_validation_exception=>raise_with_text(
+      ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text(
           iv_text      = |Right Outer Join is not possible with Virtual Join|
           iv_parameter = c_p_join_type
       ).
@@ -263,7 +263,7 @@ CLASS zcl_dbbr_edit_join_table_ctrl IMPLEMENTATION.
 
         ENDCASE.
 
-      CATCH zcx_dbbr_validation_exception INTO DATA(lx_valid).
+      CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lx_valid).
         IF lx_valid->parameter_name IS NOT INITIAL.
           mo_cursor->set_field( lx_valid->parameter_name ).
           mo_cursor->refresh( ).

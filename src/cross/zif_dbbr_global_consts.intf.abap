@@ -9,7 +9,7 @@ INTERFACE zif_dbbr_global_consts
   CONSTANTS c_dummy_variant TYPE zdbbr_variant_id VALUE 'DUMMY' ##NO_TEXT.
   CONSTANTS c_default_max_lines TYPE sy-tabix VALUE 500 ##NO_TEXT.
   CONSTANTS c_default_last_used_favs TYPE sy-tabix VALUE 10 ##NO_TEXT.
-  CONSTANTS c_formula_alias TYPE zdbbr_table_alias VALUE 'X' ##NO_TEXT.
+  CONSTANTS c_formula_alias TYPE ZSAT_TABLE_ALIAS VALUE 'X' ##NO_TEXT.
   CONSTANTS gc_default_numeric_type TYPE dd04l-rollname VALUE 'ZDBBR_DEC17_5' ##NO_TEXT.
   CONSTANTS gc_formula_dummy_table TYPE tabname VALUE '-FORMULA-' ##NO_TEXT.
   CONSTANTS c_parameter_dummy_table TYPE tabname VALUE '-PARAMS-' ##NO_TEXT.
@@ -34,15 +34,6 @@ INTERFACE zif_dbbr_global_consts
       normal         TYPE zdbbr_jump_target_type VALUE 'N',
       start_new_mode TYPE zdbbr_jump_target_type VALUE 'T',
     END OF gc_jump_call_types .
-  CONSTANTS:
-    BEGIN OF gc_system_value_types,
-      date     TYPE zdbbr_syst_value_type VALUE 'DATE',
-      time     TYPE zdbbr_syst_value_type VALUE 'TIME',
-      user     TYPE zdbbr_syst_value_type VALUE 'USER',
-      language TYPE zdbbr_syst_value_type VALUE 'LANGU',
-      null     TYPE zdbbr_syst_value_type VALUE 'NULL',
-      not_null TYPE zdbbr_syst_value_type VALUE 'NOT NULL',
-    END OF gc_system_value_types .
   CONSTANTS:
     BEGIN OF c_formfield_types,
       calculation TYPE zdbbr_formfield_type VALUE 'CALC',

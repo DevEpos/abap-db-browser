@@ -11,14 +11,14 @@ CLASS zcl_dbbr_cds_field_value_help DEFINITION
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
-        iv_entity TYPE zdbbr_cds_view_name
+        iv_entity TYPE ZSAT_CDS_VIEW_NAME
         iv_field  TYPE fieldname.
   PROTECTED SECTION.
     METHODS create_content
         REDEFINITION.
   PRIVATE SECTION.
     DATA mo_main_splitter TYPE REF TO zcl_uitb_gui_splitter_cont.
-    DATA mv_cds_view TYPE zdbbr_cds_view_name.
+    DATA mv_cds_view TYPE ZSAT_CDS_VIEW_NAME.
     DATA mo_filter_alv TYPE REF TO zcl_dbbr_f4_alv_filter.
     DATA mv_fieldname TYPE fieldname.
 ENDCLASS.

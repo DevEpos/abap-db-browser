@@ -21,8 +21,8 @@ ENDMODULE.
 
 MODULE validate_table_name INPUT.
   TRY.
-      zcl_dbbr_dictionary_helper=>validate_table_name( gs_data-primary_table ).
-    CATCH zcx_dbbr_validation_exception INTO DATA(lr_validation_exception).
+      zcl_dbbr_ddic_util=>validate_table_name( gs_data-primary_table ).
+    CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lr_validation_exception).
       lr_validation_exception->show_message( ).
   ENDTRY.
 ENDMODULE.
@@ -76,7 +76,7 @@ ENDMODULE.
 
 MODULE search_field_f4 INPUT.
   IF sy-dynnr = zif_dbbr_global_consts=>gc_dynpro_code-custom_built_in_f4_create.
-    zcl_dbbr_dictionary_helper=>call_table_field_f4(
+    zcl_dbbr_ddic_util=>call_table_field_f4(
       EXPORTING
         iv_repid              = sy-repid
         iv_dynpname_tablename = 'GS_BUILT_IN_F4-SEARCH_TABLE'
@@ -85,7 +85,7 @@ MODULE search_field_f4 INPUT.
         cv_fieldname          = gs_built_in_f4-search_field
     ).
   ELSE.
-    zcl_dbbr_dictionary_helper=>call_table_field_f4(
+    zcl_dbbr_ddic_util=>call_table_field_f4(
       EXPORTING
         iv_repid              = sy-repid
         iv_dynpname_tablename = 'GS_CUSTOM_SEARCH_HELP-TABNAME'
@@ -99,11 +99,11 @@ ENDMODULE.
 MODULE check_search_table INPUT.
   IF sy-dynnr = zif_dbbr_global_consts=>gc_dynpro_code-custom_built_in_f4_create.
     TRY.
-        zcl_dbbr_dictionary_helper=>validate_table_name(
+        zcl_dbbr_ddic_util=>validate_table_name(
             iv_table_name               = gs_built_in_f4-search_table
             if_customizing_view_allowed = abap_false
         ).
-      CATCH zcx_dbbr_validation_exception INTO lr_validation_exception.
+      CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO lr_validation_exception.
         lr_validation_exception->show_message( ).
     ENDTRY.
   ELSE.
@@ -114,9 +114,9 @@ ENDMODULE.
 MODULE check_search_field INPUT.
   IF sy-dynnr = zif_dbbr_global_consts=>gc_dynpro_code-custom_built_in_f4_create.
     TRY.
-        zcl_dbbr_dictionary_helper=>validate_table_field( iv_table_field = gs_built_in_f4-search_field
+        zcl_dbbr_ddic_util=>validate_table_field( iv_table_field = gs_built_in_f4-search_field
                                                            iv_table_name  = gs_built_in_f4-search_table ).
-      CATCH zcx_dbbr_validation_exception INTO DATA(lr_exc).
+      CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lr_exc).
         lr_exc->show_message( iv_message_type = 'I' ).
     ENDTRY.
   ELSE.

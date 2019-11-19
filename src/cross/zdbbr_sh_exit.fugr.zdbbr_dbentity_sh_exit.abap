@@ -11,7 +11,7 @@ FUNCTION ZDBBR_DBENTITY_SH_EXIT.
 *"     REFERENCE(CALLCONTROL) TYPE  DDSHF4CTRL
 *"----------------------------------------------------------------------
   IF callcontrol-step = 'SELECT'.
-    DATA: lt_entity_range       TYPE RANGE OF zdbbr_entity_id,
+    DATA: lt_entity_range       TYPE RANGE OF ZSAT_ENTITY_ID,
           lt_package_range      TYPE RANGE OF devclass,
           lt_description_selopt TYPE RANGE OF ddtext.
 
@@ -36,12 +36,12 @@ FUNCTION ZDBBR_DBENTITY_SH_EXIT.
 
     ENDLOOP.
 
-    DATA: lt_result TYPE zdbbr_entity_t.
+    DATA: lt_result TYPE ZSAT_ENTITY_T.
 
-    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
+    DATA(lv_language) = ZCL_SAT_SYSTEM_HELPER=>get_system_language( ).
 
     SELECT entityraw AS entity_id, type AS entity_type, description, developmentpackage AS devclass
-      FROM zdbbr_i_databaseentity( p_language = @lv_language )
+      FROM zsat_i_databaseentity( p_language = @lv_language )
       WHERE entity IN @lt_entity_range
         AND developmentpackage IN @lt_package_range
         AND description IN @lt_description_selopt
@@ -54,7 +54,7 @@ FUNCTION ZDBBR_DBENTITY_SH_EXIT.
 
       CALL FUNCTION 'F4UT_RESULTS_MAP'
         EXPORTING
-          source_structure = 'ZDBBR_ENTITY'
+          source_structure = 'ZSAT_ENTITY'
         TABLES
           shlp_tab         = shlp_tab
           record_tab       = record_tab

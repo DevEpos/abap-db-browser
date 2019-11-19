@@ -20,7 +20,7 @@ CLASS zcl_dbbr_join_factory DEFINITION
         !iv_join_id TYPE zdbbr_join_id .
     METHODS delete_multiple_joins
       IMPORTING
-        !it_join_range TYPE zdbbr_selopt_itab .
+        !it_join_range TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -133,17 +133,17 @@ CLASS zcl_dbbr_join_factory IMPLEMENTATION.
     DATA(ls_join_def) = is_join_def.
 
     rv_new_query_id =
-    ls_join_def-join_id = zcl_dbbr_system_helper=>create_guid_22( ).
+    ls_join_def-join_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
     ls_join_head = CORRESPONDING #( ls_join_def ).
 
     LOOP AT ls_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_table>).
-      <ls_table>-join_table_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      <ls_table>-join_table_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       <ls_table>-ref_join_id = ls_join_def-join_id.
       lt_tables = VALUE #( BASE lt_tables ( CORRESPONDING #( <ls_table> ) ) ).
 
 *.... Fill field conditions
       LOOP AT <ls_table>-field_conditions ASSIGNING FIELD-SYMBOL(<ls_field_cond>).
-        <ls_field_cond>-join_field_id = zcl_dbbr_system_helper=>create_guid_22( ).
+        <ls_field_cond>-join_field_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
         <ls_field_cond>-ref_join_table_id = <ls_table>-join_table_id.
         <ls_field_cond>-ref_join_id = ls_join_def-join_id.
 
@@ -152,7 +152,7 @@ CLASS zcl_dbbr_join_factory IMPLEMENTATION.
 
 *.... Fill Filter conditions
       LOOP AT <ls_table>-filter_conditions ASSIGNING FIELD-SYMBOL(<ls_filter_cond>).
-        <ls_filter_cond>-join_filter_id = zcl_dbbr_system_helper=>create_guid_22( ).
+        <ls_filter_cond>-join_filter_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
         <ls_filter_cond>-ref_join_table_id = <ls_table>-join_table_id.
         <ls_filter_cond>-ref_join_id = ls_join_def-join_id.
 
@@ -182,7 +182,7 @@ CLASS zcl_dbbr_join_factory IMPLEMENTATION.
       LOOP AT cs_join-tables ASSIGNING FIELD-SYMBOL(<ls_join_table>).
 *...... Consider every entity as a normal table if it is not filled
         IF <ls_join_table>-entity_type IS INITIAL.
-          <ls_join_table>-entity_type = zif_dbbr_c_entity_type=>table.
+          <ls_join_table>-entity_type = ZIF_SAT_C_ENTITY_TYPE=>table.
         ENDIF.
         <ls_join_table>-add_table_alias = <ls_join_table>-add_table.
         <ls_join_table>-add_table_alias_alv = zcl_dbbr_entity_alias_util=>get_next_free_alv_alias( ).

@@ -56,7 +56,7 @@ CLASS zcl_dbbr_base_select_tc DEFINITION
         is_selfield          TYPE zdbbr_selfield
         if_no_uppercase_conv TYPE abap_bool OPTIONAL
       CHANGING
-        cv_value             TYPE zdbbr_value .
+        cv_value             TYPE ZSAT_VALUE .
   PRIVATE SECTION.
 ENDCLASS.
 
@@ -115,7 +115,7 @@ CLASS zcl_dbbr_base_select_tc IMPLEMENTATION.
               iv_domain    = mr_selfield_line->domname
           ).
         ELSE.
-          zcl_dbbr_data_converter=>convert_values_to_int_format(
+          ZCL_SAT_DATA_CONVERTER=>convert_values_to_int_format(
             EXPORTING
               iv_rollname            = mr_selfield_line->rollname
               iv_type                = mr_selfield_line->inttype
@@ -141,7 +141,7 @@ CLASS zcl_dbbr_base_select_tc IMPLEMENTATION.
               iv_domain    = mr_selfield_line->domname
           ).
         ELSE.
-          zcl_dbbr_data_converter=>convert_selopt_to_int_format(
+          ZCL_SAT_DATA_CONVERTER=>convert_selopt_to_int_format(
             EXPORTING iv_tabname   = mr_selfield_line->tabname
                       iv_fieldname = mr_selfield_line->fieldname
                       if_print_error_message = abap_false

@@ -5,7 +5,7 @@ CLASS zcl_dbbr_favmenu_factory DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-
+    TYPES: tt_mostused_k TYPE STANDARD TABLE OF zdbbr_mostused_k WITH EMPTY KEY.
     "! <p class="shorttext synchronized" lang="en">Clear most used list</p>
     METHODS clear_most_used_list .
     "! <p class="shorttext synchronized" lang="en">Delete favorite</p>
@@ -15,7 +15,7 @@ CLASS zcl_dbbr_favmenu_factory DEFINITION
     "! <p class="shorttext synchronized" lang="en">Delete favorite entries for query name range</p>
     METHODS delete_favs_for_query_names
       IMPORTING
-        !it_query_name_range TYPE zdbbr_selopt_itab .
+        !it_query_name_range TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt .
     "! <p class="shorttext synchronized" lang="en">Delete global favorites</p>
     METHODS delete_global_favorites .
     "! <p class="shorttext synchronized" lang="en">Delete most used entry</p>
@@ -28,7 +28,7 @@ CLASS zcl_dbbr_favmenu_factory DEFINITION
     "! @parameter it_most_used_k | <p class="shorttext synchronized" lang="en"></p>
     METHODS delete_most_used_multiple
       IMPORTING
-        !it_most_used_k TYPE zif_dbbr_global_types=>tt_mostused_k .
+        !it_most_used_k TYPE tt_mostused_k .
     "! <p class="shorttext synchronized" lang="en">Delete user favorite</p>
     METHODS delete_user_favorites .
     "! <p class="shorttext synchronized" lang="en">Check if given favorite exists</p>
@@ -63,9 +63,9 @@ CLASS zcl_dbbr_favmenu_factory DEFINITION
     METHODS refresh_most_used
       IMPORTING
         !iv_entry     TYPE tabname
-        !iv_entry_raw TYPE zdbbr_entity_id_raw
+        !iv_entry_raw TYPE ZSAT_ENTITY_ID_raw
         !iv_text      TYPE ddtext OPTIONAL
-        !iv_type      TYPE zdbbr_favmenu_type .
+        !iv_type      TYPE ZSAT_FAVMENU_TYPE .
     "! <p class="shorttext synchronized" lang="en">Repair favorites tree</p>
     METHODS repair_favorite_tree .
     "! <p class="shorttext synchronized" lang="en">Update description of favorite</p>

@@ -1,6 +1,6 @@
 CLASS zcx_dbbr_formula_exception DEFINITION
   PUBLIC
-  INHERITING FROM zcx_dbbr_application_exc
+  INHERITING FROM ZCX_DBBR_APPLICATION_EXC
   CREATE PUBLIC .
 
   PUBLIC SECTION.

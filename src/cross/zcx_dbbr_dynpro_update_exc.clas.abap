@@ -1,6 +1,6 @@
-CLASS ZCX_DBBR_dynpro_update_exc DEFINITION
+CLASS zcx_dbbr_dynpro_update_exc DEFINITION
   PUBLIC
-  INHERITING FROM ZCX_DBBR_NC_exception
+  INHERITING FROM zcx_sat_nc_exception
   FINAL
   CREATE PUBLIC .
 
@@ -20,7 +20,7 @@ ENDCLASS.
 
 
 
-CLASS ZCX_DBBR_dynpro_update_exc IMPLEMENTATION.
+CLASS zcx_dbbr_dynpro_update_exc IMPLEMENTATION.
 
 
   METHOD constructor ##ADT_SUPPRESS_GENERATION.

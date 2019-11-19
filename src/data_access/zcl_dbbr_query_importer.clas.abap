@@ -41,7 +41,7 @@ CLASS zcl_dbbr_query_importer IMPLEMENTATION.
 
     LOOP AT <lt_queries> ASSIGNING FIELD-SYMBOL(<ls_query>).
       " create new unique query id
-      DATA(lv_new_query_id) = zcl_dbbr_system_helper=>create_guid_22( ).
+      DATA(lv_new_query_id) = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
 
       <ls_query>-query_id = lv_new_query_id.
 

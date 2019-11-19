@@ -82,7 +82,7 @@ CLASS zcl_dbbr_custom_f4_sc DEFINITION
     "! <p class="shorttext synchronized" lang="en">Returns Fields/Parameters of CDS view</p>
     METHODS get_cds_view_fields
       IMPORTING
-        iv_cds_view_name TYPE zdbbr_cds_view_name
+        iv_cds_view_name TYPE ZSAT_CDS_VIEW_NAME
       RETURNING
         VALUE(rt_fields) TYPE ty_t_cdsfield_f4.
     METHODS hide_tabname_alias_col
@@ -134,9 +134,9 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
       zcl_uitb_cursor=>get_cursor( if_reset = abap_false )->set_line( 0 ) .
       zcl_uitb_cursor=>refresh_cursor( ).
 
-      RAISE EXCEPTION TYPE zcx_dbbr_validation_exception
+      RAISE EXCEPTION TYPE ZCX_SAT_VALIDATION_EXCEPTION
         EXPORTING
-          textid = zcx_dbbr_validation_exception=>mandatory_fields_empty.
+          textid = ZCX_SAT_VALIDATION_EXCEPTION=>mandatory_fields_empty.
     ENDIF.
   ENDMETHOD.
 
@@ -352,7 +352,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
           ( tabname           = <ls_f4_field>-search_table
             tabname_alias     = <ls_f4_field>-search_table_alias
             fieldname         = <ls_f4_field>-search_field
-            scrtext_m = zcl_dbbr_dictionary_helper=>get_table_field_info(
+            scrtext_m = zcl_sat_ddic_repo_access=>get_table_field_info(
                iv_tablename = <ls_f4_field>-search_table
                iv_fieldname = <ls_f4_field>-search_field )-fieldtext
             sortorder = sy-tabix
@@ -439,16 +439,16 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
       ENDIF.
     ELSE.
       SELECT SINGLE *
-        FROM zdbbr_i_databaseentitywotext
+        FROM zsat_i_databaseentitywotext
         WHERE entity = @lo_row->entity_id
       INTO @DATA(ls_entity).
       CHECK sy-subrc = 0.
 
-      IF ls_entity-type = zif_dbbr_c_entity_type=>cds_view.
+      IF ls_entity-type = ZIF_SAT_C_ENTITY_TYPE=>cds_view.
         DATA(lt_cds_fields) = get_cds_view_fields( ls_entity-entity ).
         ASSIGN lt_cds_fields TO <lt_values>.
       ELSE.
-        zcl_dbbr_dictionary_helper=>get_table_field_infos(
+        zcl_sat_ddic_repo_access=>get_table_field_infos(
           EXPORTING iv_tablename    = lo_row->entity_id
           IMPORTING et_table_fields = DATA(lt_table_fields)
         ).
@@ -477,7 +477,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
 
   METHOD get_cds_view_fields.
     TRY.
-        DATA(lo_cds_view) = zcl_dbbr_cds_view_factory=>read_cds_view( iv_cds_view_name ).
+        DATA(lo_cds_view) = ZCL_SAT_CDS_VIEW_FACTORY=>read_cds_view( iv_cds_view_name ).
         LOOP AT lo_cds_view->get_parameters( ) ASSIGNING FIELD-SYMBOL(<ls_param>).
           rt_fields = VALUE #( BASE rt_fields
             ( fieldname = <ls_param>-parametername_raw
@@ -494,7 +494,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
                 is_key    = field-keyflag ) )
           )
         ).
-      CATCH zcx_dbbr_data_read_error.
+      CATCH ZCX_SAT_DATA_READ_ERROR.
         "handle exception
     ENDTRY.
   ENDMETHOD.
@@ -634,7 +634,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
 
     IF NOT ( mo_search_fields_alv->get_data_changes( )->check_changed( ) AND
              mo_assigned_fields_alv->get_data_changes( )->check_changed( ) ).
-      zcx_dbbr_validation_exception=>raise_with_text( iv_text = 'Error in Search Fields / Field Assignments' ).
+      ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text( iv_text = 'Error in Search Fields / Field Assignments' ).
     ENDIF.
 
     IF mr_ui_custom_search_help->search_field IS INITIAL.

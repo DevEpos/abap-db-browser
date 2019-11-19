@@ -14,7 +14,7 @@ public section.
   methods ADD_INFO_FROM_SY .
   methods ADD_EXCEPTION_MESSAGE
     importing
-      !IR_EXCEPTION_MSG type ref to ZIF_DBBR_EXCEPTION_MESSAGE .
+      !IR_EXCEPTION_MSG type ref to ZIF_SAT_EXCEPTION_MESSAGE .
   methods ADD_WARNING_FROM_SY .
   methods ADD_ERROR_FROM_SY .
   methods ADD_WARNING

@@ -194,7 +194,7 @@
 
    METHOD validate.
      IF mt_field_cond IS INITIAL.
-       zcx_dbbr_validation_exception=>raise_with_text(
+       ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text(
            iv_text = |Join Table { mv_tabname } has no single Field condition|
        ).
      ENDIF.
@@ -265,7 +265,7 @@
        ELSEIF lv_or_group <> lv_filter_or_group_node. " AND
 *              lv_filter_or_group_node IS NOT INITIAL.
 *....... The last filter's OR needs to be switched to AND
-         <ls_last_filter>-and_or = zif_dbbr_c_selection_condition=>and.
+         <ls_last_filter>-and_or = ZIF_SAT_C_SELECTION_CONDITION=>and.
          lv_or_group = lv_filter_or_group_node.
        ENDIF.
 

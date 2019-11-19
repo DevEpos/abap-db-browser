@@ -48,6 +48,18 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Event handler for when association gets chosen</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_SELECTION_UTIL</CLSNAME>
+     <CMPNAME>REBUILD</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Rebuilds the output</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_SELECTION_UTIL</CLSNAME>
+     <CMPNAME>SHOW_CDS_SOURCE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Shows the Source Code of the CDS</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

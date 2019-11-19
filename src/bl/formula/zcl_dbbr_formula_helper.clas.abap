@@ -64,7 +64,7 @@ CLASS ZCL_DBBR_FORMULA_HELPER IMPLEMENTATION.
                                       ELSE
                                         is_form_field-short_description ).
     ls_tabfield-ddic_order = 9999.
-    ls_tabfield-is_numeric = zcl_dbbr_dictionary_helper=>is_dtel_numeric( ls_dfies-rollname ).
+    ls_tabfield-is_numeric = zcl_dbbr_ddic_util=>is_dtel_numeric( ls_dfies-rollname ).
     ls_tabfield-std_medium_text = is_form_field-short_description.
     ls_tabfield-std_long_text = is_form_field-long_description.
     ls_tabfield-output_active = is_tabfield_control-output_active.

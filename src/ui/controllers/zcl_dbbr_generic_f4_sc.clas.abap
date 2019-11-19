@@ -134,7 +134,7 @@ CLASS zcl_dbbr_generic_f4_sc IMPLEMENTATION.
             zif_uitb_screen_controller~free_screen_resources( ).
             zcl_dbbr_screen_helper=>leave_screen( ).
         ENDCASE.
-      CATCH zcx_dbbr_validation_exception INTO DATA(lr_validation_exc).
+      CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lr_validation_exc).
         lr_validation_exc->show_message( iv_message_type = 'I' ).
     ENDTRY.
   ENDMETHOD.

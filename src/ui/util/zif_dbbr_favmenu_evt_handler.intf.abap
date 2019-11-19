@@ -8,5 +8,5 @@ INTERFACE zif_dbbr_favmenu_evt_handler
     IMPORTING
       iv_favorite    TYPE char30
       iv_description TYPE ddtext
-      iv_type        TYPE zdbbr_favmenu_type.
+      iv_type        TYPE ZSAT_FAVMENU_TYPE.
 ENDINTERFACE.

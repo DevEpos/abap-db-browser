@@ -11,7 +11,7 @@ CLASS zcl_dbbr_cds_variant_starter DEFINITION
     METHODS constructor
       IMPORTING
         !iv_variant_id TYPE zdbbr_variant_id
-        !iv_cds_view   TYPE zdbbr_cds_view_name .
+        !iv_cds_view   TYPE ZSAT_CDS_VIEW_NAME .
   PROTECTED SECTION.
 
     METHODS fill_data_from_variant
@@ -20,16 +20,16 @@ CLASS zcl_dbbr_cds_variant_starter DEFINITION
         REDEFINITION.
   PRIVATE SECTION.
 
-    DATA mo_cds_view TYPE REF TO zcl_dbbr_cds_view .
-    DATA mv_cds_view TYPE zdbbr_cds_view_name .
+    DATA mo_cds_view TYPE REF TO ZCL_SAT_CDS_VIEW .
+    DATA mv_cds_view TYPE ZSAT_CDS_VIEW_NAME .
     METHODS get_parameter_values_from_var
       IMPORTING
         it_vardata           TYPE zdbbr_vardata_itab
       RETURNING
-        VALUE(rt_param_data) TYPE zif_dbbr_global_types=>tt_cds_param_value.
+        VALUE(rt_param_data) TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_param_value.
     METHODS get_params_from_variant
       RETURNING
-        VALUE(rt_params) TYPE zif_dbbr_global_types=>tt_cds_param_value.
+        VALUE(rt_params) TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_param_value.
     METHODS create_automatic_variant
       IMPORTING
         it_selfields TYPE zdbbr_selfield_itab.
@@ -94,7 +94,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
       IF ms_global_data-called_from_adt = abap_true.
         zcl_dbbr_usersettings_factory=>update_start_settings(
           iv_entity_id   = mv_cds_view
-          iv_entity_type = zif_dbbr_c_entity_type=>cds_view
+          iv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>cds_view
         ).
       ENDIF.
 
@@ -108,7 +108,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD fill_data_from_variant.
-    DATA: lt_param_values TYPE zif_dbbr_global_types=>tt_cds_param_value.
+    DATA: lt_param_values TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_param_value.
 
     IF mv_variant_id = zif_dbbr_global_consts=>c_dummy_variant.
 *.... Fill parameters if the cds view has any
@@ -138,8 +138,8 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
               fieldname     = param-name
               tabname       = zif_dbbr_global_consts=>c_parameter_dummy_table
               tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table
-              sign          = zif_dbbr_c_options=>including
-              option        = zif_dbbr_c_options=>equals
+              sign          = ZIF_SAT_C_OPTIONS=>including
+              option        = ZIF_SAT_C_OPTIONS=>equals
               low           = param-value )
           ).
 
@@ -156,7 +156,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
 
   METHOD fill_primary_entity.
 
-    mo_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( mv_cds_view ).
+    mo_cds_view = ZCL_SAT_CDS_VIEW_FACTORY=>read_cds_view( mv_cds_view ).
 
     create_cds_fields( VALUE #(
       tabname       = mv_cds_view
@@ -173,7 +173,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
     IF ms_global_data-always_load_def_variant_first = abap_true.
       ls_variant = zcl_dbbr_variant_factory=>get_default_variant(
          iv_entity_id       = mv_cds_view
-         iv_entity_type     = zif_dbbr_c_entity_type=>cds_view
+         iv_entity_type     = ZIF_SAT_C_ENTITY_TYPE=>cds_view
          if_load_completely = abap_true
       ).
       IF ls_variant IS NOT INITIAL.
@@ -186,7 +186,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
     IF ms_global_data-auto_sel_filter_saving = abap_true.
       ls_variant = zcl_dbbr_variant_factory=>get_automatic_variant(
          iv_entity_id       = mv_cds_view
-         iv_entity_type     = zif_dbbr_c_entity_type=>cds_view
+         iv_entity_type     = ZIF_SAT_C_ENTITY_TYPE=>cds_view
          if_load_completely = abap_true
       ).
       rt_params = get_parameter_values_from_var( it_vardata = ls_variant-variant_data ).
@@ -207,12 +207,12 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
           CONTINUE.
       ENDTRY.
 
-      DATA(ls_param) = VALUE zif_dbbr_global_types=>ty_cds_param_value(
+      DATA(ls_param) = VALUE ZIF_SAT_TY_GLOBAL=>ty_s_cds_param_value(
         name = <ls_vardata>-fieldname
       ).
 
       IF <ls_vardata>-system_value_type IS NOT INITIAL.
-        zcl_dbbr_system_helper=>get_system_value( EXPORTING iv_system_value_type = <ls_vardata>-system_value_type
+        ZCL_SAT_SYSTEM_HELPER=>get_system_value( EXPORTING iv_system_value_type = <ls_vardata>-system_value_type
                                                   IMPORTING ev_system_value      = ls_param-value ).
       ELSE.
         ls_param-value = <ls_vardata>-low_val.
@@ -226,7 +226,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
   METHOD create_automatic_variant.
     DATA(ls_variant) = zcl_dbbr_variant_creator=>create_variant(
         iv_entity_id    = mv_cds_view
-        iv_entity_type  = zif_dbbr_c_entity_type=>cds_view
+        iv_entity_type  = ZIF_SAT_C_ENTITY_TYPE=>cds_view
         it_selfields    = it_selfields
     ).
 

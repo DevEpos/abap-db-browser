@@ -34,7 +34,7 @@ CLASS ZCL_DBBR_FE_ICON_DEF_TV IMPLEMENTATION.
     ENDCASE.
 
     IF lv_error_string IS NOT INITIAL.
-      ZCL_DBBR_appl_util=>split_string_for_message(
+      ZCL_SAT_MESSAGE_HELPER=>split_string_for_message(
         EXPORTING iv_string = lv_error_string
         IMPORTING ev_msgv1  = DATA(lv_msgv1)
                   ev_msgv2  = DATA(lv_msgv2)

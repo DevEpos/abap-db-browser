@@ -100,7 +100,7 @@ CLASS zcl_dbbr_app_starter IMPLEMENTATION.
     CHECK ls_controller_data IS NOT INITIAL.
 
     IF ls_controller_data-navigation_info IS NOT INITIAL.
-      lr_t_for_all_data = zcl_dbbr_dictionary_helper=>build_dynamic_std_table(
+      lr_t_for_all_data = zcl_dbbr_ddic_util=>build_dynamic_std_table(
         VALUE #(
           FOR assoc_field IN ls_controller_data-navigation_info-fields
           ( tabname   = ls_controller_data-navigation_info-ref_cds_view

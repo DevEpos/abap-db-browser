@@ -1,5 +1,51 @@
 # DBBrowser - Changelog
 
+## v3.0       - 2019-11-19
+
+### Changes
+
+- Move Object Search and other shared objects for ADT Tools and DB Browser
+  into separater package TEST_SAT (Git Repository [abap-search-tools](https://github.com/stockbal/abap-search-tools))
+  
+### Features
+
+- New transaction `ZDBBR_SQLCONSOLE`. It holds the same features as the _Custom Queries_ but 
+is much easier accessible
+- Additional Text fields can now be added via context menu in the ALV output or via the _Columns_-Menu in the ALV
+toolbar
+
+### Fixes
+
+- minor fixes over all modules
+
+## v2.15.1    - 2019-07-17
+
+### Fixes
+
+- adjust CDS view for finding field usages in DB Views
+
+## v2.15.0    - 2019-07-15
+
+### Features
+
+- Display both rollname and datatype matching value helps
+  in F4 Selector
+- Add new button to selection screen table for deleting all
+  selection criteria, OR-Tuples and aggregations
+- Add fallback mechanism when extension view is opened from ADT to switch to
+  parent DDL
+- Add button in data output to show the source code of a CDS view
+
+### Fixes
+
+- Adjust CDS entity CDS view to return the correct text
+- Handle datatype INT1 in conversion util as internal type 'b' is
+  not supported by the CL_FOBU_UTIL class
+- Fix association navigation where on condition contains cds parameters,
+  system parameters or literals
+- Catch conversion errors in CDS parameter popup
+
+  
 ## v2.14.0    - 2019-06-27                                                                                                                             
                                                                                                                                                        
 ### Features                                                                                                                                           

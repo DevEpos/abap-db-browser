@@ -2,8 +2,8 @@ FUNCTION ZDBBR_SHOW_SELSCREEN.
 *"----------------------------------------------------------------------
 *"*"Local Interface:
 *"  IMPORTING
-*"     VALUE(IV_ENTITY_ID) TYPE  ZDBBR_ENTITY_ID
-*"     VALUE(IV_ENTITY_TYPE) TYPE  ZDBBR_ENTITY_TYPE
+*"     VALUE(IV_ENTITY_ID) TYPE  ZSAT_ENTITY_ID
+*"     VALUE(IV_ENTITY_TYPE) TYPE  ZSAT_ENTITY_TYPE
 *"     VALUE(IV_VARIANT_ID) TYPE  ZDBBR_VARIANT_ID OPTIONAL
 *"     VALUE(IF_SKIP_SELSCREEN) TYPE  SAP_BOOL OPTIONAL
 *"     VALUE(IF_LOAD_PARAMETERS) TYPE  SAP_BOOL OPTIONAL
@@ -61,13 +61,13 @@ FUNCTION ZDBBR_SHOW_SELSCREEN.
 
   CASE lv_entity_type.
 
-    WHEN zif_dbbr_c_entity_type=>table.
+    WHEN ZIF_SAT_C_ENTITY_TYPE=>table.
       gs_data-primary_table = lv_entity_id.
 
-    WHEN zif_dbbr_c_entity_type=>query.
+    WHEN ZIF_SAT_C_ENTITY_TYPE=>query.
       gs_data-query_name = lv_entity_id.
 
-    WHEN zif_dbbr_c_entity_type=>cds_view.
+    WHEN ZIF_SAT_C_ENTITY_TYPE=>cds_view.
       gs_data-primary_table = lv_entity_id.
   ENDCASE.
 

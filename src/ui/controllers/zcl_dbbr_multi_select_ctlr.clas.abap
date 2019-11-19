@@ -234,7 +234,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
       ENDIF.
 
       " convert input
-      zcl_dbbr_data_converter=>convert_selopt_to_int_format(
+      ZCL_SAT_DATA_CONVERTER=>convert_selopt_to_int_format(
         EXPORTING iv_tabname   = mr_ui_multi_select_field->tabname
                   iv_fieldname = mr_ui_multi_select_field->fieldname
         CHANGING  cv_value1    = mr_ui_multi_select_field->low

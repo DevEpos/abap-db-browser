@@ -12,6 +12,40 @@ CLASS zcl_dbbr_version DEFINITION
     "! <p class="shorttext synchronized" lang="en">Current version of DB Browser</p>
     "! <strong>Changelog</strong> <br/><br/>
     "!
+    "! ## v3.0       - 2019-08-01
+    "!
+    "! ### Changes
+    "!
+    "! - Move Object Search and other shared objects for ADT Tools and DB Browser
+    "!   into separater package TEST_SAT
+    "!
+    "! ## v2.15.1    - 2019-07-17
+    "!
+    "! ### Fix
+    "!
+    "! - adjust CDS view for finding field usages in DB Views
+    "!
+    "! ## v2.15.0    - 2019-07-15
+    "!
+    "! ### Features
+    "!
+    "! - Display both rollname and datatype matching value helps
+    "!   in F4 Selector
+    "! - Add new button to selection screen table for deleting all
+    "!   selection criteria, OR-Tuples and aggregations
+    "! - Add fallback mechanism when extension view is opened from ADT to switch to
+    "!   parent DDL
+    "! - Add button in data output to show the source code of a CDS view
+    "!
+    "! ### Fixes
+    "!
+    "! - Adjust CDS entity CDS view to return the correct text
+    "! - Handle datatype INT1 in conversion util as internal type 'b' is
+    "!   not supported by the CL_FOBU_UTIL class
+    "! - Fix association navigation where on condition contains cds parameters,
+    "!   system parameters or literals
+    "! - Catch conversion errors in CDS parameter popup
+    "!
     "! ## v2.14.0    - 2019-06-27
     "!
     "! ### Features
@@ -27,7 +61,7 @@ CLASS zcl_dbbr_version DEFINITION
     "! - add correct column optimization to Variant Pop-Up
     "! - fix some issues in the CDS factory
     "! - use global description language for domain fix values of text fields
-    "! - cache original system language and use it for descriptions (see zcl_dbbr_system_helper)
+    "! - cache original system language and use it for descriptions (see ZCL_SAT_SYSTEM_HELPER)
     "!   - remove description language setting from UI
     "!
     "! ## v2.13.0    - 2019-06-03
@@ -215,7 +249,7 @@ CLASS zcl_dbbr_version DEFINITION
     "! search
     "!
     "! ## v1.0.5   - 2019-01-13
-    CLASS-DATA gv_version TYPE string VALUE '2.14.0'.
+    CLASS-DATA gv_version TYPE string VALUE '2.15.1'.
 ENDCLASS.
 
 

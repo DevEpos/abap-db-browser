@@ -17,9 +17,9 @@ CLASS zcl_dbbr_query_factory DEFINITION
     "! @parameter rt_entities | <p class="shorttext synchronized" lang="en"></p>
     METHODS get_tables_of_query
       IMPORTING
-        iv_query_name      TYPE zdbbr_query_name
+        iv_query_name      TYPE ZSAT_QUERY_NAME
       RETURNING
-        VALUE(rt_entities) TYPE zdbbr_entity_t.
+        VALUE(rt_entities) TYPE ZSAT_ENTITY_T.
     "! <p class="shorttext synchronized" lang="en">Find queries by name/primary table</p>
     "!
     "! @parameter iv_query_name | <p class="shorttext synchronized" lang="en"></p>
@@ -27,7 +27,7 @@ CLASS zcl_dbbr_query_factory DEFINITION
     "! @parameter et_queries | <p class="shorttext synchronized" lang="en"></p>
     METHODS find_queries
       IMPORTING
-        !iv_query_name    TYPE zdbbr_query_name OPTIONAL
+        !iv_query_name    TYPE ZSAT_QUERY_NAME OPTIONAL
         !iv_primary_table TYPE tabname OPTIONAL
       EXPORTING
         !et_queries       TYPE zdbbr_query_info_itab .
@@ -40,9 +40,9 @@ CLASS zcl_dbbr_query_factory DEFINITION
     "! @parameter rf_exists | <p class="shorttext synchronized" lang="en"></p>
     METHODS query_exists
       IMPORTING
-        !iv_query_name     TYPE zdbbr_query_name
+        !iv_query_name     TYPE ZSAT_QUERY_NAME
         !if_global         TYPE boolean OPTIONAL
-        !iv_created_by     TYPE zdbbr_created_by OPTIONAL
+        !iv_created_by     TYPE zsat_created_by OPTIONAL
         !if_saving_context TYPE abap_bool OPTIONAL
       RETURNING
         VALUE(rf_exists)   TYPE boolean .
@@ -53,7 +53,7 @@ CLASS zcl_dbbr_query_factory DEFINITION
     "! @parameter rs_query | <p class="shorttext synchronized" lang="en"></p>
     METHODS get_query
       IMPORTING
-        !iv_query_name      TYPE zdbbr_query_name
+        !iv_query_name      TYPE ZSAT_QUERY_NAME
         !if_load_completely TYPE boolean DEFAULT abap_true
       RETURNING
         VALUE(rs_query)     TYPE zdbbr_query_data .
@@ -107,7 +107,7 @@ CLASS zcl_dbbr_query_factory DEFINITION
     "! @parameter rv_query_id | <p class="shorttext synchronized" lang="en"></p>
     METHODS get_query_id
       IMPORTING
-        !iv_query_name     TYPE zdbbr_query_name
+        !iv_query_name     TYPE ZSAT_QUERY_NAME
       RETURNING
         VALUE(rv_query_id) TYPE zdbbr_query_id .
   PROTECTED SECTION.
@@ -115,7 +115,7 @@ CLASS zcl_dbbr_query_factory DEFINITION
 
     METHODS delete_related_by_query_name
       IMPORTING
-        !iv_query_name TYPE zdbbr_query_name .
+        !iv_query_name TYPE ZSAT_QUERY_NAME .
     METHODS delete_related_by_query_id
       IMPORTING
         !iv_query_id   TYPE zdbbr_query_id
@@ -216,7 +216,7 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
 
       IF cs_query_data-entity_type IS INITIAL.
         SELECT SINGLE type
-          FROM zdbbr_i_databaseentity( p_language = @sy-langu )
+          FROM zsat_i_databaseentity( p_language = @sy-langu )
           WHERE entity = @cs_query_data-primary_table
         INTO @cs_query_data-entity_type.
       ENDIF.
@@ -255,7 +255,7 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
 *& V001 - 2016/11/27: All querys are selected, regardless of filled
 *&                    parameters
 *&---------------------------------------------------------------------*
-    DATA(lt_query_name_selopt) = COND zdbbr_selopt_itab(
+    DATA(lt_query_name_selopt) = COND ZIF_SAT_TY_GLOBAL=>ty_t_selopt(
       WHEN iv_query_name IS NOT INITIAL AND iv_query_name CS '*' THEN
         VALUE #( ( sign = 'I' option = 'CP' low = iv_query_name ) )
       WHEN iv_query_name IS NOT INITIAL AND iv_query_name NS '*' THEN
@@ -344,7 +344,7 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     IF ls_query-query_id IS NOT INITIAL.
       delete_related_by_query_id( iv_query_id = ls_query-query_id if_delete_all = abap_true ).
     ELSE.
-      ls_query-query_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      ls_query-query_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       CLEAR ls_join_def-join_id.
     ENDIF.
 
@@ -371,14 +371,14 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
 *.. > save query tables
     LOOP AT lt_query_tables ASSIGNING FIELD-SYMBOL(<ls_query_table>).
       <ls_query_table>-ref_query_id = ls_query-query_id.
-      <ls_query_table>-query_table_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      <ls_query_table>-query_table_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
     ENDLOOP.
 
     INSERT zdbbr_queryt FROM TABLE lt_query_tables.
 
 *.. > save query fields
     LOOP AT lt_query_fields ASSIGNING FIELD-SYMBOL(<ls_query_field>).
-      <ls_query_field>-table_field_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      <ls_query_field>-table_field_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       <ls_query_field>-ref_id = ls_query-query_id.
     ENDLOOP.
 
@@ -459,14 +459,14 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     WHERE ref_query_id = @ls_query-query_id
     INTO TABLE @DATA(lt_join_tables).
 
-    DATA(lt_range) = VALUE zif_dbbr_global_types=>ty_tabname_range(
+    DATA(lt_range) = VALUE ZIF_SAT_TY_GLOBAL=>ty_t_tabname_range(
       ( sign = 'I' option = 'EQ' low = ls_query-tabname )
       ( LINES OF VALUE #( FOR table IN lt_join_tables ( sign = 'I' option = 'EQ' low = table-tabname ) ) )
     ).
 
     CHECK lt_range IS NOT INITIAL.
 
-    rt_entities = zcl_dbbr_dictionary_helper=>get_entity_by_range( EXPORTING it_entity_range = lt_range ).
+    rt_entities = zcl_sat_ddic_repo_access=>get_entity_by_range( EXPORTING it_entity_range = lt_range ).
   ENDMETHOD.
 
 ENDCLASS.

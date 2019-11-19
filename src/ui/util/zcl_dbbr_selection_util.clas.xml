@@ -48,6 +48,12 @@
      <ENTRY>Max Entries</ENTRY>
      <LENGTH>21</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>010</KEY>
+     <ENTRY>Add Text Field</ENTRY>
+     <LENGTH>24</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -61,12 +67,6 @@
      <CMPNAME>ADD_LINE_INDEX_COLUMN</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Adds Column for a line index / group count</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_SELECTION_UTIL</CLSNAME>
-     <CMPNAME>ADD_TEXT_FIELDCAT_ENTRY</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Adds a field catalog entry for a text field</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_SELECTION_UTIL</CLSNAME>
@@ -160,6 +160,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_SELECTION_UTIL</CLSNAME>
+     <CMPNAME>CREATE_TEXT_FIELDCAT_ENTRY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates field catalog entry for a text field</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELECTION_UTIL</CLSNAME>
      <CMPNAME>CREATE_UTIL</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Create typed utility for selection</DESCRIPT>
@@ -247,6 +253,12 @@
      <CMPNAME>HANDLE_POSSIBLE_JUMPFIELD</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Handles a possible Jump Field</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELECTION_UTIL</CLSNAME>
+     <CMPNAME>HANDLE_REDUCED_MEMORY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handles reduced memory setting</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_SELECTION_UTIL</CLSNAME>

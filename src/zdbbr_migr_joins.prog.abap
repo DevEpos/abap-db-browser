@@ -58,7 +58,7 @@ START-OF-SELECTION.
         CASE <ls_join_cond>-method.
           WHEN zif_dbbr_c_join_cond_method=>reference_field.
             lt_join_field_cond = VALUE #( BASE lt_join_field_cond
-              ( join_field_id     = zcl_dbbr_system_helper=>create_guid_22( )
+              ( join_field_id     = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( )
                 ref_join_table_id = <ls_join_table>-join_table_id
                 ref_join_id       = <ls_head>-join_id
                 field             = <ls_join_cond>-field
@@ -74,14 +74,14 @@ START-OF-SELECTION.
                zif_dbbr_c_join_cond_method=>system_constant.
 
             lt_join_filter_cond = VALUE #( BASE lt_join_filter_cond
-              ( join_filter_id    = zcl_dbbr_system_helper=>create_guid_22( )
+              ( join_filter_id    = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( )
                 ref_join_table_id = <ls_join_table>-join_table_id
                 ref_join_id       = <ls_head>-join_id
                 tabname           = <ls_join_table>-add_table
                 fieldname         = <ls_join_cond>-field
                 value_type        = SWITCH #( <ls_join_cond>-method
-                  WHEN zif_dbbr_c_join_cond_method=>constant THEN zif_dbbr_c_join_cond_val_type=>typed_input
-                  WHEN zif_dbbr_c_join_cond_method=>system_constant THEN zif_dbbr_c_join_cond_val_type=>system_value_input
+                  WHEN zif_dbbr_c_join_cond_method=>constant THEN ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input
+                  WHEN zif_dbbr_c_join_cond_method=>system_constant THEN ZIF_SAT_C_JOIN_COND_VAL_TYPE=>system_value_input
                 )
                 operator          = '='
                 value             = <ls_join_cond>-value
@@ -91,12 +91,12 @@ START-OF-SELECTION.
 
           WHEN zif_dbbr_c_join_cond_method=>constant_reference_field.
             lt_join_filter_cond = VALUE #( BASE lt_join_filter_cond
-              ( join_filter_id    = zcl_dbbr_system_helper=>create_guid_22( )
+              ( join_filter_id    = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( )
                 ref_join_table_id = <ls_join_table>-join_table_id
                 ref_join_id       = <ls_head>-join_id
                 tabname           = <ls_join_cond>-ref_table
                 fieldname         = <ls_join_cond>-value
-                value_type        = zif_dbbr_c_join_cond_val_type=>typed_input " no other value was possible before
+                value_type        = ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input " no other value was possible before
                 operator          = '='
                 value             = <ls_join_cond>-value2
                 and_or            = COND #( WHEN <ls_join_cond>-and_or IS NOT INITIAL THEN <ls_join_cond>-and_or ELSE 'AND' )

@@ -6,15 +6,15 @@ CLASS zcl_dbbr_join_manager DEFINITION
 
   PUBLIC SECTION.
 
-    INTERFACES zif_dbbr_c_selection_condition .
+    INTERFACES ZIF_SAT_C_SELECTION_CONDITION .
 
     "! <p class="shorttext synchronized" lang="en">CLASS_CONSTRUCTOR</p>
     CLASS-METHODS class_constructor .
     METHODS constructor
       IMPORTING
-        iv_primary_entity     TYPE zdbbr_entity_id
-        iv_primary_entity_raw TYPE zdbbr_entity_id_raw
-        iv_entity_type        TYPE zdbbr_entity_type DEFAULT zif_dbbr_c_entity_type=>table
+        iv_primary_entity     TYPE ZSAT_ENTITY_ID
+        iv_primary_entity_raw TYPE ZSAT_ENTITY_ID_raw
+        iv_entity_type        TYPE ZSAT_ENTITY_TYPE DEFAULT ZIF_SAT_C_ENTITY_TYPE=>table
         !ir_join_ref          TYPE REF TO zdbbr_join_def .
     "! <p class="shorttext synchronized" lang="en">Signals to the caller if the join was updated</p>
     METHODS was_updated
@@ -32,9 +32,9 @@ CLASS zcl_dbbr_join_manager DEFINITION
   PRIVATE SECTION.
 
     ALIASES and
-      FOR zif_dbbr_c_selection_condition~and .
+      FOR ZIF_SAT_C_SELECTION_CONDITION~and .
     ALIASES or
-      FOR zif_dbbr_c_selection_condition~or .
+      FOR ZIF_SAT_C_SELECTION_CONDITION~or .
 
     DATA mo_join TYPE REF TO lcl_join .
     "! <p class="shorttext synchronized" lang="en">Tree for storing join definition</p>
@@ -270,8 +270,8 @@ CLASS zcl_dbbr_join_manager DEFINITION
     "!
     METHODS update_table_alias
       IMPORTING
-        iv_old_alias TYPE zdbbr_entity_alias
-        iv_new_alias TYPE zdbbr_entity_alias.
+        iv_old_alias TYPE zsat_entity_alias
+        iv_new_alias TYPE zsat_entity_alias.
     "! <p class="shorttext synchronized" lang="en">Updates node/item values in the table</p>
     "!
     METHODS update_node_values
@@ -284,7 +284,7 @@ ENDCLASS.
 CLASS zcl_dbbr_join_manager IMPLEMENTATION.
   METHOD class_constructor.
     DATA(lo_join_type_descr) = CAST cl_abap_elemdescr(
-      cl_abap_typedescr=>describe_by_data( VALUE zdbbr_jointype( ) )
+      cl_abap_typedescr=>describe_by_data( VALUE ZSAT_JOINTYPE( ) )
     ).
 
     st_join_type_fixvals = lo_join_type_descr->get_ddic_fixed_values(
@@ -364,7 +364,7 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
           WHEN c_functions-focus_on_tree.
             mo_join_tree->zif_uitb_gui_control~focus( ).
         ENDCASE.
-      CATCH zcx_dbbr_validation_exception INTO DATA(lx_validation_error).
+      CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lx_validation_error).
         lx_validation_error->print_message(
             iv_msg_type  = 'I'
         ).
@@ -1582,11 +1582,11 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
 *.... Create node and objects for the join table
 **... Fill description for entity
       TRY.
-          DATA(ls_entity) = zcl_dbbr_dictionary_helper=>get_entity( <ls_join_table>-add_table ).
+          DATA(ls_entity) = zcl_sat_ddic_repo_access=>get_entity( <ls_join_table>-add_table ).
           <ls_join_table>-table_name = ls_entity-description.
           <ls_join_table>-add_table_raw = ls_entity-entity_id_raw.
-        CATCH zcx_dbbr_data_read_error INTO DATA(lx_error).
-          lx_error->zif_dbbr_exception_message~print( ).
+        CATCH zcx_sat_data_read_error INTO DATA(lx_error).
+          lx_error->zif_sat_exception_message~print( ).
       ENDTRY.
 
       DATA(lv_new_join_tab_key) = create_join_table_node( is_join_table = CORRESPONDING #( <ls_join_table> ) ).
@@ -1677,8 +1677,8 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
 
 
   METHOD fill_value_item_content.
-    DATA: lv_value1 TYPE zdbbr_value,
-          lv_value2 TYPE zdbbr_value.
+    DATA: lv_value1 TYPE ZSAT_VALUE,
+          lv_value2 TYPE ZSAT_VALUE.
 
     DATA(ls_filter) = io_filter_condition->get_filter( ).
 
@@ -1692,7 +1692,7 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
 
         DATA(lo_comparator2_item) = io_node->get_item( c_columns-comparator2 ).
 
-        IF ls_filter-operator = zif_dbbr_c_operator=>between.
+        IF ls_filter-operator = ZIF_SAT_C_OPERATOR=>between.
           lo_comparator2_item->set_text( 'and' ).
         ELSE.
           lo_comparator2_item->set_text( '' ).
@@ -1700,15 +1700,15 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
 
         CASE ls_filter-value_type.
 
-          WHEN zif_dbbr_c_join_cond_val_type=>typed_input.
+          WHEN ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input.
             lv_value1 = ls_filter-value.
 
-            IF ls_filter-operator = zif_dbbr_c_operator=>between.
+            IF ls_filter-operator = ZIF_SAT_C_OPERATOR=>between.
               lv_value2 = ls_filter-value2.
             ENDIF.
 
 *.......... Convert into display format for better readability
-            zcl_dbbr_data_converter=>convert_selopt_to_disp_format(
+            ZCL_SAT_DATA_CONVERTER=>convert_selopt_to_disp_format(
               EXPORTING
                 iv_tabname   = ls_filter-tabname
                 iv_fieldname = ls_filter-fieldname
@@ -1718,19 +1718,19 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
             ).
 
             lo_value1_item->set_text( |'{ lv_value1 }'| ).
-            IF ls_filter-operator = zif_dbbr_c_operator=>between.
+            IF ls_filter-operator = ZIF_SAT_C_OPERATOR=>between.
               lo_value2_item->set_text( |'{ lv_value2 }'| ).
             ELSE.
               lo_value2_item->set_text( || ).
             ENDIF.
 
-          WHEN zif_dbbr_c_join_cond_val_type=>system_value_input.
+          WHEN ZIF_SAT_C_JOIN_COND_VAL_TYPE=>system_value_input.
             lo_value2_item->set_text( '' ).
 *.......... Display the current system value
 
             lo_value1_item->set_text(
               |{ ls_filter-value } | &&
-              |({ zcl_dbbr_system_helper=>get_disp_val_for_system_va( |{ ls_filter-value }| ) })|
+              |({ ZCL_SAT_SYSTEM_HELPER=>get_disp_val_for_system_va( |{ ls_filter-value }| ) })|
             ).
             lo_value1_item->set_style( zif_uitb_c_ctm_style=>light_yellow ).
 
@@ -1947,8 +1947,8 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
   METHOD test_join.
     DATA(ls_join_def) = mo_join->to_structure( mo_join_tree ).
 
-    DATA(lt_from_clause) = zcl_dbbr_join_helper=>build_from_clause_for_join_def(
-      is_join_def = ls_join_def
+    DATA(lt_from_clause) = ZCL_SAT_JOIN_HELPER=>build_from_clause_for_join_def(
+      is_join_def = CORRESPONDING #( deep ls_join_def )
     ).
 
     LOOP AT lt_from_clause ASSIGNING FIELD-SYMBOL(<lv_from>).

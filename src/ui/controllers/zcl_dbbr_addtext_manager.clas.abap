@@ -7,7 +7,7 @@ CLASS ZCL_DBBR_addtext_manager DEFINITION
   PUBLIC SECTION.
     METHODS constructor
       IMPORTING
-        it_table_list TYPE ZDBBR_SELOPT_itab optional.
+        it_table_list TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt optional.
   PROTECTED SECTION.
     METHODS: select_data REDEFINITION,
       get_report_id REDEFINITION,
@@ -21,7 +21,7 @@ CLASS ZCL_DBBR_addtext_manager DEFINITION
     METHODS: get_table_reference REDEFINITION.
   PRIVATE SECTION.
     DATA: mt_addtext_data TYPE ZDBBR_addtext_ui_itab,
-          mt_table_selopt TYPE ZDBBR_SELOPT_itab,
+          mt_table_selopt TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt,
           mt_tabinfo      TYPE ZDBBR_tabinfo_itab.
 
     METHODS add_manual_entry .
@@ -140,7 +140,7 @@ CLASS ZCL_DBBR_ADDTEXT_MANAGER IMPLEMENTATION.
     mt_tabinfo = VALUE ZDBBR_tabinfo_itab(
         FOR tab IN mt_table_selopt
         ( tabname    = tab-low
-          description = ZCL_DBBR_dictionary_helper=>get_table_info( CONV #( tab-low ) )-ddtext )
+          description = zcl_sat_ddic_repo_access=>get_table_info( CONV #( tab-low ) )-ddtext )
     ).
   ENDMETHOD.
 

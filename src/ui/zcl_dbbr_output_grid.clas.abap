@@ -208,6 +208,11 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         text      = |{ 'Association'(032) }|
         quickinfo = |{ 'Navigate to Association'(033) }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f5 )
+      ( function  = zif_dbbr_c_selection_functions=>show_cds_source
+        icon      = icon_biw_info_object
+        text      = |{ 'CDS Source' }|
+        quickinfo = |{ 'Show CDS Source Code'(052) }|
+        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f10 )
     ).
 
 *.. Fill shortcut mapping from default toolbar buttons
@@ -224,6 +229,9 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f11
         mapped_function = zif_dbbr_c_selection_functions=>save_selection_as_f4
         text            = |{ 'Save as Value Help'(047) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f10
+        mapped_function = zif_dbbr_c_selection_functions=>show_cds_source
+        text            = |{ 'Show CDS Source Code'(052) }| )
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f12
         mapped_function = zif_dbbr_c_selection_functions=>show_sql_of_select
         text            = |{ 'Show SQL of current Selection'(048) }| )
@@ -270,6 +278,11 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     lo_cols_menu->add_function(
         fcode = cl_gui_alv_grid=>mc_fc_col_optimize
         text  = |{ 'Optimize Column Width' }|
+    ).
+    lo_cols_menu->add_separator( ).
+    lo_cols_menu->add_function(
+        fcode = zif_dbbr_c_selection_functions=>manage_text_fields
+        text  = |{ 'Manage Text Fields' }|
     ).
     lo_cols_menu->add_separator( ).
     lo_cols_menu->add_function(

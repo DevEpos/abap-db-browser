@@ -7,10 +7,10 @@ public section.
 
   methods CONSTRUCTOR
     importing
-      !IV_SRC_query_NAME type ZDBBR_query_NAME
+      !IV_SRC_query_NAME type ZSAT_QUERY_NAME
       !IV_SRC_query_DESC type DDTEXT
       !IV_SRC_query_ID type ZDBBR_query_ID
-      !IV_TRG_query_NAME type ZDBBR_query_NAME
+      !IV_TRG_query_NAME type ZSAT_QUERY_NAME
       !IV_TRG_query_DESC type DDTEXT
       !IF_TRG_IS_GLOBAL type BOOLEAN
       !IF_COPY_VARIANTS type BOOLEAN .
@@ -20,10 +20,10 @@ public section.
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    DATA mv_src_query_name TYPE ZDBBR_query_name .
+    DATA mv_src_query_name TYPE ZSAT_QUERY_NAME .
     DATA mv_src_query_desc TYPE ddtext .
     DATA mv_src_query_id TYPE ZDBBR_query_id .
-    DATA mv_trg_query_name TYPE ZDBBR_query_name .
+    DATA mv_trg_query_name TYPE ZSAT_QUERY_NAME .
     DATA mv_trg_query_desc TYPE ddtext .
     DATA mf_trg_is_global TYPE boolean .
     DATA ms_new_query TYPE ZDBBR_query_info_ui .
@@ -86,7 +86,7 @@ CLASS ZCL_DBBR_query_COPIER IMPLEMENTATION.
     ls_query_data-query_name = mv_trg_query_name.
     ls_query_data-description = mv_trg_query_desc.
 
-    DATA(lv_new_query_id) = ZCL_DBBR_system_helper=>create_guid_22( ).
+    DATA(lv_new_query_id) = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
 
     fill_id_values(
       EXPORTING iv_new_query_id = lv_new_query_id

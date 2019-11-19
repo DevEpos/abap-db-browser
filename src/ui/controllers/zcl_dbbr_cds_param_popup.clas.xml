@@ -33,7 +33,7 @@
     <item>
      <ID>I</ID>
      <KEY>004</KEY>
-     <ENTRY>Update parameter values</ENTRY>
+     <ENTRY>Update parameter values (F8)</ENTRY>
      <LENGTH>46</LENGTH>
     </item>
    </TPOOL>

@@ -52,6 +52,7 @@ CLASS lcl_choose_col_view IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD set_selected_element.
+    CHECK iv_row > 0.
     mv_chosen_field = mt_col_filtered[ iv_row ]-tech_fieldname.
   ENDMETHOD.
 
@@ -98,8 +99,8 @@ CLASS lcl_detail_viewer IMPLEMENTATION.
       UNASSIGN: <lv_currency_ref>,
                 <lv_currency_ref>.
 
-      DATA(ls_dfies) = zcl_dbbr_dictionary_helper=>get_table_field_info( iv_tablename = <ls_fieldcat>-ref_table
-                                                                          iv_fieldname = <ls_fieldcat>-ref_field ).
+      DATA(ls_dfies) = zcl_sat_ddic_repo_access=>get_table_field_info( iv_tablename = <ls_fieldcat>-ref_table
+                                                                       iv_fieldname = <ls_fieldcat>-ref_field ).
       IF <ls_fieldcat>-parameter2 = 'F'.
         IF ms_technical_info-tech_names = abap_true.
           ls_detail-fieldname = <ls_fieldcat>-tooltip.

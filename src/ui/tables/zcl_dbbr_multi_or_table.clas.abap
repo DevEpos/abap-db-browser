@@ -383,8 +383,8 @@ CLASS zcl_dbbr_multi_or_table IMPLEMENTATION.
         conv_selfields_to_internal(
             if_no_uppercase_conversion = lf_no_uppercase_conversion ).
 
-      CATCH zcx_dbbr_conversion_exc INTO DATA(lx_conv_error).
-        lx_conv_error->zif_dbbr_exception_message~print( iv_msg_type = 'E' ).
+      CATCH ZCX_SAT_CONVERSION_EXC INTO DATA(lx_conv_error).
+        lx_conv_error->ZIF_SAT_EXCEPTION_MESSAGE~print( iv_msg_type = 'E' ).
         RETURN.
     ENDTRY.
 
@@ -440,7 +440,7 @@ CLASS zcl_dbbr_multi_or_table IMPLEMENTATION.
         ev_push      = mr_ui_option_button->*
     ).
     " convert given values to output format
-    zcl_dbbr_data_converter=>convert_selopt_to_disp_format(
+    ZCL_SAT_DATA_CONVERTER=>convert_selopt_to_disp_format(
       EXPORTING iv_tabname   = mr_selfield_line->tabname
                 iv_fieldname = mr_selfield_line->fieldname
       CHANGING  cv_value1    = mr_selfield_line->low

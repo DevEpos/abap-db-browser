@@ -9,10 +9,10 @@ CLASS zcl_dbbr_exec_dep_tree_command DEFINITION
     "!
     METHODS constructor
       IMPORTING
-        iv_entity_id TYPE zdbbr_entity_id.
+        iv_entity_id TYPE ZSAT_ENTITY_ID.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    DATA mv_entity_id TYPE zdbbr_entity_id.
+    DATA mv_entity_id TYPE ZSAT_ENTITY_ID.
 ENDCLASS.
 
 

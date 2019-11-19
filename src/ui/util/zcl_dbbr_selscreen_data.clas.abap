@@ -29,7 +29,7 @@ CLASS zcl_dbbr_selscreen_data DEFINITION
     DATA mo_custom_f4_map TYPE REF TO zcl_dbbr_custom_f4_map READ-ONLY .
     DATA mo_selection_table TYPE REF TO zcl_dbbr_selscreen_table READ-ONLY .
     DATA mr_s_entity_info TYPE REF TO zdbbr_entity_info_simple READ-ONLY .
-    DATA mr_t_table_to_alias_map TYPE REF TO zdbbr_table_to_alias_map_itab READ-ONLY .
+    DATA mr_t_table_to_alias_map TYPE REF TO ZSAT_TABLE_TO_ALIAS_MAP_ITAB READ-ONLY .
     " attributes for data selection
     DATA mo_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list READ-ONLY .
     DATA mo_tabfield_aggr_list TYPE REF TO zcl_dbbr_tabfield_list READ-ONLY .

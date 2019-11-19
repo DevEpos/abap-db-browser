@@ -171,7 +171,7 @@ CLASS zcl_dbbr_f4_manager IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    DATA(lt_f4_id) = VALUE zdbbr_selopt_itab(
+    DATA(lt_f4_id) = VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt(
         FOR selected IN lt_selected_rows
         LET f4 = REF #( mt_f4_overview[ selected ] ) IN
         ( sign   = 'I'

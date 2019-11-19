@@ -17,45 +17,45 @@ CLASS zcl_dbbr_entity_alias_util DEFINITION
     "!
     CLASS-METHODS get_next_free_alv_alias
       RETURNING
-        VALUE(rv_alias) TYPE zdbbr_entity_alias_alv.
+        VALUE(rv_alias) TYPE zsat_entity_alias_alv.
     "! <p class="shorttext synchronized" lang="en">Creates alias for the entity and registers it</p>
     "!
     CLASS-METHODS create_entity_alias
       IMPORTING
-        iv_entity              TYPE zdbbr_entity_id
+        iv_entity              TYPE ZSAT_ENTITY_ID
       RETURNING
-        VALUE(rv_entity_alias) TYPE zdbbr_entity_alias.
+        VALUE(rv_entity_alias) TYPE zsat_entity_alias.
     "! <p class="shorttext synchronized" lang="en">Add new Alias</p>
     "!
     CLASS-METHODS add_entity_alias
       IMPORTING
-        iv_entity_alias TYPE zdbbr_entity_alias
+        iv_entity_alias TYPE zsat_entity_alias
       RETURNING
         VALUE(rf_added) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Unregisters given alias from Alias pool</p>
     "!
     CLASS-METHODS unregister_alv_alias
       IMPORTING
-        iv_alias TYPE zdbbr_entity_alias_alv.
+        iv_alias TYPE zsat_entity_alias_alv.
     "! <p class="shorttext synchronized" lang="en">Unregister long alias name</p>
     "!
     CLASS-METHODS unregister_alias
       IMPORTING
-        iv_alias TYPE zdbbr_entity_alias.
+        iv_alias TYPE zsat_entity_alias.
     CLASS-METHODS check_entity_alias
       IMPORTING
-        iv_alias TYPE zdbbr_entity_alias.
+        iv_alias TYPE zsat_entity_alias.
     "! <p class="shorttext synchronized" lang="en">Add ALV Alias for entity</p>
     "!
     CLASS-METHODS add_entity_alv_alias
       IMPORTING
-        iv_alias        TYPE zdbbr_entity_alias_alv
+        iv_alias        TYPE zsat_entity_alias_alv
       RETURNING
         VALUE(rf_added) TYPE abap_bool.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    CLASS-DATA gt_alv_alias_in_use TYPE STANDARD TABLE OF zdbbr_entity_alias_alv.
-    CLASS-DATA gt_alias_in_use TYPE STANDARD TABLE OF zdbbr_entity_alias.
+    CLASS-DATA gt_alv_alias_in_use TYPE STANDARD TABLE OF zsat_entity_alias_alv.
+    CLASS-DATA gt_alias_in_use TYPE STANDARD TABLE OF zsat_entity_alias.
 ENDCLASS.
 
 
@@ -84,7 +84,7 @@ CLASS zcl_dbbr_entity_alias_util IMPLEMENTATION.
   METHOD check_entity_alias.
     CHECK line_exists( gt_alias_in_use[ table_line = to_upper( iv_alias ) ] ).
 
-    zcx_dbbr_validation_exception=>raise_with_text(
+    ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text(
         iv_text = |{ 'Alias' } { iv_alias } { 'is already in use!' }|
     ).
     .

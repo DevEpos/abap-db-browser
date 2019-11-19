@@ -105,7 +105,7 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
   METHOD create_tree.
     TYPES: BEGIN OF lty_s_fav_groups,
              name TYPE string,
-             type TYPE zdbbr_obj_browser_mode,
+             type TYPE ZSAT_OBJ_BROWSER_MODE,
            END OF lty_s_fav_groups.
     DATA: lt_fav_groups TYPE STANDARD TABLE OF lty_s_fav_groups.
 
@@ -133,10 +133,10 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
     DATA(lt_favorites) = zcl_dbbr_ob_fav_factory=>get_favorites( ).
 
     lt_fav_groups = VALUE #(
-      ( type = zif_dbbr_c_object_browser_mode=>cds_view            name = 'CDS view' )
-      ( type = zif_dbbr_c_object_browser_mode=>database_table_view name = 'Database Table/View' )
-      ( type = zif_dbbr_c_object_browser_mode=>query               name = 'Query' )
-      ( type = zif_dbbr_c_object_browser_mode=>package             name = 'Package' )
+      ( type = ZIF_SAT_C_OBJECT_BROWSER_MODE=>cds_view            name = 'CDS view' )
+      ( type = ZIF_SAT_C_OBJECT_BROWSER_MODE=>database_table_view name = 'Database Table/View' )
+      ( type = ZIF_SAT_C_OBJECT_BROWSER_MODE=>query               name = 'Query' )
+      ( type = ZIF_SAT_C_OBJECT_BROWSER_MODE=>package             name = 'Package' )
     ).
 
     DATA(lo_nodes) = mo_tree->get_nodes( ).

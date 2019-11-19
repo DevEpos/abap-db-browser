@@ -17,7 +17,7 @@ CLASS zcl_dbbr_package_factory DEFINITION
       RETURNING
         VALUE(rr_package) TYPE REF TO if_package
       RAISING
-        zcx_dbbr_data_read_error.
+        ZCX_SAT_DATA_READ_ERROR.
     CLASS-METHODS find_packages
       IMPORTING
         iv_package    TYPE devclass
@@ -50,7 +50,7 @@ CLASS zcl_dbbr_package_factory IMPLEMENTATION.
         OTHERS                     = 6
     ).
     IF sy-subrc <> 0.
-      zcx_dbbr_data_read_error=>raise_data_read_error_sy( ).
+      ZCX_SAT_DATA_READ_ERROR=>raise_data_read_error_sy( ).
     ENDIF.
   ENDMETHOD.
 
@@ -113,7 +113,7 @@ CLASS zcl_dbbr_package_factory IMPLEMENTATION.
 
     lt_package_range = VALUE #( ( sign = 'I' option = 'CP' low = iv_package ) ).
 
-    DATA(lv_descr_language) = zcl_dbbr_system_helper=>get_system_language( ).
+    DATA(lv_descr_language) = ZCL_SAT_SYSTEM_HELPER=>get_system_language( ).
 
     SELECT package~devclass AS package, text~ctext AS ddtext
       FROM tdevc AS package

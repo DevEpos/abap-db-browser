@@ -71,7 +71,7 @@ CLASS ZCL_DBBR_FORMULA_CALCULATOR IMPLEMENTATION.
     GENERATE SUBROUTINE POOL lt_lines NAME mv_subroutine_pool MESSAGE DATA(lv_message).
 
     IF lv_message IS NOT INITIAL.
-      ZCL_DBBR_appl_util=>split_string_for_message(
+      ZCL_SAT_MESSAGE_HELPER=>split_string_for_message(
         EXPORTING iv_string = lv_message
         IMPORTING ev_msgv1  = DATA(lv_msgv1)
                   ev_msgv2  = DATA(lv_msgv2)

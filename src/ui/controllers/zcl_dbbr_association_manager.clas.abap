@@ -16,10 +16,10 @@ CLASS zcl_dbbr_association_manager DEFINITION
 
     DATA mr_template_prog TYPE REF TO zif_uitb_template_prog .
     DATA mt_query_info TYPE zdbbr_query_info_itab.
-    data mv_counter type i.
-    DATA: mr_main_split              TYPE REF TO cl_gui_splitter_container,
-          mr_association_tree_model  TYPE REF TO zcl_uitb_column_tree_model,
-          mr_db_table_tree           TYPE REF TO zcl_uitb_column_tree_model,
+    DATA mv_counter TYPE i.
+    DATA: mr_main_split             TYPE REF TO cl_gui_splitter_container,
+          mr_association_tree_model TYPE REF TO zcl_uitb_column_tree_model,
+          mr_db_table_tree          TYPE REF TO zcl_uitb_column_tree_model,
           mr_query_alv              TYPE REF TO zcl_uitb_alv.
 
     METHODS on_before_output
@@ -78,7 +78,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_ASSOCIATION_MANAGER IMPLEMENTATION.
+CLASS zcl_dbbr_association_manager IMPLEMENTATION.
 
 
   METHOD add_new_table.
@@ -88,17 +88,17 @@ CLASS ZCL_DBBR_ASSOCIATION_MANAGER IMPLEMENTATION.
     ).
     IF lv_table IS NOT INITIAL.
       TRY.
-          zcl_dbbr_dictionary_helper=>validate_table_name( iv_table_name = lv_table ).
-        CATCH zcx_dbbr_validation_exception INTO DATA(lr_valid_exc).
-          lr_valid_exc->zif_dbbr_exception_message~print( ).
-          return.
+          zcl_dbbr_ddic_util=>validate_table_name( iv_table_name = lv_table ).
+        CATCH zcx_sat_validation_exception INTO DATA(lr_valid_exc).
+          lr_valid_exc->zif_sat_exception_message~print( ).
+          RETURN.
       ENDTRY.
     ENDIF.
 
-    add 1 to mv_counter.
-    data(lv_new_node) = |ENTRY_{ mv_counter }|.
+    ADD 1 TO mv_counter.
+    DATA(lv_new_node) = |ENTRY_{ mv_counter }|.
     " add the table as new node to the association tree
-    data(lr_nodes) = mr_association_tree_model->get_nodes( ).
+    DATA(lr_nodes) = mr_association_tree_model->get_nodes( ).
     lr_nodes->add_node(
         iv_node_key          = lv_new_node
         iv_relative_node_key = c_tables_root
@@ -123,7 +123,7 @@ CLASS ZCL_DBBR_ASSOCIATION_MANAGER IMPLEMENTATION.
 
 
   METHOD constructor.
-    mr_template_prog = zcl_uitb_templt_prog_callback=>create_template_program( iv_title = text-tit ).
+    mr_template_prog = zcl_uitb_templt_prog_callback=>create_template_program( iv_title = TEXT-tit ).
 
     SET HANDLER:
       on_exit FOR mr_template_prog,

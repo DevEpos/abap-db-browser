@@ -39,7 +39,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
       IMPORTING
         !if_update_tables            TYPE abap_bool OPTIONAL
       RETURNING
-        VALUE(rt_table_to_alias_map) TYPE zdbbr_table_to_alias_map_itab .
+        VALUE(rt_table_to_alias_map) TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB .
     METHODS checked_field_exists
       IMPORTING
         !iv_specific_table TYPE tabname OPTIONAL
@@ -59,7 +59,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
         !it_fields      TYPE zdbbr_tabfield_info_ui_itab OPTIONAL
         !it_tables      TYPE zdbbr_entity_info_t OPTIONAL
         !iv_mode        TYPE zdbbr_field_chooser_mode DEFAULT zif_dbbr_global_consts=>gc_field_chooser_modes-output
-        !iv_entity_type TYPE zdbbr_entity_type DEFAULT zif_dbbr_c_entity_type=>table .
+        !iv_entity_type TYPE ZSAT_ENTITY_TYPE DEFAULT ZIF_SAT_C_ENTITY_TYPE=>table .
     "! <p class="shorttext synchronized" lang="en">Converts list to deep structure</p>
     METHODS convert_to_structure
       RETURNING
@@ -76,10 +76,10 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
         !is_field TYPE zdbbr_tabfield_info_ui .
     METHODS delete_fields
       IMPORTING
-        !it_fields_selopt TYPE zdbbr_selopt_itab .
+        !it_fields_selopt TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt .
     METHODS delete_fields_by_alv_fieldname
       IMPORTING
-        !it_fields_selopt TYPE zdbbr_selopt_itab .
+        !it_fields_selopt TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt .
     METHODS delete_formula_fields .
     METHODS delete_inactive_fields .
     METHODS delete_text_fields .
@@ -136,7 +136,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
         VALUE(rr_fields_ref) TYPE REF TO zdbbr_tabfield_info_ui_itab .
     METHODS get_field_by_sql_name
       IMPORTING
-        !iv_sql_fieldname  TYPE zdbbr_fieldname_with_alias
+        !iv_sql_fieldname  TYPE ZSAT_FIELDNAME_WITH_ALIAS
       RETURNING
         VALUE(rs_tabfield) TYPE zdbbr_tabfield_info_ui
       RAISING
@@ -203,7 +203,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     "!
     METHODS has_table
       IMPORTING
-        iv_tabname_alias TYPE zdbbr_entity_alias
+        iv_tabname_alias TYPE zsat_entity_alias
       RETURNING
         VALUE(rf_exists) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Checks if this list has multiple tables</p>
@@ -235,7 +235,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     "! <p class="shorttext synchronized" lang="en">Sets the entity type attribute</p>
     METHODS set_entity_type
       IMPORTING
-        !value TYPE zdbbr_entity_type .
+        !value TYPE ZSAT_ENTITY_TYPE .
     METHODS set_table_list
       IMPORTING
         !it_tables TYPE zdbbr_entity_info_t .
@@ -251,8 +251,8 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     "!
     METHODS replace_table_alias
       IMPORTING
-        iv_old_alias TYPE zdbbr_entity_alias
-        iv_new_alias TYPE zdbbr_entity_alias.
+        iv_old_alias TYPE zsat_entity_alias
+        iv_new_alias TYPE zsat_entity_alias.
     METHODS update_alias_names.
     "! <p class="shorttext synchronized" lang="en">Updates the table list (Aliases and indexes)</p>
     "! @parameter if_force_update | <p class="shorttext synchronized" lang="en">Forces the alias/index update even if not needed</p>
@@ -311,7 +311,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     DATA mv_iterator_index TYPE sy-tabix .
     DATA mf_iterator_for_active TYPE boolean .
     "! <p class="shorttext synchronized" lang="en">Type of Entity</p>
-    DATA mv_entity_type TYPE zdbbr_entity_type .
+    DATA mv_entity_type TYPE ZSAT_ENTITY_TYPE .
     DATA: mf_multi_table_mode TYPE abap_bool.
 
     METHODS fill_full_fieldnames

@@ -9,7 +9,7 @@ CLASS zcl_dbbr_entity_sh_helper DEFINITION
 
     METHODS constructor
       IMPORTING
-        !iv_entity_type TYPE zdbbr_entity_type .
+        !iv_entity_type TYPE ZSAT_ENTITY_TYPE .
     METHODS select_and_fill_result
       CHANGING
         !cs_shlp        TYPE shlp_descr
@@ -18,13 +18,13 @@ CLASS zcl_dbbr_entity_sh_helper DEFINITION
         !ct_records     TYPE ddshreslts .
     CLASS-METHODS control_list_select_params
       IMPORTING
-        !iv_entity_type TYPE zdbbr_entity_type
+        !iv_entity_type TYPE ZSAT_ENTITY_TYPE
       CHANGING
         !cs_search_help TYPE shlp_descr .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    DATA mv_entity_type TYPE zdbbr_entity_type .
+    DATA mv_entity_type TYPE ZSAT_ENTITY_TYPE .
 ENDCLASS.
 
 
@@ -40,7 +40,7 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
   METHOD control_list_select_params.
     FIELD-SYMBOLS: <ls_entity_id_field> TYPE dfies.
 
-    IF iv_entity_type = zif_dbbr_c_entity_type=>query.
+    IF iv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>query.
 
       ASSIGN cs_search_help-fieldprop[ fieldname = 'DEVCLASS' ] TO FIELD-SYMBOL(<ls_package_field>).
       CLEAR: <ls_package_field>-shlplispos,
@@ -53,7 +53,7 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
     ASSIGN cs_search_help-fielddescr[ fieldname = 'ENTITY_ID' ] TO <ls_entity_id_field>.
 
     CASE iv_entity_type.
-      WHEN zif_dbbr_c_entity_type=>table.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>table.
         cs_search_help-intdescr-title = 'Search Help for DB Table/View'(001).
         <ls_entity_id_field>-scrtext_s =
         <ls_entity_id_field>-scrtext_m =
@@ -61,7 +61,7 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
         <ls_entity_id_field>-fieldtext =
         <ls_entity_id_field>-reptext   = 'Tabname'(006).
 
-      WHEN zif_dbbr_c_entity_type=>query.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>query.
         cs_search_help-intdescr-title = 'Search Help for query'(002).
         <ls_entity_id_field>-scrtext_s =
         <ls_entity_id_field>-scrtext_m =
@@ -69,7 +69,7 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
         <ls_entity_id_field>-fieldtext =
         <ls_entity_id_field>-reptext   = 'Query Name'(003).
 
-      WHEN zif_dbbr_c_entity_type=>cds_view.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>cds_view.
         cs_search_help-intdescr-title = 'Search Help for CDS Views'(004).
         <ls_entity_id_field>-scrtext_s =
         <ls_entity_id_field>-scrtext_m =
@@ -83,7 +83,7 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
 
   METHOD select_and_fill_result.
 *........ Ranges for Table selection
-    DATA: lt_entity_id_selopt   TYPE RANGE OF zdbbr_entity_id,
+    DATA: lt_entity_id_selopt   TYPE RANGE OF ZSAT_ENTITY_ID,
           lt_result             TYPE STANDARD TABLE OF zdbbr_entity_sh_result,
           lt_package_selopt     TYPE RANGE OF devclass,
           lt_description_selopt TYPE RANGE OF ddtext.
@@ -112,23 +112,23 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
     ENDLOOP.
 
 *.. 2) Retrieve the current language key for which the texts should be selected
-    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
+    DATA(lv_language) = ZCL_SAT_SYSTEM_HELPER=>get_system_language( ).
 
 *.. 3) determine for which type the search help should be called
     CASE mv_entity_type.
 
-      WHEN zif_dbbr_c_entity_type=>table.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>table.
         SELECT entity AS entity_id, developmentpackage AS devclass, language AS ddlanguage, description AS ddtext
-          FROM zdbbr_i_databaseentity( p_language = @lv_language )
+          FROM zsat_i_databaseentity( p_language = @lv_language )
           WHERE entity IN @lt_entity_id_selopt
-            AND (    type = @zif_dbbr_c_entity_type=>table
-                  OR type = @zif_dbbr_c_entity_type=>view )
+            AND (    type = @ZIF_SAT_C_ENTITY_TYPE=>table
+                  OR type = @ZIF_SAT_C_ENTITY_TYPE=>view )
             AND developmentpackage IN @lt_package_selopt
           ORDER BY entity
         INTO CORRESPONDING FIELDS OF TABLE @lt_result
           UP TO @cs_callcontrol-maxrecords ROWS.
 
-      WHEN zif_dbbr_c_entity_type=>query.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>query.
         SELECT query_name AS entity_id, description AS ddtext
           FROM zdbbr_queryh
           WHERE query_name IN @lt_entity_id_selopt
@@ -137,9 +137,9 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
         INTO CORRESPONDING FIELDS OF TABLE @lt_result
           UP TO @cs_callcontrol-maxrecords ROWS.
 
-      WHEN zif_dbbr_c_entity_type=>cds_view.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>cds_view.
 
-        DATA(lt_cds_search_result) = zcl_dbbr_cds_view_factory=>find_cds_views(
+        DATA(lt_cds_search_result) = ZCL_SAT_CDS_VIEW_FACTORY=>find_cds_views(
            iv_cds_view_name = VALUE #( lt_entity_id_selopt[ 1 ]-low OPTIONAL )
            iv_description   = VALUE #( lt_description_selopt[ 1 ]-low OPTIONAL )
            iv_max_rows      = cs_callcontrol-maxrecords

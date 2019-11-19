@@ -2,7 +2,7 @@ INTERFACE zif_dbbr_output_rep_var_ids
   PUBLIC .
 
 
-  "! Type - ZDBBR_query_name
+  "! Type - ZSAT_QUERY_NAME
   CONSTANTS c_p_queryn TYPE string VALUE 'P_QUERYN' ##NO_TEXT.
   "! Type - string
   CONSTANTS c_p_retfld TYPE string VALUE 'P_RETFLD' ##NO_TEXT.

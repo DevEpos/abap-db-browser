@@ -41,9 +41,9 @@ public section.
     importing
       !IR_FIELDS type ref to ZCL_DBBR_TABFIELD_LIST
       !IF_FIELD_AGGREGATION type BOOLEAN optional
-      !IR_CDS_VIEW type ref to ZCL_DBBR_CDS_VIEW optional
+      !IR_CDS_VIEW type ref to ZCL_SAT_CDS_VIEW optional
       !IV_MODE type ZDBBR_FIELD_CHOOSER_MODE
-      !IV_ENTITY_TYPE type ZDBBR_ENTITY_TYPE
+      !IV_ENTITY_TYPE type ZSAT_ENTITY_TYPE
       !IS_JOIN_DEF type ZDBBR_JOIN_DEF optional .
   methods SHOW_OUTPUT_FIELDS .
   methods SHOW_AVAILABLE_FIELDS .
@@ -84,14 +84,14 @@ private section.
   data MF_FIELD_AGGREGATION type BOOLEAN .
   data MF_TRANSFER_DATA type BOOLEAN .
   data MV_CURRENT_TABLE type TABNAME .
-  data MV_ENTITY_TYPE type ZDBBR_ENTITY_TYPE .
+  data MV_ENTITY_TYPE type ZSAT_ENTITY_TYPE .
   data MF_SINGLE_TABLE_MODE type BOOLEAN .
   data MR_GLOBAL_DATA type ref to ZDBBR_GLOBAL_DATA .
   data MR_ACTIVE_TAB type ref to SYST_UCOMM .
   data MR_TREE_TAB_CONTROL type ref to CXTAB_TABSTRIP .
   data MR_TREE_SCREEN type ref to SYST_DYNNR .
   data MR_FILTER_FIELDS_TAB type ref to ZDBBR_BUTTON .
-  data MR_CDS_VIEW type ref to ZCL_DBBR_CDS_VIEW .
+  data MR_CDS_VIEW type ref to ZCL_SAT_CDS_VIEW .
 
   methods CREATE_ALV_GRID .
   methods DISPLAY_ALV_GRID .

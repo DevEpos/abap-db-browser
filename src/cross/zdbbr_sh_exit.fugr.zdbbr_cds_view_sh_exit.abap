@@ -34,7 +34,7 @@ FUNCTION ZDBBR_CDS_VIEW_SH_EXIT.
     ENDLOOP.
 
     " The result is not sorted, because sorting is performed by the UI
-    data(lt_cds_search_result) = zcl_dbbr_cds_view_factory=>find_cds_views(
+    data(lt_cds_search_result) = ZCL_SAT_CDS_VIEW_FACTORY=>find_cds_views(
        iv_cds_view_name = VALUE #( lt_entity_selopt[ 1 ]-low OPTIONAL )
        iv_description   = VALUE #( lt_description_selopt[ 1 ]-low OPTIONAL )
        iv_max_rows      = callcontrol-maxrecords

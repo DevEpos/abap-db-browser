@@ -25,6 +25,8 @@ CLASS zcl_dbbr_query_selscreen_util DEFINITION
         REDEFINITION .
     METHODS zif_dbbr_screen_util~handle_ui_function
         REDEFINITION .
+    METHODS can_execute
+        REDEFINITION.
   PROTECTED SECTION.
     METHODS load_entity_internal
         REDEFINITION .
@@ -36,12 +38,13 @@ CLASS zcl_dbbr_query_selscreen_util DEFINITION
         REDEFINITION.
   PRIVATE SECTION.
 
-    DATA mv_query_name TYPE zdbbr_query_name .
-    DATA mv_primary_entity_type TYPE zdbbr_entity_type.
+    DATA mv_query_name TYPE zsat_query_name .
+    DATA mv_primary_entity_type TYPE zsat_entity_type.
     DATA mo_query_f TYPE REF TO zcl_dbbr_query_factory .
     DATA mt_parameters TYPE zdbbr_query_data-parameters.
     DATA mf_sql_query TYPE abap_bool.
-    DATA: mv_query_id TYPE zdbbr_query_data-query_id.
+    DATA: mv_query_id          TYPE zdbbr_query_data-query_id,
+          mv_sql_query_content TYPE zdbbr_query_data-source.
 
     "! <p class="shorttext synchronized" lang="en">Delete the query</p>
     "!
@@ -81,6 +84,26 @@ ENDCLASS.
 
 CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
 
+  METHOD can_execute.
+    rf_can_execute = abap_true.
+    IF mf_sql_query = abap_true.
+      DATA(lo_query) = NEW zcl_dbbr_sql_query_parser( iv_query                 = mv_sql_query_content
+                                                      if_fill_log_for_messages = abap_false ).
+      TRY.
+          lo_query->parse( ).
+        CATCH zcx_dbbr_sql_query_error INTO DATA(lx_parse_error).
+          CLEAR rf_can_execute.
+          lx_parse_error->zif_sat_exception_message~print(
+*          EXPORTING
+*            iv_msg_type     = 'S'
+*            iv_display_type = 'E'
+*            if_to_screen    = abap_true
+*          RECEIVING
+*            rv_message      =
+          ).
+      ENDTRY.
+    ENDIF.
+  ENDMETHOD.
 
   METHOD check_primary_entity.
     rf_success = abap_true.
@@ -117,7 +140,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
   METHOD constructor.
     super->constructor(
       ir_selscreen_data = ir_selscreen_data
-      iv_entity_type    = zif_dbbr_c_entity_type=>query
+      iv_entity_type    = zif_sat_c_entity_type=>query
     ).
     mo_query_f = NEW zcl_dbbr_query_factory( ).
     mv_query_name = mo_data->mr_s_global_data->query_name.
@@ -176,7 +199,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
 *.. update history
     zcl_dbbr_selscreen_history=>add_new_entry(
         iv_entity      = ls_copied_query-query_name
-        iv_type        = zif_dbbr_c_entity_type=>query
+        iv_type        = zif_sat_c_entity_type=>query
         iv_description = ls_copied_query-description
     ).
     zcl_dbbr_selscreen_history=>navigate_to_current( ).
@@ -405,7 +428,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
     check_edit_mode( ).
 
 *... create selection fields for primary table
-    IF is_primary_entity-type = zif_dbbr_c_entity_type=>cds_view.
+    IF is_primary_entity-type = zif_sat_c_entity_type=>cds_view.
       create_cds_fields( VALUE #(
             tabname          = is_primary_entity-tabname
             tabname_alias    = is_primary_entity-tabname_alias
@@ -538,6 +561,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
 
   METHOD load_custom_query.
     mt_parameters = is_query_data-parameters.
+    mv_sql_query_content = is_query_data-source.
 
     fill_query_parameters( ).
 
@@ -561,8 +585,8 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
         is_parameter     = abap_true
         is_range_param   = <ls_param>-is_range
         selection_active = abap_true
-        default_option   = COND #( WHEN <ls_param>-is_range = abap_false THEN zif_dbbr_c_options=>equals )
-        default_sign     = zif_dbbr_c_options=>including
+        default_option   = COND #( WHEN <ls_param>-is_range = abap_false THEN zif_sat_c_options=>equals )
+        default_sign     = zif_sat_c_options=>including
         default_low      = <ls_param>-default_value
       ).
 
@@ -617,7 +641,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
        active_selection     = abap_true
        tabname              = zif_dbbr_global_consts=>c_parameter_dummy_table
        tabname_alias        = zif_dbbr_global_consts=>c_parameter_dummy_table
-       type                 = zif_dbbr_c_entity_type=>table
+       type                 = zif_sat_c_entity_type=>table
        description          = 'Parameters'
        no_output            = abap_true
     ).

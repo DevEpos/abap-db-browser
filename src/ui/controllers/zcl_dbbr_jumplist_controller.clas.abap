@@ -37,7 +37,7 @@ CLASS zcl_dbbr_jumplist_controller DEFINITION
     DATA mv_query_id TYPE zdbbr_query_id .
     DATA mr_query_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
     DATA ms_query_info TYPE zdbbr_query_info .
-    DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab .
+    DATA mt_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB .
     DATA mf_join_is_active TYPE xsdboolean .
 
     METHODS maintain_parameters .
@@ -137,7 +137,7 @@ CLASS zcl_dbbr_jumplist_controller IMPLEMENTATION.
     DATA(lt_table_list) = CORRESPONDING zdbbr_entity_info_t( ls_query_data-tables ).
 
     LOOP AT lt_table_list ASSIGNING FIELD-SYMBOL(<ls_table>).
-      DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( iv_tablename = <ls_table>-tabname ).
+      DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( iv_tablename = <ls_table>-tabname ).
 
       <ls_table>-is_primary = xsdbool( <ls_table>-tabname = ls_query_data-primary_table ).
       <ls_table>-index = sy-tabix.
@@ -157,7 +157,7 @@ CLASS zcl_dbbr_jumplist_controller IMPLEMENTATION.
       LOOP AT lt_query_selfields ASSIGNING FIELD-SYMBOL(<ls_query_field>) WHERE tabname_alias    = lv_tabname_alias
                                                                             AND output_active    = abap_true
                                                                             AND is_formula_field = abap_false.
-        DATA(ls_fieldinfo) = zcl_dbbr_dictionary_helper=>get_table_field_info(
+        DATA(ls_fieldinfo) = zcl_sat_ddic_repo_access=>get_table_field_info(
           iv_tablename = <ls_query_field>-tabname
           iv_fieldname = <ls_query_field>-fieldname
         ).
@@ -180,7 +180,7 @@ CLASS zcl_dbbr_jumplist_controller IMPLEMENTATION.
                                                 ls_fieldinfo-fieldtext
                                               ELSE
                                                 ls_fieldinfo-scrtext_l ).
-        ls_tabfield-is_numeric      = zcl_dbbr_dictionary_helper=>is_type_numeric( ls_fieldinfo-inttype )..
+        ls_tabfield-is_numeric      = zcl_dbbr_ddic_util=>is_type_numeric( ls_fieldinfo-inttype )..
 
         mr_query_tabfields->add( REF #( ls_tabfield ) ).
       ENDLOOP.

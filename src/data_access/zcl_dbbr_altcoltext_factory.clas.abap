@@ -9,7 +9,7 @@ CLASS zcl_dbbr_altcoltext_factory DEFINITION
         is_altcoltext_data TYPE zdbbr_altcoltext_data.
     METHODS find_alternative_texts
       IMPORTING
-        it_tabname_selopt           TYPE zdbbr_selopt_itab
+        it_tabname_selopt           TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt
       RETURNING
         VALUE(rt_alternative_texts) TYPE zdbbr_altcoltext_data_itab.
     METHODS find_alternative_text
@@ -42,7 +42,7 @@ CLASS zcl_dbbr_altcoltext_factory IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD find_alternative_texts.
-    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
+    DATA(lv_language) = ZCL_SAT_SYSTEM_HELPER=>get_system_language( ).
 
     SELECT * FROM zdbbr_altcolt INTO CORRESPONDING FIELDS OF TABLE rt_alternative_texts
       WHERE tabname IN it_tabname_selopt
@@ -50,7 +50,7 @@ CLASS zcl_dbbr_altcoltext_factory IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD find_alternative_text.
-    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
+    DATA(lv_language) = ZCL_SAT_SYSTEM_HELPER=>get_system_language( ).
 
     SELECT SINGLE * FROM zdbbr_altcolt INTO CORRESPONDING FIELDS OF rs_alternative_text
       WHERE tabname   = iv_tabname

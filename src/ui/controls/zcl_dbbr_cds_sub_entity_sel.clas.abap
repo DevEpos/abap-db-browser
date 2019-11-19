@@ -20,22 +20,22 @@ CLASS zcl_dbbr_cds_sub_entity_sel DEFINITION
 
     EVENTS entity_chosen
       EXPORTING
-        VALUE(ev_chosen_entity_id) TYPE zdbbr_entity_id OPTIONAL
+        VALUE(ev_chosen_entity_id) TYPE ZSAT_ENTITY_ID OPTIONAL
         VALUE(ev_chosen_entity_type) TYPE ddtargetkind OPTIONAL
-        VALUE(es_chosen_association) TYPE zdbbr_cds_association OPTIONAL .
+        VALUE(es_chosen_association) TYPE ZSAT_CDS_ASSOCIATION OPTIONAL .
 
     METHODS constructor
       IMPORTING
-        !ir_cds_view          TYPE REF TO zcl_dbbr_cds_view
+        !ir_cds_view          TYPE REF TO ZCL_SAT_CDS_VIEW
         !if_only_associations TYPE abap_bool OPTIONAL
         !if_as_dock           TYPE abap_bool OPTIONAL .
     METHODS get_chosen_sub_entity
       EXPORTING
-        !ev_enttiy_id   TYPE zdbbr_entity_id
+        !ev_enttiy_id   TYPE ZSAT_ENTITY_ID
         !ev_entity_type TYPE ddtargetkind .
     METHODS get_chosen_association
       RETURNING
-        VALUE(result) TYPE zdbbr_cds_association .
+        VALUE(result) TYPE ZSAT_CDS_ASSOCIATION .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -44,14 +44,14 @@ CLASS zcl_dbbr_cds_sub_entity_sel DEFINITION
 
     TYPES:
       BEGIN OF ty_association.
-        INCLUDE TYPE zdbbr_cds_association.
+        INCLUDE TYPE ZSAT_CDS_ASSOCIATION.
     TYPES: kind_description TYPE ddtext.
     TYPES: END OF ty_association .
 
     DATA mr_tmplt_prog TYPE REF TO zif_uitb_template_prog .
     DATA:
       mt_associations TYPE STANDARD TABLE OF ty_association WITH EMPTY KEY .
-    DATA mr_cds_view TYPE REF TO zcl_dbbr_cds_view .
+    DATA mr_cds_view TYPE REF TO ZCL_SAT_CDS_VIEW .
     DATA mr_assoc_alv TYPE REF TO zcl_uitb_alv .
     DATA mr_cds_subentity_tree TYPE REF TO zcl_uitb_column_tree_model .
     CONSTANTS c_association_root TYPE string VALUE 'ASSOC' ##NO_TEXT.
@@ -59,10 +59,10 @@ CLASS zcl_dbbr_cds_sub_entity_sel DEFINITION
     CONSTANTS c_description_col TYPE tv_itmname VALUE 'DESC' ##NO_TEXT.
     CONSTANTS c_type_col TYPE tv_itmname VALUE 'TYPE' ##NO_TEXT.
     DATA mf_only_associations TYPE abap_bool .
-    DATA mv_chosen_entity_id TYPE zdbbr_entity_id .
+    DATA mv_chosen_entity_id TYPE ZSAT_ENTITY_ID .
     DATA mv_chosen_entity_type TYPE ddtargetkind .
     DATA mv_subentity_count TYPE i .
-    DATA ms_chosen_association TYPE zdbbr_cds_association .
+    DATA ms_chosen_association TYPE ZSAT_CDS_ASSOCIATION .
     DATA mr_dock TYPE REF TO cl_gui_docking_container .
     DATA mf_as_dock TYPE abap_bool .
     DATA mf_all TYPE abap_bool VALUE abap_true ##NO_TEXT.
@@ -369,8 +369,8 @@ CLASS zcl_dbbr_cds_sub_entity_sel IMPLEMENTATION.
     LOOP AT lt_base_tables ASSIGNING FIELD-SYMBOL(<ls_base_table>).
       lv_icon = SWITCH #(
         <ls_base_table>-table_kind
-        WHEN zif_dbbr_c_entity_type=>cds_view THEN zif_dbbr_c_icon=>cds_view
-        WHEN zif_dbbr_c_entity_type=>table THEN zif_dbbr_c_icon=>database_table
+        WHEN ZIF_SAT_C_ENTITY_TYPE=>cds_view THEN zif_dbbr_c_icon=>cds_view
+        WHEN ZIF_SAT_C_ENTITY_TYPE=>table THEN zif_dbbr_c_icon=>database_table
       ).
       lr_nodes->add_node(
           iv_node_key          = CONV #( <ls_base_table>-entityname )
@@ -400,8 +400,8 @@ CLASS zcl_dbbr_cds_sub_entity_sel IMPLEMENTATION.
     LOOP AT lt_associations ASSIGNING FIELD-SYMBOL(<ls_assoc>).
       lv_icon = SWITCH #(
         <ls_assoc>-entity_type
-        WHEN zif_dbbr_c_entity_type=>cds_view THEN zif_dbbr_c_icon=>cds_view
-        WHEN zif_dbbr_c_entity_type=>table THEN zif_dbbr_c_icon=>database_table
+        WHEN ZIF_SAT_C_ENTITY_TYPE=>cds_view THEN zif_dbbr_c_icon=>cds_view
+        WHEN ZIF_SAT_C_ENTITY_TYPE=>table THEN zif_dbbr_c_icon=>database_table
       ).
       lr_nodes->add_node(
           iv_node_key          = CONV #( <ls_assoc>-name )

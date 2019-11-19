@@ -48,7 +48,7 @@ CLASS ZCL_DBBR_tablefield DEFINITION
         VALUE(rf_is_numeric) TYPE boolean.
     METHODS get_alias
       RETURNING
-        VALUE(rv_alias) TYPE ZDBBR_table_alias.
+        VALUE(rv_alias) TYPE ZSAT_TABLE_ALIAS.
     METHODS is_key
       RETURNING
         VALUE(rf_is_key) TYPE keyflag.
@@ -60,7 +60,7 @@ CLASS ZCL_DBBR_tablefield DEFINITION
         VALUE(rv_field_ddtext) TYPE ddtext.
     METHODS get_sql_fieldname
       RETURNING
-        VALUE(rv_sql_fieldname) TYPE ZDBBR_fieldname_with_alias.
+        VALUE(rv_sql_fieldname) TYPE ZSAT_FIELDNAME_WITH_ALIAS.
     METHODS get_alv_fieldname
       RETURNING
         VALUE(rv_alv_fieldname) TYPE fieldname.
@@ -114,11 +114,11 @@ CLASS ZCL_DBBR_tablefield DEFINITION
     DATA mf_is_formula_field TYPE boolean.
     DATA mf_is_text_field TYPE boolean.
     DATA mf_is_numeric TYPE boolean.
-    DATA mv_alias TYPE ZDBBR_table_alias.
+    DATA mv_alias TYPE ZSAT_TABLE_ALIAS.
     DATA mf_is_key TYPE keyflag.
     DATA mf_is_foreign_key TYPE keyflag.
     DATA mv_field_ddtext TYPE ddtext.
-    DATA mv_sql_fieldname TYPE ZDBBR_fieldname_with_alias.
+    DATA mv_sql_fieldname TYPE ZSAT_FIELDNAME_WITH_ALIAS.
     DATA mv_alv_fieldname TYPE fieldname.
     DATA mv_ddic_order TYPE tabfdpos.
     DATA mv_f4_available TYPE ddf4avail.

@@ -12,11 +12,11 @@ CLASS zcl_dbbr_table_navigator DEFINITION
       IMPORTING
         !ir_t_data       TYPE data
         !iv_source_table TYPE tabname
-        is_association   TYPE zdbbr_cds_association.
+        is_association   TYPE ZSAT_CDS_ASSOCIATION.
   PROTECTED SECTION.
 
     DATA mr_t_data TYPE REF TO data .
-    DATA ms_association TYPE zdbbr_cds_association.
+    DATA ms_association TYPE ZSAT_CDS_ASSOCIATION.
     DATA mv_source_table TYPE tabname .
   PRIVATE SECTION.
 ENDCLASS.

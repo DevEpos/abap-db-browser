@@ -40,10 +40,10 @@ CLASS zcl_dbbr_cds_selscreen_util DEFINITION
         REDEFINITION .
   PRIVATE SECTION.
 
-    DATA mo_cds_view TYPE REF TO zcl_dbbr_cds_view .
-    DATA mv_cds_view TYPE zdbbr_cds_view_name .
+    DATA mo_cds_view TYPE REF TO zcl_sat_cds_view .
+    DATA mv_cds_view TYPE zsat_cds_view_name .
     DATA mv_cds_view_description TYPE ddtext .
-    DATA mv_cds_view_name_raw TYPE zdbbr_cds_view_name .
+    DATA mv_cds_view_name_raw TYPE zsat_cds_view_name .
     DATA mf_associations_loaded TYPE abap_bool .
 
 
@@ -52,7 +52,7 @@ CLASS zcl_dbbr_cds_selscreen_util DEFINITION
         if_return_chosen_directly    TYPE abap_bool OPTIONAL
         if_only_associations         TYPE abap_bool OPTIONAL
       RETURNING
-        VALUE(rs_chosen_association) TYPE zdbbr_cds_association .
+        VALUE(rs_chosen_association) TYPE zsat_cds_association .
     METHODS build_default_custom_function.
     METHODS build_cust_func_for_cds_qry.
 ENDCLASS.
@@ -87,8 +87,8 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
     CHECK mv_cds_view IS NOT INITIAL.
 
     TRY.
-        mo_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( iv_cds_view = mv_cds_view ).
-      CATCH zcx_dbbr_data_read_error INTO DATA(lx_read_error).
+        mo_cds_view = zcl_sat_cds_view_factory=>read_cds_view( iv_cds_view = mv_cds_view ).
+      CATCH zcx_sat_data_read_error INTO DATA(lx_read_error).
         MESSAGE lx_read_error->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
         RETURN.
     ENDTRY.
@@ -172,8 +172,8 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
   METHOD update_description_texts.
 *.. reload the cds view with the new language
     TRY.
-        mo_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( mv_cds_view ).
-      CATCH zcx_dbbr_data_read_error INTO DATA(lx_read_error).
+        mo_cds_view = zcl_sat_cds_view_factory=>read_cds_view( mv_cds_view ).
+      CATCH zcx_sat_data_read_error INTO DATA(lx_read_error).
         MESSAGE lx_read_error->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
         RETURN.
     ENDTRY.
@@ -190,7 +190,7 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
       CHECK <ls_grouped_fields>-tabname = mv_cds_view.
 
       LOOP AT GROUP <ls_grouped_fields> ASSIGNING FIELD-SYMBOL(<ls_group_entry>).
-        DATA(ls_data_element) = zcl_dbbr_dictionary_helper=>get_data_element( <ls_group_entry>-rollname ).
+        DATA(ls_data_element) = zcl_sat_ddic_repo_access=>get_data_element( <ls_group_entry>-rollname ).
         <ls_group_entry>-std_short_text  = ls_data_element-scrtext_s.
         <ls_group_entry>-std_medium_text = ls_data_element-scrtext_m.
         <ls_group_entry>-std_long_text   = ls_data_element-scrtext_l.
@@ -327,7 +327,7 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
   METHOD constructor.
     super->constructor(
       ir_selscreen_data = ir_selscreen_data
-      iv_entity_type    = zif_dbbr_c_entity_type=>cds_view
+      iv_entity_type    = zif_sat_c_entity_type=>cds_view
     ).
 
     mo_custom_menu = NEW cl_ctmenu( ).
@@ -366,8 +366,8 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
 
     IF mo_cds_view IS BOUND.
       DATA(lv_source_type) = mo_cds_view->get_header( )-source_type.
-      IF lv_source_type = zif_dbbr_c_cds_view_type=>abstract_entity OR
-         lv_source_type = zif_dbbr_c_cds_view_type=>extend.
+      IF lv_source_type = zif_sat_c_cds_view_type=>abstract_entity OR
+         lv_source_type = zif_sat_c_cds_view_type=>extend.
         result = VALUE #(
           BASE result
           ( zif_dbbr_c_selscreen_functions=>execute_selection )
@@ -400,14 +400,14 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selscreen_functions=>show_ddls_source.
         TRY.
-            DATA(lv_source) = zcl_dbbr_cds_view_factory=>read_ddls_source( mv_cds_view ).
+            DATA(lv_source) = zcl_sat_cds_view_factory=>read_ddls_source( mv_cds_view ).
             zcl_uitb_abap_code_viewer=>show_code(
                 iv_title = |DDL Source { mv_cds_view_name_raw }|
                 iv_code  = lv_source
                 iv_theme = mo_data->mr_s_global_data->settings-code_viewer_theme
             ).
           CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
-            lx_app_error->zif_dbbr_exception_message~print( ).
+            lx_app_error->zif_sat_exception_message~print( ).
         ENDTRY.
         CLEAR: cv_function.
 
@@ -421,30 +421,29 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selscreen_functions=>open_cds_view_with_adt.
         TRY .
-            zcl_dbbr_adt_util=>jump_adt(
+            zcl_sat_adt_util=>jump_adt(
                 iv_obj_name        = |{ mo_cds_view->get_header( )-ddlname }|
                 iv_obj_type        = 'DDLS'
             ).
-          CATCH zcx_dbbr_adt_error INTO DATA(lx_adt_error).
-            RAISE EXCEPTION TYPE zcx_dbbr_validation_exception
+          CATCH zcx_sat_adt_error INTO DATA(lx_adt_error).
+            RAISE EXCEPTION TYPE zcx_sat_validation_exception
               EXPORTING
                 previous = lx_adt_error.
         ENDTRY.
 
       WHEN zif_dbbr_c_selscreen_functions=>go_to_ddic_view_of_cds.
-        zcl_dbbr_dictionary_helper=>navigate_to_table( iv_tabname = mo_cds_view->get_header( )-ddlview ).
+        zcl_dbbr_ddic_util=>navigate_to_table( iv_tabname = mo_cds_view->get_header( )-ddlview ).
 
       WHEN zif_dbbr_c_selscreen_functions=>open_cds_query_in_aox.
-        zcl_dbbr_query_monitor_util=>open_in_analyis_for_office( iv_query_ddlname = mo_cds_view->get_header( )-ddlview ).
+        zcl_sat_query_monitor_util=>open_in_analyis_for_office( iv_query_ddlname = mo_cds_view->get_header( )-ddlview ).
 
       WHEN zif_dbbr_c_selscreen_functions=>open_cds_query_in_qry_mon.
         DATA(lt_base_tables) = mo_cds_view->get_base_tables( ).
         IF lt_base_tables IS NOT INITIAL.
           DATA(lv_cube_view) = VALUE #( lt_base_tables[ 1 ]-original_base_name OPTIONAL ).
           IF lv_cube_view IS NOT INITIAL.
-            zcl_dbbr_query_monitor_util=>open_in_query_monitor(
+            zcl_sat_query_monitor_util=>open_in_query_monitor(
                 iv_query_ddlname = mo_cds_view->get_header( )-ddlview
-                iv_cube_ddlname  = lv_cube_view
             ).
           ENDIF.
         ENDIF.

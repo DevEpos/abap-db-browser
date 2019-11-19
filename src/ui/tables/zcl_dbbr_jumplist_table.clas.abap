@@ -20,7 +20,7 @@ CLASS zcl_dbbr_jumplist_table DEFINITION
     METHODS set_query_infos
       IMPORTING
         ir_tabfield_list      TYPE REF TO zcl_dbbr_tabfield_list
-        it_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab
+        it_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB
         if_join_is_active     TYPE boolean.
     METHODS zif_uitb_table~add_line
          REDEFINITION .
@@ -47,7 +47,7 @@ CLASS zcl_dbbr_jumplist_table DEFINITION
     DATA mr_ui_param_details_button TYPE REF TO zdbbr_button.
     DATA mr_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list.
     DATA mr_query_tabfields TYPE REF TO zcl_dbbr_tabfield_list.
-    DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab.
+    DATA mt_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB.
     DATA mf_join_is_active TYPE boolean.
 ENDCLASS.
 
@@ -290,7 +290,7 @@ CLASS ZCL_DBBR_JUMPLIST_TABLE IMPLEMENTATION.
       ENDIF.
 
       " 3) check if transaction (jump target exists)
-      IF NOT zcl_dbbr_dictionary_helper=>is_transaction_valid( <ls_jump_field>-jump_target ).
+      IF NOT zcl_dbbr_ddic_util=>is_transaction_valid( <ls_jump_field>-jump_target ).
         lr_cursor->set_line( lv_index ).
         lr_cursor->set_field( mc_table_fields-jump_target ).
         CLEAR cv_function_code.

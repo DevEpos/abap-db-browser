@@ -11,8 +11,8 @@ CLASS zcl_dbbr_variant_loader DEFINITION
       IMPORTING
         !iv_variant_name      TYPE zdbbr_variant_name OPTIONAL
         !iv_variant_id        TYPE zdbbr_variant_id OPTIONAL
-        !iv_entity_type       TYPE zdbbr_entity_type OPTIONAL
-        !iv_entity_id         TYPE zdbbr_entity_id OPTIONAL
+        !iv_entity_type       TYPE ZSAT_ENTITY_TYPE OPTIONAL
+        !iv_entity_id         TYPE ZSAT_ENTITY_ID OPTIONAL
         !ir_t_multi_or        TYPE REF TO zdbbr_or_seltab_itab
         !ir_t_selfields       TYPE REF TO zdbbr_selfield_itab
         !ir_t_selfields_multi TYPE REF TO zdbbr_selfield_itab
@@ -25,8 +25,8 @@ CLASS zcl_dbbr_variant_loader DEFINITION
     "! <p class="shorttext synchronized" lang="en">Creates variant loader for automatic variant</p>
     CLASS-METHODS create_auto_variant_loader
       IMPORTING
-        !iv_entity_type       TYPE zdbbr_entity_type
-        !iv_entity_id         TYPE zdbbr_entity_id
+        !iv_entity_type       TYPE ZSAT_ENTITY_TYPE
+        !iv_entity_id         TYPE ZSAT_ENTITY_ID
         !ir_t_multi_or        TYPE REF TO zdbbr_or_seltab_itab
         !ir_t_selfields       TYPE REF TO zdbbr_selfield_itab
         !ir_t_selfields_multi TYPE REF TO zdbbr_selfield_itab
@@ -38,8 +38,8 @@ CLASS zcl_dbbr_variant_loader DEFINITION
     "! <p class="shorttext synchronized" lang="en">Creates variant loader for default variant</p>
     CLASS-METHODS create_default_variant_loader
       IMPORTING
-        !iv_entity_type       TYPE zdbbr_entity_type
-        !iv_entity_id         TYPE zdbbr_entity_id
+        !iv_entity_type       TYPE ZSAT_ENTITY_TYPE
+        !iv_entity_id         TYPE ZSAT_ENTITY_ID
         !ir_t_multi_or        TYPE REF TO zdbbr_or_seltab_itab
         !ir_t_selfields       TYPE REF TO zdbbr_selfield_itab
         !ir_t_selfields_multi TYPE REF TO zdbbr_selfield_itab
@@ -67,15 +67,15 @@ CLASS zcl_dbbr_variant_loader DEFINITION
     DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mr_tabfields_grouped TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mr_s_global_data TYPE REF TO zdbbr_global_data .
-    DATA mv_entity_type TYPE zdbbr_entity_type .
-    DATA mv_entity_id TYPE zdbbr_entity_id .
+    DATA mv_entity_type TYPE ZSAT_ENTITY_TYPE .
+    DATA mv_entity_id TYPE ZSAT_ENTITY_ID .
 
     METHODS constructor
       IMPORTING
         !iv_variant_name      TYPE zdbbr_variant_name OPTIONAL
         !iv_variant_id        TYPE zdbbr_variant_id OPTIONAL
-        !iv_entity_type       TYPE zdbbr_entity_type OPTIONAL
-        !iv_entity_id         TYPE zdbbr_entity_id OPTIONAL
+        !iv_entity_type       TYPE ZSAT_ENTITY_TYPE OPTIONAL
+        !iv_entity_id         TYPE ZSAT_ENTITY_ID OPTIONAL
         !ir_t_multi_or        TYPE REF TO zdbbr_or_seltab_itab
         !ir_t_selfields       TYPE REF TO zdbbr_selfield_itab
         !ir_t_selfields_multi TYPE REF TO zdbbr_selfield_itab
@@ -180,7 +180,7 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
     IF ls_existing_variant IS INITIAL.
       IF mv_loader_type = c_loader_type-by_name_or_id.
         MESSAGE e030(zdbbr_info) WITH mv_variant_name INTO DATA(lv_dummy).
-        zcx_dbbr_validation_exception=>raise_from_sy( ).
+        ZCX_SAT_VALIDATION_EXCEPTION=>raise_from_sy( ).
       ELSE.
         RETURN.
       ENDIF.
@@ -390,7 +390,7 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
               IF lf_first_selvalue = abap_true.
 
                 IF <ls_vardata_group_entry>-system_value_type IS NOT INITIAL.
-                  zcl_dbbr_system_helper=>get_system_value( EXPORTING iv_system_value_type = <ls_vardata_group_entry>-system_value_type
+                  ZCL_SAT_SYSTEM_HELPER=>get_system_value( EXPORTING iv_system_value_type = <ls_vardata_group_entry>-system_value_type
                                                              IMPORTING ev_system_value      = <ls_selfield>-low ).
                   <ls_selfield>-system_value_type = <ls_vardata_group_entry>-system_value_type.
                   <ls_selfield>-sign  = <ls_vardata_group_entry>-sign_val.

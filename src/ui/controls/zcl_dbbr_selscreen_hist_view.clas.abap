@@ -107,13 +107,13 @@ CLASS zcl_dbbr_selscreen_hist_view IMPLEMENTATION.
 *... fill type icon
       <ls_history>-type_icon = SWITCH #(
         <ls_history>-entity_type
-        WHEN zif_dbbr_c_entity_type=>table THEN
+        WHEN ZIF_SAT_C_ENTITY_TYPE=>table THEN
           zif_dbbr_c_icon=>database_table
-        WHEN zif_dbbr_c_entity_type=>query THEN
+        WHEN ZIF_SAT_C_ENTITY_TYPE=>query THEN
           zif_dbbr_c_icon=>query
-        WHEN zif_dbbr_c_entity_type=>view THEN
+        WHEN ZIF_SAT_C_ENTITY_TYPE=>view THEN
           zif_dbbr_c_icon=>database_view
-        WHEN zif_dbbr_c_entity_type=>cds_view THEN
+        WHEN ZIF_SAT_C_ENTITY_TYPE=>cds_view THEN
           zif_dbbr_c_icon=>cds_view
       ).
 
@@ -136,7 +136,7 @@ CLASS zcl_dbbr_selscreen_hist_view IMPLEMENTATION.
 
     mr_alv = zcl_uitb_alv=>create_alv(
         ir_data                 = REF #( mt_history )
-        iv_description_language = zcl_dbbr_system_helper=>get_system_language( )
+        iv_description_language = ZCL_SAT_SYSTEM_HELPER=>get_system_language( )
         ir_container            = mr_dock
         if_editable             = abap_false
     ).

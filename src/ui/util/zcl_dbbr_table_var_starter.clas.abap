@@ -74,7 +74,7 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
       IF ms_global_data-called_from_adt = abap_true.
         zcl_dbbr_usersettings_factory=>update_start_settings(
           iv_entity_id   = mv_tabname
-          iv_entity_type = zif_dbbr_c_entity_type=>table
+          iv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>table
         ).
       ENDIF.
 
@@ -82,7 +82,7 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
           iv_entry     = mv_tabname
           iv_entry_raw = mv_tabname
           iv_type      = zif_dbbr_c_favmenu_type=>table
-          iv_text      = zcl_dbbr_dictionary_helper=>get_table_info( mv_tabname )-ddtext
+          iv_text      = zcl_sat_ddic_repo_access=>get_table_info( mv_tabname )-ddtext
       ).
     ENDIF.
   ENDMETHOD.
@@ -90,7 +90,7 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
   METHOD fill_primary_entity.
     DATA: ls_table_info TYPE dd02v.
 
-    ls_table_info = zcl_dbbr_dictionary_helper=>get_table_info( ms_global_data-primary_table ).
+    ls_table_info = zcl_sat_ddic_repo_access=>get_table_info( ms_global_data-primary_table ).
     IF ls_table_info IS INITIAL.
       RETURN.
     ENDIF.

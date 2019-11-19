@@ -19,7 +19,7 @@ CLASS zcl_dbbr_save_sql_query_ctrl DEFINITION
     "! <p class="shorttext synchronized" lang="en">Returns the name of the saved query</p>
     METHODS get_query_name
       RETURNING
-        VALUE(rv_query_name) TYPE zdbbr_query_name .
+        VALUE(rv_query_name) TYPE ZSAT_QUERY_NAME .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -31,7 +31,7 @@ CLASS zcl_dbbr_save_sql_query_ctrl DEFINITION
     DATA mt_query_parameters TYPE zdbbr_query_parameter_t.
     DATA ms_query_info TYPE zdbbr_query_info .
     DATA mr_ui_global_data TYPE REF TO zdbbr_global_data .
-    DATA mr_ui_query_name TYPE REF TO zdbbr_query_name .
+    DATA mr_ui_query_name TYPE REF TO ZSAT_QUERY_NAME .
     DATA mr_ui_query_desc TYPE REF TO ddtext .
     DATA mr_ui_is_global TYPE REF TO boolean .
     "! <p class="shorttext synchronized" lang="en">Definition of a Join</p>
@@ -72,7 +72,7 @@ CLASS zcl_dbbr_save_sql_query_ctrl IMPLEMENTATION.
 
 
   METHOD save_query.
-    DATA: lv_primary_entity_type TYPE zdbbr_entity_type.
+    DATA: lv_primary_entity_type TYPE ZSAT_ENTITY_TYPE.
 
 *.. validate query name
     TRY .

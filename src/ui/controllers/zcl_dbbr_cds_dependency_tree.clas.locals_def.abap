@@ -21,8 +21,8 @@
 
  TYPES:
    BEGIN OF lty_s_command_info,
-     entity_id   TYPE zdbbr_entity_id,
-     entity_type TYPE zdbbr_entity_type,
+     entity_id   TYPE ZSAT_ENTITY_ID,
+     entity_type TYPE ZSAT_ENTITY_TYPE,
      is_cds      TYPE abap_bool,
    END OF lty_s_command_info.
 
@@ -33,7 +33,7 @@
      METHODS constructor
        IMPORTING
          io_dependency_tree TYPE REF TO zcl_dbbr_cds_dependency_tree
-         iv_cds_view_name   TYPE zdbbr_cds_view_name
+         iv_cds_view_name   TYPE ZSAT_CDS_VIEW_NAME
          io_parent          TYPE REF TO cl_gui_container.
      "! <p class="shorttext synchronized" lang="en">Sets function in ALV</p>
      METHODS set_alv_function
@@ -42,12 +42,12 @@
      "! <p class="shorttext synchronized" lang="en">Retrieve the selected entity id</p>
      METHODS get_selected_entity
        EXPORTING
-         ev_entity_id   TYPE zdbbr_entity_id
+         ev_entity_id   TYPE ZSAT_ENTITY_ID
          ef_is_cds      TYPE abap_bool
-         ev_entity_type TYPE zdbbr_entity_type.
+         ev_entity_type TYPE ZSAT_ENTITY_TYPE.
    PRIVATE SECTION.
      TYPES: BEGIN OF ty_s_dependency_usage.
-         INCLUDE TYPE zcl_dbbr_cds_dep_analyzer=>ty_s_dependency.
+         INCLUDE TYPE ZCL_SAT_CDS_DEP_ANALYZER=>ty_s_dependency.
      TYPES: type_icon TYPE char40.
      TYPES: END OF ty_s_dependency_usage.
 

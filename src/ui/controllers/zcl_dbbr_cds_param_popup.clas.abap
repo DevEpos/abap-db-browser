@@ -10,14 +10,14 @@ CLASS zcl_dbbr_cds_param_popup DEFINITION
     "!
     METHODS constructor
       IMPORTING
-        it_param_values  TYPE zif_dbbr_global_types=>tt_cds_param_value OPTIONAL
-        iv_cds_view_name TYPE zdbbr_cds_view_name
+        it_param_values  TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_param_value OPTIONAL
+        iv_cds_view_name TYPE ZSAT_CDS_VIEW_NAME
         !io_tabfields    TYPE REF TO zcl_dbbr_tabfield_list .
     "! <p class="shorttext synchronized" lang="en">Get entered param values</p>
     "!
     METHODS get_param_values
       RETURNING
-        VALUE(rt_values) TYPE zif_dbbr_global_types=>tt_cds_param_value .
+        VALUE(rt_values) TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_param_value .
     METHODS zif_uitb_gui_command_handler~execute_command
         REDEFINITION.
     METHODS zif_uitb_gui_screen~show
@@ -40,7 +40,7 @@ CLASS zcl_dbbr_cds_param_popup DEFINITION
     TYPES:
       BEGIN OF ty_param.
     TYPES: paramname_raw TYPE ddtext.
-        INCLUDE TYPE zif_dbbr_global_types=>ty_cds_param_value.
+        INCLUDE TYPE ZIF_SAT_TY_GLOBAL=>ty_s_cds_param_value.
     TYPES: has_custom_f4 TYPE abap_bool.
     TYPES: t_style       TYPE lvc_t_styl.
     TYPES: END OF ty_param .
@@ -49,7 +49,7 @@ CLASS zcl_dbbr_cds_param_popup DEFINITION
     DATA mt_parameters TYPE STANDARD TABLE OF ty_param .
     DATA mo_custom_f4_map TYPE REF TO zcl_dbbr_custom_f4_map.
     DATA mo_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
-    DATA mv_cds_view TYPE zdbbr_cds_view_name.
+    DATA mv_cds_view TYPE ZSAT_CDS_VIEW_NAME.
 
     "! <p class="shorttext synchronized" lang="en">Convert parameter to display format</p>
     "!
@@ -114,7 +114,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
           iv_tabname       = lr_s_next_param->tabname
           iv_fieldname     = lr_s_next_param->fieldname
           iv_rollname      = lr_s_next_param->rollname
-          is_built_in_type = value #(
+          is_built_in_type = VALUE #(
             datatype = lr_s_next_param->datatype
             inttype  = lr_s_next_param->inttype
             leng     = lr_s_next_param->length
@@ -182,12 +182,11 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
            iv_fieldname              = <ls_param>-name
       ).
 
-      zcl_dbbr_data_converter=>convert_values_to_int_format(
+      ZCL_SAT_DATA_CONVERTER=>convert_values_to_int_format(
         EXPORTING iv_rollname            = lr_s_field->rollname
                   iv_type                = lr_s_field->inttype
                   iv_length              = CONV #( lr_s_field->length )
                   iv_decimals            = CONV #( lr_s_field->decimals )
-                  if_print_error_message = abap_false
         CHANGING  cv_value1              = <ls_param>-value
       ).
     ENDLOOP.
@@ -195,7 +194,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
 
 
   METHOD convert_param_to_display.
-    zcl_dbbr_data_converter=>convert_values_to_disp_format(
+    ZCL_SAT_DATA_CONVERTER=>convert_values_to_disp_format(
       EXPORTING iv_rollname            = is_tabfield-rollname
                 iv_type                = is_tabfield-inttype
                 iv_length              = CONV #( is_tabfield-length )
@@ -216,23 +215,32 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
        if_editable   = abap_true
     ).
 
-    DATA(lr_cols) = mo_alv->get_columns( ).
-    lr_cols->set_style_column( 'T_STYLE' ).
+    DATA(lo_cols) = mo_alv->get_columns( ).
 
-    lr_cols->get_column( 'NAME' )->set_technical( ).
-    lr_cols->get_column( 'HAS_CUSTOM_F4' )->set_technical( ).
+    DATA(lo_col_iterator) = lo_cols->zif_uitb_list~get_iterator( ).
+    lo_cols->set_style_column( 'T_STYLE' ).
 
-    lr_col = lr_cols->get_column( 'PARAMNAME_RAW' ).
-    lr_col->set_descriptions( iv_long = 'Name' ).
-    lr_col->set_output_length( 20 ).
+    WHILE lo_col_iterator->has_next( ).
+      DATA(lo_col) = CAST zcl_uitb_alv_column( lo_col_iterator->get_next( ) ).
 
-    lr_col = lr_cols->get_column( 'VALUE' ).
-    lr_col->set_descriptions( iv_long = 'Value' ).
-    lr_col->set_editable( ).
-    lr_col->set_output_length( 20 ).
-    lr_col->set_f4( ).
-    lr_col->set_custom_f4( ).
+      CASE lo_col->get_name( ).
 
+        WHEN 'PARAMNAME_RAW'.
+          lo_col->set_descriptions( iv_long = 'Name' ).
+          lo_col->set_output_length( 20 ).
+
+        WHEN 'VALUE'.
+          lo_col->set_descriptions( iv_long = 'Value' ).
+          lo_col->set_editable( ).
+          lo_col->set_output_length( 20 ).
+          lo_col->set_f4( ).
+          lo_col->set_custom_f4( ).
+
+        WHEN OTHERS.
+          lo_col->set_technical( ).
+      ENDCASE.
+
+    ENDWHILE.
 
     DATA(lr_functions) = mo_alv->get_functions( ).
     lr_functions->set_all( abap_false ).
@@ -262,7 +270,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
         it_button    = VALUE #(
           ( function  = c_functions-update_params
             icon      = icon_execute_object
-            quickinfo = |{ 'Update parameter values'(004) }| )
+            quickinfo = |{ 'Update parameter values (F8)'(004) }| )
         )
       IMPORTING
         eo_client    = DATA(lo_container)
@@ -284,7 +292,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
 
 
   METHOD on_data_changed.
-    DATA: lv_value TYPE zdbbr_value.
+    DATA: lv_value TYPE ZSAT_VALUE.
 
     CHECK: ef_onf4 = abap_false,
            ef_onf4_after = abap_false,
@@ -312,7 +320,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
       ENDIF.
 
       TRY.
-          zcl_dbbr_data_converter=>convert_values_to_int_format(
+          ZCL_SAT_DATA_CONVERTER=>convert_values_to_int_format(
             EXPORTING iv_rollname            = ls_param_field-rollname
                       iv_decimals            = CONV #( ls_param_field-decimals )
                       iv_length              = CONV #( ls_param_field-length )
@@ -322,7 +330,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
           ).
           lr_s_param_value->value = lv_value.
 *........ Convert value again to display the output format to the user
-          zcl_dbbr_data_converter=>convert_values_to_disp_format(
+          ZCL_SAT_DATA_CONVERTER=>convert_values_to_disp_format(
             EXPORTING iv_rollname            = ls_param_field-rollname
                       iv_decimals            = CONV #( ls_param_field-decimals )
                       iv_length              = CONV #( ls_param_field-length )
@@ -334,7 +342,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
               i_fieldname = 'VALUE'
               i_value     = lv_value
           ).
-        CATCH zcx_dbbr_conversion_exc INTO DATA(lx_conv_error).
+        CATCH ZCX_SAT_CONVERSION_EXC INTO DATA(lx_conv_error).
           er_change_protocol->add_protocol_entry(
               i_msgid     = lx_conv_error->if_t100_message~t100key-msgid
               i_msgty     = 'E'
@@ -389,7 +397,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
         ).
       ENDIF.
     ELSEIF ls_param_field-rollname IS NOT INITIAL.
-      DATA: lv_f4_result TYPE zdbbr_value.
+      DATA: lv_f4_result TYPE ZSAT_VALUE.
 
       zcl_dbbr_f4_helper=>call_built_in_f4(
         EXPORTING iv_tablename = ls_param_field-rollname

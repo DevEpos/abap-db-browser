@@ -5,13 +5,13 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    INTERFACES zif_dbbr_c_object_browser .
+    INTERFACES zif_sat_c_object_browser .
 
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     "!
     METHODS constructor
       IMPORTING
-        iv_cds_view        TYPE zdbbr_cds_view_name
+        iv_cds_view        TYPE zsat_cds_view_name
         if_opened_from_adt TYPE abap_bool OPTIONAL.
     METHODS zif_uitb_gui_command_handler~execute_command
         REDEFINITION.
@@ -19,7 +19,7 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
         REDEFINITION.
 
     ALIASES c_node_type
-      FOR zif_dbbr_c_object_browser~c_tree_node_type .
+      FOR zif_sat_c_object_browser~c_tree_node_type .
   PROTECTED SECTION.
     METHODS create_content
         REDEFINITION.
@@ -38,9 +38,9 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     TYPES:
       BEGIN OF ty_node_map,
         node_key      TYPE tm_nodekey,
-        entity_id     TYPE zdbbr_entity_id,
-        entity_id_raw TYPE zdbbr_entity_id,
-        entity_type   TYPE zdbbr_entity_type,
+        entity_id     TYPE zsat_entity_id,
+        entity_id_raw TYPE zsat_entity_id,
+        entity_type   TYPE zsat_entity_type,
         sql_name      TYPE tabname,
       END OF ty_node_map .
 
@@ -57,7 +57,7 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     DATA mo_options_menu TYPE REF TO cl_ctmenu.
     DATA mo_usage_alv TYPE REF TO lcl_usage_alv.
     DATA mo_tree TYPE REF TO zcl_uitb_column_tree_model .
-    DATA mv_view_name TYPE zdbbr_cds_view_name .
+    DATA mv_view_name TYPE zsat_cds_view_name .
     DATA mt_node_map TYPE STANDARD TABLE OF ty_node_map WITH KEY node_key.
     DATA ms_dependencies TYPE cl_ddls_dependency_visitor=>ty_s_dependency_graph_node.
     DATA ms_metrics_map TYPE cl_dd_ddl_meta_num_collector=>entity2number_map.
@@ -125,7 +125,7 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Show CDS Source Code</p>
     METHODS show_cds_source
       IMPORTING
-        iv_cds_name TYPE zdbbr_entity_id.
+        iv_cds_name TYPE zsat_entity_id.
     "! <p class="shorttext synchronized" lang="en">Trigger Show Content of DB Entity</p>
     METHODS do_show_content
       IMPORTING
@@ -135,8 +135,8 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     METHODS show_content
       IMPORTING
         if_new_task    TYPE abap_bool OPTIONAL
-        iv_entity_id   TYPE zdbbr_entity_id
-        iv_entity_type TYPE zdbbr_entity_type.
+        iv_entity_id   TYPE zsat_entity_id
+        iv_entity_type TYPE zsat_entity_type.
 
     "! <p class="shorttext synchronized" lang="en">Creates code viewer control</p>
     METHODS create_code_viewer
@@ -165,13 +165,13 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Jump to ADT with selected entity</p>
     METHODS open_with_adt
       IMPORTING
-        iv_entity_id   TYPE zdbbr_entity_id
-        iv_entity_type TYPE zdbbr_entity_type.
+        iv_entity_id   TYPE zsat_entity_id
+        iv_entity_type TYPE zsat_entity_type.
     "! <p class="shorttext synchronized" lang="en">Open DB Browser in new window for entity</p>
     METHODS open_db_browser_new_window
       IMPORTING
-        iv_entity_id   TYPE zdbbr_entity_id
-        iv_entity_type TYPE zdbbr_entity_type.
+        iv_entity_id   TYPE zsat_entity_id
+        iv_entity_type TYPE zsat_entity_type.
     "! <p class="shorttext synchronized" lang="en">Trigger Open DB Browser in new window for entity</p>
     METHODS do_open_in_new_window
       IMPORTING
@@ -195,16 +195,16 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
 
   METHOD add_node.
-    DATA: lv_entity_type TYPE zdbbr_entity_type.
+    DATA: lv_entity_type TYPE zsat_entity_type.
 
     IF is_node-type = cl_ddls_dependency_visitor=>co_node_type-cds_view OR
        is_node-type = cl_ddls_dependency_visitor=>co_node_type-cds_table_function OR
        is_node-type = cl_ddls_dependency_visitor=>co_node_type-cds_db_view.
-      lv_entity_type = zif_dbbr_c_entity_type=>cds_view.
+      lv_entity_type = zif_sat_c_entity_type=>cds_view.
     ELSEIF is_node-type = cl_ddls_dependency_visitor=>co_node_type-table.
-      lv_entity_type = zif_dbbr_c_entity_type=>table.
+      lv_entity_type = zif_sat_c_entity_type=>table.
     ELSEIF is_node-type = cl_ddls_dependency_visitor=>co_node_type-view.
-      lv_entity_type = zif_dbbr_c_entity_type=>view.
+      lv_entity_type = zif_sat_c_entity_type=>view.
     ENDIF.
 
     DATA(lo_nodes) = mo_tree->get_nodes( ).
@@ -483,7 +483,7 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
     rf_dependencies_read = abap_true.
 
     zcl_uitb_screen_util=>show_progress( iv_progress = 1 iv_text = |{ 'Analyzing CDS Dependencies...'(004) }| ).
-    ms_dependencies = zcl_dbbr_cds_dep_analyzer=>analyze_dependency( iv_cds_view_name = mv_view_name ).
+    ms_dependencies = zcl_sat_cds_dep_analyzer=>analyze_dependency( iv_cds_view_name = mv_view_name ).
     IF ms_dependencies IS INITIAL.
       rf_dependencies_read = abap_false.
       RETURN.
@@ -493,12 +493,12 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
 
   METHOD fill_entity_texts.
-    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
+    DATA(lv_language) = zcl_sat_system_helper=>get_system_language( ).
 
     zcl_uitb_screen_util=>show_progress( iv_progress = 75 iv_text = |{ 'Loading Descriptions...'(037) }| ).
 
     SELECT entity, description
-      FROM zdbbr_i_databaseentity( p_language = @lv_language )
+      FROM zsat_i_databaseentity( p_language = @lv_language )
       FOR ALL ENTRIES IN @mt_node_map
       WHERE entity = @mt_node_map-entity_id
     INTO TABLE @DATA(lt_texts).
@@ -607,7 +607,7 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
         fcode = c_functions-exec_with_dbbrs_new_window
         text  = |{ 'Show Content (New Task)'(039) }|
     ).
-    IF <ls_node_map>-entity_type = zif_dbbr_c_entity_type=>cds_view.
+    IF <ls_node_map>-entity_type = zif_sat_c_entity_type=>cds_view.
       er_menu->add_separator( ).
       er_menu->add_function(
           fcode = c_functions-show_ddl_source
@@ -699,7 +699,7 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
   METHOD do_show_cds_source.
     IF ir_params IS BOUND.
       ASSIGN CAST lty_s_command_info( ir_params )->* TO FIELD-SYMBOL(<ls_command_info>).
-      IF sy-subrc = 0 AND <ls_command_info>-entity_type = zif_dbbr_c_entity_type=>cds_view.
+      IF sy-subrc = 0 AND <ls_command_info>-entity_type = zif_sat_c_entity_type=>cds_view.
         show_cds_source( <ls_command_info>-entity_id ).
       ENDIF.
     ELSEIF mf_tree_mode = abap_false.
@@ -712,7 +712,7 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
       CHECK lines( lt_selected_nodes ) = 1.
 
       ASSIGN mt_node_map[ node_key    = lt_selected_nodes[ 1 ]->mv_node_key
-                          entity_type = zif_dbbr_c_entity_type=>cds_view ] TO FIELD-SYMBOL(<ls_node_map>).
+                          entity_type = zif_sat_c_entity_type=>cds_view ] TO FIELD-SYMBOL(<ls_node_map>).
       CHECK sy-subrc = 0.
       on_node_context_menu_select(
           ev_fcode    = c_functions-show_ddl_source
@@ -724,10 +724,10 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
   METHOD show_cds_source.
     TRY.
-        DATA(lv_source) = zcl_dbbr_cds_view_factory=>read_ddls_source( iv_cds_name ).
+        DATA(lv_source) = zcl_sat_cds_view_factory=>read_ddls_source( iv_cds_name ).
         load_cds_source_into_view( EXPORTING iv_code = lv_source ).
-      CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
-        lx_app_error->zif_dbbr_exception_message~print( ).
+      CATCH zcx_sat_application_exc INTO DATA(lx_app_error).
+        lx_app_error->zif_sat_exception_message~print( ).
     ENDTRY.
   ENDMETHOD.
 
@@ -1020,17 +1020,17 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
   METHOD open_with_adt.
     TRY.
-        zcl_dbbr_adt_util=>jump_adt(
+        zcl_sat_adt_util=>jump_adt(
             iv_obj_name     = |{ iv_entity_id }|
             iv_obj_type     = SWITCH #(
                 iv_entity_type
-                WHEN zif_dbbr_c_entity_type=>cds_view THEN 'DDLS'
-                WHEN zif_dbbr_c_entity_type=>table    THEN 'TABD'
-                WHEN zif_dbbr_c_entity_type=>view     THEN 'VIEW'
+                WHEN zif_sat_c_entity_type=>cds_view THEN 'DDLS'
+                WHEN zif_sat_c_entity_type=>table    THEN 'TABD'
+                WHEN zif_sat_c_entity_type=>view     THEN 'VIEW'
             )
         ).
-      CATCH zcx_dbbr_adt_error INTO DATA(lx_adt_error).
-      CATCH zcx_dbbr_data_read_error INTO DATA(lx_data_read_error).
+      CATCH zcx_sat_adt_error INTO DATA(lx_adt_error).
+      CATCH zcx_sat_data_read_error INTO DATA(lx_data_read_error).
     ENDTRY.
 
   ENDMETHOD.

@@ -56,7 +56,7 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
         virtual_join_table = <ls_join_table_info>-is_virtual
         selection_order    = VALUE #( mt_table_list[ tabname_alias = <ls_join_table_info>-add_table_alias ]-selection_order OPTIONAL )
       ).
-      IF <ls_join_table_info>-entity_type = zif_dbbr_c_entity_type=>cds_view.
+      IF <ls_join_table_info>-entity_type = ZIF_SAT_C_ENTITY_TYPE=>cds_view.
         create_cds_fields( ls_join_entity ).
       ELSE.
         create_table_fields( ls_join_entity ).
@@ -91,7 +91,7 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
         is_primary           = abap_true
     ).
 
-    IF ms_query-entity_type = zif_dbbr_c_entity_type=>cds_view.
+    IF ms_query-entity_type = ZIF_SAT_C_ENTITY_TYPE=>cds_view.
       create_cds_fields( ls_entity ).
     ELSE.
       create_table_fields( ls_entity ).
@@ -211,7 +211,7 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
       IF ms_global_data-called_from_adt = abap_true.
         zcl_dbbr_usersettings_factory=>update_start_settings(
           iv_entity_id   = ms_query-query_name
-          iv_entity_type = zif_dbbr_c_entity_type=>query
+          iv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>query
         ).
       ENDIF.
 

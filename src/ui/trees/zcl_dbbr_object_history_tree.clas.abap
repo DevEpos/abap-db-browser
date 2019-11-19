@@ -27,9 +27,9 @@ CLASS zcl_dbbr_object_history_tree DEFINITION
 
     TYPES:
       BEGIN OF ty_fav_info,
-        type         TYPE zdbbr_favmenu_type,
+        type         TYPE ZSAT_FAVMENU_TYPE,
         favorite     TYPE tabname,
-        favorite_raw TYPE zdbbr_entity_id_raw,
+        favorite_raw TYPE ZSAT_ENTITY_ID_raw,
         description  TYPE ddtext,
       END OF ty_fav_info .
     TYPES:
@@ -37,8 +37,8 @@ CLASS zcl_dbbr_object_history_tree DEFINITION
     TYPES:
       BEGIN OF ty_node_map,
         node_key    TYPE tm_nodekey,
-        entity_id   TYPE zdbbr_entity_id,
-        entity_type TYPE zdbbr_entity_type,
+        entity_id   TYPE ZSAT_ENTITY_ID,
+        entity_type TYPE ZSAT_ENTITY_TYPE,
         is_variant  TYPE abap_bool,
       END OF ty_node_map .
     TYPES:
@@ -50,8 +50,8 @@ CLASS zcl_dbbr_object_history_tree DEFINITION
     TYPES:
       BEGIN OF ty_s_variant_data,
         variant_id  TYPE zdbbr_variant_id,
-        entity_id   TYPE zdbbr_entity_id,
-        entity_type TYPE zdbbr_entity_type,
+        entity_id   TYPE ZSAT_ENTITY_ID,
+        entity_type TYPE ZSAT_ENTITY_TYPE,
       END OF ty_s_variant_data.
 
     CONSTANTS:
@@ -233,7 +233,7 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
 
 
   METHOD delete_selected_nodes.
-    DATA: lt_mostused_to_delete TYPE zif_dbbr_global_types=>tt_mostused_k,
+    DATA: lt_mostused_to_delete TYPE zcl_dbbr_favmenu_factory=>tt_mostused_k,
           lt_nodes_to_delete    TYPE treemnotab.
 
     DATA(lt_selected_nodes) = mo_tree->get_selections( )->get_selected_nodes( ).
@@ -518,7 +518,7 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
     IF mo_parent_view IS BOUND.
       mo_parent_view->execute_command( NEW zcl_uitb_gui_simple_command(
         iv_function = zcl_dbbr_object_navigator=>c_command_id-show_object_list
-        ir_params   = NEW zdbbr_entity( entity_id     = <ls_node_map>-entity_id
+        ir_params   = NEW ZSAT_ENTITY( entity_id     = <ls_node_map>-entity_id
                                         entity_type   = <ls_node_map>-entity_type   ) )
       ).
     ENDIF.
@@ -527,9 +527,9 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
 
 
   METHOD start_with_default_variant.
-    DATA: lv_entity_id   TYPE zdbbr_entity_id,
+    DATA: lv_entity_id   TYPE ZSAT_ENTITY_ID,
           lv_variant     TYPE zdbbr_variant_id VALUE zif_dbbr_global_consts=>c_dummy_variant,
-          lv_entity_type TYPE zdbbr_entity_type.
+          lv_entity_type TYPE ZSAT_ENTITY_TYPE.
 
     DATA(lo_node) = mo_tree->get_nodes( )->get_node( iv_node_key ).
     IF lo_node IS INITIAL.

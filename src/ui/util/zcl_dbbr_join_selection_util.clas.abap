@@ -8,8 +8,7 @@ CLASS zcl_dbbr_join_selection_util DEFINITION
         REDEFINITION.
     METHODS get_entity_name
         REDEFINITION.
-    METHODS handle_alv_ctx_menu_request
-        REDEFINITION.
+
     METHODS init
         REDEFINITION.
     METHODS refresh_selection
@@ -38,9 +37,24 @@ CLASS zcl_dbbr_join_selection_util DEFINITION
     "!
     METHODS update_table_parameters
       IMPORTING
-        is_param TYPE zdbbr_table_parameter.
+        is_param TYPE zsat_table_parameter.
 
   PRIVATE SECTION.
+    "! <p class="shorttext synchronized" lang="en">Prefill cds view parameters</p>
+    "!
+    METHODS prefill_parameters
+      IMPORTING
+        io_tabfields TYPE REF TO zcl_dbbr_tabfield_list
+      CHANGING
+        cs_join      TYPE zif_sat_ty_global=>ty_s_join_def.
+    "! <p class="shorttext synchronized" lang="en">Fill parameters for a certain entity in the join</p>
+    "!
+    METHODS fill_entity_params
+      IMPORTING
+        iv_entity       TYPE zsat_entity_id
+        iv_entity_alias TYPE zsat_entity_alias
+      CHANGING
+        cs_join         TYPE zif_sat_ty_global=>ty_s_join_def.
 ENDCLASS.
 
 
@@ -75,6 +89,8 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
 
     mo_tabfields->update_text_field_status( ).
 
+    handle_reduced_memory( ).
+
     zcl_dbbr_addtext_helper=>prepare_text_fields(
       EXPORTING ir_fields    = mo_tabfields
       CHANGING  ct_add_texts = mt_add_texts
@@ -102,7 +118,7 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
               it_tab_components     = mt_dyntab_components
           ).
         CATCH zcx_dbbr_exception INTO DATA(lr_exception).
-          lr_exception->zif_dbbr_exception_message~print( ).
+          lr_exception->zif_sat_exception_message~print( ).
       ENDTRY.
     ENDIF.
 
@@ -178,42 +194,40 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
     result = |{ 'Join Selection' }|.
   ENDMETHOD.
 
-  METHOD handle_alv_ctx_menu_request.
-  ENDMETHOD.
-
   METHOD init.
     ms_control_info-primary_table = mv_entity_id.
 
     IF mt_param_values IS NOT INITIAL.
-      zcl_dbbr_join_helper=>prefill_parameters(
+      DATA(ls_join) = CORRESPONDING zif_sat_ty_global=>ty_s_join_def( DEEP ms_join_def ).
+      prefill_parameters(
         EXPORTING io_tabfields = mo_tabfields
-        CHANGING  cs_join      = ms_join_def
+        CHANGING  cs_join      = ls_join
       ).
+      ms_join_def = CORRESPONDING #( DEEP ls_join ).
     ENDIF.
   ENDMETHOD.
 
   METHOD create_from_clause.
     DATA: lv_handled_params TYPE i.
 
-    IF mt_param_values IS NOT INITIAL.
-      LOOP AT mt_param_values ASSIGNING FIELD-SYMBOL(<ls_param_value>).
-        update_table_parameters( is_param = CORRESPONDING #( <ls_param_value> MAPPING param_name = fieldname param_value = low ) ).
-      ENDLOOP.
-    ENDIF.
+    LOOP AT mt_param_values ASSIGNING FIELD-SYMBOL(<ls_param_value>).
+      update_table_parameters( is_param = CORRESPONDING #( <ls_param_value> MAPPING param_name = fieldname param_value = low ) ).
+    ENDLOOP.
 
     IF ms_join_def-tables IS INITIAL.
-      IF mv_entity_type = zif_dbbr_c_entity_type=>cds_view AND
+      IF mv_entity_type = zif_sat_c_entity_type=>cds_view AND
          ( sy-saprl < 750 OR ms_technical_info-use_ddl_view_for_select = abap_true ).
-        DATA(lv_ddl_view) = zcl_dbbr_cds_view_factory=>get_ddl_for_entity_name( mv_entity_id ).
-        DATA(lv_ddl_ddic_view) = zcl_dbbr_cds_view_factory=>read_ddl_ddic_view( lv_ddl_view ).
+
+        DATA(lv_ddl_ddic_view) = zcl_sat_cds_view_factory=>read_ddl_ddic_view_for_entity( mv_entity_id ).
+
         mt_from = VALUE #( ( |{ lv_ddl_ddic_view }| ) ).
       ELSE.
         mt_from = VALUE #( ( |{ ms_control_info-primary_table }| ) ).
       ENDIF.
     ELSE.
-      mt_from = zcl_dbbr_join_helper=>build_from_clause_for_join_def(
+      mt_from = zcl_sat_join_helper=>build_from_clause_for_join_def(
         if_use_ddl_for_select = ms_technical_info-use_ddl_view_for_select
-        is_join_def           = ms_join_def
+        is_join_def           = CORRESPONDING #( DEEP ms_join_def )
       ).
     ENDIF.
   ENDMETHOD.
@@ -233,7 +247,9 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
 
     set_miscinfo_for_selected_data( ).
 
-    RAISE EVENT selection_finished.
+    RAISE EVENT selection_finished
+      EXPORTING
+        ef_reset_alv_table = if_reset_table_in_alv.
   ENDMETHOD.
 
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
@@ -304,7 +320,7 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD update_table_parameters.
-    FIELD-SYMBOLS: <ls_param> TYPE zdbbr_table_parameter.
+    FIELD-SYMBOLS: <ls_param> TYPE zsat_table_parameter.
 
     LOOP AT ms_join_def-parameters ASSIGNING <ls_param> WHERE param_name = is_param-param_name.
       <ls_param>-param_value = is_param-param_value.
@@ -316,5 +332,53 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
       ENDLOOP.
     ENDLOOP.
   ENDMETHOD.
+
+  METHOD prefill_parameters.
+    DATA: lo_cds_view TYPE REF TO zcl_sat_cds_view.
+
+*.. Read parameters for primary and join entities
+    DATA(lt_tables) = io_tabfields->get_table_list( ).
+
+    LOOP AT lt_tables ASSIGNING FIELD-SYMBOL(<ls_table>).
+      CHECK <ls_table>-has_params = abap_true.
+
+      fill_entity_params(
+        EXPORTING iv_entity       = <ls_table>-tabname
+                  iv_entity_alias = <ls_table>-tabname_alias
+        CHANGING  cs_join         = cs_join
+      ).
+
+    ENDLOOP.
+  ENDMETHOD.
+
+
+  METHOD fill_entity_params.
+    DATA: lr_params TYPE REF TO zsat_table_parameter_t.
+*.. Get the correct entity in the join to fill the parameter names
+
+    TRY.
+        IF cs_join-primary_table_alias = iv_entity_alias.
+          lr_params = REF #( cs_join-parameters ).
+        ELSE.
+          lr_params = REF #( cs_join-tables[ add_table_alias = iv_entity_alias ]-parameters ).
+        ENDIF.
+      CATCH cx_sy_itab_line_not_found.
+    ENDTRY.
+
+    IF lr_params IS NOT BOUND.
+      RETURN.
+    ENDIF.
+
+    TRY.
+        DATA(lo_cds_view) = zcl_sat_cds_view_factory=>read_cds_view( iv_entity ).
+        lr_params->* = VALUE #(
+          FOR <cds_param> IN lo_cds_view->get_parameters( if_exclude_system_params = abap_true )
+          ( param_name = <cds_param>-parametername )
+        ).
+      CATCH zcx_sat_data_read_error.
+    ENDTRY.
+
+  ENDMETHOD.
+
 
 ENDCLASS.

@@ -478,7 +478,7 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
               iv_line_number = CONV #( lr_exception->invalid_row )
           ).
         ELSE.
-          lr_exception->zif_dbbr_exception_message~get_message( ).
+          lr_exception->ZIF_SAT_EXCEPTION_MESSAGE~get_message( ).
           lr_protocol->add_error_from_sy( ).
         ENDIF.
         lr_protocol->show_protocol( ).

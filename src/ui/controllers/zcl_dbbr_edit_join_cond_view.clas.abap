@@ -36,7 +36,7 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
         !if_allow_offset       TYPE abap_bool OPTIONAL
         !iv_source_table       TYPE tabname OPTIONAL
         is_source_entity       TYPE zdbbr_joint OPTIONAL
-        !it_target_entity_list TYPE zdbbr_entity_t OPTIONAL .
+        !it_target_entity_list TYPE zsat_entity_t OPTIONAL .
     METHODS get_updated_condition
       EXPORTING
         !es_field_condition  TYPE zdbbr_joinfld
@@ -55,7 +55,7 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
     CONSTANTS c_v_join_condition_title TYPE dynfnam VALUE 'JOINCOND' ##NO_TEXT.
     "! Type - fieldname
     CONSTANTS c_p_join_src_field TYPE dynfnam VALUE 'P_SRCFLD' ##NO_TEXT.
-    "! Type - zdbbr_entity_id
+    "! Type - ZSAT_ENTITY_ID
     CONSTANTS c_p_join_src_tab TYPE dynfnam VALUE 'P_SRCTAB' ##NO_TEXT.
     "! Type - voperator
     CONSTANTS c_p_join_cond_comparator1 TYPE dynfnam VALUE 'P_COMP1' ##NO_TEXT.
@@ -79,7 +79,7 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
     CONSTANTS c_p_join_trgt_fld_length TYPE dynfnam VALUE 'P_TRGLNG' ##NO_TEXT.
     "! Type ddleng
     CONSTANTS c_p_join_source_fld_length TYPE dynfnam VALUE 'P_SRCLNG' ##NO_TEXT.
-    "! Type - zdbbr_entity_id
+    "! Type - ZSAT_ENTITY_ID
     CONSTANTS c_p_join_trgt_tab TYPE dynfnam VALUE 'P_TRGTAB' ##NO_TEXT.
     CONSTANTS c_p_join_cond_value_type TYPE dynfnam VALUE 'P_VALTY' ##NO_TEXT.
     CONSTANTS c_r_edit_join_cond_view TYPE dynfnam VALUE 'GR_EDIT_JOIN_COND_VIEW' ##NO_TEXT.
@@ -95,23 +95,23 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
     DATA mf_saved TYPE abap_bool .
     DATA mf_is_new TYPE abap_bool .
     DATA mr_join_source_field TYPE REF TO fieldname .
-    DATA mr_join_source_tab TYPE REF TO zdbbr_entity_id .
+    DATA mr_join_source_tab TYPE REF TO zsat_entity_id .
     DATA mr_join_cond_comp1 TYPE REF TO voperator .
-    DATA mr_join_cond_val_type TYPE REF TO zdbbr_join_cond_value_type .
-    DATA mr_join_cond_value1 TYPE REF TO zdbbr_value .
-    DATA mr_join_cond_value2 TYPE REF TO zdbbr_value .
+    DATA mr_join_cond_val_type TYPE REF TO zsat_join_cond_value_type .
+    DATA mr_join_cond_value1 TYPE REF TO zsat_value .
+    DATA mr_join_cond_value2 TYPE REF TO zsat_value .
     DATA mr_join_target_field TYPE REF TO fieldname .
-    DATA mr_join_target_tab TYPE REF TO zdbbr_entity_id .
+    DATA mr_join_target_tab TYPE REF TO zsat_entity_id .
     DATA mr_join_target_offset TYPE REF TO doffset .
     DATA mr_join_target_offset_length TYPE REF TO ddleng .
-    DATA mv_source_entity TYPE zdbbr_entity_id.
+    DATA mv_source_entity TYPE zsat_entity_id.
     DATA mv_mode TYPE i .
     CLASS-DATA st_comparator_fix_vals TYPE vrm_values .
     DATA mf_value2_visible TYPE abap_bool .
     DATA mr_title TYPE REF TO syst_title .
     DATA mv_value_field_length TYPE i .
     DATA mv_value_field_rollname TYPE rollname .
-    DATA mt_target_entity_list TYPE zdbbr_entity_t .
+    DATA mt_target_entity_list TYPE zsat_entity_t .
     DATA mf_allow_offset TYPE abap_bool .
     DATA mr_join_trgt_field_datatype TYPE REF TO datatype_d .
     DATA mr_join_source_fld_datatype TYPE REF TO datatype_d .
@@ -129,7 +129,7 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
       IMPORTING
         !iv_dynp_fieldname TYPE dynfnam
       CHANGING
-        !cv_value          TYPE zdbbr_value .
+        !cv_value          TYPE zsat_value .
     METHODS clear_field_attributes .
     METHODS convert_values_to_internal .
     METHODS convert_values_to_display .
@@ -139,7 +139,7 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
         !if_source               TYPE abap_bool OPTIONAL
         !io_screen_field_manager TYPE REF TO zcl_uitb_screen_field_manager OPTIONAL
         !iv_fieldname            TYPE fieldname OPTIONAL
-        !iv_tabname              TYPE zdbbr_entity_id OPTIONAL .
+        !iv_tabname              TYPE zsat_entity_id OPTIONAL .
     METHODS send_new_condition_via_event .
     METHODS set_functions .
     METHODS transfer_values .
@@ -148,9 +148,9 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
     METHODS validate_system_field .
     METHODS get_entity_for_alias
       IMPORTING
-        iv_alias            TYPE zdbbr_entity_alias
+        iv_alias            TYPE zsat_entity_alias
       RETURNING
-        VALUE(rv_entity_id) TYPE zdbbr_entity_id
+        VALUE(rv_entity_id) TYPE zsat_entity_id
       RAISING
         cx_sy_itab_line_not_found.
 ENDCLASS.
@@ -226,7 +226,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 *... update current screen fields
     IF mf_is_new = abap_true.
       IF mv_mode = c_value_mode.
-        mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
+        mr_join_cond_val_type->* = zif_sat_c_join_cond_val_type=>typed_input.
       ELSE.
         mr_join_source_tab->* = is_source_entity-add_table_alias.
         mv_source_entity = is_source_entity-add_table.
@@ -247,7 +247,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
   METHOD call_built_in_f4_for_value.
     DATA: lv_tabname   TYPE tabname,
-          lv_value     TYPE zdbbr_value,
+          lv_value     TYPE zsat_value,
           lv_fieldname TYPE fieldname.
 
     DATA(lo_screen_field_manager) = NEW zcl_uitb_screen_field_manager(
@@ -279,7 +279,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
   METHOD call_source_field_f4.
     DATA: lv_fieldname TYPE fieldname,
-          lv_value     TYPE zdbbr_value.
+          lv_value     TYPE zsat_value.
 
 *... Table is always filled during field mode as the source field always
 *... comes from the join table
@@ -359,7 +359,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
         lv_source_tab = get_entity_for_alias( lv_source_tab ).
       ENDIF.
 
-      DATA(ls_source_field_dfies) = zcl_dbbr_dictionary_helper=>get_table_field_info(
+      DATA(ls_source_field_dfies) = zcl_sat_ddic_repo_access=>get_table_field_info(
           iv_tablename = lv_source_tab
           iv_fieldname = to_upper( lv_source_field )
       ).
@@ -403,7 +403,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
 
   METHOD call_value1_f4.
-    IF mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
+    IF mr_join_cond_val_type->* = zif_sat_c_join_cond_val_type=>typed_input.
       call_built_in_f4_for_value(
         EXPORTING iv_dynp_fieldname = |{ c_p_join_cond_value1 }|
         CHANGING  cv_value          = mr_join_cond_value1->*
@@ -413,7 +413,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
 
   METHOD call_value2_f4.
-    IF mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
+    IF mr_join_cond_val_type->* = zif_sat_c_join_cond_val_type=>typed_input.
       call_built_in_f4_for_value(
         EXPORTING iv_dynp_fieldname = |{ c_p_join_cond_value2 }|
         CHANGING  cv_value          = mr_join_cond_value2->*
@@ -425,15 +425,15 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
   METHOD class_constructor.
 
     st_comparator_fix_vals = VALUE #(
-      ( key = zif_dbbr_c_operator=>equals              text = 'Equals'(005) )
-      ( key = zif_dbbr_c_operator=>greater_than        text = 'Greater than'(006) )
-      ( key = zif_dbbr_c_operator=>greater_or_equal_to text = 'Greater or equal to'(007) )
-      ( key = zif_dbbr_c_operator=>lesser_than         text = 'Lesser than'(008) )
-      ( key = zif_dbbr_c_operator=>lesser_or_equal_to  text = 'Lesser or equal to'(009) )
-      ( key = zif_dbbr_c_operator=>not_equals          text = 'Not equal to'(010) )
-      ( key = zif_dbbr_c_operator=>like                text = 'Like'(011) )
-      ( key = zif_dbbr_c_operator=>not_like            text = 'Not Like'(012) )
-      ( key = zif_dbbr_c_operator=>between             text = 'Between'(013) )
+      ( key = zif_sat_c_operator=>equals              text = 'Equals'(005) )
+      ( key = zif_sat_c_operator=>greater_than        text = 'Greater than'(006) )
+      ( key = zif_sat_c_operator=>greater_or_equal_to text = 'Greater or equal to'(007) )
+      ( key = zif_sat_c_operator=>lesser_than         text = 'Lesser than'(008) )
+      ( key = zif_sat_c_operator=>lesser_or_equal_to  text = 'Lesser or equal to'(009) )
+      ( key = zif_sat_c_operator=>not_equals          text = 'Not equal to'(010) )
+      ( key = zif_sat_c_operator=>like                text = 'Like'(011) )
+      ( key = zif_sat_c_operator=>not_like            text = 'Not Like'(012) )
+      ( key = zif_sat_c_operator=>between             text = 'Between'(013) )
     ).
   ENDMETHOD.
 
@@ -445,7 +445,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
   METHOD convert_values_to_display.
     CHECK: mv_mode = c_value_mode,
            mf_error = abap_false,
-           mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input,
+           mr_join_cond_val_type->* = zif_sat_c_join_cond_val_type=>typed_input,
            mr_join_source_tab->* IS NOT INITIAL,
            mr_join_source_field->* IS NOT INITIAL.
 
@@ -454,7 +454,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
         IF mr_join_cond_value1->* IS NOT INITIAL OR
            mr_join_cond_value2->* IS NOT INITIAL.
 
-          zcl_dbbr_data_converter=>convert_selopt_to_disp_format(
+          zcl_sat_data_converter=>convert_selopt_to_disp_format(
             EXPORTING
               iv_tabname             = get_entity_for_alias( mr_join_source_tab->* )
               iv_fieldname           = mr_join_source_field->*
@@ -463,12 +463,12 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
               cv_value2              = mr_join_cond_value2->*
           ).
         ENDIF.
-      CATCH zcx_dbbr_conversion_exc INTO DATA(lx_conv_error).
+      CATCH zcx_sat_conversion_exc INTO DATA(lx_conv_error).
         lx_conv_error->print_message(
             iv_msg_type  = 'E'
             if_to_screen = abap_false
         ).
-        zcx_dbbr_validation_exception=>raise_from_sy(
+        zcx_sat_validation_exception=>raise_from_sy(
             iv_parameter = c_p_join_cond_value1
         ).
     ENDTRY.
@@ -477,18 +477,18 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
   METHOD convert_values_to_internal.
     CHECK mv_mode = c_value_mode.
-    CHECK mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input OR
-          mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>system_value_input.
+    CHECK mr_join_cond_val_type->* = zif_sat_c_join_cond_val_type=>typed_input OR
+          mr_join_cond_val_type->* = zif_sat_c_join_cond_val_type=>system_value_input.
 
 
-    IF mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
+    IF mr_join_cond_val_type->* = zif_sat_c_join_cond_val_type=>typed_input.
 
 *.... Try to convert entered value to internal format
       TRY.
           IF mr_join_cond_value1->* IS NOT INITIAL OR
              mr_join_cond_value2->* IS NOT INITIAL.
 
-            zcl_dbbr_data_converter=>convert_selopt_to_int_format(
+            zcl_sat_data_converter=>convert_selopt_to_int_format(
               EXPORTING
                 iv_tabname             = get_entity_for_alias( mr_join_source_tab->* )
                 iv_fieldname           = mr_join_source_field->*
@@ -498,12 +498,12 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
                 cv_value2              = mr_join_cond_value2->*
             ).
           ENDIF.
-        CATCH zcx_dbbr_conversion_exc INTO DATA(lx_conv_error).
+        CATCH zcx_sat_conversion_exc INTO DATA(lx_conv_error).
           lx_conv_error->print_message(
               iv_msg_type  = 'S'
               if_to_screen = abap_false
           ).
-          zcx_dbbr_validation_exception=>raise_from_sy(
+          zcx_sat_validation_exception=>raise_from_sy(
               iv_parameter = c_p_join_cond_value1
           ).
       ENDTRY.
@@ -521,33 +521,33 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 *.... For simplfication reasons only equals will be allowed in the first step
       lt_list = VALUE #( ( key = '=' text = 'Equals' ) ).
 *.... For experienced users other options could be possible as well
-*      DELETE lt_list WHERE key = zif_dbbr_c_operator=>like
-*                        OR key = zif_dbbr_c_operator=>not_like
-*                        OR key = zif_dbbr_c_operator=>between.
+*      DELETE lt_list WHERE key = ZIF_SAT_C_OPERATOR=>like
+*                        OR key = ZIF_SAT_C_OPERATOR=>not_like
+*                        OR key = ZIF_SAT_C_OPERATOR=>between.
     ELSE.
       CASE mr_join_cond_val_type->*.
 
-        WHEN zif_dbbr_c_join_cond_val_type=>typed_input.
+        WHEN zif_sat_c_join_cond_val_type=>typed_input.
 
-*          DELETE lt_list WHERE key <> zif_dbbr_c_operator=>between
-*                           AND key <> zif_dbbr_c_operator=>equals
-*                           AND key <> zif_dbbr_c_operator=>not_equals.
+*          DELETE lt_list WHERE key <> ZIF_SAT_C_OPERATOR=>between
+*                           AND key <> ZIF_SAT_C_OPERATOR=>equals
+*                           AND key <> ZIF_SAT_C_OPERATOR=>not_equals.
 *
 **........ current operator value has to be updated as well
-*          IF mr_v_join_cond_comp1->* <> zif_dbbr_c_operator=>between AND
-*             mr_v_join_cond_comp1->* <> zif_dbbr_c_operator=>equals AND
-*             mr_v_join_cond_comp1->* <> zif_dbbr_c_operator=>not_equals.
-*            mr_v_join_cond_comp1->* = zif_dbbr_c_operator=>equals.
+*          IF mr_v_join_cond_comp1->* <> ZIF_SAT_C_OPERATOR=>between AND
+*             mr_v_join_cond_comp1->* <> ZIF_SAT_C_OPERATOR=>equals AND
+*             mr_v_join_cond_comp1->* <> ZIF_SAT_C_OPERATOR=>not_equals.
+*            mr_v_join_cond_comp1->* = ZIF_SAT_C_OPERATOR=>equals.
 *          ENDIF.
 
-        WHEN zif_dbbr_c_join_cond_val_type=>system_value_input.
-          DELETE lt_list WHERE key <> zif_dbbr_c_operator=>not_equals
-                           AND key <> zif_dbbr_c_operator=>equals.
+        WHEN zif_sat_c_join_cond_val_type=>system_value_input.
+          DELETE lt_list WHERE key <> zif_sat_c_operator=>not_equals
+                           AND key <> zif_sat_c_operator=>equals.
 
 *........ current operator value has to be updated as well
-          IF mr_join_cond_comp1->* <> zif_dbbr_c_operator=>equals AND
-             mr_join_cond_comp1->* <> zif_dbbr_c_operator=>not_equals.
-            mr_join_cond_comp1->* = zif_dbbr_c_operator=>equals.
+          IF mr_join_cond_comp1->* <> zif_sat_c_operator=>equals AND
+             mr_join_cond_comp1->* <> zif_sat_c_operator=>not_equals.
+            mr_join_cond_comp1->* = zif_sat_c_operator=>equals.
           ENDIF.
 
       ENDCASE.
@@ -621,7 +621,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
         lv_tabname = get_entity_for_alias( lv_tabname ).
       ENDIF.
 *.... Read field information
-      DATA(ls_field_info) = zcl_dbbr_dictionary_helper=>get_table_field_info(
+      DATA(ls_field_info) = zcl_sat_ddic_repo_access=>get_table_field_info(
         iv_tablename = lv_tabname
         iv_fieldname = lv_fieldname
       ).
@@ -679,7 +679,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
              mr_join_cond_value2->*.
 
       mr_join_cond_comp1->* = '='.
-      mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>typed_input.
+      mr_join_cond_val_type->* = zif_sat_c_join_cond_val_type=>typed_input.
     ENDIF.
 
     CLEAR: mf_saved,
@@ -753,11 +753,11 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
 
   METHOD validate.
-    DATA: lv_value1 TYPE zdbbr_value,
-          lv_value2 TYPE zdbbr_value.
+    DATA: lv_value1 TYPE zsat_value,
+          lv_value2 TYPE zsat_value.
 
     IF mr_join_source_field->* IS INITIAL.
-      zcx_dbbr_validation_exception=>raise_with_text(
+      zcx_sat_validation_exception=>raise_with_text(
         iv_text      = |{ 'Source Field must have a value'(019) }|
         iv_parameter = c_p_join_src_field
       ).
@@ -773,7 +773,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
         TRANSLATE mr_join_target_field->* TO UPPER CASE.
 
 *...... Validate that the source field exists in the current join table
-        DATA(ls_source) = zcl_dbbr_dictionary_helper=>validate_table_field(
+        DATA(ls_source) = zcl_dbbr_ddic_util=>validate_table_field(
             iv_table_field = mr_join_source_field->*
             iv_table_name  = |{ mv_source_entity }|
             iv_dynfname    = c_p_join_src_field
@@ -785,14 +785,14 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
 *...... Target field and table have to be filled as well
         IF mr_join_target_tab->* IS INITIAL.
-          zcx_dbbr_validation_exception=>raise_with_text(
+          zcx_sat_validation_exception=>raise_with_text(
             iv_text      = |{ 'Target Table/Field must be filled (Use F4 for Target Field'(020) }|
             iv_parameter = c_p_join_trgt_field
           ).
         ENDIF.
 
         IF mr_join_target_field->* IS INITIAL.
-          zcx_dbbr_validation_exception=>raise_with_text(
+          zcx_sat_validation_exception=>raise_with_text(
             iv_text      = |Target Field must be filled|
             iv_parameter = c_p_join_trgt_field
           ).
@@ -802,14 +802,14 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
         TRY.
             DATA(lv_target_entity) = get_entity_for_alias( mr_join_target_tab->* ).
           CATCH cx_sy_itab_line_not_found.
-            zcx_dbbr_validation_exception=>raise_with_text(
+            zcx_sat_validation_exception=>raise_with_text(
                 iv_text      = |There is no entity with the alias { mr_join_target_tab->* }|
                 iv_parameter = c_p_join_trgt_tab
             ).
         ENDTRY.
 
 *...... Both fields are filled, now check if the field and tables match
-        DATA(ls_target) = zcl_dbbr_dictionary_helper=>validate_table_field(
+        DATA(ls_target) = zcl_dbbr_ddic_util=>validate_table_field(
             iv_table_field = mr_join_target_field->*
             iv_table_name  = lv_target_entity
             iv_dynfname    = c_p_join_trgt_field
@@ -823,7 +823,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
 *...... Source Table has to be filled as well
         IF mr_join_source_tab->* IS INITIAL.
-          zcx_dbbr_validation_exception=>raise_with_text(
+          zcx_sat_validation_exception=>raise_with_text(
             iv_text      = |Source Table/Field must be filled (Use F4 for Source Field)|
             iv_parameter = c_p_join_src_field
           ).
@@ -833,14 +833,14 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
         TRY.
             DATA(lv_source_entity) = get_entity_for_alias( mr_join_source_tab->* ).
           CATCH cx_sy_itab_line_not_found.
-            zcx_dbbr_validation_exception=>raise_with_text(
+            zcx_sat_validation_exception=>raise_with_text(
                 iv_text      = |There is no entity with the alias { mr_join_source_tab->* }|
                 iv_parameter = c_p_join_src_tab
             ).
         ENDTRY.
 
 *...... Validate that the source field exists in the current join table
-        zcl_dbbr_dictionary_helper=>validate_table_field(
+        zcl_dbbr_ddic_util=>validate_table_field(
             iv_table_field = mr_join_source_field->*
             iv_table_name  = lv_source_entity
             iv_dynfname    = c_p_join_src_field
@@ -848,13 +848,13 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
         CASE mr_join_cond_val_type->*..
 
-          WHEN zif_dbbr_c_join_cond_val_type=>system_value_input.
+          WHEN zif_sat_c_join_cond_val_type=>system_value_input.
             validate_system_field( ).
 
-          WHEN zif_dbbr_c_join_cond_val_type=>typed_input.
+          WHEN zif_sat_c_join_cond_val_type=>typed_input.
             convert_values_to_internal( ).
 
-          WHEN zif_dbbr_c_join_cond_val_type=>parameter_input.
+          WHEN zif_sat_c_join_cond_val_type=>parameter_input.
             validate_parameter( ).
         ENDCASE.
 
@@ -870,16 +870,16 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
   METHOD validate_system_field.
     TYPES: BEGIN OF lty_values,
-             value     TYPE zdbbr_value,
+             value     TYPE zsat_value,
              fieldname TYPE dynfnam,
            END OF lty_values.
 
-    DATA: lv_value  TYPE zdbbr_value,
+    DATA: lv_value  TYPE zsat_value,
           lt_values TYPE STANDARD TABLE OF lty_values.
 
     FIELD-SYMBOLS: <lv_system_value> TYPE any.
 
-    CHECK mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>system_value_input.
+    CHECK mr_join_cond_val_type->* = zif_sat_c_join_cond_val_type=>system_value_input.
 
     CLEAR mr_join_cond_value2->*.
     TRANSLATE mr_join_cond_value1->* TO UPPER CASE.
@@ -888,7 +888,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
       ( value     = mr_join_cond_value1->*
         fieldname = c_p_join_cond_value1 )
     ).
-    IF mr_join_cond_comp1->* = zif_dbbr_c_operator=>between.
+    IF mr_join_cond_comp1->* = zif_sat_c_operator=>between.
       lt_values = VALUE #( BASE lt_values
        ( value     = mr_join_cond_value2->*
          fieldname = c_p_join_cond_value2 )
@@ -898,13 +898,13 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
     LOOP AT lt_values ASSIGNING FIELD-SYMBOL(<ls_value>).
 *.... check if field is filled
       IF <ls_value>-value IS INITIAL.
-        zcx_dbbr_validation_exception=>raise_with_text(
+        zcx_sat_validation_exception=>raise_with_text(
             iv_text      = |No valid system field was supplied|
             iv_parameter = <ls_value>-fieldname
         ).
       ELSEIF <ls_value>-value NP 'SY-*'.
 *...... Only allow fields from SY-structure
-        zcx_dbbr_validation_exception=>raise_with_text(
+        zcx_sat_validation_exception=>raise_with_text(
             iv_text      = |Only Fields from SY - structure are allowed here|
             iv_parameter = <ls_value>-fieldname
         ).
@@ -912,7 +912,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 *...... check if system field exists at all
         ASSIGN (<ls_value>-value) TO <lv_system_value>.
         IF sy-subrc <> 0.
-          zcx_dbbr_validation_exception=>raise_with_text(
+          zcx_sat_validation_exception=>raise_with_text(
               iv_text      = |System Field { <ls_value>-value } does not exist|
               iv_parameter = <ls_value>-fieldname
           ).
@@ -981,7 +981,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
         CASE lv_function.
 
           WHEN c_functions-value_type_changed.
-            IF mr_join_cond_val_type->* = zif_dbbr_c_join_cond_val_type=>system_value_input.
+            IF mr_join_cond_val_type->* = zif_sat_c_join_cond_val_type=>system_value_input.
               CLEAR mf_value2_visible.
             ENDIF.
             fill_comparator_list( ).
@@ -998,7 +998,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
 
           WHEN c_functions-comparator1_changed.
 *.......... The comparison operator changed
-            mf_value2_visible = xsdbool( mr_join_cond_comp1->* = zif_dbbr_c_operator=>between ).
+            mf_value2_visible = xsdbool( mr_join_cond_comp1->* = zif_sat_c_operator=>between ).
             IF mf_value2_visible = abap_false.
 *............ clear value2 if between is no longer chosen
               CLEAR: mr_join_cond_value2->*.
@@ -1007,7 +1007,7 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
         ENDCASE.
 
         mf_error = abap_false.
-      CATCH zcx_dbbr_validation_exception INTO DATA(lx_valid).
+      CATCH zcx_sat_validation_exception INTO DATA(lx_valid).
         mf_error = abap_true.
         IF lx_valid->parameter_name IS NOT INITIAL.
           mo_cursor->set_field( lx_valid->parameter_name ).

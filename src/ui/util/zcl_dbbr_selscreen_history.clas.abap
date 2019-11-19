@@ -19,14 +19,14 @@ CLASS zcl_dbbr_selscreen_history DEFINITION
     "! <p class="shorttext synchronized" lang="en">Adds new history entry</p>
     CLASS-METHODS add_new_entry
       IMPORTING
-        !iv_entity      TYPE zdbbr_entity_id
-        !iv_type        TYPE zdbbr_entity_type
+        !iv_entity      TYPE ZSAT_ENTITY_ID
+        !iv_type        TYPE ZSAT_ENTITY_TYPE
         !iv_description TYPE ddtext .
     "! <p class="shorttext synchronized" lang="en">Deletes the given entity from the history</p>
     CLASS-METHODS delete_entity_from_history
       IMPORTING
-        !iv_entity_id   TYPE zdbbr_entity_id
-        !iv_entity_type TYPE zdbbr_entity_type .
+        !iv_entity_id   TYPE ZSAT_ENTITY_ID
+        !iv_entity_type TYPE ZSAT_ENTITY_TYPE .
     "! <p class="shorttext synchronized" lang="en">Gets the current history index</p>
     CLASS-METHODS get_current_index
       RETURNING

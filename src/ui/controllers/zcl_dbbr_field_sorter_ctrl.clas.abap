@@ -44,7 +44,7 @@ CLASS zcl_dbbr_field_sorter_ctrl DEFINITION
         fullfieldname TYPE fieldname,
         fieldname     TYPE fieldname,
         tabname_alias TYPE tabname,
-        alias         TYPE zdbbr_table_alias,
+        alias         TYPE ZSAT_TABLE_ALIAS,
         ddic_order    TYPE tabfdpos,
         scrtext_l     TYPE scrtext_l,
       END OF mty_available .

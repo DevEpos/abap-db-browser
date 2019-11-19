@@ -11,14 +11,14 @@ CLASS zcl_dbbr_exec_load_entity_cmd DEFINITION
     "!
     METHODS constructor
       IMPORTING
-        iv_entity_id    TYPE zdbbr_entity_id
-        iv_entity_type  TYPE zdbbr_entity_type
+        iv_entity_id    TYPE ZSAT_ENTITY_ID
+        iv_entity_type  TYPE ZSAT_ENTITY_TYPE
         if_force_reload TYPE abap_bool OPTIONAL.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    DATA mv_entity_id TYPE zdbbr_entity_id.
+    DATA mv_entity_id TYPE ZSAT_ENTITY_ID.
     DATA mf_force_reload TYPE abap_bool.
-    DATA mv_entity_type TYPE zdbbr_entity_type.
+    DATA mv_entity_type TYPE ZSAT_ENTITY_TYPE.
 ENDCLASS.
 
 

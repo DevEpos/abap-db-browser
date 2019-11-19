@@ -312,6 +312,12 @@
      <ENTRY>Set Focus to Associations</ENTRY>
      <LENGTH>50</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>052</KEY>
+     <ENTRY>Show CDS Source Code</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>

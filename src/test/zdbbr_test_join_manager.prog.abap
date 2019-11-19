@@ -16,7 +16,7 @@ DATA(lr_join) = NEW zdbbr_join_def(
         add_table_alias   = 'REPO'
         add_table_alias_alv = 'B'
         entity_type        = 'T'
-        join_type         = zif_dbbr_c_join_types=>inner_join
+        join_type         = ZIF_SAT_C_JOIN_TYPES=>inner_join
         field_conditions  = VALUE #(
           ( field      = 'OBJ_NAME'
             ref_field  = 'TABNAME'
@@ -30,49 +30,49 @@ DATA(lr_join) = NEW zdbbr_join_def(
            fieldname = 'AS4LOCAL'
            operator  = '='
            value     = 'A'
-           value_type = zif_dbbr_c_join_cond_val_type=>typed_input
+           value_type = ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input
            and_or    = 'AND' )
          ( tabname   = 'TADIR'
            tabname_alias = 'REPO'
            fieldname = 'OBJECT'
            operator  = '='
            value     = 'TABL'
-           value_type = zif_dbbr_c_join_cond_val_type=>typed_input
+           value_type = ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input
            and_or    = 'AND' )
          ( tabname   = 'DD02L'
            tabname_alias = 'TABLES'
            fieldname = 'VIEWCLASS'
            operator  = '='
            value     = ''
-           value_type = zif_dbbr_c_join_cond_val_type=>typed_input
+           value_type = ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input
            and_or    = 'OR' )
          ( tabname   = 'DD02L'
            tabname_alias = 'TABLES'
            fieldname = 'VIEWCLASS'
            operator  = '='
            value     = 'D'
-           value_type = zif_dbbr_c_join_cond_val_type=>typed_input
+           value_type = ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input
            and_or    = 'AND' )
          ( tabname   = 'DD02L'
            tabname_alias = 'TABLES'
            fieldname = 'TABCLASS'
            operator  = '='
            value     = 'TRANSP'
-           value_type = zif_dbbr_c_join_cond_val_type=>typed_input
+           value_type = ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input
            and_or    = 'OR' )
          ( tabname   = 'DD02L'
            tabname_alias = 'TABLES'
            fieldname = 'TABCLASS'
            operator  = '='
            value     = 'POOL'
-           value_type = zif_dbbr_c_join_cond_val_type=>typed_input
+           value_type = ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input
            and_or    = 'OR' )
          ( tabname   = 'DD02L'
            tabname_alias = 'TABLES'
            fieldname = 'TABCLASS'
            operator  = '='
            value     = 'VIEW'
-           value_type = zif_dbbr_c_join_cond_val_type=>typed_input
+           value_type = ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input
            and_or    = 'OR' )
         )
        )

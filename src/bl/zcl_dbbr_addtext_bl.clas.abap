@@ -35,7 +35,7 @@ CLASS zcl_dbbr_addtext_bl DEFINITION
     "!
     METHODS determine_t_flds_for_cds_field
       IMPORTING
-        iv_cds_view      TYPE zdbbr_cds_view_name
+        iv_cds_view      TYPE ZSAT_CDS_VIEW_NAME
         iv_cds_field     TYPE fieldname
         is_tabfield_info TYPE dfies .
     "! <p class="shorttext synchronized" lang="en">Determine text fields for table</p>
@@ -226,7 +226,7 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
       lv_checktable = ms_dtel_info-checktable.
     ELSE.
       " retrieve possible checktable from data element
-      DATA(ls_dtel_info) = zcl_dbbr_dictionary_helper=>get_data_element( ms_dtel_info-rollname ).
+      DATA(ls_dtel_info) = zcl_sat_ddic_repo_access=>get_data_element( ms_dtel_info-rollname ).
       lv_checktable = ls_dtel_info-entitytab.
     ENDIF.
 
@@ -238,7 +238,7 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
     IF ls_text_table IS INITIAL.
 
       " check if there is a defined text table
-      zcl_dbbr_dictionary_helper=>get_text_table(
+      zcl_sat_ddic_repo_access=>get_text_table(
         EXPORTING
           iv_tabname        = lv_checktable
         IMPORTING
@@ -250,7 +250,7 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
          lv_text_key_field IS NOT INITIAL.
 
         " retrieve the first non-key field from the text table
-        zcl_dbbr_dictionary_helper=>get_table_field_infos(
+        zcl_sat_ddic_repo_access=>get_table_field_infos(
           EXPORTING iv_tablename    = lv_text_tab
           IMPORTING et_table_fields = DATA(lt_text_table_fields)
         ).

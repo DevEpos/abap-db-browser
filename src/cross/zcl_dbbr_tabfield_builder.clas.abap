@@ -28,10 +28,10 @@ CLASS ZCL_DBBR_TABFIELD_BUILDER IMPLEMENTATION.
 
   METHOD create_tabfields.
 
-    DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( iv_tablename ).
+    DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( iv_tablename ).
     CHECK ls_table_info IS NOT INITIAL.
 
-    zcl_dbbr_dictionary_helper=>get_table_field_infos( EXPORTING iv_tablename    = iv_tablename
+    zcl_sat_ddic_repo_access=>get_table_field_infos( EXPORTING iv_tablename    = iv_tablename
                                                        IMPORTING et_table_fields = DATA(lt_dfies) ).
 
     LOOP AT lt_dfies ASSIGNING FIELD-SYMBOL(<ls_dfies>) WHERE datatype <> 'CLNT'.
@@ -49,7 +49,7 @@ CLASS ZCL_DBBR_TABFIELD_BUILDER IMPLEMENTATION.
                 length          = leng
       ).
 
-      ls_tabfield-is_numeric = zcl_dbbr_dictionary_helper=>is_type_numeric( <ls_dfies>-inttype ).
+      ls_tabfield-is_numeric = zcl_dbbr_ddic_util=>is_type_numeric( <ls_dfies>-inttype ).
       ls_tabfield-is_foreign_key = xsdbool( <ls_dfies>-checktable IS NOT INITIAL ).
       ls_tabfield-selection_active = if_selection_active.
       ls_tabfield-output_active = if_output_active.
@@ -62,7 +62,7 @@ CLASS ZCL_DBBR_TABFIELD_BUILDER IMPLEMENTATION.
         active_selection     = abap_true
         tabname              = iv_tablename
         tabname_alias        = iv_tablename
-        type                 = zif_dbbr_c_entity_type=>table
+        type                 = ZIF_SAT_C_ENTITY_TYPE=>table
         selection_order      = 1
         description          = ls_table_info-ddtext
         fields_are_loaded    = abap_true

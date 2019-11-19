@@ -69,7 +69,7 @@ CLASS zcl_dbbr_built_in_f4_sc IMPLEMENTATION.
     DATA: lv_built_in_f4_id TYPE zdbbr_f4_id.
 
     IF NOT built_in_search_help_exists( ).
-      zcx_dbbr_validation_exception=>raise_with_text( |Theres is no Value Help for the Field { mr_ui_built_in_f4->search_field }| &&
+      ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text( |Theres is no Value Help for the Field { mr_ui_built_in_f4->search_field }| &&
                                                       | in Table { mr_ui_built_in_f4->search_table }| ).
     ENDIF.
 
@@ -100,7 +100,7 @@ CLASS zcl_dbbr_built_in_f4_sc IMPLEMENTATION.
       ENDIF.
     ELSE.
 *.... Determine data type of field
-      DATA(ls_search_table_field) = zcl_dbbr_dictionary_helper=>get_table_field_info(
+      DATA(ls_search_table_field) = zcl_sat_ddic_repo_access=>get_table_field_info(
         iv_tablename = mr_ui_built_in_f4->search_table
         iv_fieldname = mr_ui_built_in_f4->search_field
       ).

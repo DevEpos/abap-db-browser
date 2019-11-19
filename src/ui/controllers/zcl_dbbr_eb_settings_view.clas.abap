@@ -40,7 +40,7 @@ CLASS zcl_dbbr_eb_settings_view DEFINITION
       BEGIN OF ms_settings_ref,
         max_hits        TYPE REF TO int2,
         link_mode       TYPE REF TO zdbbr_entity_browser_link_mode,
-        search_function TYPE REF TO zdbbr_obj_browser_mode,
+        search_function TYPE REF TO zsat_obj_browser_mode,
       END OF ms_settings_ref .
     DATA mf_saved TYPE abap_bool .
 
@@ -65,7 +65,7 @@ CLASS zcl_dbbr_eb_settings_view IMPLEMENTATION.
   METHOD initialize_settings.
     DATA(ls_settings) = zcl_dbbr_usersettings_factory=>get_entity_browser_settings( ).
 
-    ms_settings_ref-search_function->* = ls_settings-entry_search_function.
+    ms_settings_ref-search_function->* = ls_settings-search_function.
     ms_settings_ref-link_mode->* = ls_settings-link_mode.
     ms_settings_ref-max_hits->* = ls_settings-max_hits.
   ENDMETHOD.
@@ -139,9 +139,9 @@ CLASS zcl_dbbr_eb_settings_view IMPLEMENTATION.
 
     IF mf_first_call = abap_true.
       lt_list = VALUE #(
-        ( key = zif_dbbr_c_object_browser_mode=>cds_view            text = 'Find CDS Views'(001) )
-        ( key = zif_dbbr_c_object_browser_mode=>database_table_view text = 'Find Database Tables/Views'(002) )
-        ( key = zif_dbbr_c_object_browser_mode=>query               text = 'Find Queries'(003) )
+        ( key = zif_sat_c_object_browser_mode=>cds_view            text = 'Find CDS Views'(001) )
+        ( key = zif_sat_c_object_browser_mode=>database_table_view text = 'Find Database Tables/Views'(002) )
+        ( key = zif_sat_c_object_browser_mode=>query               text = 'Find Queries'(003) )
       ).
       CALL FUNCTION 'VRM_SET_VALUES'
         EXPORTING

@@ -144,6 +144,12 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Update the filters from ALV Grid</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OUTPUT_ALV_UTIL</CLSNAME>
+     <CMPNAME>UPDATE_RESULT_TABLE_REF</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Updates the table reference</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

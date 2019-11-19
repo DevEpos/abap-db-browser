@@ -21,7 +21,7 @@ CLASS zcl_dbbr_sql_query DEFINITION
     METHODS set_parameter_value
       IMPORTING
         iv_name        TYPE fieldname
-        iv_value       TYPE zdbbr_value OPTIONAL
+        iv_value       TYPE ZSAT_VALUE OPTIONAL
         it_value_range TYPE zuitb_generic_range_itab OPTIONAL.
 
   PROTECTED SECTION.

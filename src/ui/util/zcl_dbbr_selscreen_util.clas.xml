@@ -27,7 +27,7 @@
     <item>
      <ID>I</ID>
      <KEY>003</KEY>
-     <ENTRY>Delete all aggregations</ENTRY>
+     <ENTRY>Delete all Aggregations</ENTRY>
      <LENGTH>46</LENGTH>
     </item>
     <item>
@@ -81,7 +81,7 @@
     <item>
      <ID>I</ID>
      <KEY>012</KEY>
-     <ENTRY>All Entries</ENTRY>
+     <ENTRY>All Criteria</ENTRY>
      <LENGTH>21</LENGTH>
     </item>
     <item>
@@ -108,8 +108,26 @@
      <ENTRY>Technical View On/Off</ENTRY>
      <LENGTH>42</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>017</KEY>
+     <ENTRY>Delete all Input</ENTRY>
+     <LENGTH>29</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>018</KEY>
+     <ENTRY>Delete all Criteria</ENTRY>
+     <LENGTH>29</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELSCREEN_UTIL</CLSNAME>
+     <CMPNAME>CAN_EXECUTE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Checks if the entity can be executed</DESCRIPT>
+    </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_SELSCREEN_UTIL</CLSNAME>
      <CMPNAME>CHECK_EDIT_MODE</CMPNAME>

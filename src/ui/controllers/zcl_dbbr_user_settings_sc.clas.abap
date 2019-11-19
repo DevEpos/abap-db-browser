@@ -259,6 +259,16 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
         screen-input = 0.
         MODIFY SCREEN.
       ENDIF.
+      IF mv_start_tab = c_tab_ids-output_tab AND
+         mf_disable_save = abap_true AND
+         (
+*           screen-name = 'BTN_INTR' OR
+           screen-name = 'BTN_DSEL' OR
+           screen-name = 'BTN_FAV' OR
+           screen-name = 'BTN_SEL' ).
+        screen-active = 0.
+        MODIFY SCREEN.
+      ENDIF.
     ENDLOOP.
   ENDMETHOD.
 

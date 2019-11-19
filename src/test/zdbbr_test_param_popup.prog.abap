@@ -7,10 +7,10 @@
 *&---------------------------------------------------------------------*
 REPORT zdbbr_test_param_popup.
 
-PARAMETERS: p_cds TYPE zdbbr_cds_view_name MATCHCODE OBJECT zdbbr_cds_view_sh OBLIGATORY.
+PARAMETERS: p_cds TYPE ZSAT_CDS_VIEW_NAME MATCHCODE OBJECT zdbbr_cds_view_sh OBLIGATORY.
 
 START-OF-SELECTION.
-  DATA(lr_cds_view) = zcl_dbbr_cds_view_factory=>read_cds_view( p_cds ).
+  DATA(lr_cds_view) = ZCL_SAT_CDS_VIEW_FACTORY=>read_cds_view( p_cds ).
   CHECK lr_cds_view->has_parameters( ).
   DATA(lr_tabfields) = NEW zcl_dbbr_tabfield_list( ).
 

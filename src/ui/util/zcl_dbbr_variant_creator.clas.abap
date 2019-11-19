@@ -11,8 +11,8 @@ CLASS zcl_dbbr_variant_creator DEFINITION
       IMPORTING
         !iv_variant_id          TYPE zdbbr_variant_id OPTIONAL
         !iv_variant_name        TYPE zdbbr_variant_name OPTIONAL
-        !iv_entity_id           TYPE zdbbr_entity_id
-        !iv_entity_type         TYPE zdbbr_entity_type
+        !iv_entity_id           TYPE ZSAT_ENTITY_ID
+        !iv_entity_type         TYPE ZSAT_ENTITY_TYPE
         !iv_variant_description TYPE ddtext OPTIONAL
         !if_has_output_fields   TYPE abap_bool OPTIONAL
         !if_has_sort_fields     TYPE abap_bool OPTIONAL

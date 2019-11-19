@@ -10,7 +10,7 @@ CLASS zcl_dbbr_jumplist_param_table DEFINITION
       IMPORTING
         !it_jump_params        TYPE zdbbr_jumpparam_data_ui_itab
         !ir_query_fields       TYPE REF TO zcl_dbbr_tabfield_list
-        !it_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab .
+        !it_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB .
     METHODS delete_selected_params .
     METHODS param_id_f4 .
     METHODS param_value_f4 .
@@ -30,7 +30,7 @@ CLASS zcl_dbbr_jumplist_param_table DEFINITION
       END OF mc_table_fields.
 
     DATA mr_query_fields TYPE REF TO zcl_dbbr_tabfield_list.
-    DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab.
+    DATA mt_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB.
 ENDCLASS.
 
 

@@ -8,14 +8,14 @@ CLASS zcl_dbbr_variant_starter_fac DEFINITION
     CLASS-METHODS create_variant_starter
       IMPORTING
         !iv_variant_id        TYPE zdbbr_variant_id
-        !iv_entity_type       TYPE zdbbr_entity_type
+        !iv_entity_type       TYPE ZSAT_ENTITY_TYPE
         !iv_variant_entity_id TYPE string
       RETURNING
         VALUE(result)         TYPE REF TO zif_dbbr_variant_starter .
     CLASS-METHODS create_default_variant_starter
       IMPORTING
         !iv_variant_entity_id TYPE string
-        !iv_entity_type       TYPE zdbbr_entity_type
+        !iv_entity_type       TYPE ZSAT_ENTITY_TYPE
       RETURNING
         VALUE(result)         TYPE REF TO zif_dbbr_variant_starter .
   PROTECTED SECTION.
@@ -30,18 +30,18 @@ CLASS zcl_dbbr_variant_starter_fac IMPLEMENTATION.
   METHOD create_default_variant_starter.
     CASE iv_entity_type.
 
-      WHEN zif_dbbr_c_entity_type=>cds_view.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>cds_view.
         result = NEW zcl_dbbr_cds_variant_starter(
             iv_cds_view         = CONV #( iv_variant_entity_id )
             iv_variant_id       = zif_dbbr_global_consts=>c_dummy_variant
         ).
-      WHEN zif_dbbr_c_entity_type=>query.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>query.
         result = NEW zcl_dbbr_query_var_starter(
             iv_query_id  = iv_variant_entity_id
             iv_variant_id = zif_dbbr_global_consts=>c_dummy_variant
         ).
 
-      WHEN zif_dbbr_c_entity_type=>table.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>table.
         result = NEW zcl_dbbr_table_var_starter(
             iv_tabname    = CONV #( iv_variant_entity_id )
             iv_variant_id = zif_dbbr_global_consts=>c_dummy_variant
@@ -53,19 +53,19 @@ CLASS zcl_dbbr_variant_starter_fac IMPLEMENTATION.
   METHOD create_variant_starter.
     CASE iv_entity_type.
 
-      WHEN zif_dbbr_c_entity_type=>cds_view.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>cds_view.
         result = NEW zcl_dbbr_cds_variant_starter(
             iv_cds_view         = CONV #( iv_variant_entity_id )
             iv_variant_id       = iv_variant_id
         ).
-      WHEN zif_dbbr_c_entity_type=>query.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>query.
         result = NEW zcl_dbbr_query_var_starter(
             iv_query_id  = iv_variant_entity_id
             iv_variant_id = iv_variant_id
         ).
 
-      WHEN zif_dbbr_c_entity_type=>table or
-           zif_dbbr_c_entity_type=>view.
+      WHEN ZIF_SAT_C_ENTITY_TYPE=>table or
+           ZIF_SAT_C_ENTITY_TYPE=>view.
         result = NEW zcl_dbbr_table_var_starter(
             iv_tabname    = CONV #( iv_variant_entity_id )
             iv_variant_id = iv_variant_id

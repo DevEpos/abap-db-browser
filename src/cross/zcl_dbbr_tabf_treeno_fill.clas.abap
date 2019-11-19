@@ -12,7 +12,7 @@ CLASS zcl_dbbr_tabf_treeno_fill DEFINITION
         !ir_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list .
   PROTECTED SECTION.
   PRIVATE SECTION.
-    DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab.
+    DATA mt_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB.
     DATA mr_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list.
 ENDCLASS.
 

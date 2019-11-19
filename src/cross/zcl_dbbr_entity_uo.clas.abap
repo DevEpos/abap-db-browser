@@ -5,14 +5,14 @@ class ZCL_DBBR_ENTITY_UO definition
 
 public section.
 
-  data MV_ENTITY_ID type ZDBBR_ENTITY_ID read-only .
-  data MV_ENTITY_TYPE type ZDBBR_ENTITY_TYPE read-only .
+  data MV_ENTITY_ID type ZSAT_ENTITY_ID read-only .
+  data MV_ENTITY_TYPE type ZSAT_ENTITY_TYPE read-only .
   data MV_SOURCE_TYPE type DDTARGETKIND read-only .
 
   methods CONSTRUCTOR
     importing
-      !IV_ENTITY_ID type ZDBBR_ENTITY_ID
-      !IV_ENTITY_TYPE type ZDBBR_ENTITY_TYPE
+      !IV_ENTITY_ID type ZSAT_ENTITY_ID
+      !IV_ENTITY_TYPE type ZSAT_ENTITY_TYPE
       !IV_SOURCE_TYPE type DDTARGETKIND .
 protected section.
 private section.

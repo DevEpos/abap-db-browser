@@ -20,7 +20,7 @@ CLASS zcl_dbbr_variant_starter DEFINITION
     DATA mt_selfields TYPE zdbbr_selfield_itab .
     DATA mt_selfields_multi TYPE zdbbr_selfield_itab .
     DATA mt_selfields_or TYPE zdbbr_or_seltab_itab .
-    DATA mt_table_to_alias_map TYPE zdbbr_table_to_alias_map_itab .
+    DATA mt_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB .
     DATA ms_variant TYPE zdbbr_variant_data .
     "! Factory for alternative column texts
     DATA mo_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory .
@@ -105,7 +105,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
       ddic_order            = is_field-position
       is_lowercase          = is_field-lowercase
 *... check if field is numeric
-      is_numeric            = zcl_dbbr_dictionary_helper=>is_type_numeric( is_field-inttype )
+      is_numeric            = zcl_dbbr_ddic_util=>is_type_numeric( is_field-inttype )
 *... is there an F4-help for this table field
       f4_available          = is_field-f4availabl
       field_ddtext          = COND #( WHEN is_field-scrtext_l IS INITIAL THEN
@@ -155,7 +155,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
 
   METHOD create_cds_fields.
     TRY.
-        DATA(lo_cds_view) = zcl_dbbr_cds_view_factory=>read_cds_view( iv_cds_view = is_entity_info-tabname ).
+        DATA(lo_cds_view) = ZCL_SAT_CDS_VIEW_FACTORY=>read_cds_view( iv_cds_view = is_entity_info-tabname ).
 
 *...... create parameters
         zcl_dbbr_cds_tabfield_util=>add_parameters(
@@ -174,16 +174,16 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
             iv_description   = ls_header-description
             if_is_primary    = is_entity_info-is_primary
         ).
-      CATCH zcx_dbbr_data_read_error.
+      CATCH ZCX_SAT_DATA_READ_ERROR.
         "handle exception
     ENDTRY.
   ENDMETHOD.
 
   METHOD create_table_fields.
-    DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( is_entity_info-tabname ).
+    DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( is_entity_info-tabname ).
     CHECK ls_table_info IS NOT INITIAL.
 
-    zcl_dbbr_dictionary_helper=>get_table_field_infos( EXPORTING iv_tablename    = is_entity_info-tabname
+    zcl_sat_ddic_repo_access=>get_table_field_infos( EXPORTING iv_tablename    = is_entity_info-tabname
                                                        IMPORTING et_table_fields = DATA(lt_dfies) ).
 
     " build tablefield table
@@ -377,7 +377,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
             IF lf_first_selvalue = abap_true.
 
               IF <ls_vardata_group_entry>-system_value_type IS NOT INITIAL.
-                zcl_dbbr_system_helper=>get_system_value( EXPORTING iv_system_value_type = <ls_vardata_group_entry>-system_value_type
+                ZCL_SAT_SYSTEM_HELPER=>get_system_value( EXPORTING iv_system_value_type = <ls_vardata_group_entry>-system_value_type
                                                            IMPORTING ev_system_value      = <ls_selfield>-low ).
                 <ls_selfield>-system_value_type = <ls_vardata_group_entry>-system_value_type.
                 <ls_selfield>-sign  = <ls_vardata_group_entry>-sign_val.

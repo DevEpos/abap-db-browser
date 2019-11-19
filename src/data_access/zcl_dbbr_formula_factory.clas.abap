@@ -1,4 +1,4 @@
-CLASS ZCL_DBBR_formula_factory DEFINITION
+CLASS zcl_dbbr_formula_factory DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -16,38 +16,38 @@ CLASS ZCL_DBBR_formula_factory DEFINITION
         iv_id TYPE guid_22.
     METHODS get_formulas
       IMPORTING
-        iv_created_by          TYPE sy-uname optional
+        iv_created_by          TYPE sy-uname OPTIONAL
       RETURNING
-        VALUE(rt_formula_defs) TYPE ZIF_DBBR_fe_types=>tt_formula_defs.
+        VALUE(rt_formula_defs) TYPE zif_dbbr_fe_types=>tt_formula_defs.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_formula_factory IMPLEMENTATION.
+CLASS zcl_dbbr_formula_factory IMPLEMENTATION.
 
 
   METHOD get_formulas.
-    data: lt_created_by_range type range of ZDBBR_created_by.
+    DATA: lt_created_by_range TYPE RANGE OF zsat_created_by.
 
-    lt_created_by_range = cond #(
-      when iv_created_by is not initial then
-        value #( ( sign = 'I' option = 'EQ' low = iv_created_by ) )
-      else
-        value #( ( sign = 'E' option = 'EQ' low = sy-uname ) )
+    lt_created_by_range = COND #(
+      WHEN iv_created_by IS NOT INITIAL THEN
+        VALUE #( ( sign = 'I' option = 'EQ' low = iv_created_by ) )
+      ELSE
+        VALUE #( ( sign = 'E' option = 'EQ' low = sy-uname ) )
     ).
 
-    SELECT * FROM ZDBBR_ffdef INTO CORRESPONDING FIELDS OF TABLE rt_formula_defs
-      WHERE created_by in lt_created_by_range
+    SELECT * FROM zdbbr_ffdef INTO CORRESPONDING FIELDS OF TABLE rt_formula_defs
+      WHERE created_by IN lt_created_by_range
       ORDER BY created_date DESCENDING
                created_time DESCENDING.
   ENDMETHOD.
 
 
   METHOD save_formula_def.
-    DATA(ls_formula) = VALUE ZDBBR_ffdef(
-        id             = ZCL_DBBR_system_helper=>create_guid_22( )
+    DATA(ls_formula) = VALUE zdbbr_ffdef(
+        id             = zcl_sat_system_helper=>create_guid_22( )
         formula_string = iv_formula_string
         description    = iv_description
         created_by     = sy-uname
@@ -55,7 +55,7 @@ CLASS ZCL_DBBR_formula_factory IMPLEMENTATION.
         created_time   = sy-timlo
     ).
 
-    INSERT ZDBBR_ffdef FROM ls_formula.
+    INSERT zdbbr_ffdef FROM ls_formula.
 
     IF sy-subrc = 0.
       COMMIT WORK.
@@ -63,14 +63,14 @@ CLASS ZCL_DBBR_formula_factory IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD delete_formulas_for_user.
-    DELETE FROM ZDBBR_ffdef WHERE created_by = iv_created_by.
+    DELETE FROM zdbbr_ffdef WHERE created_by = iv_created_by.
     IF sy-subrc = 0.
       COMMIT WORK.
     ENDIF.
   ENDMETHOD.
 
   METHOD delete_formula_by_id.
-    DELETE FROM ZDBBR_ffdef WHERE id = iv_id.
+    DELETE FROM zdbbr_ffdef WHERE id = iv_id.
     IF sy-subrc = 0.
       COMMIT WORK.
     ENDIF.

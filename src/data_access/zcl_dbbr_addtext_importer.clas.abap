@@ -59,7 +59,7 @@ CLASS ZCL_DBBR_addtext_importer IMPLEMENTATION.
                             <ls_addtext>-condition_value && ',' &&
                             <ls_addtext>-condition_op.
 
-        ZCL_DBBR_appl_util=>split_string_for_message(
+        ZCL_SAT_MESSAGE_HELPER=>split_string_for_message(
           EXPORTING
             iv_string = lv_bus_key
           IMPORTING

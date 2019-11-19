@@ -26,7 +26,7 @@ public section.
       !IF_FIELD_AGGREGATION type BOOLEAN optional
       !IF_SINGLE_TABLE_MODE type BOOLEAN optional
       !IV_MODE type ZDBBR_FIELD_CHOOSER_MODE
-      !IV_ENTITY_TYPE type ZDBBR_ENTITY_TYPE
+      !IV_ENTITY_TYPE type ZSAT_ENTITY_TYPE
       !IV_CURRENT_TABLE type TABNAME optional .
   methods FILL_TREE
     importing
@@ -83,7 +83,7 @@ protected section.
   data MF_SINGLE_TABLE_MODE type BOOLEAN .
   data MV_CURRENT_TABLE type TABNAME .
   data MT_NODE_DATA_BUFFER type MTT_NODE_DATA .
-  data MV_ENTITY_TYPE type ZDBBR_ENTITY_TYPE .
+  data MV_ENTITY_TYPE type ZSAT_ENTITY_TYPE .
 
   methods CREATE_SORTORDER_FROM_CHECKED .
   methods CREATE_SORT_ORDER_FROM_VISIBLE .

@@ -541,7 +541,7 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
         CHECK io_command->mr_params IS BOUND.
 
         TRY.
-            DATA(lr_entity_info) = CAST zdbbr_entity( io_command->mr_params ).
+            DATA(lr_entity_info) = CAST ZSAT_ENTITY( io_command->mr_params ).
           CATCH cx_sy_move_cast_error.
             RETURN.
         ENDTRY.

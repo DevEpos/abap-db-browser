@@ -38,9 +38,9 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
   PRIVATE SECTION.
 
     "! Name of CDS view
-    DATA mv_cds_view TYPE zdbbr_cds_view_name .
+    DATA mv_cds_view TYPE zsat_cds_view_name .
     "! CDS View
-    DATA mo_cds_view TYPE REF TO zcl_dbbr_cds_view .
+    DATA mo_cds_view TYPE REF TO zcl_sat_cds_view .
     "! Utilities for screen
     DATA mr_assoc_selector TYPE REF TO zcl_dbbr_cds_sub_entity_sel .
 
@@ -52,8 +52,11 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
     "! @parameter IS_ASSOC | <p class="shorttext synchronized" lang="en"></p>
     METHODS navigate
       IMPORTING
-        !is_assoc TYPE zdbbr_cds_association .
+        !is_assoc TYPE zsat_cds_association .
+    "! <p class="shorttext synchronized" lang="en">Rebuilds the output</p>
     METHODS rebuild.
+    "! <p class="shorttext synchronized" lang="en">Shows the Source Code of the CDS</p>
+    METHODS show_cds_source.
     "! <p class="shorttext synchronized" lang="en">Event handler for when association gets chosen</p>
     "! @parameter EV_CHOSEN_ENTITY_ID | <p class="shorttext synchronized" lang="en"></p>
     "! @parameter EV_CHOSEN_ENTITY_TYPE | <p class="shorttext synchronized" lang="en"></p>
@@ -87,6 +90,18 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+  METHOD show_cds_source.
+    TRY.
+        DATA(lv_source) = zcl_sat_cds_view_factory=>read_ddls_source( mv_cds_view ).
+        zcl_uitb_abap_code_viewer=>show_code(
+            iv_title = |DDL Source { mo_cds_view->get_header( )-entityname_raw }|
+            iv_code  = lv_source
+            iv_theme = ms_technical_info-code_viewer_theme
+        ).
+      CATCH zcx_sat_application_exc INTO DATA(lx_app_error).
+        lx_app_error->zif_sat_exception_message~print( ).
+    ENDTRY.
+  ENDMETHOD.
 
   METHOD change_parameters.
     DATA: lf_trigger_select TYPE abap_bool.
@@ -172,7 +187,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
     DATA(ls_header) = mo_cds_view->get_header( ).
     IF  ms_technical_info-use_ddl_view_for_select = abap_true AND
-        ls_header-source_type <> zif_dbbr_c_cds_view_type=>table_function.
+        ls_header-source_type <> zif_sat_c_cds_view_type=>table_function.
       lv_entity = mo_cds_view->get_header( )-ddlview.
       lv_from_alias_text = | AS { mo_cds_view->mv_view_name }|.
     ELSE.
@@ -228,6 +243,8 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     build_full_fieldnames( ).
 
     mo_tabfields->update_text_field_status( ).
+
+    handle_reduced_memory( ).
 
     zcl_dbbr_addtext_helper=>prepare_text_fields(
       EXPORTING ir_fields    = mo_tabfields
@@ -378,6 +395,15 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   METHOD handle_alv_ctx_menu_request.
     DATA: lt_entries TYPE sctx_entrytab.
 
+    super->handle_alv_ctx_menu_request(
+      EXPORTING if_selected_cols  = if_selected_cols
+                if_selected_rows  = if_selected_rows
+                if_selected_cells = if_selected_cells
+                it_selected_cols  = it_selected_cols
+                it_selected_cells = it_selected_cells
+                it_fieldcat       = it_fieldcat
+      CHANGING  ct_menu_entries   = ct_menu_entries ).
+
     IF if_selected_cols = abap_true AND
        if_selected_rows = abap_false.
       RETURN.
@@ -398,8 +424,8 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   METHOD init.
     mv_cds_view = mv_entity_id.
     TRY.
-        mo_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( mv_cds_view ).
-      CATCH zcx_dbbr_data_read_error INTO DATA(lx_read_error).
+        mo_cds_view = zcl_sat_cds_view_factory=>read_cds_view( mv_cds_view ).
+      CATCH zcx_sat_data_read_error INTO DATA(lx_read_error).
         MESSAGE lx_read_error->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
     ENDTRY.
   ENDMETHOD.
@@ -416,6 +442,9 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
         ir_source_cds_view    = mo_cds_view
         is_association        = is_assoc
         it_nav_breadcrumbs    = mt_nav_breadcrumbs
+        it_param_values       = VALUE #(
+          FOR param IN mt_param_values WHERE ( is_parameter = abap_true ) ( name = param-fieldname value = param-low )
+        )
         iv_nav_count          = mv_navigation_count
     ).
 
@@ -451,7 +480,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   METHOD refresh_selection.
 *.. Check if CDS view was changed in the mean time
     " TOOD: reread complete cds view and rebuild tabfield list
-*    if zcl_dbbr_cds_view_factory=>has_cds_view_changed( iv_cds_view_name     = mo_cds_view->mv_view_name
+*    if ZCL_SAT_CDS_VIEW_FACTORY=>has_cds_view_changed( iv_cds_view_name     = mo_cds_view->mv_view_name
 *                                                        iv_last_changed_date = mo_cds_view->get_header( )-chgdate
 *                                                        iv_last_changed_time = mo_cds_view->get_header( )-chgtime ).
 *      DATA(lf_cds_view_changed) = abap_true.
@@ -467,7 +496,9 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
     set_miscinfo_for_selected_data( ).
 
-    RAISE EVENT selection_finished.
+    RAISE EVENT selection_finished
+      exporting
+        ef_reset_alv_table = if_reset_table_in_alv.
   ENDMETHOD.
 
 
@@ -483,6 +514,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
     result = super->get_deactivated_functions( ).
+    DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>show_cds_source.
 
     IF mo_cds_view->has_parameters( if_exclude_system_params = abap_true ).
       DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>change_cds_parameters.
@@ -531,6 +563,11 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selection_functions=>change_cds_parameters.
         change_parameters( ).
+        CLEAR cv_function.
+
+      WHEN zif_dbbr_c_selection_functions=>show_cds_source.
+        show_cds_source( ).
+        CLEAR cv_function.
 
       WHEN OTHERS.
     ENDCASE.

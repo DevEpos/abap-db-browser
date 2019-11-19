@@ -6,15 +6,15 @@ CLASS lcl_usage_alv IMPLEMENTATION.
 
   METHOD constructor.
     mo_dependency_tree = io_dependency_tree.
-    mt_usages = CORRESPONDING #( zcl_dbbr_cds_dep_analyzer=>get_used_entities(
+    mt_usages = CORRESPONDING #( ZCL_SAT_CDS_DEP_ANALYZER=>get_used_entities(
                                   iv_cds_view_name = iv_cds_view_name
                                 )-dependencies ).
 *.. Enrich usages with icons
     LOOP AT mt_usages ASSIGNING FIELD-SYMBOL(<ls_usage>).
       <ls_usage>-type_icon = SWITCH #( <ls_usage>-object_type
-         WHEN zif_dbbr_c_entity_type=>table    THEN zif_dbbr_c_icon=>database_table
-         WHEN zif_dbbr_c_entity_type=>view     THEN zif_dbbr_c_icon=>database_view
-         WHEN zif_dbbr_c_entity_type=>cds_view THEN zif_dbbr_c_icon=>cds_view
+         WHEN ZIF_SAT_C_ENTITY_TYPE=>table    THEN zif_dbbr_c_icon=>database_table
+         WHEN ZIF_SAT_C_ENTITY_TYPE=>view     THEN zif_dbbr_c_icon=>database_view
+         WHEN ZIF_SAT_C_ENTITY_TYPE=>cds_view THEN zif_dbbr_c_icon=>cds_view
       ).
     ENDLOOP.
     create_and_fill_usage_alv( io_parent ).
@@ -33,7 +33,7 @@ CLASS lcl_usage_alv IMPLEMENTATION.
         ir_params   = NEW lty_s_command_info(
           entity_id   = lr_s_selected_entity->name
           entity_type = lr_s_selected_entity->object_type
-          is_cds      = xsdbool( lr_s_selected_entity->object_type = zif_dbbr_c_entity_type=>cds_view )
+          is_cds      = xsdbool( lr_s_selected_entity->object_type = ZIF_SAT_C_ENTITY_TYPE=>cds_view )
         )
       ).
     ENDIF.
@@ -77,7 +77,7 @@ CLASS lcl_usage_alv IMPLEMENTATION.
         text  = |{ 'Show Content (New Task)'(039) }|
     ).
     DATA(lt_selected_rows) = mo_alv->get_selections( )->get_selected_rows( ).
-    IF mt_usages[ lt_selected_rows[ 1 ] ]-object_type = zif_dbbr_c_entity_type=>cds_view.
+    IF mt_usages[ lt_selected_rows[ 1 ] ]-object_type = ZIF_SAT_C_ENTITY_TYPE=>cds_view.
       er_menu->add_separator( ).
       er_menu->add_function(
           fcode = c_functions-show_ddl_source
@@ -208,7 +208,7 @@ CLASS lcl_usage_alv IMPLEMENTATION.
 
     DATA(lr_row) = REF #( mt_usages[ lt_sel_rows[ 1 ] ] ).
     ev_entity_id = lr_row->name.
-    ef_is_cds = xsdbool( lr_row->object_type = zif_dbbr_c_entity_type=>cds_view ).
+    ef_is_cds = xsdbool( lr_row->object_type = ZIF_SAT_C_ENTITY_TYPE=>cds_view ).
     ev_entity_type = lr_row->object_type.
   ENDMETHOD.
 

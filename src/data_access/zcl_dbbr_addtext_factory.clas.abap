@@ -22,7 +22,7 @@ CLASS ZCL_DBBR_addtext_factory DEFINITION
         !et_add_texts TYPE ZDBBR_addtext_itab .
     METHODS find_add_texts_for_tablist
       IMPORTING
-        !it_tabname_selopt TYPE ZDBBR_SELOPT_itab
+        !it_tabname_selopt TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt
       EXPORTING
         !et_addtext        TYPE ZDBBR_addtext_itab .
     METHODS add_text_exists
@@ -107,7 +107,7 @@ CLASS ZCL_DBBR_addtext_factory IMPLEMENTATION.
 
     IF cs_addtext_data-addtext_id IS INITIAL.
       DATA(lf_new_entry) = abap_true.
-      cs_addtext_data-addtext_id = ZCL_DBBR_system_helper=>create_guid_22( ).
+      cs_addtext_data-addtext_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       INSERT ZDBBR_addtext FROM cs_addtext_data.
     ELSE.
       MODIFY ZDBBR_addtext FROM cs_addtext_data.

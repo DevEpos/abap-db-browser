@@ -32,14 +32,14 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Requesting new entity for selection screen</p>
     EVENTS request_new_entity
       EXPORTING
-        VALUE(ev_id) TYPE zdbbr_entity_id
-        VALUE(ev_type) TYPE zdbbr_entity_type
+        VALUE(ev_id) TYPE zsat_entity_id
+        VALUE(ev_type) TYPE zsat_entity_type
         VALUE(ef_force_loading) TYPE abap_bool OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Entity was deleted</p>
     CLASS-EVENTS entity_deleted
       EXPORTING
-        VALUE(ev_entity_id) TYPE zdbbr_entity_id
-        VALUE(ev_entity_type) TYPE zdbbr_entity_type .
+        VALUE(ev_entity_id) TYPE zsat_entity_id
+        VALUE(ev_entity_type) TYPE zsat_entity_type .
 
     "! <p class="shorttext synchronized" lang="en">CLASS_CONSTRUCTOR</p>
     CLASS-METHODS init_selscreen_table_tb .
@@ -71,22 +71,22 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     METHODS constructor
       IMPORTING
         !ir_selscreen_data TYPE REF TO zcl_dbbr_selscreen_data
-        !iv_entity_type    TYPE zdbbr_entity_type .
+        !iv_entity_type    TYPE zsat_entity_type .
     "! <p class="shorttext synchronized" lang="en">Deletes and Updates the join definition</p>
     METHODS delete_join_definition .
     "! <p class="shorttext synchronized" lang="en">Retrieve information about current entity</p>
     METHODS get_entity_information
       EXPORTING
         ev_entity      TYPE tabname
-        ev_entity_raw  TYPE zdbbr_entity_id_raw
-        ev_entity_id   TYPE zdbbr_entity_id
-        ev_type        TYPE zdbbr_favmenu_type
+        ev_entity_raw  TYPE zsat_entity_id_raw
+        ev_entity_id   TYPE zsat_entity_id
+        ev_type        TYPE zsat_favmenu_type
         ev_description TYPE ddtext .
     "! <p class="shorttext synchronized" lang="en">Retrieve the primary entity type for a join definition</p>
     "!
     METHODS get_entity_type_for_join
       RETURNING
-        VALUE(rv_entity_type) TYPE zdbbr_entity_type.
+        VALUE(rv_entity_type) TYPE zsat_entity_type.
     "! <p class="shorttext synchronized" lang="en">Returns id for variant</p>
     "!
     METHODS get_id_for_variant .
@@ -103,8 +103,8 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Checks if a certain entity is already loaded into the screen</p>
     METHODS is_entity_loaded
       IMPORTING
-        !iv_entity_id   TYPE zdbbr_entity_id
-        !iv_entity_type TYPE zdbbr_entity_type
+        !iv_entity_id   TYPE zsat_entity_id
+        !iv_entity_type TYPE zsat_entity_type
       RETURNING
         VALUE(result)   TYPE abap_bool .
     "! <p class="shorttext synchronized" lang="en">Loads the entity into the selection screen</p>
@@ -130,12 +130,16 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
       IMPORTING
         iv_tabname   TYPE tabname
         iv_fieldname TYPE fieldname.
+    "! <p class="shorttext synchronized" lang="en">Checks if the entity can be executed</p>
+    METHODS can_execute
+      RETURNING
+        VALUE(rf_can_execute) TYPE abap_bool.
   PROTECTED SECTION.
 
     TYPES:
       BEGIN OF ty_table_input,
         tablename       TYPE tabname,
-        fields          TYPE zdbbr_dfies_itab,
+        fields          TYPE zsat_dfies_itab,
         is_cond_table   TYPE abap_bool,
         is_output       TYPE abap_bool,
         is_selection    TYPE abap_bool,
@@ -151,9 +155,9 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Information for join</p>
     DATA ms_join_def_old TYPE zdbbr_join_data .
     "! <p class="shorttext synchronized" lang="en">ID of an DB Browser entity</p>
-    DATA mv_entity_id TYPE zdbbr_entity_id .
+    DATA mv_entity_id TYPE zsat_entity_id .
     "! <p class="shorttext synchronized" lang="en">Type of Entity</p>
-    DATA mv_entity_type TYPE zdbbr_entity_type .
+    DATA mv_entity_type TYPE zsat_entity_type .
     DATA mo_custom_menu TYPE REF TO cl_ctmenu .
     "! <p class="shorttext synchronized" lang="en">Context Menu</p>
     CLASS-DATA go_delete_tb_menu TYPE REF TO cl_ctmenu .
@@ -200,7 +204,7 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
       IMPORTING
         !iv_tabname            TYPE tabname
         !iv_tabname_alias      TYPE tabname
-        !iv_typename           TYPE zdbbr_entity_type OPTIONAL
+        !iv_typename           TYPE zsat_entity_type OPTIONAL
       RETURNING
         VALUE(rs_table_header) TYPE zdbbr_selfield .
     "! <p class="shorttext synchronized" lang="en">Fill the fields of the selection table</p>
@@ -226,8 +230,8 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Trigger event that entity was deleted</p>
     METHODS notify_of_deleted_entity
       IMPORTING
-        !iv_entity_id   TYPE zdbbr_entity_id
-        !iv_entity_type TYPE zdbbr_entity_type .
+        !iv_entity_id   TYPE zsat_entity_id
+        !iv_entity_type TYPE zsat_entity_type .
 
     "! <p class="shorttext synchronized" lang="en">Refresh the selection mask for a multi table setup</p>
     "!
@@ -254,6 +258,10 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
     zcl_dbbr_toolbar_util=>get_selscreen_table_tb( )->set_button_state( enabled = abap_true fcode = zif_dbbr_c_selscreen_functions=>control_sel_fields ).
     cl_gui_cfw=>flush( ).
+  ENDMETHOD.
+
+  METHOD can_execute.
+    rf_can_execute = abap_true.
   ENDMETHOD.
 
   METHOD check_edit_mode ##needed.
@@ -343,9 +351,9 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
           lv_index = 1.
         ENDIF.
 
-        RAISE EXCEPTION TYPE zcx_dbbr_validation_exception
+        RAISE EXCEPTION TYPE zcx_sat_validation_exception
           EXPORTING
-            textid         = zcx_dbbr_validation_exception=>parameter_value_missing
+            textid         = zcx_sat_validation_exception=>parameter_value_missing
             msgv1          = |{ <ls_param>-description }|
             parameter_name = 'GS_SELFIELDS-LOW'
             loop_line      = lv_index.
@@ -588,9 +596,14 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
   METHOD init_selscreen_table_tb.
 *.. create/fill delete menu
     go_delete_tb_menu = NEW #( ).
+
+    go_delete_tb_menu->add_function(
+       fcode = zif_dbbr_c_selscreen_functions=>delete_all_input
+       text  = |{ 'Delete all Input'(017) }|
+    ).
     go_delete_tb_menu->add_function(
        fcode = zif_dbbr_c_selscreen_functions=>delete_aggregations
-       text  = |{ 'Delete all aggregations'(003) }|
+       text  = |{ 'Delete all Aggregations'(003) }|
     ).
     go_delete_tb_menu->add_function(
        fcode = zif_dbbr_c_selscreen_functions=>delete_all_or_tuple
@@ -639,9 +652,19 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
             quickinfo = 'Delete current line values'(011)
             function  = zif_dbbr_c_selscreen_functions=>delete_line_input )
           ( butn_type = cntb_btype_dropdown
-            text      = 'All Entries'(012)
+            text      = 'All Criteria'(012)
+            quickinfo = 'Delete all Criteria'(018)
             icon      = icon_delete_row
-            function  = zif_dbbr_c_selscreen_functions=>delete_all_input )
+            function  = zif_dbbr_c_selscreen_functions=>delete_all_criteria )
+          ( butn_type = cntb_btype_sep )
+          ( butn_type = cntb_btype_button
+            quickinfo = 'Set Group By to all Fields'
+            icon      = icon_select_all
+            function  = zif_dbbr_c_selscreen_functions=>select_group_by_all )
+          ( butn_type = cntb_btype_button
+            quickinfo = 'Deselect all Group By Fields'
+            icon      = icon_deselect_all
+            function  = zif_dbbr_c_selscreen_functions=>unselect_group_by_all )
           ( butn_type = cntb_btype_sep )
           ( function  = zif_dbbr_c_selscreen_functions=>get_variant
             icon      = icon_variants
@@ -667,7 +690,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     lo_table_toolbar->set_static_ctxmenu( fcode = zif_dbbr_c_selscreen_functions=>get_variant ctxmenu = lo_variant_menu ).
 
     lo_table_toolbar->set_static_ctxmenu(
-        fcode   = zif_dbbr_c_selscreen_functions=>delete_all_input
+        fcode   = zif_dbbr_c_selscreen_functions=>delete_all_criteria
         ctxmenu = go_delete_tb_menu
     ).
     lo_table_toolbar->set_static_ctxmenu(
@@ -723,7 +746,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
   METHOD create_cds_fields.
     TRY.
-        DATA(lo_cds_view) = zcl_dbbr_cds_view_factory=>read_cds_view( iv_cds_view = is_entity_info-tabname ).
+        DATA(lo_cds_view) = zcl_sat_cds_view_factory=>read_cds_view( iv_cds_view = is_entity_info-tabname ).
 
         mo_data->mo_custom_f4_map->read_custom_f4_definitions( is_entity_info-tabname ).
 
@@ -746,7 +769,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
             iv_description   = ls_header-description
             if_is_primary    = is_entity_info-is_primary
         ).
-      CATCH zcx_dbbr_data_read_error.
+      CATCH zcx_sat_data_read_error.
         "handle exception
     ENDTRY.
   ENDMETHOD.
@@ -776,7 +799,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
           )
       )
 *...... check if field is numeric
-      is_numeric            = zcl_dbbr_dictionary_helper=>is_type_numeric( is_field-inttype )
+      is_numeric            = zcl_dbbr_ddic_util=>is_type_numeric( is_field-inttype )
 *...... is there an F4-help for this table field
       f4_available          = is_field-f4availabl
       field_ddtext          = COND #( WHEN is_field-scrtext_l IS INITIAL THEN
@@ -844,7 +867,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
   METHOD create_table_fields.
 *& Description: Creates table fields for given table name
 *&---------------------------------------------------------------------*
-    DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( is_entity_info-tabname ).
+    DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( is_entity_info-tabname ).
     CHECK ls_table_info IS NOT INITIAL.
 
 *... read custom f4 helps for join table definitions
@@ -852,7 +875,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
     DATA(lv_join_table_text) = ls_table_info-ddtext.
 
-    zcl_dbbr_dictionary_helper=>get_table_field_infos( EXPORTING iv_tablename    = is_entity_info-tabname
+    zcl_sat_ddic_repo_access=>get_table_field_infos( EXPORTING iv_tablename    = is_entity_info-tabname
                                                        IMPORTING et_table_fields = DATA(lt_dfies) ).
 
     DATA(lr_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
@@ -879,7 +902,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
                                      ELSE
                                         is_entity_info-tabname )
       alias                = is_entity_info-alias
-      type                 = zif_dbbr_c_entity_type=>table
+      type                 = zif_sat_c_entity_type=>table
       description          = ls_table_info-ddtext
       fields_are_loaded    = abap_true
       is_primary           = is_entity_info-is_primary
@@ -1006,7 +1029,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
 
   METHOD update_entity_type_sh.
-    DATA(lr_v_entity_type) = CAST zdbbr_entity_type(
+    DATA(lr_v_entity_type) = CAST zsat_entity_type(
       zcl_uitb_data_cache=>get_instance(
         zif_dbbr_c_report_id=>search_help_exit
       )->get_data_ref( zcl_dbbr_entity_sh_helper=>c_v_entity_type )
@@ -1049,7 +1072,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       IF sy-subrc <> 0.
         lf_is_new_table = abap_true.
 
-        IF <ls_join_table_info>-entity_type = zif_dbbr_c_entity_type=>cds_view.
+        IF <ls_join_table_info>-entity_type = zif_sat_c_entity_type=>cds_view.
           ls_new_entity = create_cds_fields( VALUE #(
             tabname            = <ls_join_table_info>-add_table
             tabname_alias      = <ls_join_table_info>-add_table_alias

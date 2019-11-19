@@ -40,7 +40,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
     mo_cut = NEW #( iv_query = 'SELECT * FROM MARA' ).
     TRY.
         mo_cut->parse( ).
-      CATCH zcx_dbbr_application_exc.
+      CATCH ZCX_DBBR_APPLICATION_EXC.
     ENDTRY.
   ENDMETHOD.
 
@@ -69,7 +69,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
     mo_cut = NEW #( lv_query ).
     TRY.
         mo_cut->parse( ).
-      CATCH zcx_dbbr_application_exc INTO DATA(lx_error).
+      CATCH ZCX_DBBR_APPLICATION_EXC INTO DATA(lx_error).
     ENDTRY.
 
 *    cl_abap_unit_assert=>assert_bound(
@@ -94,7 +94,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
     TRY.
         mo_cut->parse( ).
-      CATCH zcx_dbbr_application_exc.
+      CATCH ZCX_DBBR_APPLICATION_EXC.
     ENDTRY.
   ENDMETHOD.
 
@@ -116,7 +116,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
     TRY.
         mo_cut->parse( ).
-      CATCH zcx_dbbr_application_exc.
+      CATCH ZCX_DBBR_APPLICATION_EXC.
     ENDTRY.
   ENDMETHOD.
 
@@ -136,7 +136,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
     mo_cut = NEW #( lv_query ).
     TRY.
         mo_cut->parse( ).
-      CATCH zcx_dbbr_application_exc.
+      CATCH ZCX_DBBR_APPLICATION_EXC.
     ENDTRY.
 
   ENDMETHOD.
@@ -159,7 +159,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
     mo_cut = NEW #( lv_query ).
     TRY.
         mo_cut->parse( ).
-      CATCH zcx_dbbr_application_exc.
+      CATCH ZCX_DBBR_APPLICATION_EXC.
     ENDTRY.
   ENDMETHOD.
 
@@ -183,7 +183,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
     mo_cut = NEW #( lv_query ).
     TRY.
         mo_cut->parse( ).
-      CATCH zcx_dbbr_application_exc.
+      CATCH ZCX_DBBR_APPLICATION_EXC.
     ENDTRY.
 
 
@@ -200,7 +200,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
     mo_cut = NEW #( lv_query ).
     TRY.
         mo_cut->parse( ).
-      CATCH zcx_dbbr_application_exc.
+      CATCH ZCX_DBBR_APPLICATION_EXC.
     ENDTRY.
 
   ENDMETHOD.
@@ -234,7 +234,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
           act = lo_query->ms_data-is_single_result_query
           msg = 'Count query could not be detected'
         ).
-      CATCH zcx_dbbr_application_exc INTO DATA(lx_error).
+      CATCH ZCX_DBBR_APPLICATION_EXC INTO DATA(lx_error).
     ENDTRY.
       cl_abap_unit_assert=>assert_not_bound(
           act = lx_error

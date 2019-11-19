@@ -10,7 +10,7 @@ CLASS zcl_dbbr_tree_helper DEFINITION
     "! @parameter result | <p class="shorttext synchronized" lang="en"></p>
     CLASS-METHODS get_tree_node_icon
       IMPORTING
-        !iv_favmenu_type TYPE zdbbr_favmenu_type
+        !iv_favmenu_type TYPE ZSAT_FAVMENU_TYPE
       RETURNING
         VALUE(result)    TYPE tv_image .
     "! <p class="shorttext synchronized" lang="en">Checks if the node is holds a db browser variant</p>

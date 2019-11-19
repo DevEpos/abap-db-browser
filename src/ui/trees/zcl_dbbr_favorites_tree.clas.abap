@@ -60,9 +60,9 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Create new favorite</p>
     METHODS create_new_favorite
       IMPORTING
-        !iv_fav_type    TYPE zdbbr_favmenu_type OPTIONAL
+        !iv_fav_type    TYPE ZSAT_FAVMENU_TYPE OPTIONAL
         !iv_favorite    TYPE tabname OPTIONAL
-        iv_favorite_raw TYPE zdbbr_entity_id_raw OPTIONAL
+        iv_favorite_raw TYPE ZSAT_ENTITY_ID_raw OPTIONAL
         !iv_description TYPE ddtext OPTIONAL .
     "! <p class="shorttext synchronized" lang="en">Create new folder</p>
     METHODS create_new_fav_folder .
@@ -97,17 +97,17 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
 
     TYPES:
       BEGIN OF ty_fav_info,
-        type         TYPE zdbbr_favmenu_type,
+        type         TYPE ZSAT_FAVMENU_TYPE,
         favorite     TYPE tabname,
-        favorite_raw TYPE zdbbr_entity_id_raw,
+        favorite_raw TYPE ZSAT_ENTITY_ID_raw,
         description  TYPE ddtext,
       END OF ty_fav_info.
     TYPES: tt_fav_info TYPE STANDARD TABLE OF ty_fav_info WITH EMPTY KEY.
     TYPES:
       BEGIN OF ty_node_map,
         node_key    TYPE tm_nodekey,
-        entity_id   TYPE zdbbr_entity_id,
-        entity_type TYPE zdbbr_entity_type,
+        entity_id   TYPE ZSAT_ENTITY_ID,
+        entity_type TYPE ZSAT_ENTITY_TYPE,
       END OF ty_node_map .
     TYPES:
       BEGIN OF mty_node_data.
@@ -118,8 +118,8 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
     TYPES:
       BEGIN OF ty_s_variant_data,
         variant_id  TYPE zdbbr_variant_id,
-        entity_id   TYPE zdbbr_entity_id,
-        entity_type TYPE zdbbr_entity_type,
+        entity_id   TYPE ZSAT_ENTITY_ID,
+        entity_type TYPE ZSAT_ENTITY_TYPE,
       END OF ty_s_variant_data.
 
     CONSTANTS c_hierarchy_node2 TYPE tv_itmname VALUE 'HIER2' ##no_text.
@@ -266,7 +266,7 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Checks if node should be displayed as folder</p>
     METHODS should_display_as_folder
       IMPORTING
-        !iv_fav_type     TYPE zdbbr_favmenu_type
+        !iv_fav_type     TYPE ZSAT_FAVMENU_TYPE
         !if_has_variants TYPE abap_bool
       RETURNING
         VALUE(result)    TYPE abap_bool .
@@ -472,8 +472,8 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
   METHOD create_new_favorite.
     DATA: lv_node_description  TYPE ddtext,
           lv_favorite_name     TYPE tabname,
-          lv_favorite_name_raw TYPE zdbbr_entity_id_raw,
-          lv_favorite_type     TYPE zdbbr_favmenu_type.
+          lv_favorite_name_raw TYPE ZSAT_ENTITY_ID_raw,
+          lv_favorite_type     TYPE ZSAT_FAVMENU_TYPE.
 
     DATA(lo_selected_node) = mo_tree_model->get_selections( )->get_selected_node( ).
 
@@ -527,11 +527,11 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
         WHEN zif_dbbr_c_favmenu_type=>table OR
              zif_dbbr_c_favmenu_type=>view.
-          lv_node_description = zcl_dbbr_dictionary_helper=>get_table_info( lv_favorite_name )-ddtext.
+          lv_node_description = zcl_sat_ddic_repo_access=>get_table_info( lv_favorite_name )-ddtext.
           lv_favorite_name_raw = lv_favorite_name.
 
         WHEN zif_dbbr_c_favmenu_type=>cds_view.
-          DATA(ls_cds_header) = zcl_dbbr_cds_view_factory=>read_cds_view_header( lv_favorite_name ).
+          DATA(ls_cds_header) = ZCL_SAT_CDS_VIEW_FACTORY=>read_cds_view_header( lv_favorite_name ).
           lv_node_description = ls_cds_header-description.
           lv_favorite_name_raw = ls_cds_header-entityname_raw.
 
@@ -1110,7 +1110,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     ENDIF.
 
 *.. Try to retrieve data from clipboard
-    DATA(lt_entities) = zcl_dbbr_dictionary_helper=>get_entities_from_clipboard( IMPORTING ev_clipboard_count = lv_clipboard_count ).
+    DATA(lt_entities) = zcl_dbbr_ddic_util=>get_entities_from_clipboard( IMPORTING ev_clipboard_count = lv_clipboard_count ).
     IF lt_entities IS INITIAL.
       MESSAGE s082(zdbbr_info).
       RETURN.
@@ -1659,7 +1659,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     IF mo_parent_view IS BOUND.
       mo_parent_view->execute_command( NEW zcl_uitb_gui_simple_command(
         iv_function = zcl_dbbr_object_navigator=>c_command_id-show_object_list
-        ir_params   = NEW zdbbr_entity( entity_id     = ls_favmenu_data-fav_entry
+        ir_params   = NEW ZSAT_ENTITY( entity_id     = ls_favmenu_data-fav_entry
                                         entity_type   = ls_favmenu_data-favtype   ) )
       ).
     ENDIF.

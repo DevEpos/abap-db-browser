@@ -17,7 +17,7 @@ CLASS zcl_dbbr_query_selection_util DEFINITION
         REDEFINITION.
   PRIVATE SECTION.
 
-    DATA mv_query_name TYPE zdbbr_query_name .
+    DATA mv_query_name TYPE ZSAT_QUERY_NAME .
     DATA mv_query_descr TYPE ddtext .
 ENDCLASS.
 
@@ -58,7 +58,7 @@ CLASS zcl_dbbr_query_selection_util IMPLEMENTATION.
   METHOD read_entity_infos.
 ***    DATA(lv_special_group_count) = 1.
 ***
-***    DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( ms_control_info-primary_table ).
+***    DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( ms_control_info-primary_table ).
 ***
 ***    ms_control_info-primary_table_name = ls_table_info-ddtext.
 ***    ms_control_info-client_dependent = ls_table_info-clidep.
@@ -77,7 +77,7 @@ CLASS zcl_dbbr_query_selection_util IMPLEMENTATION.
 ***    " update join table names
 ***    IF ms_join_def-tables IS NOT INITIAL.
 ***      LOOP AT ms_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_join_table>) WHERE table_name IS INITIAL.
-***        <ls_join_table>-table_name = zcl_dbbr_dictionary_helper=>get_table_info( <ls_join_table>-add_table )-ddtext.
+***        <ls_join_table>-table_name = zcl_sat_ddic_repo_access=>get_table_info( <ls_join_table>-add_table )-ddtext.
 ***        lv_sp_group = c_col_group_prefix && lv_special_group_count.
 ***        mt_column_groups = VALUE #(
 ***          BASE mt_column_groups

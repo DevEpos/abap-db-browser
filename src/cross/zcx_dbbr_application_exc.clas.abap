@@ -6,7 +6,7 @@ CLASS zcx_dbbr_application_exc DEFINITION
   PUBLIC SECTION.
 
     INTERFACES if_t100_message .
-    INTERFACES zif_dbbr_exception_message .
+    INTERFACES zif_sat_exception_message .
 
     CONSTANTS:
       BEGIN OF db_entity_not_existing,
@@ -84,7 +84,7 @@ CLASS zcx_dbbr_application_exc IMPLEMENTATION.
 
   METHOD raise_application_exc.
     IF iv_text IS NOT INITIAL.
-      zcl_dbbr_appl_util=>split_string_for_message(
+      zcl_sat_message_helper=>split_string_for_message(
         EXPORTING
           iv_string = iv_text
         IMPORTING
@@ -136,8 +136,8 @@ CLASS zcx_dbbr_application_exc IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_dbbr_exception_message~get_message.
-    result = zcl_dbbr_appl_util=>print_exc_message(
+  METHOD zif_sat_exception_message~get_message.
+    result = zcl_sat_message_helper=>print_exc_message(
         is_textid      = if_t100_message~t100key
         if_to_screen   = abap_false
         ir_previous    = previous
@@ -150,8 +150,8 @@ CLASS zcx_dbbr_application_exc IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_dbbr_exception_message~print.
-    zcl_dbbr_appl_util=>print_exc_message(
+  METHOD zif_sat_exception_message~print.
+    zcl_sat_message_helper=>print_exc_message(
         is_textid       = if_t100_message~t100key
         iv_display_type = iv_display_type
         if_to_screen    = if_to_screen

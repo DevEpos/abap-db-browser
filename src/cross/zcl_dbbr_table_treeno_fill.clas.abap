@@ -10,7 +10,7 @@ CLASS zcl_dbbr_table_treeno_fill DEFINITION
 
     METHODS constructor
       IMPORTING
-        !it_join_tables     TYPE zdbbr_entity_t
+        !it_join_tables     TYPE ZSAT_ENTITY_T
         !is_join_field_info TYPE dfies OPTIONAL .
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -28,14 +28,14 @@ CLASS zcl_dbbr_table_treeno_fill DEFINITION
       BEGIN OF ty_s_matched_type_fields,
         prio          TYPE sy-tabix,
         fieldname     TYPE fieldname,
-        tabname       TYPE zdbbr_entity_id,
-        tabname_alias TYPE zdbbr_entity_alias,
+        tabname       TYPE ZSAT_ENTITY_ID,
+        tabname_alias TYPE zsat_entity_alias,
         description   TYPE ddtext,
         domain_match  TYPE abap_bool,
         type_match    TYPE abap_bool,
       END OF ty_s_matched_type_fields .
 
-    DATA mt_join_tables TYPE zdbbr_entity_t.
+    DATA mt_join_tables TYPE ZSAT_ENTITY_T.
     DATA ms_join_field_info TYPE dfies .
     DATA:
       mt_matched_fields TYPE STANDARD TABLE OF ty_s_matched_type_fields WITH EMPTY KEY .
@@ -45,7 +45,7 @@ CLASS zcl_dbbr_table_treeno_fill DEFINITION
       IMPORTING
         !ir_nodes      TYPE REF TO zcl_uitb_ctm_nodes
         !iv_table_node TYPE tm_nodekey
-        is_entity      TYPE zdbbr_entity
+        is_entity      TYPE ZSAT_ENTITY
       CHANGING
         !ct_node_map   TYPE tt_node_map
       RAISING
@@ -136,7 +136,7 @@ CLASS zcl_dbbr_table_treeno_fill IMPLEMENTATION.
 
 
   METHOD create_table_field_nodes.
-    zcl_dbbr_dictionary_helper=>get_table_field_infos(
+    zcl_sat_ddic_repo_access=>get_table_field_infos(
       EXPORTING iv_tablename    = is_entity-entity_id
       IMPORTING et_table_fields = DATA(lt_table_fields)
     ).
@@ -214,7 +214,7 @@ CLASS zcl_dbbr_table_treeno_fill IMPLEMENTATION.
           DATA(lv_icon) = VALUE tv_image( ).
 
 *........ Get table description
-          DATA(ls_tab_info) = zcl_dbbr_dictionary_helper=>get_table_info( |{ <ls_join_table_sel>-entity_id }| ).
+          DATA(ls_tab_info) = zcl_sat_ddic_repo_access=>get_table_info( |{ <ls_join_table_sel>-entity_id }| ).
 
           DATA(lv_table_node_key) = |{ c_table_node_prefix }{ lv_current_index }|.
           IF lv_current_index = 1.
@@ -223,13 +223,13 @@ CLASS zcl_dbbr_table_treeno_fill IMPLEMENTATION.
 
           CASE <ls_join_table_sel>-entity_type.
 
-            WHEN zif_dbbr_c_entity_type=>cds_view.
+            WHEN ZIF_SAT_C_ENTITY_TYPE=>cds_view.
               lv_icon = zif_dbbr_c_icon=>cds_view.
 
-            WHEN zif_dbbr_c_entity_type=>view.
+            WHEN ZIF_SAT_C_ENTITY_TYPE=>view.
               lv_icon = zif_dbbr_c_icon=>database_view.
 
-            WHEN zif_dbbr_c_entity_type=>table.
+            WHEN ZIF_SAT_C_ENTITY_TYPE=>table.
               lv_icon = zif_dbbr_c_icon=>database_table.
           ENDCASE.
 

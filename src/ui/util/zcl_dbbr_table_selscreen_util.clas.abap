@@ -9,7 +9,7 @@ CLASS zcl_dbbr_table_selscreen_util DEFINITION
     METHODS constructor
       IMPORTING
         !ir_selscreen_data TYPE REF TO zcl_dbbr_selscreen_data
-        !iv_entity_type    TYPE zdbbr_entity_type DEFAULT zif_dbbr_c_entity_type=>table .
+        !iv_entity_type    TYPE ZSAT_ENTITY_TYPE DEFAULT ZIF_SAT_C_ENTITY_TYPE=>table .
     METHODS check_edit_mode
         REDEFINITION .
     METHODS check_primary_entity
@@ -56,7 +56,7 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
   METHOD check_primary_entity.
     rf_success = abap_true.
 
-    DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( mo_data->mr_s_global_data->primary_table ).
+    DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( mo_data->mr_s_global_data->primary_table ).
     IF ls_table_info IS INITIAL.
       rf_success = abap_false.
       RETURN.
@@ -142,7 +142,7 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
       IMPORTING
         ev_description = ev_description
     ).
-    ev_type = COND #( WHEN mf_is_view = abap_true THEN zif_dbbr_c_entity_type=>view ELSE zif_dbbr_c_entity_type=>table ).
+    ev_type = COND #( WHEN mf_is_view = abap_true THEN ZIF_SAT_C_ENTITY_TYPE=>view ELSE ZIF_SAT_C_ENTITY_TYPE=>table ).
     ev_entity =
     ev_entity_id =
     ev_entity_raw = mo_data->mr_s_global_data->primary_table.
@@ -212,7 +212,7 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
   METHOD update_description_texts.
 
 *.. update table description
-    DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( mv_entity_id ).
+    DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( mv_entity_id ).
     mo_data->mr_v_selmask_entity_text->* = ls_table_info-ddtext.
 
     DATA(lr_t_fields) = mo_data->mo_tabfield_list->get_fields_ref( ).
@@ -223,7 +223,7 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
       ASSIGNING FIELD-SYMBOL(<ls_grouped_fields>).
 
       " get updated table field infos for new descriptions
-      zcl_dbbr_dictionary_helper=>get_table_field_infos(
+      zcl_sat_ddic_repo_access=>get_table_field_infos(
         EXPORTING iv_tablename    = <ls_grouped_fields>-tabname
         IMPORTING et_table_fields = DATA(lt_table_fields)
       ).
@@ -284,11 +284,11 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
     CASE cv_function.
 
       WHEN zif_dbbr_c_selscreen_functions=>navigate_to_table_def.
-        zcl_dbbr_dictionary_helper=>navigate_to_table( mo_data->mr_s_global_data->primary_table ).
+        zcl_dbbr_ddic_util=>navigate_to_table( mo_data->mr_s_global_data->primary_table ).
         CLEAR cv_function.
 
       WHEN zif_dbbr_c_selscreen_functions=>cross_reference_table.
-        zcl_dbbr_dictionary_helper=>cross_reference_table( mo_data->mr_s_global_data->primary_table ).
+        zcl_dbbr_ddic_util=>cross_reference_table( mo_data->mr_s_global_data->primary_table ).
         CLEAR cv_function.
 
     ENDCASE.

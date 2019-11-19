@@ -58,7 +58,7 @@ endif.
 
   METHOD raise_association_nav_error.
     IF iv_text IS NOT INITIAL.
-      zcl_dbbr_appl_util=>split_string_for_message(
+      ZCL_SAT_MESSAGE_HELPER=>split_string_for_message(
         EXPORTING
           iv_string = iv_text
         IMPORTING

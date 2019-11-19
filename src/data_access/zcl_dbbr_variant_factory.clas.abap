@@ -10,16 +10,16 @@ CLASS zcl_dbbr_variant_factory DEFINITION
     CLASS-METHODS variant_exists
       IMPORTING
         !iv_variant_name TYPE zdbbr_variant_name
-        !iv_entity_id    TYPE zdbbr_entity_id OPTIONAL
-        !iv_entity_type  TYPE zdbbr_entity_type OPTIONAL
+        !iv_entity_id    TYPE ZSAT_ENTITY_ID OPTIONAL
+        !iv_entity_type  TYPE ZSAT_ENTITY_TYPE OPTIONAL
       RETURNING
         VALUE(rf_exists) TYPE boolean .
     "! <p class="shorttext synchronized" lang="en">Finds variants for several criteria</p>
     CLASS-METHODS find_variants
       IMPORTING
         !iv_variant_name TYPE zdbbr_variant_name OPTIONAL
-        !iv_entity_id    TYPE zdbbr_entity_id OPTIONAL
-        !iv_entity_type  TYPE zdbbr_entity_type OPTIONAL
+        !iv_entity_id    TYPE ZSAT_ENTITY_ID OPTIONAL
+        !iv_entity_type  TYPE ZSAT_ENTITY_TYPE OPTIONAL
       EXPORTING
         !et_variant_info TYPE zdbbr_variant_info_itab .
     "! <p class="shorttext synchronized" lang="en">Finds variants for the given query id</p>
@@ -37,8 +37,8 @@ CLASS zcl_dbbr_variant_factory DEFINITION
     "! <p class="shorttext synchronized" lang="en">Finds variant information for the given entity/type</p>
     CLASS-METHODS find_variant_infos_for_type
       IMPORTING
-        !iv_entity_id      TYPE zdbbr_entity_id
-        !iv_entity_type    TYPE zdbbr_entity_type
+        !iv_entity_id      TYPE ZSAT_ENTITY_ID
+        !iv_entity_type    TYPE ZSAT_ENTITY_TYPE
       RETURNING
         VALUE(rt_variants) TYPE zdbbr_variant_info_itab .
     "! <p class="shorttext synchronized" lang="en">Saves the given variant</p>
@@ -52,8 +52,8 @@ CLASS zcl_dbbr_variant_factory DEFINITION
     "! <p class="shorttext synchronized" lang="en">Delete the default variant of an entity</p>
     CLASS-METHODS delete_default_variant
       IMPORTING
-        iv_entity_id      TYPE zdbbr_entity_id
-        iv_entity_type    TYPE zdbbr_entity_type
+        iv_entity_id      TYPE ZSAT_ENTITY_ID
+        iv_entity_type    TYPE ZSAT_ENTITY_TYPE
       RETURNING
         VALUE(rf_deleted) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Saves the auto variant of an entity</p>
@@ -63,8 +63,8 @@ CLASS zcl_dbbr_variant_factory DEFINITION
     "! <p class="shorttext synchronized" lang="en">Deletes an auto variant of an entity</p>
     CLASS-METHODS delete_auto_variant
       IMPORTING
-        iv_entity_id   TYPE zdbbr_entity_id
-        iv_entity_type TYPE zdbbr_entity_type.
+        iv_entity_id   TYPE ZSAT_ENTITY_ID
+        iv_entity_type TYPE ZSAT_ENTITY_TYPE.
 
     "! <p class="shorttext synchronized" lang="en">Saves a list of variants</p>
     CLASS-METHODS save_variants
@@ -75,24 +75,24 @@ CLASS zcl_dbbr_variant_factory DEFINITION
       IMPORTING
         !iv_variant_id      TYPE zdbbr_variant_id OPTIONAL
         !iv_variant_name    TYPE zdbbr_variant_name OPTIONAL
-        !iv_entity_id       TYPE zdbbr_entity_id OPTIONAL
-        !iv_entity_type     TYPE zdbbr_entity_type OPTIONAL
+        !iv_entity_id       TYPE ZSAT_ENTITY_ID OPTIONAL
+        !iv_entity_type     TYPE ZSAT_ENTITY_TYPE OPTIONAL
         !if_load_completely TYPE boolean DEFAULT abap_true
       EXPORTING
         !es_variant         TYPE zdbbr_variant_data .
     "! <p class="shorttext synchronized" lang="en">Retrieves automatically saved variant for the given entity</p>
     CLASS-METHODS get_automatic_variant
       IMPORTING
-        !iv_entity_id       TYPE zdbbr_entity_id OPTIONAL
-        !iv_entity_type     TYPE zdbbr_entity_type OPTIONAL
+        !iv_entity_id       TYPE ZSAT_ENTITY_ID OPTIONAL
+        !iv_entity_type     TYPE ZSAT_ENTITY_TYPE OPTIONAL
         !if_load_completely TYPE boolean DEFAULT abap_true
       RETURNING
         VALUE(rs_variant)   TYPE zdbbr_variant_data .
     "! <p class="shorttext synchronized" lang="en">Retrieves default variant for the given entity</p>
     CLASS-METHODS get_default_variant
       IMPORTING
-        !iv_entity_id       TYPE zdbbr_entity_id OPTIONAL
-        !iv_entity_type     TYPE zdbbr_entity_type OPTIONAL
+        !iv_entity_id       TYPE ZSAT_ENTITY_ID OPTIONAL
+        !iv_entity_type     TYPE ZSAT_ENTITY_TYPE OPTIONAL
         !if_load_completely TYPE boolean DEFAULT abap_true
       RETURNING
         VALUE(rs_variant)   TYPE zdbbr_variant_data .
@@ -113,15 +113,15 @@ CLASS zcl_dbbr_variant_factory DEFINITION
     "! <p class="shorttext synchronized" lang="en">Checks if there is variant for the given entity</p>
     CLASS-METHODS variant_exists_for_entity
       IMPORTING
-        !iv_entity_id    TYPE zdbbr_entity_id
-        !iv_entity_type  TYPE zdbbr_entity_type
+        !iv_entity_id    TYPE ZSAT_ENTITY_ID
+        !iv_entity_type  TYPE ZSAT_ENTITY_TYPE
       RETURNING
         VALUE(rf_exists) TYPE boolean .
     "! <p class="shorttext synchronized" lang="en">Checks if there is a default variant for the given entity</p>
     CLASS-METHODS default_variant_exists
       IMPORTING
-        iv_entity_id     TYPE zdbbr_entity_id
-        iv_entity_type   TYPE zdbbr_entity_type
+        iv_entity_id     TYPE ZSAT_ENTITY_ID
+        iv_entity_type   TYPE ZSAT_ENTITY_TYPE
       RETURNING
         VALUE(rf_exists) TYPE abap_bool.
   PROTECTED SECTION.
@@ -172,7 +172,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
 
   METHOD delete_variants_by_query_id.
     find_variants( EXPORTING iv_entity_id    = CONV #( iv_query_id )
-                             iv_entity_type  = zif_dbbr_c_entity_type=>query
+                             iv_entity_type  = ZIF_SAT_C_ENTITY_TYPE=>query
                    IMPORTING et_variant_info = DATA(lt_variants) ).
 
     LOOP AT lt_variants ASSIGNING FIELD-SYMBOL(<ls_variant>).
@@ -197,7 +197,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
     SELECT SINGLE variant_id
       FROM zdbbr_variant
       WHERE entity_id = @iv_query_id
-        AND entity_type = @zif_dbbr_c_entity_type=>query
+        AND entity_type = @ZIF_SAT_C_ENTITY_TYPE=>query
         AND variant_name = ''
       INTO @rv_variant_id.
   ENDMETHOD.
@@ -205,13 +205,13 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
 
   METHOD find_variants.
     DATA(lt_entity_id_sel) = COND #( WHEN iv_entity_id  IS NOT INITIAL THEN
-                                        VALUE zdbbr_selopt_itab( ( sign = 'I' option = 'EQ' low = iv_entity_id ) ) ).
+                                        VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt( ( sign = 'I' option = 'EQ' low = iv_entity_id ) ) ).
     DATA(lt_entity_type_sel) = COND #( WHEN iv_entity_type IS NOT INITIAL THEN
-                                         VALUE zdbbr_selopt_itab( ( sign = 'I' option = 'EQ' low = iv_entity_type ) ) ).
+                                         VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt( ( sign = 'I' option = 'EQ' low = iv_entity_type ) ) ).
 
     IF iv_variant_name IS NOT INITIAL.
       DATA(lv_option) = COND #( WHEN contains( val = iv_variant_name sub = '*' ) THEN 'CP' ELSE 'EQ' ).
-      DATA(lt_variant_selopt) = VALUE zdbbr_selopt_itab( ( sign = 'I' option = lv_option low = iv_variant_name ) ).
+      DATA(lt_variant_selopt) = VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt( ( sign = 'I' option = lv_option low = iv_variant_name ) ).
     ENDIF.
 
     SELECT * FROM zdbbr_variant INTO CORRESPONDING FIELDS OF TABLE et_variant_info
@@ -225,7 +225,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
   METHOD find_variants_for_query.
     SELECT * FROM zdbbr_variant INTO CORRESPONDING FIELDS OF TABLE rt_variants
       WHERE entity_id = iv_query_id
-        AND entity_type = zif_dbbr_c_entity_type=>query.
+        AND entity_type = ZIF_SAT_C_ENTITY_TYPE=>query.
 
     LOOP AT rt_variants ASSIGNING FIELD-SYMBOL(<ls_variant>).
       fill_corresponding_data( CHANGING cs_variant = <ls_variant> ).
@@ -236,14 +236,14 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
   METHOD find_variant_infos_for_query.
     SELECT * FROM zdbbr_variant INTO CORRESPONDING FIELDS OF TABLE rt_variants
       WHERE entity_id = iv_query_id
-        AND entity_type = zif_dbbr_c_entity_type=>query.
+        AND entity_type = ZIF_SAT_C_ENTITY_TYPE=>query.
   ENDMETHOD.
 
 
   METHOD find_variant_infos_for_type.
     DATA(lv_entity_id) = iv_entity_id.
 
-    IF iv_entity_type = zif_dbbr_c_entity_type=>query.
+    IF iv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>query.
       NEW zcl_dbbr_query_factory( )->find_queries( EXPORTING iv_query_name = lv_entity_id IMPORTING et_queries = DATA(lt_queries) ).
       CHECK lt_queries IS NOT INITIAL AND lines( lt_queries ) = 1.
       lv_entity_id = lt_queries[ 1 ]-query_id.
@@ -268,11 +268,11 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
       ENDIF.
     ELSE. " read variant for business key
       DATA(lt_entity_id_sel) = COND #( WHEN iv_entity_id  IS NOT INITIAL THEN
-                                           VALUE zdbbr_selopt_itab( ( sign = 'I' option = 'EQ' low = iv_entity_id ) ) ).
+                                           VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt( ( sign = 'I' option = 'EQ' low = iv_entity_id ) ) ).
       DATA(lt_entity_type_sel) = COND #( WHEN iv_entity_type IS NOT INITIAL THEN
-                                           VALUE zdbbr_selopt_itab( ( sign = 'I' option = 'EQ' low = iv_entity_type ) ) ).
+                                           VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt( ( sign = 'I' option = 'EQ' low = iv_entity_type ) ) ).
       DATA(lt_variant_name_selopt) = COND #( WHEN iv_variant_name IS NOT INITIAL THEN
-                                               VALUE zdbbr_selopt_itab( ( sign = 'I' option = 'EQ' low = iv_variant_name ) ) ).
+                                               VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt( ( sign = 'I' option = 'EQ' low = iv_variant_name ) ) ).
 
       SELECT SINGLE * FROM zdbbr_variant INTO CORRESPONDING FIELDS OF es_variant
         WHERE variant_name  IN lt_variant_name_selopt
@@ -334,7 +334,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
       INTO CORRESPONDING FIELDS OF @ls_variant.
       MODIFY zdbbr_variant FROM ls_variant.
     ELSE.
-      ls_variant-variant_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      ls_variant-variant_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       ls_variant-created_by = sy-uname.
       ls_variant-created_date = sy-datum.
       INSERT zdbbr_variant FROM ls_variant.
@@ -344,7 +344,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
     IF lt_fields IS NOT INITIAL.
       LOOP AT lt_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
         <ls_field>-ref_id = ls_variant-variant_id.
-        <ls_field>-table_field_id = zcl_dbbr_system_helper=>create_guid_22( ).
+        <ls_field>-table_field_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       ENDLOOP.
 
       INSERT zdbbr_tabf FROM TABLE lt_fields.
@@ -353,7 +353,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
     IF lt_vardata IS NOT INITIAL.
       LOOP AT lt_vardata ASSIGNING FIELD-SYMBOL(<ls_var_data>).
         <ls_var_data>-ref_variant_id = ls_variant-variant_id.
-        <ls_var_data>-variant_data_id = zcl_dbbr_system_helper=>create_guid_22( ).
+        <ls_var_data>-variant_data_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       ENDLOOP.
 
       INSERT zdbbr_vardata FROM TABLE lt_vardata.
@@ -388,7 +388,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
       ls_variant-created_date = ls_existing_var-created_date.
       MODIFY zdbbr_variantd FROM ls_variant.
     ELSE.
-      ls_variant-variant_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      ls_variant-variant_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       ls_variant-created_by = sy-uname.
       ls_variant-created_date = sy-datum.
       INSERT zdbbr_variantd FROM ls_variant.
@@ -398,7 +398,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
     IF lt_fields IS NOT INITIAL.
       LOOP AT lt_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
         <ls_field>-ref_id = ls_variant-variant_id.
-        <ls_field>-table_field_id = zcl_dbbr_system_helper=>create_guid_22( ).
+        <ls_field>-table_field_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       ENDLOOP.
 
       INSERT zdbbr_tabf FROM TABLE lt_fields.
@@ -407,7 +407,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
     IF lt_vardata IS NOT INITIAL.
       LOOP AT lt_vardata ASSIGNING FIELD-SYMBOL(<ls_var_data>).
         <ls_var_data>-ref_variant_id = ls_variant-variant_id.
-        <ls_var_data>-variant_data_id = zcl_dbbr_system_helper=>create_guid_22( ).
+        <ls_var_data>-variant_data_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       ENDLOOP.
 
       INSERT zdbbr_vardata FROM TABLE lt_vardata.
@@ -444,7 +444,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
         iv_entity_type = is_var_data-entity_type
     ).
 
-    ls_variant-variant_id = zcl_dbbr_system_helper=>create_guid_22( ).
+    ls_variant-variant_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
     ls_variant-created_by = sy-uname.
     ls_variant-created_date = sy-datum.
     INSERT zdbbr_variantaf FROM ls_variant.
@@ -452,7 +452,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
     IF lt_vardata IS NOT INITIAL.
       LOOP AT lt_vardata ASSIGNING FIELD-SYMBOL(<ls_var_data>).
         <ls_var_data>-ref_variant_id = ls_variant-variant_id.
-        <ls_var_data>-variant_data_id = zcl_dbbr_system_helper=>create_guid_22( ).
+        <ls_var_data>-variant_data_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       ENDLOOP.
 
       INSERT zdbbr_vardata FROM TABLE lt_vardata.
@@ -484,10 +484,10 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
 *&---------------------------------------------------------------------*
 
     DATA(lt_entity_id_sel) = COND #( WHEN iv_entity_id  IS NOT INITIAL THEN
-                                         VALUE zdbbr_selopt_itab( ( sign = 'I' option = 'EQ' low = iv_entity_id ) ) ).
+                                         VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt( ( sign = 'I' option = 'EQ' low = iv_entity_id ) ) ).
 
     DATA(lt_entity_type_sel) = COND #( WHEN iv_entity_type IS NOT INITIAL THEN
-                                         VALUE zdbbr_selopt_itab( ( sign = 'I' option = 'EQ' low = iv_entity_type ) ) ).
+                                         VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt( ( sign = 'I' option = 'EQ' low = iv_entity_type ) ) ).
 
     SELECT COUNT( * ) FROM zdbbr_variant INTO @DATA(lv_count)
       WHERE variant_name  =  @iv_variant_name
@@ -503,7 +503,7 @@ CLASS zcl_dbbr_variant_factory IMPLEMENTATION.
     rf_exists = abap_false.
     DATA(lv_entity_id) = iv_entity_id.
 
-    IF iv_entity_type = zif_dbbr_c_entity_type=>query.
+    IF iv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>query.
       DATA(lr_query_f) = NEW zcl_dbbr_query_factory( ).
       DATA(ls_query) = lr_query_f->get_query(
         iv_query_name     = iv_entity_id

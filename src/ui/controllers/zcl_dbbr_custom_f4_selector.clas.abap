@@ -28,8 +28,11 @@ CLASS zcl_dbbr_custom_f4_selector DEFINITION
         description  TYPE zdbbr_search_descr,
         search_table TYPE zdbbr_searchtab,
         search_field TYPE zdbbr_search_field,
+        rollname     TYPE rollname,
+        datatype     TYPE datatype_d,
+        length       TYPE ddlen,
         is_built_in  TYPE zdbbr_built_in,
-        created_by   TYPE zdbbr_created_by,
+        created_by   TYPE zsat_created_by,
         filtered     TYPE abap_bool,
       END OF ty_s_f4.
     TYPES: ty_t_f4 TYPE STANDARD TABLE OF ty_s_f4 WITH EMPTY KEY.
@@ -55,16 +58,28 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
     CLEAR: mt_custom_f4.
 
 *.. Read all possible value helps for the fieldname and datatype of the field
-    zcl_dbbr_custom_f4_factory=>find_f4_for_datatype(
-      EXPORTING iv_rollname      = ms_tabfield-rollname
-                is_built_in_type = VALUE #(
-                  datatype = ms_tabfield-datatype
-                  inttype  = ms_tabfield-inttype
-                )
-      IMPORTING et_f4            = DATA(lt_f4)
-    ).
+    IF ms_tabfield-rollname IS NOT INITIAL.
+      zcl_dbbr_custom_f4_factory=>find_f4_for_datatype(
+        EXPORTING iv_rollname      = ms_tabfield-rollname
+        IMPORTING et_f4            = DATA(lt_f4)
+      ).
+    ENDIF.
+    IF ms_tabfield-datatype IS NOT INITIAL.
+      zcl_dbbr_custom_f4_factory=>find_f4_for_datatype(
+        EXPORTING is_built_in_type = VALUE #(
+                    datatype = ms_tabfield-datatype
+                    inttype  = ms_tabfield-inttype
+                  )
+        IMPORTING et_f4            = DATA(lt_datatype_f4)
+      ).
+      lt_f4 = VALUE #( BASE lt_f4 ( LINES OF lt_datatype_f4 ) ).
+    ENDIF.
 
     CHECK lt_f4 IS NOT INITIAL.
+
+*.. Remove duplicates
+    SORT lt_f4 BY f4_id.
+    DELETE ADJACENT DUPLICATES FROM lt_f4.
 
 *.... read assignments for F4
     DATA(lt_f4_assgmt) = zcl_dbbr_custom_f4_factory=>get_f4_assignments( ).
@@ -83,6 +98,9 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
       APPEND INITIAL LINE TO mt_custom_f4 ASSIGNING FIELD-SYMBOL(<ls_f4>).
       <ls_f4> = CORRESPONDING #( <ls_f4_data> ).
       <ls_f4>-search_field = ls_search_field-search_field.
+      <ls_f4>-datatype = ls_search_field-datatype.
+      <ls_f4>-rollname = ls_search_field-rollname.
+      <ls_f4>-length = ls_search_field-leng.
       <ls_f4>-search_table = ls_search_field-search_table.
       <ls_f4>-mark = xsdbool( line_exists( lt_f4_assgmt[ ref_f4_id = <ls_f4_data>-f4_id
                                                          fieldname = ms_tabfield-fieldname
@@ -100,7 +118,7 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
     show(
         iv_top    = 2
         iv_left   = 10
-        iv_width  = 105
+        iv_width  = 125
         iv_height = 17
     ).
 
@@ -143,6 +161,13 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
       WHEN 'IS_BUILT_IN'.
         io_column->set_optimized( ).
         io_column->set_cell_type( zif_uitb_c_alv_cell_types=>checkbox ).
+
+      WHEN 'DATATYPE'.
+        io_column->set_optimized( ).
+
+      WHEN 'LENGTH'.
+        io_column->set_optimized( ).
+        io_column->set_descriptions( iv_medium = 'Lngth' iv_long = 'Length' ).
 
       WHEN OTHERS.
         io_column->set_optimized( ).

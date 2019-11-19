@@ -220,7 +220,7 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
   METHOD display_lines.
 
     IF mr_selfield_line->is_parameter = abap_true.
-      zcl_dbbr_data_converter=>convert_values_to_disp_format(
+      ZCL_SAT_DATA_CONVERTER=>convert_values_to_disp_format(
         EXPORTING
           iv_rollname = mr_selfield_line->rollname
           iv_type     = mr_selfield_line->inttype
@@ -230,7 +230,7 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
                   cv_value2    = mr_selfield_line->high
       ).
     ELSE.
-      zcl_dbbr_data_converter=>convert_selopt_to_disp_format(
+      ZCL_SAT_DATA_CONVERTER=>convert_selopt_to_disp_format(
         EXPORTING iv_tabname   = mr_selfield_line->tabname
                   iv_fieldname = mr_selfield_line->fieldname
         CHANGING  cv_value1    = mr_selfield_line->low
@@ -349,8 +349,8 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
         conv_selfields_to_internal(
             if_no_uppercase_conversion = lf_no_uppercase_conversion ).
 
-      CATCH zcx_dbbr_conversion_exc INTO DATA(lx_conv_error).
-        lx_conv_error->zif_dbbr_exception_message~print( iv_msg_type = 'E' ).
+      CATCH ZCX_SAT_CONVERSION_EXC INTO DATA(lx_conv_error).
+        lx_conv_error->ZIF_SAT_EXCEPTION_MESSAGE~print( iv_msg_type = 'E' ).
         RETURN.
     ENDTRY.
 

@@ -29,10 +29,10 @@ CLASS zcl_dbbr_copy_query_ctrl DEFINITION
     DATA mf_new_query_created TYPE boolean .
 *   DATA mr_ui_global_data     TYPE REF TO ZDBBR_global_data.
     DATA ms_new_query TYPE zdbbr_query_info_ui .
-    DATA mr_ui_query_name TYPE REF TO zdbbr_query_name .
+    DATA mr_ui_query_name TYPE REF TO ZSAT_QUERY_NAME .
     DATA mr_ui_query_desc TYPE REF TO ddtext .
     DATA mr_ui_is_global TYPE REF TO boolean .
-    DATA mr_ui_query_name_target TYPE REF TO zdbbr_query_name .
+    DATA mr_ui_query_name_target TYPE REF TO ZSAT_QUERY_NAME .
     DATA mr_ui_query_desc_target TYPE REF TO ddtext .
     DATA mr_ui_is_global_target TYPE REF TO boolean .
     DATA mr_ui_copy_variants TYPE REF TO boolean .

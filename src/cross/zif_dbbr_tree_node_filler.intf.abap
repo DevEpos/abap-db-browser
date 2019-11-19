@@ -14,9 +14,9 @@ INTERFACE zif_dbbr_tree_node_filler
       node_key        TYPE tm_nodekey,
       node_type       TYPE i,
       tabname         TYPE tabname,
-      alias           TYPE zdbbr_entity_alias,
+      alias           TYPE zsat_entity_alias,
       fieldname       TYPE fieldname,
-      alias_fieldname TYPE zdbbr_fieldname_with_alias,
+      alias_fieldname TYPE ZSAT_FIELDNAME_WITH_ALIAS,
     END OF ty_node_map .
   TYPES:
     tt_node_map TYPE STANDARD TABLE OF ty_node_map WITH KEY node_key .

@@ -64,6 +64,10 @@ CLASS zcl_dbbr_selscreen_table DEFINITION
         VALUE(rf_search_successful) TYPE boolean .
     "! <p class="shorttext synchronized" lang="en">Set LOWERCASE setting of current field</p>
     METHODS set_lowercase_setting .
+    "! <p class="shorttext synchronized" lang="en">Selects group by of all fields</p>
+    METHODS select_all_group_by.
+    "! <p class="shorttext synchronized" lang="en">Unselects group by of all fields</p>
+    METHODS unselect_all_group_by.
 
   PROTECTED SECTION.
 
@@ -166,7 +170,7 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
          mr_selfield_line->aggregation = zif_dbbr_c_aggregation=>sum )
        AND mr_selfield_line->is_numeric = abap_false.
 
-      MESSAGE e020(zdbbr_info) WITH zcl_dbbr_dictionary_helper=>get_domain_fix_value_text( mr_selfield_line->aggregation ).
+      MESSAGE e020(zdbbr_info) WITH zcl_sat_ddic_repo_access=>get_domain_fix_value_text( mr_selfield_line->aggregation ).
     ENDIF.
 
   ENDMETHOD.
@@ -174,12 +178,12 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
 
   METHOD check_entered_system_value.
 
-    DATA(lv_inttype) = zcl_dbbr_dictionary_helper=>get_dtel_inttype( mr_selfield_line->rollname ).
-    IF NOT zcl_dbbr_dictionary_helper=>check_for_possible_systype( iv_inttype           = lv_inttype
+    DATA(lv_inttype) = zcl_sat_ddic_repo_access=>get_dtel_inttype( mr_selfield_line->rollname ).
+    IF NOT zcl_dbbr_ddic_util=>check_for_possible_systype( iv_inttype           = lv_inttype
                                                                    iv_system_value_type = mr_selfield_line->system_value_type ).
       MESSAGE e071(zdbbr_info).
     ELSE.
-      zcl_dbbr_system_helper=>get_system_value( EXPORTING iv_system_value_type = mr_selfield_line->system_value_type
+      zcl_sat_system_helper=>get_system_value( EXPORTING iv_system_value_type = mr_selfield_line->system_value_type
                                                 IMPORTING ev_system_value      = mr_selfield_line->low ).
     ENDIF.
 
@@ -253,7 +257,7 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
 
     IF cs_selfields-is_parameter = abap_true.
       IF cs_selfields-is_range_param = abap_false.
-        cs_selfields-option = zif_dbbr_c_options=>equals.
+        cs_selfields-option = zif_sat_c_options=>equals.
       ENDIF.
       TRY.
           DATA(lr_tabfield) = get_util( )->mo_data->mo_tabfield_list->get_field_ref(
@@ -280,7 +284,7 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
 *& are displayed
 *&---------------------------------------------------------------------*
     IF mr_selfield_line->is_parameter = abap_true.
-      zcl_dbbr_data_converter=>convert_values_to_disp_format(
+      zcl_sat_data_converter=>convert_values_to_disp_format(
         EXPORTING
           iv_rollname            = mr_selfield_line->rollname
           iv_type                = mr_selfield_line->inttype
@@ -290,7 +294,7 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
           cv_value1              = mr_selfield_line->low
       ).
     ELSE.
-      zcl_dbbr_data_converter=>convert_selopt_to_disp_format(
+      zcl_sat_data_converter=>convert_selopt_to_disp_format(
         EXPORTING iv_tabname   = mr_selfield_line->tabname
                   iv_fieldname = mr_selfield_line->fieldname
         CHANGING  cv_value1    = mr_selfield_line->low
@@ -836,7 +840,7 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
     FIELD-SYMBOLS: <ls_table_column> TYPE scxtab_column.
 
     IF mr_selfield_line->inttype IS NOT INITIAL AND
-       NOT zcl_dbbr_system_helper=>syst_value_allwd_for_inttyp( mr_selfield_line->inttype ).
+       NOT zcl_sat_system_helper=>syst_value_allwd_for_inttyp( mr_selfield_line->inttype ).
       LOOP AT SCREEN INTO ls_screen.
         IF ls_screen-name = c_fields-system_value_type.
           ls_screen-active = 0.
@@ -968,8 +972,8 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
           conv_selfields_to_internal(
                if_no_uppercase_conversion = lf_no_uppercase_conversion ).
 
-        CATCH zcx_dbbr_conversion_exc INTO DATA(lx_conv_error).
-          lx_conv_error->zif_dbbr_exception_message~print( iv_msg_type = 'E' ).
+        CATCH zcx_sat_conversion_exc INTO DATA(lx_conv_error).
+          lx_conv_error->zif_sat_exception_message~print( iv_msg_type = 'E' ).
           RETURN.
       ENDTRY.
 
@@ -1043,4 +1047,17 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
     get_util( )->handle_table_pbo( ).
 
   ENDMETHOD.
+
+  METHOD select_all_group_by.
+    LOOP AT mr_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>).
+      <ls_selfield>-group_by = abap_true.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD unselect_all_group_by.
+    LOOP AT mr_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>).
+      CLEAR: <ls_selfield>-group_by.
+    ENDLOOP.
+  ENDMETHOD.
+
 ENDCLASS.

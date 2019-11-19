@@ -1,40 +1,40 @@
-class ZCL_DBBR_query_HELPER definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_query_helper DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  class-methods CHECK_query_NAME
-    importing
-      !IV_query_NAME type ZDBBR_query_NAME
-      !IF_GLOBAL type BOOLEAN .
-  class-methods CALL_query_F4
-    importing
-      !IV_REPID type SY-REPID
-    returning
-      value(RV_query_NAME) type ZDBBR_query_NAME .
+    CLASS-METHODS check_query_name
+      IMPORTING
+        !iv_query_name TYPE zsat_query_name
+        !if_global     TYPE boolean .
+    CLASS-METHODS call_query_f4
+      IMPORTING
+        !iv_repid            TYPE sy-repid
+      RETURNING
+        VALUE(rv_query_name) TYPE zsat_query_name .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_query_HELPER IMPLEMENTATION.
+CLASS zcl_dbbr_query_helper IMPLEMENTATION.
 
 
   METHOD call_query_f4.
     TYPES: BEGIN OF lty_search_value,
-             query_name   TYPE ZDBBR_query_name,
+             query_name    TYPE zsat_query_name,
              primary_table TYPE tabname,
              description   TYPE ddtext,
-             created_by    TYPE ZDBBR_created_by,
+             created_by    TYPE zsat_created_by,
            END OF lty_search_value.
 
     DATA: lt_values TYPE STANDARD TABLE OF lty_search_value,
           lt_return TYPE STANDARD TABLE OF ddshretval.
 
-    DATA(lr_query_factory) = NEW ZCL_DBBR_query_factory( ).
+    DATA(lr_query_factory) = NEW zcl_dbbr_query_factory( ).
 
     lr_query_factory->find_queries( IMPORTING et_queries = DATA(lt_queries) ).
 
@@ -69,14 +69,14 @@ CLASS ZCL_DBBR_query_HELPER IMPLEMENTATION.
 
   METHOD check_query_name.
     IF matches( val = iv_query_name regex = '[^$].*' ) AND if_global = abap_true.
-      RAISE EXCEPTION TYPE ZCX_DBBR_exception
+      RAISE EXCEPTION TYPE zcx_dbbr_exception
         EXPORTING
-          textid = ZCX_DBBR_exception=>query_global_name_error
+          textid = zcx_dbbr_exception=>query_global_name_error
           msgv1  = '$'.
     ELSEIF matches( val = iv_query_name regex = '\$.*' ) AND if_global = abap_false.
-      RAISE EXCEPTION TYPE ZCX_DBBR_exception
+      RAISE EXCEPTION TYPE zcx_dbbr_exception
         EXPORTING
-          textid = ZCX_DBBR_exception=>query_not_global_name_error
+          textid = zcx_dbbr_exception=>query_not_global_name_error
           msgv1  = '$'.
     ENDIF.
   ENDMETHOD.

@@ -70,10 +70,7 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD execute_select.
-    DATA: lr_query_result TYPE REF TO data,
-          lv_time1        TYPE timestampl,
-          lv_time2        TYPE timestampl,
-          lv_duration     TYPE timestampl.
+    DATA: lr_query_result TYPE REF TO data.
 
     create_subroutine_code(
       EXPORTING
@@ -87,24 +84,17 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
       RETURN.
     ENDIF.
 
+    DATA(lo_timer) = NEW zcl_dbbr_timer( ).
     DATA(lv_class) = |\\PROGRAM={ lv_program }\\CLASS=MAIN|.
-    GET TIME STAMP FIELD lv_time1.
+    lo_timer->start( ).
     IF ms_query-is_single_result_query = abap_true.
       CALL METHOD (lv_class)=>execute RECEIVING rv_count = rs_table_result-line_count.
     ELSE.
       CALL METHOD (lv_class)=>execute RECEIVING rr_result = lr_query_result .
     ENDIF.
-    GET TIME STAMP FIELD lv_time2.
+    lo_timer->stop( ).
 
-    cl_abap_tstmp=>subtract(
-      EXPORTING
-        tstmp1                     =   lv_time2
-        tstmp2                     =   lv_time1
-      RECEIVING
-        r_secs                     =   lv_duration
-    ).
-    lv_duration  = lv_duration  * 1000.
-    rs_table_result-query_execution_time = |{ lv_duration NUMBER = USER } ms|.
+    rs_table_result-query_execution_time = lo_timer->get_duration_string( ).
 
     IF ms_query-is_single_result_query = abap_false.
       check_and_correct_result(

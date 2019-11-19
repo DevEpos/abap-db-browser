@@ -7,7 +7,7 @@ FUNCTION ZDBBR_START.
 *"----------------------------------------------------------------------
 
 * Initially the entity type is the Table mode
-  gs_entity_info-entity_type = zif_dbbr_c_entity_type=>table.
+  gs_entity_info-entity_type = zif_sat_c_entity_type=>table.
 
   IF if_initialize = abap_true.
     gt_sel_init = VALUE #(
@@ -31,14 +31,14 @@ FUNCTION ZDBBR_START.
 * initialize some global fields
   gs_data-settings = zcl_dbbr_usersettings_factory=>get_settings( ).
 
-  zcl_dbbr_system_helper=>set_locale_language( ).
+  zcl_sat_system_helper=>set_locale_language( ).
 
 * Validate the last saved data
   IF gs_data-settings-last_entity_id IS NOT INITIAL AND
-     gs_data-settings-last_entity_type = zif_dbbr_c_entity_type=>query.
+     gs_data-settings-last_entity_type = zif_sat_c_entity_type=>query.
     DATA(lr_query_f) = NEW zcl_dbbr_query_factory( ).
     IF NOT lr_query_f->query_exists( iv_query_name = gs_data-settings-last_entity_id ).
-      gs_data-settings-last_entity_type = zif_dbbr_c_entity_type=>table.
+      gs_data-settings-last_entity_type = zif_sat_c_entity_type=>table.
       CLEAR gs_data-settings-last_entity_id.
     ENDIF.
   ENDIF.
@@ -50,7 +50,7 @@ FUNCTION ZDBBR_START.
   DATA(ls_context) = cl_adt_gui_integration_context=>read_context( ).
   IF ls_context-parameters IS NOT INITIAL.
 
-    DATA(lr_param_util) = NEW zcl_dbbr_adt_param_util( ls_context-parameters ).
+    DATA(lr_param_util) = NEW zcl_sat_adt_param_util( ls_context-parameters ).
 
     cl_adt_gui_integration_context=>initialize_instance( VALUE #( ) ).
 
@@ -58,19 +58,37 @@ FUNCTION ZDBBR_START.
 *.. Transaction was called via ADT
     IF lt_params IS NOT INITIAL AND
        lines( lt_params ) > 1 AND
-       line_exists( lt_params[ param_id = zif_dbbr_c_adt_start_params=>adt_call ] ).
+       line_exists( lt_params[ param_id = zif_sat_c_adt_start_params=>adt_call ] ).
 
-      DATA(lv_skip_selscreen_value) = VALUE #( lt_params[ param_id = zif_dbbr_c_adt_start_params=>skip_selscreen ]-param_value DEFAULT abap_false ).
+      DATA(lv_skip_selscreen_value) = VALUE #( lt_params[ param_id = zif_sat_c_adt_start_params=>skip_selscreen ]-param_value DEFAULT abap_false ).
       TRY.
-          lv_entity_id = VALUE #( lt_params[ param_id = zif_dbbr_c_adt_start_params=>entity_id ]-param_value DEFAULT lv_entity_id ).
-          lv_entity_type = VALUE #( lt_params[ param_id = zif_dbbr_c_adt_start_params=>entity_mode ]-param_value DEFAULT lv_entity_type ).
+          lv_entity_id = VALUE #( lt_params[ param_id = zif_sat_c_adt_start_params=>entity_id ]-param_value DEFAULT lv_entity_id ).
+          lv_entity_type = VALUE #( lt_params[ param_id = zif_sat_c_adt_start_params=>entity_mode ]-param_value DEFAULT lv_entity_type ).
 
 *........ determine the entity for the DDLS name
-          IF lv_entity_type = zif_dbbr_c_entity_type=>cds_view.
-            lv_entity_id = zcl_dbbr_cds_view_factory=>get_entity_name_for_ddls( lv_entity_id ).
-          ELSEIF lv_entity_type = zif_dbbr_c_entity_type=>view.
+          IF lv_entity_type = zif_sat_c_entity_type=>cds_view.
+            SELECT SINGLE entityid,
+                          ddlname,
+                          parentddlname
+              FROM zsat_p_cdsviewbase
+              WHERE entityid = @lv_entity_id
+                 OR ddlname  = @lv_entity_id
+            INTO @DATA(ls_cds_entity).
+            IF sy-subrc <> 0.
+              CLEAR lv_entity_id.
+              CLEAR lv_skip_selscreen_value.
+            ELSEIF ls_cds_entity-parentddlname IS NOT INITIAL.
+*............ If the view is an extension view, just use the parent instead
+              SELECT SINGLE entityid
+                FROM zsat_p_cdsviewbase
+                WHERE ddlname = @ls_cds_entity-parentddlname
+              INTO @lv_entity_id.
+            ELSE.
+              lv_entity_id = ls_cds_entity-entityid.
+            ENDIF.
+          ELSEIF lv_entity_type = zif_sat_c_entity_type=>view.
 *.......... Views are considered just like tables, as the handling is not really any different
-            lv_entity_type = zif_dbbr_c_entity_type=>table.
+            lv_entity_type = zif_sat_c_entity_type=>table.
           ENDIF.
 
           DATA(lf_skip_selscreen) = COND #( WHEN lv_skip_selscreen_value  = 'false' THEN abap_false ELSE abap_true ).
@@ -93,7 +111,7 @@ FUNCTION ZDBBR_START.
         CATCH cx_sy_itab_line_not_found.
           lv_entity_id = gs_data-settings-last_entity_id.
           lv_entity_type = gs_data-settings-last_entity_type.
-        CATCH zcx_dbbr_data_read_error INTO DATA(lx_read_error).
+        CATCH zcx_sat_data_read_error INTO DATA(lx_read_error).
           lx_read_error->show_message( ).
           RETURN.
         CATCH zcx_dbbr_variant_error INTO DATA(lx_variant_error).

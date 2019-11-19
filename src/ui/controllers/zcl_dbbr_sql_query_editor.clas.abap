@@ -2,7 +2,6 @@
 CLASS zcl_dbbr_sql_query_editor DEFINITION
   PUBLIC
   INHERITING FROM zcl_uitb_gui_screen
-  FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
@@ -12,40 +11,26 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
-        iv_query_name TYPE zdbbr_query_name OPTIONAL.
+        iv_query_name TYPE zsat_query_name OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Returns the last saved query</p>
     "!
     METHODS get_last_saved_query
       RETURNING
-        VALUE(rv_query_name) TYPE zdbbr_query_name.
+        VALUE(rv_query_name) TYPE zsat_query_name.
   PROTECTED SECTION.
+    DATA mf_standalone_mode TYPE abap_bool.
+    DATA mo_toolbar TYPE REF TO cl_gui_toolbar.
+    DATA mo_query_f TYPE REF TO zcl_dbbr_query_factory.
+    DATA mo_editor TYPE REF TO zcl_uitb_gui_code_editor.
+    DATA ms_current_query TYPE zdbbr_query_data.
+
+    DATA mf_title TYPE string.
     METHODS create_content
         REDEFINITION.
     METHODS do_before_dynpro_output
         REDEFINITION.
     METHODS handle_exit_request
         REDEFINITION.
-  PRIVATE SECTION.
-    CONSTANTS:
-      BEGIN OF c_functions,
-        check                TYPE ui_func VALUE 'CHECK',
-        focus_on_editor      TYPE ui_func VALUE 'FOCUS_ON_EDITOR',
-        test_query           TYPE ui_func VALUE 'TEST',
-        format_source        TYPE ui_func VALUE 'PRETTY_PRINTER',
-        show_code_completion TYPE ui_func VALUE 'CODE_COMPLETION',
-      END OF c_functions.
-
-    DATA mo_toolbar TYPE REF TO cl_gui_toolbar.
-    DATA mv_query_name TYPE zdbbr_query_name.
-    DATA mo_query_f TYPE REF TO zcl_dbbr_query_factory.
-    DATA mo_query TYPE REF TO zcl_dbbr_sql_query.
-    DATA mo_editor TYPE REF TO zcl_uitb_gui_code_editor.
-    DATA ms_current_query TYPE zdbbr_query_data.
-    DATA mv_last_saved_content TYPE string.
-    DATA mf_no_edit_allowed TYPE abap_bool.
-    DATA mf_modified TYPE abap_bool.
-    DATA mv_last_saved_query TYPE zdbbr_query_name.
-
     "! <p class="shorttext synchronized" lang="en">Checks the modification state of the editor</p>
     METHODS is_modified
       RETURNING
@@ -61,6 +46,22 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
     "! <p class="shorttext synchronized" lang="en">Tests the current query string</p>
     METHODS test_query.
 
+  PRIVATE SECTION.
+    CONSTANTS:
+      BEGIN OF c_functions,
+        check                TYPE ui_func VALUE 'CHECK',
+        focus_on_editor      TYPE ui_func VALUE 'FOCUS_ON_EDITOR',
+        test_query           TYPE ui_func VALUE 'TEST',
+        format_source        TYPE ui_func VALUE 'PRETTY_PRINTER',
+        show_code_completion TYPE ui_func VALUE 'CODE_COMPLETION',
+      END OF c_functions.
+
+    DATA mv_query_name TYPE zsat_query_name.
+    DATA mo_query TYPE REF TO zcl_dbbr_sql_query.
+    DATA mv_last_saved_content TYPE string.
+    DATA mf_no_edit_allowed TYPE abap_bool.
+    DATA mf_modified TYPE abap_bool.
+    DATA mv_last_saved_query TYPE zsat_query_name.
 ENDCLASS.
 
 
@@ -69,7 +70,8 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
 
   METHOD constructor.
 
-    super->constructor( |DB Browser - | && COND #( WHEN iv_query_name IS INITIAL THEN |Create Query| ELSE |Edit Query { iv_query_name }| ) ).
+    super->constructor( iv_title = '' ).
+    mf_title = |DB Browser - | && COND #( WHEN iv_query_name IS INITIAL THEN |Create Query| ELSE |Edit Query { iv_query_name }| ).
     mv_query_name = iv_query_name.
     mo_query_f = NEW #( ).
 
@@ -164,6 +166,7 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD do_before_dynpro_output.
+    io_callback->set_title( mf_title ).
     io_callback->map_fkey_functions( VALUE #(
       ( fkey = zif_uitb_c_gui_screen=>c_functions-ctrl_f1  mapped_function = c_functions-focus_on_editor      text = |{ 'Set focus to Editor' }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-ctrl_f2  mapped_function = c_functions-check                text = |{ TEXT-001 }| )
@@ -192,17 +195,17 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
         lv_prompt_query = |{ 'Do you want to save the current query before you leave' }?|.
       ENDIF.
 
-      IF zcl_dbbr_appl_util=>popup_to_confirm(
-            iv_title                 = 'Warning'
-           iv_query                 = lv_prompt_query
-           iv_icon_type             = 'ICON_WARNING'
-         ) = '1'.
-
+      DATA(lv_prompt) = zcl_dbbr_appl_util=>popup_to_confirm(
+        iv_title                 = 'Warning'
+        iv_query                 = lv_prompt_query
+        iv_icon_type             = 'ICON_WARNING'
+      ).
+      IF lv_prompt = '1'. " Yes
         IF check_query( ).
           save_query( ).
-        ELSE.
-          io_callback->cancel_exit( ).
         ENDIF.
+      ELSEIF lv_prompt = 'A'. " Cancel
+        io_callback->cancel_exit( ).
       ENDIF.
     ENDIF.
 
@@ -258,7 +261,7 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
               iv_line_number = CONV #( lx_parse_error->line_number )
           ).
         ELSE.
-          lx_parse_error->zif_dbbr_exception_message~get_message( ).
+          lx_parse_error->zif_sat_exception_message~get_message( ).
           lo_protocol->add_error_from_sy( CONV #( lx_parse_error->line_number ) ).
         ENDIF.
         lo_protocol->show_protocol( ).

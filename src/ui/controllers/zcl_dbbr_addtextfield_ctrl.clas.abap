@@ -55,7 +55,7 @@ CLASS ZCL_DBBR_ADDTEXTFIELD_CTRL IMPLEMENTATION.
 
   METHOD call_cond_field_f4.
 
-    zcl_dbbr_dictionary_helper=>call_table_field_f4(
+    zcl_dbbr_ddic_util=>call_table_field_f4(
       EXPORTING
         iv_dynpname_tablename = CONV #( zif_dbbr_main_report_var_ids=>c_p_idtab )
         iv_dynpname_fieldname = CONV #( zif_dbbr_main_report_var_ids=>c_p_condf )
@@ -69,7 +69,7 @@ CLASS ZCL_DBBR_ADDTEXTFIELD_CTRL IMPLEMENTATION.
 
   METHOD call_id_field2_f4.
 
-    ZCL_DBBR_dictionary_helper=>call_table_field_f4(
+    zcl_dbbr_ddic_util=>call_table_field_f4(
       EXPORTING
         iv_dynpname_tablename = CONV #( ZIF_DBBR_main_report_var_ids=>c_p_idtab )
         iv_dynpname_fieldname = CONV #( ZIF_DBBR_main_report_var_ids=>c_p_idfld2 )
@@ -83,7 +83,7 @@ CLASS ZCL_DBBR_ADDTEXTFIELD_CTRL IMPLEMENTATION.
 
   METHOD call_id_field_f4.
 
-    ZCL_DBBR_dictionary_helper=>call_table_field_f4(
+    zcl_dbbr_ddic_util=>call_table_field_f4(
       EXPORTING
         iv_dynpname_tablename = CONV #( ZIF_DBBR_main_report_var_ids=>c_p_idtab )
         iv_dynpname_fieldname = CONV #( ZIF_DBBR_main_report_var_ids=>c_p_idfld )
@@ -105,7 +105,7 @@ CLASS ZCL_DBBR_ADDTEXTFIELD_CTRL IMPLEMENTATION.
 
 
   METHOD call_keyfield2_f4.
-    zcl_dbbr_dictionary_helper=>call_table_field_f4(
+    zcl_dbbr_ddic_util=>call_table_field_f4(
       EXPORTING
         iv_dynpname_tablename = CONV #( zif_dbbr_main_report_var_ids=>c_p_txttab )
         iv_dynpname_fieldname = CONV #( zif_dbbr_main_report_var_ids=>c_p_keyfld2 )
@@ -117,7 +117,7 @@ CLASS ZCL_DBBR_ADDTEXTFIELD_CTRL IMPLEMENTATION.
 
 
   METHOD call_keyfield_f4.
-    zcl_dbbr_dictionary_helper=>call_table_field_f4(
+    zcl_dbbr_ddic_util=>call_table_field_f4(
       EXPORTING
         iv_dynpname_tablename = CONV #( zif_dbbr_main_report_var_ids=>c_p_txttab )
         iv_dynpname_fieldname = CONV #( zif_dbbr_main_report_var_ids=>c_p_keyfld )
@@ -129,7 +129,7 @@ CLASS ZCL_DBBR_ADDTEXTFIELD_CTRL IMPLEMENTATION.
 
 
   METHOD call_language_field_f4.
-    zcl_dbbr_dictionary_helper=>call_table_field_f4(
+    zcl_dbbr_ddic_util=>call_table_field_f4(
       EXPORTING
         iv_dynpname_tablename = CONV #( zif_dbbr_main_report_var_ids=>c_p_txttab )
         iv_dynpname_fieldname = CONV #( zif_dbbr_main_report_var_ids=>c_p_lngfld )
@@ -141,7 +141,7 @@ CLASS ZCL_DBBR_ADDTEXTFIELD_CTRL IMPLEMENTATION.
 
 
   METHOD call_text_field_f4.
-    zcl_dbbr_dictionary_helper=>call_table_field_f4(
+    zcl_dbbr_ddic_util=>call_table_field_f4(
       EXPORTING
         iv_dynpname_tablename = CONV #( zif_dbbr_main_report_var_ids=>c_p_txttab )
         iv_dynpname_fieldname = CONV #( zif_dbbr_main_report_var_ids=>c_p_txtfld )

@@ -226,7 +226,8 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     METHODS on_selection_finish
           FOR EVENT selection_finished OF zcl_dbbr_selection_util
       IMPORTING
-          !ef_first_select .
+          ef_first_select
+          ef_reset_alv_table.
     METHODS on_toolbar_clicked
           FOR EVENT function_selected OF cl_gui_toolbar
       IMPORTING
@@ -388,12 +389,18 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ASSIGN COMPONENT ls_cell-col_id-fieldname OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_value>).
     CHECK sy-subrc = 0.
 
-    DATA(lo_string_editor) = NEW zcl_uitb_popup_editor(
-      iv_text         = <lv_value>
-      iv_editor_title = |Cell Content for { ls_cell-col_id-fieldname }|
-      if_coding_font  = abap_true
+    mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+    DATA(ls_field) = lt_fieldcat[ fieldname = ls_cell-col_id-fieldname ].
+
+    DATA(lv_value) = |{ <lv_value> }|.
+
+    zcl_uitb_abap_code_viewer=>show_code(
+      iv_title  = |Cell Content for { ls_cell-col_id-fieldname }|
+      iv_code   = lv_value
+      iv_width  = 900
+      iv_height = 500
+      iv_theme  = mo_util->ms_technical_info-code_viewer_theme
     ).
-    lo_string_editor->zif_uitb_view~show( ).
   ENDMETHOD.
 
   METHOD calculate_sum_of_cells.
@@ -434,7 +441,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     LOOP AT lt_cells_unique ASSIGNING FIELD-SYMBOL(<ls_cell>).
       ASSIGN lt_fieldcat[ fieldname = <ls_cell>-col_id ] TO FIELD-SYMBOL(<ls_field_definition>).
       IF sy-subrc = 0.
-        IF NOT zcl_dbbr_dictionary_helper=>is_type_numeric( <ls_field_definition>-inttype ).
+        IF NOT zcl_dbbr_ddic_util=>is_type_numeric( <ls_field_definition>-inttype ).
           MESSAGE 'Selection contains non numerical Fields' TYPE 'S' DISPLAY LIKE 'E'.
           RETURN.
         ENDIF.
@@ -843,7 +850,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_field>).
       " get dtel info
-      IF zcl_dbbr_dictionary_helper=>is_type_numeric( <ls_field>-inttype ).
+      IF zcl_dbbr_ddic_util=>is_type_numeric( <ls_field>-inttype ).
         APPEND <ls_field>-fieldname TO lt_numeric_fields.
       ENDIF.
     ENDLOOP.
@@ -1278,7 +1285,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ).
 
     " build selopt table for selected rows
-    DATA(lt_selected_row_selopt) = VALUE zdbbr_selopt_itab(
+    DATA(lt_selected_row_selopt) = VALUE zif_sat_ty_global=>ty_t_selopt(
       FOR row_no IN lt_row_no
       ( sign   = 'I'
         option = 'EQ'
@@ -1318,7 +1325,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
   METHOD on_after_user_command.
     DATA: lf_emphasize_sort_fields TYPE abap_bool,
-          lf_trigger_dummy_pai     TYPE abap_bool,
+          lf_trigger_pbo           TYPE abap_bool,
           lf_update_filter         TYPE abap_bool.
 
     CASE e_ucomm.
@@ -1333,27 +1340,30 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
            cl_gui_alv_grid=>mc_fc_maintain_variant.
         lf_emphasize_sort_fields = abap_true.
         lf_update_filter = abap_true.
-        lf_trigger_dummy_pai = abap_true.
+        lf_trigger_pbo = abap_true.
 
       WHEN cl_gui_alv_grid=>mc_fc_filter OR
            cl_gui_alv_grid=>mc_fc_delete_filter.
         lf_update_filter = abap_true.
-        lf_trigger_dummy_pai = abap_true.
+        lf_trigger_pbo = abap_true.
 
       WHEN zif_dbbr_c_selection_functions=>quick_filter OR
            zif_dbbr_c_selection_functions=>delete_filters_from_cols OR
            cl_gui_alv_grid=>mc_fc_sum OR
            zif_dbbr_c_selection_functions=>quick_filter_exclusion.
-        lf_trigger_dummy_pai = abap_true.
+        lf_trigger_pbo = abap_true.
 
       WHEN zif_dbbr_c_selection_functions=>compare_selected_lines OR
            zif_dbbr_c_selection_functions=>group_by_selected_columns OR
            zif_dbbr_c_selection_functions=>control_tech_view OR
            zif_dbbr_c_selection_functions=>show_users_settings OR
            zif_dbbr_c_selection_functions=>edit_data OR
+           zif_dbbr_c_selection_functions=>add_text_field OR
+           zif_dbbr_c_selection_functions=>manage_text_fields OR
            zif_dbbr_c_selection_functions=>change_max_row_count OR
            zif_dbbr_c_selection_functions=>change_cds_parameters OR
            zif_dbbr_c_selection_functions=>navigate_association OR
+           zif_dbbr_c_selection_functions=>show_cds_source OR
            zif_dbbr_c_selection_functions=>hide_other_columns.
         RETURN.
     ENDCASE.
@@ -1374,8 +1384,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       process_filter_change( ).
     ENDIF.
 
-    IF lf_trigger_dummy_pai = abap_true.
-      cl_gui_cfw=>set_new_ok_code( 'DUMMY' ).
+    IF lf_trigger_pbo = abap_true.
+      zif_uitb_screen_controller~pbo( ).
     ELSEIF e_ucomm NP '%*' AND
            e_ucomm NP '&*'.
       cl_gui_cfw=>set_new_ok_code( e_ucomm ).
@@ -1435,6 +1445,9 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
        EXPORTING if_selected_cells = xsdbool( lt_cells IS NOT INITIAL )
                  if_selected_rows  = xsdbool( lt_row_no IS NOT INITIAL )
                  if_selected_cols  = xsdbool( lt_index_cols IS NOT INITIAL )
+                 it_selected_cells = lt_cells
+                 it_selected_cols  = lt_index_cols
+                 it_fieldcat       = lt_fieldcat
        CHANGING  ct_menu_entries = lt_menu_flat
     ).
 
@@ -1551,7 +1564,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         IF lines( lt_cells ) = 1.
 *......... Check if cell type is string
           ls_field = VALUE #( lt_fieldcat[ fieldname = lt_cells[ 1 ]-col_id-fieldname ] OPTIONAL ).
-          IF ls_field IS NOT INITIAL AND ls_field-inttype = cl_abap_typedescr=>typekind_string.
+          IF ls_field IS NOT INITIAL AND ( ls_field-inttype = cl_abap_typedescr=>typekind_string OR
+                                           ls_field-datatype = 'LCHR' ).
             lt_menu_flat = VALUE #( BASE lt_menu_flat
               ( type  = sctx_c_type_function
                 fcode = zif_dbbr_c_selection_functions=>show_string_cell_content
@@ -1666,6 +1680,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD on_selection_finish.
+    FIELD-SYMBOLS: <lt_data> TYPE table.
+
     IF ef_first_select = abap_true.
       zif_uitb_screen_controller~call_screen( ).
     ELSE.
@@ -1675,7 +1691,27 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         mo_alv_grid->set_filter_criteria( lr_alv_util->get_filters( ) ).
       ENDIF.
 
-      mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+      IF ef_reset_alv_table = abap_true AND mo_util->mt_temp_fieldcat IS NOT INITIAL.
+        ASSIGN mo_util->mr_t_data->* TO <lt_data>.
+        mo_alv_grid->get_frontend_layout( IMPORTING es_layout = DATA(ls_layout) ).
+        mo_alv_grid->get_variant( IMPORTING es_variant = DATA(ls_variant) ).
+        mo_alv_grid->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter) ).
+        mo_alv_grid->get_sort_criteria( IMPORTING et_sort = DATA(lt_sort) ).
+
+        mo_alv_grid->set_table_for_first_display(
+          EXPORTING is_layout         = ls_layout
+                    i_save            = 'A'
+                    i_default         = mo_util->ms_technical_info-enable_alv_default_variant
+                    is_variant        = ls_variant
+          CHANGING  it_fieldcatalog   = mo_util->mt_temp_fieldcat
+                    it_outtab         = <lt_data>
+                    it_sort           = lt_sort
+                    it_filter         = lt_filter
+        ).
+        CLEAR mo_util->mt_temp_fieldcat.
+      ELSE.
+        mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+      ENDIF.
 
     ENDIF.
   ENDMETHOD.
@@ -1744,7 +1780,14 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         control_tech_view( ).
 
       WHEN OTHERS.
+        DATA(lf_trigger_pbo) = SWITCH #( e_ucomm
+          WHEN zif_dbbr_c_selection_functions=>change_cds_parameters
+            THEN abap_true
+        ).
         mo_util->zif_dbbr_screen_util~handle_ui_function( CHANGING cv_function = e_ucomm ).
+        IF lf_trigger_pbo = abap_true.
+          zif_uitb_screen_controller~pbo( ).
+        ENDIF.
     ENDCASE.
 
   ENDMETHOD.
@@ -1838,6 +1881,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
   METHOD refresh.
     mo_util->refresh_selection( ).
+    create_alv_header( ).
   ENDMETHOD.
 
 
@@ -1992,7 +2036,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD show_line_detail.
-    data(lo_detail_viewer) = new lcl_detail_viewer(
+    DATA(lo_detail_viewer) = NEW lcl_detail_viewer(
       io_util           = mo_util
       it_fieldcat       = mo_util->mt_fieldcat
       io_tabfields_all  = mo_util->mo_tabfields_all

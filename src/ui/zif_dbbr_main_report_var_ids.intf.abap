@@ -4,7 +4,7 @@ INTERFACE zif_dbbr_main_report_var_ids
 
   "! Type - ZDBBR_button
   CONSTANTS c_bt_expand TYPE string VALUE 'EXPAND' ##NO_TEXT.
-  "! Type - ZDBBR_query_name
+  "! Type - ZSAT_QUERY_NAME
   CONSTANTS c_p_query_name TYPE string VALUE 'P_QUERYN' ##NO_TEXT.
   "! Type - ddtext
   CONSTANTS c_p_query_description TYPE string VALUE 'P_QRYDEC' ##NO_TEXT.
@@ -95,7 +95,7 @@ INTERFACE zif_dbbr_main_report_var_ids
   CONSTANTS c_push TYPE string VALUE 'PUSH' ##NO_TEXT.
   "! Type - ddtext
   CONSTANTS c_p_scrdec TYPE string VALUE 'P_SCRDEC' ##NO_TEXT.
-  "! Type - ZDBBR_query_name
+  "! Type - ZSAT_QUERY_NAME
   CONSTANTS c_p_scrnam TYPE string VALUE 'P_SCRNAM' ##NO_TEXT.
   "! Type - tabname16
   CONSTANTS c_p_tab TYPE string VALUE 'P_TAB' ##NO_TEXT.
@@ -150,7 +150,7 @@ INTERFACE zif_dbbr_main_report_var_ids
   CONSTANTS c_altcoltext_tc TYPE string VALUE 'ALTCOLTEXT_TC' ##NO_TEXT.
   "! Type - boolean
   CONSTANTS c_p_xglob TYPE string VALUE 'P_XGLOB' ##NO_TEXT.
-  "! Type - ZDBBR_query_name
+  "! Type - ZSAT_QUERY_NAME
   CONSTANTS c_p_scrnt TYPE string VALUE 'P_SCRNT' ##NO_TEXT.
   "! Type - ddtext
   CONSTANTS c_p_scrdtg TYPE string VALUE 'P_SCRDTG' ##NO_TEXT.

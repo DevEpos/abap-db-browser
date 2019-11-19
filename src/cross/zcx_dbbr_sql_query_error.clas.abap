@@ -1,6 +1,6 @@
 CLASS zcx_dbbr_sql_query_error DEFINITION
   PUBLIC
-  INHERITING FROM zcx_dbbr_application_exc
+  INHERITING FROM ZCX_DBBR_APPLICATION_EXC
   FINAL
   CREATE PUBLIC .
 
@@ -127,7 +127,7 @@ CLASS zcx_dbbr_sql_query_error IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD raise_with_text.
-    zcl_dbbr_appl_util=>split_string_for_message(
+    ZCL_SAT_MESSAGE_HELPER=>split_string_for_message(
       EXPORTING
         iv_string = iv_text
       IMPORTING
@@ -139,7 +139,7 @@ CLASS zcx_dbbr_sql_query_error IMPLEMENTATION.
 
     RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error
       EXPORTING
-        textid      = zcx_dbbr_application_exc=>general_error
+        textid      = ZCX_DBBR_APPLICATION_EXC=>general_error
         msgv1       = lv_msgv1
         msgv2       = lv_msgv2
         msgv3       = lv_msgv3

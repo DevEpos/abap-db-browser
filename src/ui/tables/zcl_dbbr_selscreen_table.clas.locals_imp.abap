@@ -67,6 +67,7 @@ CLASS lcl_find_table_field_view IMPLEMENTATION.
         IF mf_hide_tabname_field = abap_true.
           io_column->set_technical( ).
         ELSE.
+          io_column->set_descriptions( iv_long = 'Entity/Tablename' ).
           io_column->set_optimized( ).
         ENDIF.
 

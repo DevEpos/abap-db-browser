@@ -16,7 +16,7 @@ public section.
       !IT_FILTERED_ENTRIES type LVC_T_FIDX optional .
   methods GET_CHOSEN_VALUE
     returning
-      value(RESULT) type ZDBBR_VALUE .
+      value(RESULT) type ZSAT_VALUE .
   methods HAS_CHOSEN_VALUE
     returning
       value(RESULT) type ABAP_BOOL .
@@ -25,8 +25,8 @@ private section.
 
   types:
     BEGIN OF ty_distinct,
-        fieldvalue     TYPE zdbbr_value,
-        fieldvalue_int TYPE zdbbr_value,
+        fieldvalue     TYPE ZSAT_VALUE,
+        fieldvalue_int TYPE ZSAT_VALUE,
         count          TYPE sy-tabix,
       END OF ty_distinct .
 
@@ -35,7 +35,7 @@ private section.
   data MV_FILTER_FIELDNAME type FIELDNAME .
   data:
     mt_distinct_values TYPE STANDARD TABLE OF ty_distinct WITH EMPTY KEY .
-  data MV_CHOSEN_VALUE type ZDBBR_VALUE .
+  data MV_CHOSEN_VALUE type ZSAT_VALUE .
   data MR_ALV type ref to ZCL_UITB_ALV .
   data MS_FIELD_INFO type ZDBBR_TABFIELD_INFO_UI .
   data MF_CHOSEN_VALUE type ABAP_BOOL .

@@ -11,17 +11,18 @@ CLASS zcl_dbbr_cds_navigator DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    DATA mr_source_cds_view TYPE REF TO zcl_dbbr_cds_view .
+    DATA mr_source_cds_view TYPE REF TO ZCL_SAT_CDS_VIEW .
     DATA ms_tech_info TYPE zdbbr_tech_info.
     DATA mr_t_data TYPE REF TO data .
-    DATA ms_association TYPE zdbbr_cds_association .
+    DATA ms_association TYPE ZSAT_CDS_ASSOCIATION .
     DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mr_source_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mt_source_index TYPE lvc_t_indx .
-    DATA mv_entity_type TYPE zdbbr_entity_type .
+    DATA mv_entity_type TYPE ZSAT_ENTITY_TYPE .
     DATA mr_t_for_all_data TYPE REF TO data .
-    DATA mt_nav_breadcrumbs TYPE zdbbr_string_t .
+    DATA mt_nav_breadcrumbs TYPE string_table .
     DATA mv_nav_count TYPE i .
+    DATA mt_param_values TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_param_value.
 
     METHODS create_output_fields .
     METHODS export_data_to_memory .
@@ -30,11 +31,12 @@ CLASS zcl_dbbr_cds_navigator DEFINITION
       IMPORTING
         !ir_t_data           TYPE REF TO data
         is_tech_info         TYPE zdbbr_tech_info
-        !ir_source_cds_view  TYPE REF TO zcl_dbbr_cds_view
+        !ir_source_cds_view  TYPE REF TO ZCL_SAT_CDS_VIEW
         !it_source_index     TYPE lvc_t_indx
         !ir_source_tabfields TYPE REF TO zcl_dbbr_tabfield_list
-        !is_association      TYPE zdbbr_cds_association
-        !it_nav_breadcrumbs  TYPE zdbbr_string_t
+        !is_association      TYPE ZSAT_CDS_ASSOCIATION
+        !it_nav_breadcrumbs  TYPE string_table
+        it_param_values      TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_param_value OPTIONAL
         !iv_nav_count        TYPE i .
     METHODS handle_messages .
 ENDCLASS.
@@ -51,6 +53,7 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
     mr_source_cds_view = ir_source_cds_view.
     mr_source_tabfields = ir_source_tabfields.
     mt_nav_breadcrumbs = it_nav_breadcrumbs.
+    mt_param_values = it_param_values.
     ms_tech_info = is_tech_info.
     mv_nav_count = iv_nav_count.
   ENDMETHOD.
@@ -61,13 +64,13 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
 
     CASE ms_association-kind.
 
-      WHEN zif_dbbr_c_cds_assoc_type=>entity OR
-           zif_dbbr_c_cds_assoc_type=>table_function.
+      WHEN ZIF_SAT_C_CDS_ASSOC_TYPE=>entity OR
+           ZIF_SAT_C_CDS_ASSOC_TYPE=>table_function.
 
-        mv_entity_type = zif_dbbr_c_entity_type=>cds_view.
+        mv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>cds_view.
         TRY.
-            DATA(lr_target_cds) = zcl_dbbr_cds_view_factory=>read_cds_view( ms_association-ref_cds_view ).
-          CATCH zcx_dbbr_data_read_error INTO DATA(lx_read_error).
+            DATA(lr_target_cds) = ZCL_SAT_CDS_VIEW_FACTORY=>read_cds_view( ms_association-ref_cds_view ).
+          CATCH ZCX_SAT_DATA_READ_ERROR INTO DATA(lx_read_error).
             MESSAGE lx_read_error->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
         ENDTRY.
         DATA(ls_target_cds_header) = lr_target_cds->get_header( ).
@@ -81,10 +84,10 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
             if_is_primary    = abap_true
         ).
 
-      WHEN zif_dbbr_c_cds_assoc_type=>table OR
-           zif_dbbr_c_cds_assoc_type=>view.
+      WHEN ZIF_SAT_C_CDS_ASSOC_TYPE=>table OR
+           ZIF_SAT_C_CDS_ASSOC_TYPE=>view.
 
-        mv_entity_type = zif_dbbr_c_entity_type=>table.
+        mv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>table.
         zcl_dbbr_tabfield_builder=>create_tabfields(
             iv_tablename        = ms_association-ref_cds_view
             ir_tabfield_list    = mr_tabfields
@@ -148,7 +151,7 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
     ASSIGN mr_t_data->* TO <lt_source>.
 
 *... create dynamic table to hold FOR ALL data
-    mr_t_for_all_data = zcl_dbbr_dictionary_helper=>build_dynamic_std_table(
+    mr_t_for_all_data = zcl_dbbr_ddic_util=>build_dynamic_std_table(
       VALUE #(
         FOR field IN ms_association-fields
         ( tabname   = ms_association-ref_cds_view
@@ -168,12 +171,35 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
       LOOP AT ms_association-fields ASSIGNING FIELD-SYMBOL(<ls_assoc_field>).
 
         ASSIGN COMPONENT <ls_assoc_field>-name OF STRUCTURE <ls_new_line> TO FIELD-SYMBOL(<lv_target_value>).
+        CHECK sy-subrc = 0.
+
         ASSIGN COMPONENT <ls_assoc_field>-ref_name OF STRUCTURE <ls_data> TO FIELD-SYMBOL(<lv_ref_value>).
         IF sy-subrc = 0.
           <lv_target_value> = <lv_ref_value>.
         ELSE.
-
-*... do proper error handling
+*........ Maybe this field is a literal
+          IF <ls_assoc_field>-ref_name CP |'*'|.
+            DATA(lv_length) = strlen( <ls_assoc_field>-ref_name ).
+            <lv_target_value> = substring( val = <ls_assoc_field>-ref_name len = lv_length - 2 off = 1 ).
+*........ or a preconfigured system variable
+          ELSEIF <ls_assoc_field>-ref_name CP '&$SESSION.*'.
+            IF <ls_assoc_field>-ref_name = '&$SESSION.SYSTEM_LANGUAGE'.
+              <lv_target_value> = sy-langu.
+            ELSEIF <ls_assoc_field>-ref_name = '&$SESSION.SYSTEM_DATE'.
+              <lv_target_value> = sy-datum.
+            ELSEIF <ls_assoc_field>-ref_name = '&$SESSION.USER'.
+              <lv_target_value> = sy-uname.
+            ELSEIF <ls_assoc_field>-ref_name = '&$SESSION.CLIENT'.
+              <lv_target_value> = sy-mandt.
+            ENDIF.
+*........ or a Parameter value
+          ELSEIF <ls_assoc_field>-ref_name CP '$*'.
+*.......... Find the correct parameter value
+            ASSIGN mt_param_values[ name = <ls_assoc_field>-ref_name+1 ] TO FIELD-SYMBOL(<ls_param_val>).
+            IF sy-subrc = 0.
+              <lv_target_value> = <ls_param_val>-value.
+            ENDIF.
+          ENDIF.
         ENDIF.
 
       ENDLOOP.

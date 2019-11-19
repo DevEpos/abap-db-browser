@@ -1,4 +1,4 @@
-CLASS ZCL_DBBR_addtext_helper DEFINITION
+CLASS zcl_dbbr_addtext_helper DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -13,7 +13,7 @@ CLASS ZCL_DBBR_addtext_helper DEFINITION
         it_fix_values     TYPE ddfixvalues OPTIONAL.
     CLASS-METHODS determine_text_field_info
       IMPORTING
-        it_text_fields   TYPE ZDBBR_additional_text_itab
+        it_text_fields   TYPE zdbbr_additional_text_itab
         is_row           TYPE any
         iv_tabname       TYPE tabname
         iv_fieldname     TYPE fieldname
@@ -26,14 +26,14 @@ CLASS ZCL_DBBR_addtext_helper DEFINITION
         ev_domain        TYPE domname.
     CLASS-METHODS prepare_text_fields
       IMPORTING
-        ir_fields    TYPE REF TO ZCL_DBBR_tabfield_list
+        ir_fields    TYPE REF TO zcl_dbbr_tabfield_list
       CHANGING
-        ct_add_texts TYPE ZDBBR_additional_text_itab.
+        ct_add_texts TYPE zdbbr_additional_text_itab.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_addtext_helper IMPLEMENTATION.
+CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
   METHOD fill_text_field_value.
     FIELD-SYMBOLS: <ls_row> TYPE any.
 
@@ -109,7 +109,7 @@ CLASS ZCL_DBBR_addtext_helper IMPLEMENTATION.
 
   METHOD prepare_text_fields.
     " get all active text fields from tabfields
-    ir_fields->switch_mode( ZIF_DBBR_global_consts=>gc_field_chooser_modes-output ).
+    ir_fields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
     ir_fields->initialize_iterator( if_for_active = abap_true ).
 
     WHILE ir_fields->has_more_lines( ).
@@ -119,18 +119,18 @@ CLASS ZCL_DBBR_addtext_helper IMPLEMENTATION.
 
       IF NOT line_exists( ct_add_texts[ id_table = lr_current_field->tabname
                                         id_field = lr_current_field->fieldname ] ).
-        DATA(lt_addtexts) = ZCL_DBBR_addtext_bl=>get_instance( )->get_text_fields( iv_tablename = lr_current_field->tabname
+        DATA(lt_addtexts) = zcl_dbbr_addtext_bl=>get_instance( )->get_text_fields( iv_tablename = lr_current_field->tabname
                                                                                     iv_fieldname = lr_current_field->fieldname ).
         LOOP AT lt_addtexts ASSIGNING FIELD-SYMBOL(<ls_addtext>).
-          DATA(ls_new_text_field) = CORRESPONDING ZDBBR_additional_text( <ls_addtext> ).
+          DATA(ls_new_text_field) = CORRESPONDING zdbbr_additional_text( <ls_addtext> ).
 
           " update the id field name to so that the text field in the output structure can be found
           ls_new_text_field-id_field_alv_int = lr_current_field->reference_alv_fieldname.
 
           " is there a second key field?
           IF ls_new_text_field-id_field2 IS NOT INITIAL.
-            DATA(lr_id_field2) = ir_fields->get_field_ref( iv_tabname_alias   = CONV #( <ls_addtext>-id_table )
-                                                              iv_fieldname = <ls_addtext>-id_field2 ).
+            DATA(lr_id_field2) = ir_fields->get_field_ref( iv_tabname_alias = <ls_addtext>-id_table
+                                                           iv_fieldname     = <ls_addtext>-id_field2 ).
             ls_new_text_field-id_field2_alv_int = lr_id_field2->alv_fieldname.
           ENDIF.
 
@@ -140,8 +140,8 @@ CLASS ZCL_DBBR_addtext_helper IMPLEMENTATION.
                 " it is possible because of grouping by that the condition field was
                 " not selected for the aggregation
                 DATA(lr_cond_field) = ir_fields->get_field_ref(
-                    iv_tabname_alias   = CONV #( ls_new_text_field-id_table )
-                    iv_fieldname = ls_new_text_field-condition_field
+                    iv_tabname_alias = ls_new_text_field-id_table
+                    iv_fieldname     = ls_new_text_field-condition_field
                 ).
               CATCH cx_sy_itab_line_not_found.
                 " text field cannot be used
@@ -163,6 +163,6 @@ CLASS ZCL_DBBR_addtext_helper IMPLEMENTATION.
       ENDLOOP.
     ENDWHILE.
 
-    ZCL_DBBR_dictionary_helper=>fill_data_cache_for_add_texts( CHANGING ct_add_texts = ct_add_texts ).
+    zcl_dbbr_ddic_util=>fill_data_cache_for_add_texts( CHANGING ct_add_texts = ct_add_texts ).
   ENDMETHOD.
 ENDCLASS.

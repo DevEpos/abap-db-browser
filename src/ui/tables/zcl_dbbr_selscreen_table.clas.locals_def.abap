@@ -4,10 +4,10 @@
     TYPES:
       BEGIN OF lty_s_col_selection,
         idx            TYPE sy-tabix,
-        tabname        TYPE tabname,
         tech_fieldname TYPE fieldname,
         fieldname      TYPE fieldname,
         description    TYPE ddtext,
+        tabname        TYPE tabname,
         filtered       TYPE abap_bool,
       END OF lty_s_col_selection.
     TYPES: lty_t_col_selection TYPE STANDARD TABLE OF lty_s_col_selection WITH EMPTY KEY.

@@ -7,12 +7,12 @@ CLASS zcl_dbbr_selscr_nav_events DEFINITION
     CLASS-EVENTS entity_chosen
       EXPORTING
         VALUE(ev_entity_id) TYPE tabname
-        VALUE(ev_entity_type) TYPE zdbbr_entity_type
+        VALUE(ev_entity_type) TYPE ZSAT_ENTITY_TYPE
         VALUE(ef_force_loading) TYPE abap_bool.
     CLASS-EVENTS variant_entry_chosen
       EXPORTING
         VALUE(ev_entity_id) TYPE tabname
-        VALUE(ev_entity_type) TYPE zdbbr_entity_type
+        VALUE(ev_entity_type) TYPE ZSAT_ENTITY_TYPE
         VALUE(ev_variant_id) TYPE zdbbr_variant_id
         VALUE(ef_go_to_result) TYPE abap_bool OPTIONAL .
     CLASS-EVENTS favtree_event
@@ -20,32 +20,32 @@ CLASS zcl_dbbr_selscr_nav_events DEFINITION
         VALUE(er_handler) TYPE REF TO zif_dbbr_favmenu_evt_handler .
     CLASS-EVENTS object_search
       EXPORTING
-        VALUE(ev_object_type) TYPE zdbbr_obj_browser_mode
+        VALUE(ev_object_type) TYPE ZSAT_OBJ_BROWSER_MODE
         VALUE(ev_search_query) TYPE string
         VALUE(ef_close_popup) TYPE abap_bool.
     CLASS-EVENTS request_object_search
       EXPORTING
-        VALUE(ev_object_type) TYPE zdbbr_obj_browser_mode
+        VALUE(ev_object_type) TYPE ZSAT_OBJ_BROWSER_MODE
         VALUE(ev_search_query) TYPE string
         VALUE(ef_close_popup) TYPE abap_bool.
     CLASS-EVENTS close_object_search_modal.
     CLASS-EVENTS display_object_list
       EXPORTING
-        VALUE(ev_entity_id) TYPE zdbbr_entity_id
-        VALUE(ev_entity_type) TYPE zdbbr_entity_type.
+        VALUE(ev_entity_id) TYPE ZSAT_ENTITY_ID
+        VALUE(ev_entity_type) TYPE ZSAT_ENTITY_TYPE.
     "! <p class="shorttext synchronized" lang="en">Request next view in object navigator</p>
     CLASS-EVENTS goto_next_view_in_objnav.
     "! <p class="shorttext synchronized" lang="en">Raise ENTITY_CHOSEN event</p>
     CLASS-METHODS raise_entity_chosen
       IMPORTING
         iv_entity_id     TYPE tabname
-        iv_entity_type   TYPE zdbbr_entity_type
+        iv_entity_type   TYPE ZSAT_ENTITY_TYPE
         if_force_loading TYPE abap_bool OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Raise VARIANT_ENTRY_CHOSEN event</p>
     CLASS-METHODS raise_variant_entry_chosen
       IMPORTING
         iv_entity_id    TYPE tabname
-        iv_entity_type  TYPE zdbbr_entity_type
+        iv_entity_type  TYPE ZSAT_ENTITY_TYPE
         iv_variant_id   TYPE zdbbr_variant_id
         if_go_to_result TYPE abap_bool OPTIONAL .
     "! <p class="shorttext synchronized" lang="en">Raise FAVTREE_EVENT event</p>
@@ -58,15 +58,15 @@ CLASS zcl_dbbr_selscr_nav_events DEFINITION
     "! @parameter iv_entity_type | <p class="shorttext synchronized" lang="en"></p>
     CLASS-METHODS raise_display_object_list
       IMPORTING
-        iv_entity_id   TYPE zdbbr_entity_id
-        iv_entity_type TYPE zdbbr_entity_type.
+        iv_entity_id   TYPE ZSAT_ENTITY_ID
+        iv_entity_type TYPE ZSAT_ENTITY_TYPE.
     "! <p class="shorttext synchronized" lang="en">Raise event OBJECT_SEARCH</p>
     "!
     "! @parameter iv_object_type | <p class="shorttext synchronized" lang="en"></p>
     "! @parameter iv_search_query | <p class="shorttext synchronized" lang="en"></p>
     CLASS-METHODS raise_object_search
       IMPORTING
-        iv_object_type  TYPE zdbbr_obj_browser_mode
+        iv_object_type  TYPE ZSAT_OBJ_BROWSER_MODE
         iv_search_query TYPE string
         if_close_popup  TYPE abap_bool DEFAULT abap_true.
     "! <p class="shorttext synchronized" lang="en">Raise event REQUEST_OBJECT_SEARCH</p>
@@ -76,7 +76,7 @@ CLASS zcl_dbbr_selscr_nav_events DEFINITION
     "! @parameter if_close_on_success | <p class="shorttext synchronized" lang="en"></p>
     CLASS-METHODS raise_request_object_search
       IMPORTING
-        iv_object_type      TYPE zdbbr_obj_browser_mode
+        iv_object_type      TYPE ZSAT_OBJ_BROWSER_MODE
         iv_search_query     TYPE string
         if_close_on_success TYPE abap_bool DEFAULT abap_true.
     "! <p class="shorttext synchronized" lang="en">Raise event GOTO_NEXT_VIEW_IN_OBJNAV</p>

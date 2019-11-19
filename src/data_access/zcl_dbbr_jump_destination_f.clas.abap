@@ -152,7 +152,7 @@ CLASS zcl_dbbr_jump_destination_f IMPLEMENTATION.
     LOOP AT ct_jump_destinations ASSIGNING FIELD-SYMBOL(<ls_jump_dest>).
       " is this a new jump destination ?
       IF <ls_jump_dest>-jumpdest_id IS INITIAL.
-        <ls_jump_dest>-jumpdest_id = zcl_dbbr_system_helper=>create_guid_22( ).
+        <ls_jump_dest>-jumpdest_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
       ENDIF.
 
       LOOP AT <ls_jump_dest>-parameters ASSIGNING FIELD-SYMBOL(<ls_param>).

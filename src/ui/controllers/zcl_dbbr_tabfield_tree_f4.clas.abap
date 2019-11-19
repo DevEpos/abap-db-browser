@@ -17,8 +17,8 @@ CLASS zcl_dbbr_tabfield_tree_f4 DEFINITION
       EXPORTING
         !ev_chosen_field           TYPE fieldname
         !ev_chosen_table           TYPE tabname
-        ev_chosen_table_alias      TYPE zdbbr_entity_alias
-        ev_chosen_field_with_alias TYPE zdbbr_fieldname_with_alias .
+        ev_chosen_table_alias      TYPE zsat_entity_alias
+        ev_chosen_field_with_alias TYPE ZSAT_FIELDNAME_WITH_ALIAS .
     METHODS zif_uitb_gui_command_handler~execute_command
         REDEFINITION.
   PROTECTED SECTION.
@@ -38,13 +38,13 @@ CLASS zcl_dbbr_tabfield_tree_f4 DEFINITION
       END OF c_functions.
 
     DATA mv_chosen_field TYPE fieldname .
-    DATA mv_chosen_field_with_alias TYPE zdbbr_fieldname_with_alias .
+    DATA mv_chosen_field_with_alias TYPE ZSAT_FIELDNAME_WITH_ALIAS .
     DATA mv_chosen_table TYPE tabname .
     DATA mo_tree_node_filler TYPE REF TO zif_dbbr_tree_node_filler .
     DATA mo_tree TYPE REF TO zcl_uitb_column_tree_model .
     DATA mv_top_node TYPE tm_nodekey .
     DATA mt_node_map TYPE zif_dbbr_tree_node_filler=>tt_node_map .
-    DATA mv_chosen_table_alias TYPE zdbbr_entity_alias.
+    DATA mv_chosen_table_alias TYPE zsat_entity_alias.
 
     METHODS create_tree
       IMPORTING

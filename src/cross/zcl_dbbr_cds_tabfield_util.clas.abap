@@ -18,7 +18,7 @@ CLASS zcl_dbbr_cds_tabfield_util DEFINITION
         if_has_params     TYPE abap_bool OPTIONAL
         !if_is_primary    TYPE abap_bool OPTIONAL
         !iv_name          TYPE ddstrucobjname
-        iv_alias          TYPE zdbbr_entity_alias OPTIONAL
+        iv_alias          TYPE zsat_entity_alias OPTIONAL
         !iv_raw_name      TYPE ddstrucobjname_raw
         !iv_description   TYPE ddtext
       RETURNING
@@ -29,7 +29,7 @@ CLASS zcl_dbbr_cds_tabfield_util DEFINITION
       IMPORTING
         !ir_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list
         io_custom_f4_map  TYPE REF TO zcl_dbbr_custom_f4_map OPTIONAL
-        !it_parameters    TYPE zdbbr_cds_parameter_t
+        !it_parameters    TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_parameter
       RETURNING
         VALUE(rs_entity)  TYPE zdbbr_entity_info .
   PROTECTED SECTION.
@@ -69,8 +69,8 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
         fieldname_raw    = <ls_param>-parametername_raw
         is_parameter     = abap_true
         selection_active = abap_true
-        default_option   = zif_dbbr_c_options=>equals
-        default_sign     = zif_dbbr_c_options=>including
+        default_option   = ZIF_SAT_C_OPTIONS=>equals
+        default_sign     = ZIF_SAT_C_OPTIONS=>including
         default_low      = <ls_param>-default_value
         is_technical     = <ls_param>-has_system_anno
         ddic_order       = <ls_param>-posnr
@@ -84,13 +84,13 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
         std_medium_text  = ls_datel-scrtext_m
         std_long_text    = ls_datel-scrtext_l
         header_text      = ls_datel-reptext
-        is_numeric       = zcl_dbbr_dictionary_helper=>is_type_numeric( <ls_param>-inttype )
+        is_numeric       = zcl_dbbr_ddic_util=>is_type_numeric( <ls_param>-inttype )
         rollname         = lv_rollname
       ).
 
 *... get the data element
       IF ls_tabfield-rollname IS NOT INITIAL.
-        ls_datel = zcl_dbbr_dictionary_helper=>get_data_element( ls_tabfield-rollname ).
+        ls_datel = zcl_sat_ddic_repo_access=>get_data_element( ls_tabfield-rollname ).
         ls_tabfield-domname = ls_datel-domname.
         ls_tabfield-outputlen = ls_datel-outputlen.
         ls_tabfield-convexit = ls_datel-convexit.
@@ -117,7 +117,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
        active_selection     = abap_true
        tabname              = zif_dbbr_global_consts=>c_parameter_dummy_table
        tabname_alias        = zif_dbbr_global_consts=>c_parameter_dummy_table
-       type                 = zif_dbbr_c_entity_type=>table
+       type                 = ZIF_SAT_C_ENTITY_TYPE=>table
        description          = 'Parameters'
        no_output            = abap_true
     ).
@@ -154,7 +154,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
         is_key           = <ls_column>-keyflag
         selection_active = if_selection
         output_active    = if_output
-        default_sign     = zif_dbbr_c_options=>including
+        default_sign     = ZIF_SAT_C_OPTIONS=>including
         ddic_order       = <ls_column>-position
         length           = <ls_column>-leng
         decimals         = <ls_column>-decimals
@@ -178,7 +178,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
 
 *... get additional information from rollname
       IF ls_tabfield-rollname IS NOT INITIAL.
-        ls_datel = zcl_dbbr_dictionary_helper=>get_dfies_info_for_rollname( ls_tabfield-rollname ).
+        ls_datel = zcl_sat_ddic_repo_access=>get_dfies_info_for_rollname( ls_tabfield-rollname ).
         lr_addtext_bl->determine_t_flds_for_cds_field(
             iv_cds_view      = iv_name
             iv_cds_field     = <ls_column>-fieldname
@@ -194,7 +194,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
         ls_tabfield-header_text = ls_datel-reptext.
         ls_tabfield-field_ddtext = ls_datel-fieldtext.
         ls_tabfield-convexit = ls_datel-convexit.
-        ls_tabfield-inttype = zcl_dbbr_dictionary_helper=>get_dtel_inttype( iv_data_element = ls_datel-rollname  ).
+        ls_tabfield-inttype = zcl_sat_ddic_repo_access=>get_dtel_inttype( iv_data_element = ls_datel-rollname  ).
       ELSE.
         TRY.
             DATA(lr_typedescr) = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_name( |{ <ls_column>-strucobjn }-{ <ls_column>-fieldname }| ) ).
@@ -212,7 +212,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
         ls_tabfield-field_ddtext = <ls_column>-ddtext.
       ENDIF.
 
-      ls_tabfield-is_numeric = zcl_dbbr_dictionary_helper=>is_type_numeric( ls_tabfield-inttype ).
+      ls_tabfield-is_numeric = zcl_dbbr_ddic_util=>is_type_numeric( ls_tabfield-inttype ).
       DATA(lr_new_field) = CAST zdbbr_tabfield_info_ui( ir_tabfield_list->zif_uitb_data_ref_list~add( REF #( ls_tabfield ) ) ).
 
       IF ls_datel IS NOT INITIAL AND lr_addtext_bl->text_exists( VALUE #( tabname = iv_name fieldname = ls_tabfield-fieldname ) ).
@@ -235,7 +235,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
       tabname              = iv_name
       tabname_alias        = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE iv_name )
       has_params           = if_has_params
-      type                 = zif_dbbr_c_entity_type=>cds_view
+      type                 = ZIF_SAT_C_ENTITY_TYPE=>cds_view
       description          = iv_description
       fields_are_loaded    = abap_true
       is_primary           = if_is_primary

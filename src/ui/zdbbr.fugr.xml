@@ -36,12 +36,10 @@
       <RSFDO>
        <PARAMETER>INPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>OUTPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 002</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -64,12 +62,10 @@
       <RSFDO>
        <PARAMETER>INPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>OUTPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 002</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -92,12 +88,10 @@
       <RSFDO>
        <PARAMETER>INPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>OUTPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 002</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -120,12 +114,10 @@
       <RSFDO>
        <PARAMETER>INPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>OUTPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 002</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -146,12 +138,10 @@
       <RSFDO>
        <PARAMETER>INPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>OUTPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 002</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -172,12 +162,10 @@
       <RSFDO>
        <PARAMETER>INPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>OUTPUT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 002</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -196,7 +184,6 @@
        <PARAMETER>IS_JUMP_DEST</PARAMETER>
        <KIND>P</KIND>
        <STEXT>DBAnalyt.:.: UI-Daten eines Sprungfeldes</STEXT>
-       <INDEX> 001</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -236,27 +223,22 @@
       <RSFDO>
        <PARAMETER>IS_QUERY</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IT_PARAMETERS</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 002</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IV_ROW_COUNT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 003</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IF_COUNT_ONLY</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 004</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>ES_QUERY_RESULT</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 005</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -267,11 +249,11 @@
      <IMPORT>
       <RSIMP>
        <PARAMETER>IV_ENTITY_ID</PARAMETER>
-       <TYP>ZDBBR_ENTITY_ID</TYP>
+       <TYP>ZSAT_ENTITY_ID</TYP>
       </RSIMP>
       <RSIMP>
        <PARAMETER>IV_ENTITY_TYPE</PARAMETER>
-       <TYP>ZDBBR_ENTITY_TYPE</TYP>
+       <TYP>ZSAT_ENTITY_TYPE</TYP>
       </RSIMP>
       <RSIMP>
        <PARAMETER>IV_VARIANT_ID</PARAMETER>
@@ -309,46 +291,38 @@
        <PARAMETER>IV_ENTITY_ID</PARAMETER>
        <KIND>P</KIND>
        <STEXT>ID of an DB Browser entity</STEXT>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IV_ENTITY_TYPE</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Type of Entity</STEXT>
-       <INDEX> 002</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IV_VARIANT_ID</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 003</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IF_SKIP_SELSCREEN</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 004</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IF_LOAD_PARAMETERS</PARAMETER>
        <KIND>P</KIND>
        <STEXT>boolsche Variable (X=true, -=false, space=unknown)</STEXT>
-       <INDEX> 005</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IS_SETTINGS</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Einstellungen für Selektionsmaske</STEXT>
-       <INDEX> 006</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IF_FROM_CENTRAL_SEARCH</PARAMETER>
        <KIND>P</KIND>
        <STEXT>Boolean Variable (X=True, Space=False)</STEXT>
-       <INDEX> 007</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>NO_DATA</PARAMETER>
        <KIND>X</KIND>
-       <INDEX> 008</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -373,12 +347,10 @@
       <RSFDO>
        <PARAMETER>IF_INITIALIZE</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 001</INDEX>
       </RSFDO>
       <RSFDO>
        <PARAMETER>IF_PREVENT_SKIPPING</PARAMETER>
        <KIND>P</KIND>
-       <INDEX> 002</INDEX>
       </RSFDO>
      </DOCUMENTATION>
     </item>
@@ -4613,6 +4585,13 @@
       <PATH>U</PATH>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
+      <CODE>DELALLCRIT</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <ICON_ID>@18@</ICON_ID>
+      <FUN_TEXT>Delete all Criteria</FUN_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
       <CODE>DELETE</CODE>
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
@@ -4670,7 +4649,7 @@
       <TEXT_TYPE>S</TEXT_TYPE>
       <TEXT_NAME>ICON_DELETE_ROW</TEXT_NAME>
       <ICON_ID>@18@</ICON_ID>
-      <FUN_TEXT>Delete all Entries</FUN_TEXT>
+      <FUN_TEXT>Delete all Criteria</FUN_TEXT>
       <ICON_TEXT>All Entries</ICON_TEXT>
       <INFO_TEXT>Delete all Entries</INFO_TEXT>
       <PATH>A</PATH>
@@ -5031,6 +5010,7 @@
       <ICON_ID>@15@</ICON_ID>
       <FUN_TEXT>Execute without Groupting</FUN_TEXT>
       <ICON_TEXT>Without Grouping</ICON_TEXT>
+      <USAGE>D</USAGE>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>EXECSCRIPT</CODE>
@@ -10204,7 +10184,7 @@
      <RSMPE_PFK>
       <CODE>000001</CODE>
       <PFNO>25</PFNO>
-      <FUNCODE>DELETE_ALL</FUNCODE>
+      <FUNCODE>DELALLCRIT</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
      <RSMPE_PFK>
@@ -12612,6 +12592,10 @@
      <RSMPE_STAF>
       <STATUS>0100</STATUS>
       <FUNCTION>DEFSUBQURY</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>DELALLCRIT</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>0100</STATUS>

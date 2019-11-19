@@ -15,7 +15,7 @@ public section.
       !IV_MODE type ZDBBR_FIELD_CHOOSER_MODE
       !IF_SINGLE_TABLE_MODE type BOOLEAN optional
       !IV_CURRENT_TABLE type TABNAME optional
-      !IV_ENTITY_TYPE type ZDBBR_ENTITY_TYPE .
+      !IV_ENTITY_TYPE type ZSAT_ENTITY_TYPE .
   methods CREATE_TREE .
   methods SELECT_ALL_FIELDS
     importing
@@ -70,13 +70,13 @@ private section.
   data MV_CURRENT_TABLE type TABNAME .
   data MF_SINGLE_TABLE_MODE type BOOLEAN .
   data MR_TREE type ref to CL_GUI_CONTROL .
-  data MV_ENTITY_TYPE type ZDBBR_ENTITY_TYPE .
+  data MV_ENTITY_TYPE type ZSAT_ENTITY_TYPE .
 
   methods CREATE_NODES .
   methods CREATE_TABLE_NODE
     importing
       !IV_TABLENAME type TABNAME
-      !IV_ALIAS type ZDBBR_TABLE_ALIAS
+      !IV_ALIAS type ZSAT_TABLE_ALIAS
       !IV_TABLE_TEXT type DDTEXT
       !IF_EXPANDER type ABAP_BOOL optional .
   methods CREATE_TABLE_FIELD_NODE
@@ -228,7 +228,7 @@ CLASS ZCL_DBBR_FIELD_SELECT_TREE IMPLEMENTATION.
     DATA: lr_text_field_info TYPE REF TO zdbbr_tabfield_info_ui,
           lv_node_key        TYPE tm_nodekey.
 
-*    IF mv_entity_type = zif_dbbr_c_entity_type=>cds_view.
+*    IF mv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>cds_view.
 *      lv_node_key = ir_tabfield_info->fieldname_raw.
 *    ELSE.
       lv_node_key = COND #( WHEN ir_tabfield_info->alias IS NOT INITIAL THEN

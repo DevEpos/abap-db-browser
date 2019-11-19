@@ -36,6 +36,12 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Start Central Search Function</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_START</CLSNAME>
+     <CMPNAME>START_SQL_CONSOLE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Starts the SQL Query Console</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

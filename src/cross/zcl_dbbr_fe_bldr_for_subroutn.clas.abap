@@ -73,7 +73,7 @@ CLASS ZCL_DBBR_fe_bldr_for_subroutn IMPLEMENTATION.
                                       ( |ENDTRY.| ) ).
     et_lines = VALUE #( BASE et_lines ( |ENDFORM.| ) ).
 
-*    ZCL_DBBR_system_helper=>check_abap_syntax( et_lines ).
+*    ZCL_SAT_SYSTEM_HELPER=>check_abap_syntax( et_lines ).
   ENDMETHOD.
 
   METHOD build_clear_form_fld_lines.

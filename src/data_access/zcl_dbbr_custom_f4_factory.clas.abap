@@ -73,7 +73,7 @@ CLASS zcl_dbbr_custom_f4_factory DEFINITION
         iv_f4_id TYPE zdbbr_f4_id.
     CLASS-METHODS delete_multiple_by_id
       IMPORTING
-        it_f4_id TYPE zdbbr_selopt_itab.
+        it_f4_id TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt.
     CLASS-METHODS update_f4_assignments
       IMPORTING
         it_f4_assignments    TYPE zdbbr_f4_assignment_itab OPTIONAL
@@ -148,7 +148,7 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
     ENDIF.
 
     " collect joins to delete
-    DATA(lt_join_id) = VALUE zdbbr_selopt_itab(
+    DATA(lt_join_id) = VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt(
        FOR f4 IN lt_f4
        WHERE ( ref_join_id IS NOT INITIAL )
        ( sign   = 'I'
@@ -380,11 +380,11 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
       MODIFY zdbbr_f4f FROM TABLE lt_f4_fields.
       MODIFY zdbbr_f4h FROM ls_f4.
     ELSE.
-      ls_f4-f4_id = zcl_dbbr_system_helper=>create_guid_22( ).
+      ls_f4-f4_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
 
       " 1) save fields
       LOOP AT lt_f4_fields ASSIGNING FIELD-SYMBOL(<ls_f4_field>).
-        <ls_f4_field>-f4_field_id = zcl_dbbr_system_helper=>create_guid_22( ).
+        <ls_f4_field>-f4_field_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
         <ls_f4_field>-ref_f4_id = ls_f4-f4_id.
       ENDLOOP.
 

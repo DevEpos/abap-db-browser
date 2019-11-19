@@ -374,7 +374,7 @@ CLASS zcl_dbbr_fe_dnd_tree_model IMPLEMENTATION.
 
       ASSIGNING FIELD-SYMBOL(<ls_field_group>).
 
-      DATA(lv_tab_description) = zcl_dbbr_dictionary_helper=>get_table_info( <ls_field_group>-tabname )-ddtext.
+      DATA(lv_tab_description) = zcl_sat_ddic_repo_access=>get_table_info( <ls_field_group>-tabname )-ddtext.
 
       DATA(lt_fields) = VALUE zdbbr_tabfield_info_ui_itab( FOR <ls_fld> IN GROUP <ls_field_group> ( <ls_fld> ) ).
 

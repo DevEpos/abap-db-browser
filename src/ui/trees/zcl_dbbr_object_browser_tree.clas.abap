@@ -9,20 +9,20 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     INTERFACES zif_uitb_gui_control .
     INTERFACES zif_uitb_gui_view.
     INTERFACES zif_uitb_content_searcher .
-    INTERFACES zif_dbbr_c_object_browser .
-    INTERFACES zif_dbbr_ty_object_browser .
-    INTERFACES zif_dbbr_c_object_browser_mode.
+    INTERFACES zif_sat_c_object_browser .
+    INTERFACES zif_sat_ty_object_browser .
+    INTERFACES zif_sat_c_object_browser_mode.
 
     ALIASES c_node_type
-      FOR zif_dbbr_c_object_browser~c_tree_node_type .
+      FOR zif_sat_c_object_browser~c_tree_node_type .
     ALIASES c_search_option
-      FOR zif_dbbr_c_object_browser~c_search_option .
+      FOR zif_sat_c_object_browser~c_search_option .
     ALIASES focus
       FOR zif_uitb_gui_control~focus .
     ALIASES has_focus
       FOR zif_uitb_gui_control~has_focus .
     ALIASES ty_search
-      FOR zif_dbbr_ty_object_browser~ty_search .
+      FOR zif_sat_ty_object_browser~ty_search .
 
     CLASS-METHODS class_constructor .
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
@@ -39,8 +39,8 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
 
     TYPES:
       BEGIN OF ty_s_user_data,
-        entity_id     TYPE zdbbr_entity_id,
-        entity_id_raw TYPE zdbbr_entity_id,
+        entity_id     TYPE zsat_entity_id,
+        entity_id_raw TYPE zsat_entity_id,
         node_type     TYPE i,
         devclass      TYPE devclass,
         owner         TYPE username,
@@ -50,13 +50,13 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
       BEGIN OF ty_s_fav_func_query_map,
         function TYPE ui_func,
         query    TYPE string,
-        type     TYPE zdbbr_obj_browser_mode,
+        type     TYPE zsat_obj_browser_mode,
       END OF ty_s_fav_func_query_map.
 
     TYPES:
       BEGIN OF ty_s_history,
         id         TYPE ui_func,
-        query      TYPE REF TO zcl_dbbr_object_search_query,
+        query      TYPE REF TO zcl_sat_object_search_query,
         is_current TYPE abap_bool,
       END OF ty_s_history.
     TYPES: ty_t_history TYPE STANDARD TABLE OF ty_s_history.
@@ -103,7 +103,12 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     CONSTANTS c_hierarchy_node2 TYPE tv_itmname VALUE 'HIER2' ##NO_TEXT.
     CONSTANTS c_hierarchy_node3 TYPE tv_itmname VALUE 'HIER3' ##NO_TEXT.
     CONSTANTS c_top_node TYPE tm_nodekey VALUE '00001' ##NO_TEXT.
-    CLASS-DATA gt_api_state_texts TYPE ddfixvalues .
+    TYPES:
+      BEGIN OF ty_s_api_state,
+        api_state   TYPE string,
+        description TYPE string,
+      END OF ty_s_api_state.
+    CLASS-DATA gt_api_state_texts TYPE STANDARD TABLE OF ty_s_api_state.
     DATA mo_input_dd TYPE REF TO cl_dd_document .
     DATA mo_parent TYPE REF TO cl_gui_container .
     DATA mo_query_f TYPE REF TO zcl_dbbr_query_factory .
@@ -122,8 +127,8 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
         database_table_view TYPE string,
         query               TYPE string,
       END OF ms_search_input .
-    DATA mo_search_query TYPE REF TO zcl_dbbr_object_search_query.
-    DATA mv_current_search_type TYPE zdbbr_obj_browser_mode .
+    DATA mo_search_query TYPE REF TO zcl_sat_object_search_query.
+    DATA mv_current_search_type TYPE zsat_obj_browser_mode .
     DATA mo_favorite_dd_menu TYPE REF TO cl_ctmenu .
     DATA mo_toolbar TYPE REF TO cl_gui_toolbar.
     DATA mv_theme TYPE zuitb_code_viewer_theme.
@@ -136,7 +141,7 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     METHODS create_db_table_subnodes
       IMPORTING
         io_db_tab_view_node TYPE REF TO zcl_uitb_ctm_node
-        is_entity           TYPE zdbbr_entity.
+        is_entity           TYPE zsat_entity.
     "! <p class="shorttext synchronized" lang="en">Create tree node</p>
     METHODS create_node
       IMPORTING
@@ -161,13 +166,13 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "!
     METHODS create_multiple_cds_view_tree
       IMPORTING
-        !it_cds_view_header TYPE zdbbr_entity_t
+        !it_cds_view_header TYPE zsat_entity_t
         !io_parent_node     TYPE REF TO zcl_uitb_ctm_node OPTIONAL .
     "! <p class="shorttext synchronized" lang="en">Create tree for multiple packages</p>
     "!
     METHODS create_multiple_db_tab_tree
       IMPORTING
-        !it_table_definition TYPE zdbbr_entity_t
+        !it_table_definition TYPE zsat_entity_t
         !io_parent_node      TYPE REF TO zcl_uitb_ctm_node OPTIONAL .
     "! <p class="shorttext synchronized" lang="en">Create tree for multiple packages</p>
     "!
@@ -178,24 +183,24 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "!
     METHODS create_query_sub_tree
       IMPORTING
-        !iv_query      TYPE zdbbr_query_name
+        !iv_query      TYPE zsat_query_name
         !iv_query_node TYPE tm_nodekey .
     "! <p class="shorttext synchronized" lang="en">Create query tree</p>
     "!
     METHODS create_query_tree
       IMPORTING
-        !it_queries TYPE zdbbr_entity_t.
+        !it_queries TYPE zsat_entity_t.
     "! <p class="shorttext synchronized" lang="en">Create tree for single cds view</p>
     "!
     METHODS create_single_cds_view_tree
       IMPORTING
-        !io_cds_view TYPE REF TO zcl_dbbr_cds_view
+        !io_cds_view TYPE REF TO zcl_sat_cds_view
         !io_node     TYPE REF TO zcl_uitb_ctm_node OPTIONAL .
     "! <p class="shorttext synchronized" lang="en">Create tree for single table/view</p>
     "!
     METHODS create_single_db_tab_tree
       IMPORTING
-        !is_table_info TYPE zdbbr_entity .
+        !is_table_info TYPE zsat_entity .
     "! <p class="shorttext synchronized" lang="en">Build Tree for a single package</p>
     "!
     METHODS create_single_package_tree
@@ -208,7 +213,7 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "!
     METHODS create_subnodes_for_cds
       IMPORTING
-        !io_cds_view      TYPE REF TO zcl_dbbr_cds_view
+        !io_cds_view      TYPE REF TO zcl_sat_cds_view
         !io_cds_view_node TYPE REF TO zcl_uitb_ctm_node.
     "! <p class="shorttext synchronized" lang="en">Creates Tree</p>
     "!
@@ -220,7 +225,7 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "!
     METHODS expand_cds_view_node
       IMPORTING
-        !iv_cds_view TYPE zdbbr_cds_view_name
+        !iv_cds_view TYPE zsat_cds_view_name
         !iv_node_key TYPE tm_nodekey .
     "! <p class="shorttext synchronized" lang="en">Expand db tabs subnode of package node</p>
     "!
@@ -250,13 +255,13 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "!
     METHODS expand_query_node
       IMPORTING
-        !iv_query    TYPE zdbbr_entity_id
+        !iv_query    TYPE zsat_entity_id
         !iv_node_key TYPE tm_nodekey .
     "! <p class="shorttext synchronized" lang="en">Expand a single Database view</p>
     "!
     METHODS expand_view_node
       IMPORTING
-        !iv_view     TYPE zdbbr_entity_id
+        !iv_view     TYPE zsat_entity_id
         !iv_node_key TYPE tm_nodekey .
     "! <p class="shorttext synchronized" lang="en">Create foreign key table nodes for the given table</p>
     METHODS expand_foreign_key_tables
@@ -425,7 +430,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 
   METHOD class_constructor.
-    gt_api_state_texts = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_data( VALUE zdbbr_cds_api_state( ) ) )->get_ddic_fixed_values( ).
+    DATA(lt_api_states) = cl_ris_adt_res_release_states=>get_all( i_with_longtext = abap_false ).
+    gt_api_state_texts = VALUE #( FOR api IN lt_api_states ( api_state = api-name description = api-description )
+                                  ( api_state = zif_sat_c_cds_api_state=>not_released description = 'Not Released'(045) ) ).
   ENDMETHOD.
 
   METHOD adapt_and_display_html_inp.
@@ -509,16 +516,16 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       EXPORTING
         tooltip        = |{ 'Object Category'(006) }|
         options        = VALUE #(
-          ( value = zif_dbbr_c_object_browser_mode=>cds_view            text = 'CDS View'(002) )
-          ( value = zif_dbbr_c_object_browser_mode=>database_table_view text = 'Database Table/View'(003) )
-          ( value = zif_dbbr_c_object_browser_mode=>query               text = 'Query'(008) )
-          ( value = zif_dbbr_c_object_browser_mode=>package             text = 'Package'(001) )
+          ( value = zif_sat_c_object_browser_mode=>cds_view            text = 'CDS View'(002) )
+          ( value = zif_sat_c_object_browser_mode=>database_table_view text = 'Database Table/View'(003) )
+          ( value = zif_sat_c_object_browser_mode=>query               text = 'Query'(008) )
+          ( value = zif_sat_c_object_browser_mode=>package             text = 'Package'(001) )
         )
       IMPORTING
         select_element = mo_search_type_select
     ).
 
-    mo_search_type_select->set_value( COND #( WHEN lo_s_global_data->initial_obj_brws_mode IS NOT INITIAL THEN lo_s_global_data->initial_obj_brws_mode ELSE zif_dbbr_c_object_browser_mode=>cds_view ) ).
+    mo_search_type_select->set_value( COND #( WHEN lo_s_global_data->initial_obj_brws_mode IS NOT INITIAL THEN lo_s_global_data->initial_obj_brws_mode ELSE zif_sat_c_object_browser_mode=>cds_view ) ).
     mv_current_search_type = mo_search_type_select->value.
 
     lo_form->line_with_layout( end = abap_true ).
@@ -647,7 +654,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     DATA(lo_nodes) = mo_tree->get_nodes( ).
 
     LOOP AT it_table_definition ASSIGNING FIELD-SYMBOL(<ls_tabname>).
-      IF <ls_tabname>-entity_type = zif_dbbr_c_entity_type=>view.
+      IF <ls_tabname>-entity_type = zif_sat_c_entity_type=>view.
         lv_node_image = zif_dbbr_c_icon=>database_view.
         lv_node_type = c_node_type-view.
       ELSE.
@@ -689,13 +696,13 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         iv_hier1_item_text = |{ TEXT-017 }|
         ir_user_data       = NEW ty_s_user_data(
            entity_id = is_entity-entity_id
-           node_type = COND #( WHEN is_entity-entity_type = zif_dbbr_c_entity_type=>view THEN
+           node_type = COND #( WHEN is_entity-entity_type = zif_sat_c_entity_type=>view THEN
                                  c_node_type-view_properties
                                ELSE c_node_type-dbtable_properties )
         )
     ).
 
-    IF is_entity-entity_type = zif_dbbr_c_entity_type=>table.
+    IF is_entity-entity_type = zif_sat_c_entity_type=>table.
       create_node(
         iv_parent_node     = io_db_tab_view_node->mv_node_key
         if_folder          = abap_true
@@ -840,7 +847,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 *.. Create nodes/subnodes for a single database table/view
     DATA(lo_nodes) = mo_tree->get_nodes( ).
-    IF is_table_info-entity_type = zif_dbbr_c_entity_type=>view.
+    IF is_table_info-entity_type = zif_sat_c_entity_type=>view.
       lv_node_image = zif_dbbr_c_icon=>database_view.
       lv_node_type = c_node_type-view.
     ELSE.
@@ -940,11 +947,11 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 *.. Check table/view count in package
     SELECT *
-      FROM zdbbr_i_databaseentityaggr( p_language = @sy-langu )
+      FROM zsat_i_databaseentityaggr( p_language = @sy-langu )
       WHERE developmentpackage = @io_package->package_name
     INTO TABLE @DATA(lt_entity_count_in_package).
 
-    IF line_exists( lt_entity_count_in_package[ type = zif_dbbr_c_entity_type=>view ] ).
+    IF line_exists( lt_entity_count_in_package[ type = zif_sat_c_entity_type=>view ] ).
       DATA(lo_views_node) = create_node(
           if_folder            = abap_true
           iv_parent_node       = lo_package_node->mv_node_key
@@ -958,7 +965,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     ENDIF.
 
 
-    IF line_exists( lt_entity_count_in_package[ type = zif_dbbr_c_entity_type=>table ] ).
+    IF line_exists( lt_entity_count_in_package[ type = zif_sat_c_entity_type=>table ] ).
       DATA(lo_database_tables_node) = create_node(
           if_folder            = abap_true
           iv_parent_node       = lo_package_node->mv_node_key
@@ -1064,7 +1071,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     LOOP AT lt_api_states ASSIGNING FIELD-SYMBOL(<lv_api_state>).
       CASE <lv_api_state>.
 
-        WHEN zif_dbbr_c_cds_api_state=>not_released.
+        WHEN zif_sat_c_cds_api_state=>not_released.
           DATA(lf_not_released) = abap_true.
       ENDCASE.
 
@@ -1073,7 +1080,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       create_node(
         iv_parent_node     = lo_api_states_parent_node->mv_node_key
         iv_image           = lv_icon
-        iv_hier1_item_text = |{ gt_api_state_texts[ low = <lv_api_state> ]-ddtext }|
+        iv_hier1_item_text = |{ gt_api_state_texts[ api_state = <lv_api_state> ]-description }|
       ).
     ENDLOOP.
 
@@ -1092,11 +1099,11 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       LOOP AT lt_base_tables ASSIGNING FIELD-SYMBOL(<ls_base_table>).
         lv_node_type = COND #(
-          WHEN <ls_base_table>-table_kind = zif_dbbr_c_entity_type=>table AND
+          WHEN <ls_base_table>-table_kind = zif_sat_c_entity_type=>table AND
                <ls_base_table>-is_db_view = abap_true                           THEN c_node_type-view
-          WHEN <ls_base_table>-table_kind = zif_dbbr_c_entity_type=>table AND
+          WHEN <ls_base_table>-table_kind = zif_sat_c_entity_type=>table AND
                <ls_base_table>-is_db_view = abap_false                          THEN c_node_type-dbtable
-          WHEN <ls_base_table>-table_kind = zif_dbbr_c_entity_type=>cds_view    THEN c_node_type-cds_view
+          WHEN <ls_base_table>-table_kind = zif_sat_c_entity_type=>cds_view    THEN c_node_type-cds_view
         ).
         lv_node_image = node_image_for_node_type( lv_node_type ).
 
@@ -1120,7 +1127,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
             is_entity           = VALUE #(
               entity_id     = <ls_base_table>-entityname
               entity_id_raw = <ls_base_table>-entityname_raw
-              entity_type   = zif_dbbr_c_entity_type=>table
+              entity_type   = zif_sat_c_entity_type=>table
             )
           ).
         ENDIF.
@@ -1144,10 +1151,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       LOOP AT lt_assoc ASSIGNING FIELD-SYMBOL(<ls_assoc>).
         lv_node_type = SWITCH #( <ls_assoc>-kind
-           WHEN zif_dbbr_c_cds_assoc_type=>entity OR
-                zif_dbbr_c_cds_assoc_type=>table_function THEN c_node_type-cds_view
-           WHEN zif_dbbr_c_cds_assoc_type=>table OR
-                zif_dbbr_c_cds_assoc_type=>view           THEN c_node_type-dbtable
+           WHEN zif_sat_c_cds_assoc_type=>entity OR
+                zif_sat_c_cds_assoc_type=>table_function THEN c_node_type-cds_view
+           WHEN zif_sat_c_cds_assoc_type=>table OR
+                zif_sat_c_cds_assoc_type=>view           THEN c_node_type-dbtable
         ).
         lv_node_image = node_image_for_node_type( lv_node_type ).
 
@@ -1165,14 +1172,14 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
             )
         ).
 
-        IF <ls_assoc>-kind = zif_dbbr_c_cds_assoc_type=>table.
+        IF <ls_assoc>-kind = zif_sat_c_cds_assoc_type=>table.
           IF lv_node_type = c_node_type-dbtable.
             create_db_table_subnodes(
               io_db_tab_view_node = lo_cds_base_table_node
               is_entity           = VALUE #(
                 entity_id     = <ls_assoc>-ref_cds_view
                 entity_id_raw = <ls_assoc>-ref_cds_view_raw
-                entity_type   = zif_dbbr_c_entity_type=>table
+                entity_type   = zif_sat_c_entity_type=>table
               )
             ).
           ENDIF.
@@ -1293,7 +1300,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD expand_db_table.
-    DATA(ls_tabname) = zcl_dbbr_dictionary_helper=>get_table_info( iv_tablename = iv_tabname ).
+    DATA(ls_tabname) = zcl_sat_ddic_repo_access=>get_table_info( iv_tablename = iv_tabname ).
     create_db_table_subnodes(
         io_db_tab_view_node = mo_tree->get_nodes( )->get_node( iv_node_key )
         is_entity           = VALUE #( )
@@ -1306,7 +1313,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           lv_date_text TYPE string.
 
     SELECT SINGLE *
-      FROM zdbbr_i_databaseentity( p_language = @sy-langu )
+      FROM zsat_i_databaseentity( p_language = @sy-langu )
       WHERE entity = @iv_tabname
     INTO @DATA(ls_entity).
 
@@ -1360,7 +1367,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD expand_foreign_key_tables.
-    DATA(lt_foreign_key_tables) = zcl_dbbr_dictionary_helper=>get_foreign_key_tables( iv_tabname = iv_tabname ).
+    DATA(lt_foreign_key_tables) = zcl_sat_ddic_repo_access=>get_foreign_key_tables( iv_tabname = iv_tabname ).
 
     CHECK lt_foreign_key_tables IS NOT INITIAL.
 
@@ -1377,10 +1384,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 *.. load cds view entity
     TRY.
         create_single_cds_view_tree(
-            io_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( iv_cds_view )
+            io_cds_view = zcl_sat_cds_view_factory=>read_cds_view( iv_cds_view )
             io_node     = mo_tree->get_nodes( )->get_node( iv_node_key )
         ).
-      CATCH zcx_dbbr_data_read_error ##needed.
+      CATCH zcx_sat_data_read_error ##needed.
     ENDTRY.
   ENDMETHOD.
 
@@ -1388,10 +1395,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   METHOD expand_package_dbtabs_node.
     zcl_dbbr_screen_helper=>show_progress( iv_text = |{ 'Loading DB Tables of Package'(023) } { iv_package }| iv_progress = 1 ).
 
-    DATA(lt_dbtabs) = zcl_dbbr_dictionary_helper=>find_database_tab_view(
+    DATA(lt_dbtabs) = zcl_sat_ddic_repo_access=>find_database_tab_view(
         iv_package = iv_package
         if_all     = abap_true
-        iv_type    = zif_dbbr_c_entity_type=>table
+        iv_type    = zif_sat_c_entity_type=>table
     ).
 
     create_multiple_db_tab_tree(
@@ -1405,7 +1412,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
   METHOD expand_package_ddls_node.
     zcl_dbbr_screen_helper=>show_progress( iv_text = |{ 'Loading DDLS of Package'(022) } { iv_package }| iv_progress = 1 ).
-    DATA(lt_header_in_package) = zcl_dbbr_cds_view_factory=>find_cds_views(
+    DATA(lt_header_in_package) = zcl_sat_cds_view_factory=>find_cds_views(
       iv_package  = iv_package
       iv_max_rows = 0
     ).
@@ -1432,10 +1439,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
   METHOD expand_package_views_node.
     zcl_dbbr_screen_helper=>show_progress( iv_text = |{ 'Loading DB Views of Package'(024) } { iv_package }| iv_progress = 1 ).
-    DATA(lt_views) = zcl_dbbr_dictionary_helper=>find_database_tab_view(
+    DATA(lt_views) = zcl_sat_ddic_repo_access=>find_database_tab_view(
         iv_package = iv_package
         if_all     = abap_true
-        iv_type    = zif_dbbr_c_entity_type=>view
+        iv_type    = zif_sat_c_entity_type=>view
     ).
 
     create_multiple_db_tab_tree(
@@ -1503,9 +1510,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       LOOP AT lt_base_tables ASSIGNING FIELD-SYMBOL(<ls_base_table>).
         DATA(lv_node_type) = SWITCH #(
           <ls_base_table>-entity_type
-          WHEN zif_dbbr_c_entity_type=>table    THEN c_node_type-dbtable
-          WHEN zif_dbbr_c_entity_type=>view     THEN c_node_type-view
-          WHEN zif_dbbr_c_entity_type=>cds_view THEN c_node_type-cds_view
+          WHEN zif_sat_c_entity_type=>table    THEN c_node_type-dbtable
+          WHEN zif_sat_c_entity_type=>view     THEN c_node_type-view
+          WHEN zif_sat_c_entity_type=>cds_view THEN c_node_type-cds_view
         ).
         DATA(lv_image) = node_image_for_node_type( lv_node_type ).
         DATA(lo_base_table_node) = create_node(
@@ -1539,13 +1546,13 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     DATA(lo_node) = lo_nodes->get_node( iv_node_key ).
 
 *.. Retrieve base tables of view
-    DATA(lt_base_tables) = zcl_dbbr_dictionary_helper=>find_base_tables_of_view( iv_view_name = iv_view ).
+    DATA(lt_base_tables) = zcl_sat_ddic_repo_access=>find_base_tables_of_view( iv_view_name = iv_view ).
 
     LOOP AT lt_base_tables ASSIGNING FIELD-SYMBOL(<ls_base_table>).
       DATA(lv_node_type) = SWITCH #(
         <ls_base_table>-entity_type
-        WHEN zif_dbbr_c_entity_type=>table THEN c_node_type-dbtable
-        WHEN zif_dbbr_c_entity_type=>view  THEN c_node_type-view
+        WHEN zif_sat_c_entity_type=>table THEN c_node_type-dbtable
+        WHEN zif_sat_c_entity_type=>view  THEN c_node_type-view
       ).
       DATA(lv_image) = node_image_for_node_type( lv_node_type ).
       DATA(lo_base_table_node) = create_node(
@@ -1570,9 +1577,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD expand_tech_settings_node.
-    DATA(lv_language) = zcl_dbbr_system_helper=>get_system_language( ).
+    DATA(lv_language) = zcl_sat_system_helper=>get_system_language( ).
     SELECT SINGLE *
-     FROM zdbbr_i_dbtabletechsettings( p_language = @lv_language )
+     FROM zsat_i_dbtabletechsettings( p_language = @lv_language )
      WHERE tablename = @iv_tabname
     INTO @DATA(ls_tech_settings).
 
@@ -1620,7 +1627,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
   METHOD export_queries.
     DATA: lt_query_to_export  TYPE zdbbr_query_info_ui_itab,
-          lt_query_name_range TYPE RANGE OF zdbbr_query_name.
+          lt_query_name_range TYPE RANGE OF zsat_query_name.
 
     DATA(lt_selected_nodes) = mo_tree->get_selections( )->get_selected_nodes( ).
     IF lt_selected_nodes IS INITIAL.
@@ -1707,10 +1714,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           menu = lo_submenu
           text = SWITCH gui_text(
             <lv_type>
-            WHEN zif_dbbr_c_object_browser_mode=>cds_view THEN 'CDS View'
-            WHEN zif_dbbr_c_object_browser_mode=>database_table_view THEN 'Database Table/View'
-            WHEN zif_dbbr_c_object_browser_mode=>query THEN 'Query'
-            WHEN zif_dbbr_c_object_browser_mode=>package THEN 'Package'
+            WHEN zif_sat_c_object_browser_mode=>cds_view THEN 'CDS View'
+            WHEN zif_sat_c_object_browser_mode=>database_table_view THEN 'Database Table/View'
+            WHEN zif_sat_c_object_browser_mode=>query THEN 'Query'
+            WHEN zif_sat_c_object_browser_mode=>package THEN 'Package'
           )
       ).
 
@@ -1734,10 +1741,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     mo_search_type_select->set_value(
       SWITCH #( ev_entity_type
-        WHEN zif_dbbr_c_entity_type=>cds_view THEN zif_dbbr_c_object_browser_mode=>cds_view
-        WHEN zif_dbbr_c_entity_type=>view  OR
-             zif_dbbr_c_entity_type=>table    THEN zif_dbbr_c_object_browser_mode=>database_table_view
-        WHEN zif_dbbr_c_entity_type=>query    THEN zif_dbbr_c_object_browser_mode=>query
+        WHEN zif_sat_c_entity_type=>cds_view THEN zif_sat_c_object_browser_mode=>cds_view
+        WHEN zif_sat_c_entity_type=>view  OR
+             zif_sat_c_entity_type=>table    THEN zif_sat_c_object_browser_mode=>database_table_view
+        WHEN zif_sat_c_entity_type=>query    THEN zif_sat_c_object_browser_mode=>query
       )
     ).
     mv_current_search_type = mo_search_type_select->value.
@@ -1751,7 +1758,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         IF mo_search_query IS INITIAL OR
            mo_search_query->mv_query <> ev_entity_id OR
            mo_search_query->mv_type <> ev_entity_type.
-          mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
+          mo_search_query = zcl_sat_object_search_query=>parse_query_string(
              iv_query                = |{ ev_entity_id }|
              is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
              iv_search_type          = mv_current_search_type
@@ -1765,7 +1772,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 *...... Display object browser in parent if not already visible
         mo_parent_view->set_child_visibility( me ).
-      CATCH zcx_dbbr_object_search.
+      CATCH zcx_sat_object_search.
     ENDTRY.
 
   ENDMETHOD.
@@ -1855,14 +1862,14 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
            mo_search_query->mv_type <> ev_object_type.
 
           mv_current_search_type = ev_object_type.
-          mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
+          mo_search_query = zcl_sat_object_search_query=>parse_query_string(
              iv_query                = |{ ev_search_query }|
              is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
              iv_search_type          = mv_current_search_type
           ).
           add_history_entry( ).
         ENDIF.
-      CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_error).
+      CATCH zcx_sat_object_search INTO DATA(lx_appl_error).
         lx_appl_error->show_message( iv_message_type = 'S' ).
         RETURN.
     ENDTRY.
@@ -1978,10 +1985,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     DATA(lv_entity_type) = SWITCH #(
         <ls_user_data>-node_type
-        WHEN c_node_type-cds_view THEN zif_dbbr_c_entity_type=>cds_view
-        WHEN c_node_type-dbtable  THEN zif_dbbr_c_entity_type=>table
-        WHEN c_node_type-view     THEN zif_dbbr_c_entity_type=>table
-        WHEN c_node_type-query    THEN zif_dbbr_c_entity_type=>query
+        WHEN c_node_type-cds_view THEN zif_sat_c_entity_type=>cds_view
+        WHEN c_node_type-dbtable  THEN zif_sat_c_entity_type=>table
+        WHEN c_node_type-view     THEN zif_sat_c_entity_type=>table
+        WHEN c_node_type-query    THEN zif_sat_c_entity_type=>query
     ).
 
     CASE ev_fcode.
@@ -1989,10 +1996,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       WHEN c_functions-open_with_adt.
 
         TRY.
-            zcl_dbbr_adt_util=>jump_adt(
+            zcl_sat_adt_util=>jump_adt(
                 iv_obj_name     = SWITCH #( <ls_user_data>-node_type
                     WHEN c_node_type-cds_view THEN
-                        zcl_dbbr_cds_view_factory=>get_ddl_for_entity_name( <ls_user_data>-entity_id )
+                        zcl_sat_cds_view_factory=>get_ddl_for_entity_name( <ls_user_data>-entity_id )
                     ELSE
                         <ls_user_data>-entity_id
                 )
@@ -2003,8 +2010,8 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
                     WHEN c_node_type-view     THEN 'VIEW'
                 )
             ).
-          CATCH zcx_dbbr_adt_error INTO DATA(lx_adt_error).
-          CATCH zcx_dbbr_data_read_error INTO DATA(lx_data_read_error).
+          CATCH zcx_sat_adt_error INTO DATA(lx_adt_error).
+          CATCH zcx_sat_data_read_error INTO DATA(lx_data_read_error).
         ENDTRY.
 
       WHEN c_functions-open_in_new_window.
@@ -2016,7 +2023,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       WHEN c_functions-exec_with_dbbrs_new_window.
 *...... Check if there is an actual result to show
-*        IF zcl_dbbr_dictionary_helper=>exists_data_for_entity( <ls_user_data>-entity_id ).
+*        IF zcl_sat_ddic_repo_access=>exists_data_for_entity( <ls_user_data>-entity_id ).
         CALL FUNCTION 'ZDBBR_SHOW_SELSCREEN' STARTING NEW TASK 'ZDBBR_OBJ_BRS_EXEC_JUMP'
           EXPORTING
             iv_entity_id       = <ls_user_data>-entity_id
@@ -2047,14 +2054,14 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         ENDIF.
 
         TRY.
-            DATA(lv_source) = zcl_dbbr_cds_view_factory=>read_ddls_source( <ls_user_data>-entity_id ).
+            DATA(lv_source) = zcl_sat_cds_view_factory=>read_ddls_source( <ls_user_data>-entity_id ).
             zcl_uitb_abap_code_viewer=>show_code(
                 iv_title = |DDL Source { <ls_user_data>-entity_id_raw }|
                 iv_code  = lv_source
                 iv_theme = mv_theme
             ).
-          CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
-            lx_app_error->zif_dbbr_exception_message~print( ).
+          CATCH zcx_sat_application_exc INTO DATA(lx_app_error).
+            lx_app_error->zif_sat_exception_message~print( ).
         ENDTRY.
 
       WHEN c_functions-analyze_dependencies.
@@ -2063,14 +2070,14 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       WHEN c_functions-used_as_assoc.
         on_external_object_search_req(
-            ev_object_type  = zif_dbbr_c_object_browser_mode=>cds_view
+            ev_object_type  = zif_sat_c_object_browser_mode=>cds_view
             ev_search_query = |assoc:{ <ls_user_data>-entity_id }|
             ef_close_popup  = abap_false
         ).
 
       WHEN c_functions-used_in_select_from.
         on_external_object_search_req(
-            ev_object_type  = zif_dbbr_c_object_browser_mode=>cds_view
+            ev_object_type  = zif_sat_c_object_browser_mode=>cds_view
             ev_search_query = |from:{ <ls_user_data>-entity_id }|
             ef_close_popup  = abap_false
         ).
@@ -2119,10 +2126,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           iv_entity_id   = <ls_user_data>-entity_id
           iv_entity_type = SWITCH #(
             <ls_user_data>-node_type
-            WHEN c_node_type-cds_view THEN zif_dbbr_c_entity_type=>cds_view
-            WHEN c_node_type-query    THEN zif_dbbr_c_entity_type=>query
-            WHEN c_node_type-dbtable  THEN zif_dbbr_c_entity_type=>table
-            WHEN c_node_type-view     THEN zif_dbbr_c_entity_type=>table
+            WHEN c_node_type-cds_view THEN zif_sat_c_entity_type=>cds_view
+            WHEN c_node_type-query    THEN zif_sat_c_entity_type=>query
+            WHEN c_node_type-dbtable  THEN zif_sat_c_entity_type=>table
+            WHEN c_node_type-view     THEN zif_sat_c_entity_type=>table
           )
       ).
     ELSEIF <ls_user_data>-node_type = c_node_type-cds_tables OR
@@ -2156,9 +2163,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       on_external_object_search_req(
           ev_object_type  = SWITCH #( <ls_user_data>-node_type
             WHEN c_node_type-cds_owner_prop OR
-                 c_node_type-cds_package_prop THEN zif_dbbr_c_object_browser_mode=>cds_view
-            WHEN c_node_type-query_owner_prop THEN zif_dbbr_c_object_browser_mode=>query
-            ELSE zif_dbbr_c_object_browser_mode=>database_table_view
+                 c_node_type-cds_package_prop THEN zif_sat_c_object_browser_mode=>cds_view
+            WHEN c_node_type-query_owner_prop THEN zif_sat_c_object_browser_mode=>query
+            ELSE zif_sat_c_object_browser_mode=>database_table_view
           )
           ev_search_query = |{ lv_query_param }{ lv_query_param_value }|
           ef_close_popup  = abap_false
@@ -2180,13 +2187,13 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
        mo_search_query->mv_type <> mo_search_type_select->value.
 
       TRY.
-          mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
+          mo_search_query = zcl_sat_object_search_query=>parse_query_string(
              iv_query                = |{ mo_search_input->value }|
              is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
              iv_search_type          = mv_current_search_type
           ).
           add_history_entry( ).
-        CATCH zcx_dbbr_application_exc INTO DATA(lx_parse_error).
+        CATCH zcx_sat_object_search INTO DATA(lx_parse_error).
           MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
           RETURN.
       ENDTRY.
@@ -2205,13 +2212,13 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
        mo_search_query->mv_type <> mo_search_type_select->value.
 
       TRY.
-          mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
+          mo_search_query = zcl_sat_object_search_query=>parse_query_string(
              iv_query                = |{ mo_search_input->value }|
              is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
              iv_search_type          = mv_current_search_type
           ).
           add_history_entry( ).
-        CATCH zcx_dbbr_application_exc INTO DATA(lx_parse_error).
+        CATCH zcx_sat_object_search INTO DATA(lx_parse_error).
           MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
           RETURN.
       ENDTRY.
@@ -2225,16 +2232,16 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     IF mv_current_search_type <> mo_search_type_select->value.
       CASE mv_current_search_type.
 
-        WHEN zif_dbbr_c_object_browser_mode=>cds_view.
+        WHEN zif_sat_c_object_browser_mode=>cds_view.
           ms_search_input-cds_view = mo_search_input->value.
 
-        WHEN zif_dbbr_c_object_browser_mode=>database_table_view.
+        WHEN zif_sat_c_object_browser_mode=>database_table_view.
           ms_search_input-database_table_view = mo_search_input->value.
 
-        WHEN zif_dbbr_c_object_browser_mode=>package.
+        WHEN zif_sat_c_object_browser_mode=>package.
           ms_search_input-package = mo_search_input->value.
 
-        WHEN zif_dbbr_c_object_browser_mode=>query.
+        WHEN zif_sat_c_object_browser_mode=>query.
           ms_search_input-query = mo_search_input->value.
       ENDCASE.
     ELSE.
@@ -2246,16 +2253,16 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     CASE mv_current_search_type.
 
-      WHEN zif_dbbr_c_object_browser_mode=>cds_view.
+      WHEN zif_sat_c_object_browser_mode=>cds_view.
         mo_search_input->set_value( |{ ms_search_input-cds_view }| ).
 
-      WHEN zif_dbbr_c_object_browser_mode=>database_table_view.
+      WHEN zif_sat_c_object_browser_mode=>database_table_view.
         mo_search_input->set_value( |{ ms_search_input-database_table_view }| ).
 
-      WHEN zif_dbbr_c_object_browser_mode=>package.
+      WHEN zif_sat_c_object_browser_mode=>package.
         mo_search_input->set_value( |{ ms_search_input-package }| ).
 
-      WHEN zif_dbbr_c_object_browser_mode=>query.
+      WHEN zif_sat_c_object_browser_mode=>query.
         mo_search_input->set_value( |{ ms_search_input-query }| ).
 
     ENDCASE.
@@ -2345,7 +2352,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
        lr_user_data->node_type = c_node_type-view.
 
       SELECT SINGLE developmentpackage
-        FROM zdbbr_i_databaseentity( p_language = @sy-langu )
+        FROM zsat_i_databaseentity( p_language = @sy-langu )
         WHERE entity = @lr_user_data->entity_id
       INTO @DATA(lv_package).
 
@@ -2374,15 +2381,15 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 *.. Update object browser type and search field input
     mo_search_input->set_value( |{ lv_package }| ).
-    mv_current_search_type = zif_dbbr_c_object_browser_mode=>package.
-    mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>package }| ).
+    mv_current_search_type = zif_sat_c_object_browser_mode=>package.
+    mo_search_type_select->set_value( |{ zif_sat_c_object_browser_mode=>package }| ).
     TRY.
-        mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
+        mo_search_query = zcl_sat_object_search_query=>parse_query_string(
             iv_query                = |{ lv_package }|
             is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
-            iv_search_type          = zif_dbbr_c_object_browser_mode=>package
+            iv_search_type          = zif_sat_c_object_browser_mode=>package
         ).
-      CATCH zcx_dbbr_object_search.
+      CATCH zcx_sat_object_search.
     ENDTRY.
     add_history_entry( ).
 
@@ -2412,7 +2419,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 
   METHOD trigger_new_search.
-    DATA: lt_search_result TYPE zdbbr_entity_t,
+    DATA: lt_search_result TYPE zsat_entity_t,
           lv_found_lines   TYPE sy-tabix.
 
     CLEAR rf_success.
@@ -2422,20 +2429,20 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         CASE mv_current_search_type.
 
 *........ New CDS View Search
-          WHEN zif_dbbr_c_object_browser_mode=>cds_view.
-            lt_search_result = NEW zcl_dbbr_ob_cds_searcher( ir_query = mo_search_query )->zif_dbbr_object_searcher~search( ).
+          WHEN zif_sat_c_object_browser_mode=>cds_view.
+            lt_search_result = NEW zcl_sat_ob_cds_searcher( ir_query = mo_search_query )->zif_sat_object_searcher~search( ).
             lv_found_lines = lines( lt_search_result ).
             show_results_message( iv_result_count = lv_found_lines  iv_max_count = mo_search_query->mv_max_rows ).
             IF lv_found_lines = 0.
               clear_tree( ).
             ELSEIF lv_found_lines = 1.
-              create_single_cds_view_tree( EXPORTING io_cds_view = zcl_dbbr_cds_view_factory=>read_cds_view( |{ lt_search_result[ 1 ]-entity_id }| ) ).
+              create_single_cds_view_tree( EXPORTING io_cds_view = zcl_sat_cds_view_factory=>read_cds_view( |{ lt_search_result[ 1 ]-entity_id }| ) ).
             ELSEIF lv_found_lines > 1.
               create_multiple_cds_view_tree( EXPORTING it_cds_view_header = lt_search_result ).
             ENDIF.
 
 *........ New Package search
-          WHEN zif_dbbr_c_object_browser_mode=>package.
+          WHEN zif_sat_c_object_browser_mode=>package.
             IF mo_search_query->mv_search_string CS '*'.
               DATA(lt_packages) = zcl_dbbr_package_factory=>find_packages( |{ mo_search_query->mv_search_string }| ).
               IF lines( lt_packages ) = 50.
@@ -2447,8 +2454,8 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
             ENDIF.
 
 *........ New Database Table/View search
-          WHEN zif_dbbr_c_object_browser_mode=>database_table_view.
-            lt_search_result = NEW zcl_dbbr_ob_dbtab_searcher( ir_query = mo_search_query )->zif_dbbr_object_searcher~search( ).
+          WHEN zif_sat_c_object_browser_mode=>database_table_view.
+            lt_search_result = NEW zcl_sat_ob_dbtab_searcher( ir_query = mo_search_query )->zif_sat_object_searcher~search( ).
             lv_found_lines = lines( lt_search_result ).
             show_results_message( iv_result_count = lv_found_lines  iv_max_count = mo_search_query->mv_max_rows ).
             IF lv_found_lines = 0.
@@ -2460,8 +2467,8 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
             ENDIF.
 
 *........ New Query search
-          WHEN zif_dbbr_c_object_browser_mode=>query.
-            lt_search_result = NEW zcl_dbbr_ob_query_searcher( ir_query = mo_search_query )->zif_dbbr_object_searcher~search( ).
+          WHEN zif_sat_c_object_browser_mode=>query.
+            lt_search_result = NEW zcl_dbbr_ob_query_searcher( ir_query = mo_search_query )->zif_sat_object_searcher~search( ).
             lv_found_lines = lines( lt_search_result ).
             show_results_message( iv_result_count = lv_found_lines  iv_max_count = mo_search_query->mv_max_rows ).
             IF lv_found_lines = 0.
@@ -2476,7 +2483,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         update_toolbar( ).
         rf_success = abap_true.
       CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_error).
-        lx_appl_error->zif_dbbr_exception_message~print( iv_display_type = 'E' ).
+        lx_appl_error->zif_sat_exception_message~print( iv_display_type = 'E' ).
+      CATCH zcx_sat_application_exc INTO DATA(lx_sat_appl_error).
+        lx_sat_appl_error->zif_sat_exception_message~print( iv_display_type = 'E' ).
     ENDTRY.
   ENDMETHOD.
 
@@ -2498,7 +2507,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   METHOD update_toolbar.
     DATA(lo_nodes) = mo_tree->get_nodes( ).
 
-    IF mv_current_search_type = zif_dbbr_c_object_browser_mode=>query.
+    IF mv_current_search_type = zif_sat_c_object_browser_mode=>query.
       DATA(lf_import_export_visible) = abap_true.
     ENDIF.
 
@@ -2563,18 +2572,18 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD trigger_my_objects_search.
-    DATA: lv_search_type TYPE zdbbr_obj_browser_mode.
+    DATA: lv_search_type TYPE zsat_obj_browser_mode.
 
     CASE iv_fcode.
 
       WHEN c_functions-my_cds_views_search.
-        lv_search_type = zif_dbbr_c_object_browser_mode=>cds_view.
+        lv_search_type = zif_sat_c_object_browser_mode=>cds_view.
 
       WHEN c_functions-my_db_tables_views_search.
-        lv_search_type = zif_dbbr_c_object_browser_mode=>database_table_view.
+        lv_search_type = zif_sat_c_object_browser_mode=>database_table_view.
 
       WHEN c_functions-my_queries_search.
-        lv_search_type = zif_dbbr_c_object_browser_mode=>query.
+        lv_search_type = zif_sat_c_object_browser_mode=>query.
     ENDCASE.
 
     mo_search_input->set_value( |owner:me| ).
@@ -2595,10 +2604,10 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     DEFINE set_function_text.
       lv_function_string = SWITCH #( <ls_history>-query->mv_type
-          WHEN zif_dbbr_c_object_browser_mode=>cds_view THEN `CDS: `
-          WHEN zif_dbbr_c_object_browser_mode=>database_table_view THEN `DB Tab/View: `
-          WHEN zif_dbbr_c_object_browser_mode=>package THEN `Package: `
-          WHEN zif_dbbr_c_object_browser_mode=>query THEN `Query: `
+          WHEN zif_sat_c_object_browser_mode=>cds_view THEN `CDS: `
+          WHEN zif_sat_c_object_browser_mode=>database_table_view THEN `DB Tab/View: `
+          WHEN zif_sat_c_object_browser_mode=>package THEN `Package: `
+          WHEN zif_sat_c_object_browser_mode=>query THEN `Query: `
       ) && <ls_history>-query->mv_query.
       lv_function_text = lv_function_string.
       IF strlen( lv_function_string ) > 40.
@@ -2744,12 +2753,12 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 *.. Parse the query again to prevent storing favorite with invalid query
     TRY.
-        zcl_dbbr_object_search_query=>parse_query_string(
+        zcl_sat_object_search_query=>parse_query_string(
            iv_query                = |{ mo_search_input->value }|
            is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
            iv_search_type          = mv_current_search_type
         ).
-      CATCH zcx_dbbr_application_exc INTO DATA(lx_parse_error).
+      CATCH zcx_sat_object_search INTO DATA(lx_parse_error).
         MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
         RETURN.
     ENDTRY.
@@ -2782,14 +2791,14 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
     CHECK ls_map_entry IS NOT INITIAL.
 
     TRY.
-        mo_search_query = zcl_dbbr_object_search_query=>parse_query_string(
+        mo_search_query = zcl_sat_object_search_query=>parse_query_string(
           iv_query                 = ls_map_entry-query
           is_search_engine_params  = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
           iv_search_type           = ls_map_entry-type
         ).
         show_historic_query( ).
         add_history_entry( ).
-      CATCH zcx_dbbr_object_search INTO DATA(lx_parse_error).
+      CATCH zcx_sat_object_search INTO DATA(lx_parse_error).
         MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
     ENDTRY.
   ENDMETHOD.

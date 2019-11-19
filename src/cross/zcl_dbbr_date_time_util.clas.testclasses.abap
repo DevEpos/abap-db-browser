@@ -20,7 +20,7 @@ CLASS ltcl_abap_unit IMPLEMENTATION.
             iv_rollname  = '/DRY/LASTCHANGEDATETIME'
             iv_domain    = zif_dbbr_global_consts=>c_domain_names-timestamp_long
         ).
-      CATCH zcx_dbbr_conversion_exc INTO DATA(lx_conv_exc).
+      CATCH ZCX_SAT_CONVERSION_EXC INTO DATA(lx_conv_exc).
     ENDTRY.
   ENDMETHOD.
 

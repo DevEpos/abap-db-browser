@@ -1,14 +1,14 @@
-class ZCX_DBBR_NODE_NOT_FOUND definition
-  public
-  inheriting from ZCX_DBBR_NC_EXCEPTION
-  create public .
+CLASS zcx_dbbr_node_not_found DEFINITION
+  PUBLIC
+  INHERITING FROM zcx_sat_nc_exception
+  CREATE PUBLIC .
 
-public section.
-protected section.
-private section.
+  PUBLIC SECTION.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCX_DBBR_NODE_NOT_FOUND IMPLEMENTATION.
+CLASS zcx_dbbr_node_not_found IMPLEMENTATION.
 ENDCLASS.

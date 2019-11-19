@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Abstract ALV Filter for Output Grid</p>
 CLASS zcl_dbbr_output_alv_util DEFINITION
   PUBLIC
   CREATE PUBLIC .
@@ -6,10 +7,12 @@ CLASS zcl_dbbr_output_alv_util DEFINITION
 
     DATA mf_use_live_filter TYPE abap_bool READ-ONLY .
 
+    "! <p class="shorttext synchronized" lang="en">Builds selection criteria from db filters</p>
     METHODS build_selection_criteria
       EXPORTING
         !et_criteria       TYPE zdbbr_selfield_itab
         !et_criteria_multi TYPE zdbbr_selfield_itab .
+    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
         !if_use_live_filter    TYPE abap_bool
@@ -18,39 +21,56 @@ CLASS zcl_dbbr_output_alv_util DEFINITION
         !if_aggregation_active TYPE abap_bool OPTIONAL
         ir_t_fieldcat          TYPE REF TO lvc_t_fcat
         !ir_tabfields          TYPE REF TO zcl_dbbr_tabfield_list .
+    "! <p class="shorttext synchronized" lang="en">Delete filters from selected columns</p>
     METHODS del_filter_from_selected_cols .
+    "! <p class="shorttext synchronized" lang="en">Group data by selected columns</p>
     METHODS execute_column_grouping .
+    "! <p class="shorttext synchronized" lang="en">Execute a quick filter for the selected cells</p>
     METHODS execute_quick_filter
       IMPORTING
         !if_exclusion_mode TYPE abap_bool OPTIONAL .
+    "! <p class="shorttext synchronized" lang="en">Retrieve the count of filtered entries</p>
     METHODS get_filtered_count
       RETURNING
         VALUE(result) TYPE sy-tabix .
+    "! <p class="shorttext synchronized" lang="en">Retrieve all active filters</p>
     METHODS get_filters
       RETURNING
         VALUE(result) TYPE lvc_t_filt .
+    "! <p class="shorttext synchronized" lang="en">Get Filter from Selection Criteria</p>
     METHODS get_filter_from_criteria
       IMPORTING
         !it_criteria       TYPE zdbbr_selfield_itab
         !it_criteria_multi TYPE zdbbr_selfield_itab
       RETURNING
         VALUE(rt_filter)   TYPE lvc_t_filt .
+    "! <p class="shorttext synchronized" lang="en">Have the DB Filters changed?</p>
     METHODS have_db_filters_changed
       RETURNING
         VALUE(result) TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Have the UI Filters changed?</p>
     METHODS have_ui_filters_changed
       RETURNING
         VALUE(result) TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Checks if column grouping is active</p>
     METHODS is_column_grouping_active
       RETURNING
         VALUE(result) TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Remove Grouping from Columns</p>
     METHODS remove_column_grouping .
+    "! <p class="shorttext synchronized" lang="en">Update the filters from ALV Grid</p>
     METHODS update_filters .
+    "! <p class="shorttext synchronized" lang="en">Sets the db filter</p>
     METHODS set_db_filter
       IMPORTING
         !it_filter TYPE lvc_t_filt .
+    "! <p class="shorttext synchronized" lang="en">Updates the table reference</p>
+    METHODS update_result_table_ref
+      IMPORTING
+        ir_t_data TYPE REF TO data.
   PROTECTED SECTION.
 
+    "! <p class="shorttext synchronized" lang="en">ALV Output</p>
     DATA mr_alv TYPE REF TO zcl_dbbr_output_grid .
     DATA:
       BEGIN OF ms_new_filters,
@@ -58,20 +78,26 @@ CLASS zcl_dbbr_output_alv_util DEFINITION
         db_filter TYPE lvc_t_filt,
       END OF ms_new_filters .
     DATA mr_t_data TYPE REF TO data .
+    "! <p class="shorttext synchronized" lang="en">ALV control: Table of filter conditions</p>
     DATA mt_ui_filter TYPE lvc_t_filt .
+    "! <p class="shorttext synchronized" lang="en">ALV control: Table of filter conditions</p>
     DATA mt_db_filter TYPE lvc_t_filt .
     DATA mf_aggregation_active TYPE abap_bool .
     DATA mf_col_grouping_active TYPE abap_bool .
     DATA mr_t_fieldcat TYPE REF TO lvc_t_fcat.
+    "! <p class="shorttext synchronized" lang="en">Wrapper for list of table fields</p>
     DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
 
+    "! <p class="shorttext synchronized" lang="en">Check fi the db filters changed</p>
     METHODS check_db_filter_changed .
+    "! <p class="shorttext synchronized" lang="en">Check if the given filter tables differ</p>
     METHODS check_filter_changed
       CHANGING
         !ct_filter_old           TYPE lvc_t_filt
         !ct_filter_new           TYPE lvc_t_filt
       RETURNING
         VALUE(rf_filter_changed) TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Check if the ui filters changed</p>
     METHODS check_ui_filter_changed .
   PRIVATE SECTION.
 
@@ -86,6 +112,7 @@ CLASS zcl_dbbr_output_alv_util DEFINITION
     DATA mf_db_filters_changed TYPE abap_bool .
     DATA mf_ui_filters_changed TYPE abap_bool .
 
+    "! <p class="shorttext synchronized" lang="en">Check if two rows differ in their values</p>
     METHODS rows_differ
       IMPORTING
         !is_left_row          TYPE any
@@ -244,7 +271,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    DATA(lt_col_selopt) = VALUE zdbbr_selopt_itab(
+    DATA(lt_col_selopt) = VALUE zif_sat_ty_global=>ty_t_selopt(
       FOR col IN lt_columns
       ( sign = 'I'
         option = 'EQ'
@@ -257,7 +284,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
       IF <ls_field>-fieldname NOT IN lt_col_selopt.
         <ls_field>-no_out = abap_true.
       ELSE. " this is a sorting column
-        DATA(lf_is_numeric) = zcl_dbbr_dictionary_helper=>is_type_numeric( <ls_field>-inttype ).
+        DATA(lf_is_numeric) = zcl_dbbr_ddic_util=>is_type_numeric( <ls_field>-inttype ).
 *...... Reset numeric type to non numeric if domain is timestamp
         IF lf_is_numeric = abap_true AND
            ( <ls_field>-domname = zif_dbbr_global_consts=>c_domain_names-timestamp OR
@@ -462,8 +489,8 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
                high IS NOT INITIAL OR
                option IS NOT INITIAL ).
 
-      CHECK: <ls_selfield>-option <> zif_dbbr_c_options=>is_null,
-             <ls_selfield>-option <> zif_dbbr_c_options=>is_not_null.
+      CHECK: <ls_selfield>-option <> zif_sat_c_options=>is_null,
+             <ls_selfield>-option <> zif_sat_c_options=>is_not_null.
 
 *..... get table field to get alias name
       TRY.
@@ -493,7 +520,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
           option    = <ls_selfield>-option
       ).
 
-      zcl_dbbr_where_clause_builder=>get_option(
+      zcl_sat_where_clause_builder=>get_option(
         EXPORTING
           iv_sign        = ls_filter-sign
           iv_option      = ls_filter-option
@@ -511,8 +538,8 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
                 ( low  IS NOT INITIAL OR
                   high IS NOT INITIAL OR
                   option IS NOT INITIAL ).
-        DATA(lv_low) = VALUE zdbbr_value( ).
-        DATA(lv_high) = VALUE zdbbr_value( ).
+        DATA(lv_low) = VALUE zsat_value( ).
+        DATA(lv_high) = VALUE zsat_value( ).
         IF <ls_selfield_multi>-low = '#' AND <ls_selfield_multi>-option <> '#'.
           lv_low = space.
           lv_high = space.
@@ -534,7 +561,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
           option    = <ls_selfield_multi>-option
         ).
 
-        zcl_dbbr_where_clause_builder=>get_option(
+        zcl_sat_where_clause_builder=>get_option(
           EXPORTING
             iv_sign        = ls_filter-sign
             iv_option      = ls_filter-option
@@ -628,4 +655,9 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
 
     check_ui_filter_changed( ).
   ENDMETHOD.
+
+  METHOD update_result_table_ref.
+    mr_t_data = ir_t_data.
+  ENDMETHOD.
+
 ENDCLASS.

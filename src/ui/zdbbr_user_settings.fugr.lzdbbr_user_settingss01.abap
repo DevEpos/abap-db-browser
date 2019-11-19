@@ -1,5 +1,5 @@
 LOAD-OF-PROGRAM.
-  zcl_dbbr_system_helper=>set_locale_language( ).
+  ZCL_SAT_SYSTEM_HELPER=>set_locale_language( ).
 
 AT SELECTION-SCREEN.
   CASE sy-dynnr.

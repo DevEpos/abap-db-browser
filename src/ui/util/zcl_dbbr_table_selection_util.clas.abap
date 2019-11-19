@@ -10,8 +10,7 @@ CLASS zcl_dbbr_table_selection_util DEFINITION
         REDEFINITION .
     METHODS get_entity_name
         REDEFINITION .
-    METHODS handle_alv_ctx_menu_request
-        REDEFINITION .
+
     METHODS init
         REDEFINITION .
     METHODS refresh_selection
@@ -21,9 +20,6 @@ CLASS zcl_dbbr_table_selection_util DEFINITION
     METHODS zif_dbbr_screen_util~handle_ui_function
         REDEFINITION .
   PROTECTED SECTION.
-
-
-
     "! <p class="shorttext synchronized" lang="en">Maintain data for the selection criteria</p>
     METHODS edit_data
       IMPORTING
@@ -159,6 +155,8 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
     mo_tabfields->update_text_field_status( ).
 
+    handle_reduced_memory( ).
+
     zcl_dbbr_addtext_helper=>prepare_text_fields(
       EXPORTING ir_fields    = mo_tabfields
       CHANGING  ct_add_texts = mt_add_texts
@@ -186,7 +184,7 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
               it_tab_components     = mt_dyntab_components
           ).
         CATCH zcx_dbbr_exception INTO DATA(lr_exception).
-          lr_exception->zif_dbbr_exception_message~print( ).
+          lr_exception->zif_sat_exception_message~print( ).
       ENDTRY.
     ENDIF.
 
@@ -207,30 +205,22 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
          ef_first_select = abap_true.
   ENDMETHOD.
 
-
   METHOD get_entity_name.
     result = mv_entity_id.
   ENDMETHOD.
 
-
-  METHOD handle_alv_ctx_menu_request.
-  ENDMETHOD.
-
-
   METHOD init.
   ENDMETHOD.
 
-
   METHOD read_entity_infos.
 
-    DATA(ls_table_info) = zcl_dbbr_dictionary_helper=>get_table_info( ms_control_info-primary_table ).
+    DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( ms_control_info-primary_table ).
 
     ms_control_info-primary_table_name = ls_table_info-ddtext.
     ms_control_info-client_dependent = ls_table_info-clidep.
     ms_control_info-primary_table_tabclass = ls_table_info-tabclass.
 
   ENDMETHOD.
-
 
   METHOD refresh_selection.
     CHECK select_data( if_refresh_only = abap_true ).
@@ -244,9 +234,10 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
     set_miscinfo_for_selected_data( ).
 
-    RAISE EVENT selection_finished.
+    RAISE EVENT selection_finished
+      EXPORTING
+        ef_reset_alv_table = if_reset_table_in_alv.
   ENDMETHOD.
-
 
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
     result = VALUE #(

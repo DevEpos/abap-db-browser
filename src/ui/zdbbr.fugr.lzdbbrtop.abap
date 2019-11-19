@@ -9,12 +9,12 @@ TYPE-POOLS: slis.
 " DEFINITION OF DATA
 **********************************************************************
 DATA: gs_data TYPE zdbbr_global_data. " global data for ZDBBR
-DATA gv_value TYPE zdbbr_value.
+DATA gv_value TYPE zsat_value.
 DATA: gv_selfield_count TYPE char26.
 DATA: gs_user_settings TYPE zdbbr_usrsettng.
 DATA: gv_entity_name         TYPE tabname,
       gv_entity_type         TYPE char20,
-      gv_entity_type_sh      TYPE zdbbr_entity_type,
+      gv_entity_type_sh      TYPE zsat_entity_type,
       gv_selmask_entity_text TYPE ddtext.
 
 DATA: push TYPE zdbbr_button.
@@ -46,7 +46,7 @@ DATA: gr_dynamic_table TYPE REF TO data.
 
 DATA:
   BEGIN OF gs_object_search,
-    search_type  TYPE zdbbr_obj_browser_mode,
+    search_type  TYPE zsat_obj_browser_mode,
     search_input TYPE string,
   END OF gs_object_search.
 
@@ -147,7 +147,7 @@ SELECTION-SCREEN BEGIN OF BLOCK query.
 SELECTION-SCREEN BEGIN OF LINE.
 SELECTION-SCREEN COMMENT 1(15) TEXT-t07 FOR FIELD p_scrnam.
 SELECTION-SCREEN POSITION 25.
-PARAMETERS: p_scrnam TYPE zdbbr_query_name OBLIGATORY.
+PARAMETERS: p_scrnam TYPE zsat_query_name OBLIGATORY.
 SELECTION-SCREEN POSITION 60.
 PARAMETERS: p_xglob TYPE zdbbr_is_global_query AS CHECKBOX MODIF ID glo.
 SELECTION-SCREEN COMMENT 65(10) TEXT-t08 FOR FIELD p_xglob MODIF ID glo.
@@ -206,7 +206,7 @@ SELECTION-SCREEN BEGIN OF SCREEN 1202 TITLE cvar_t.
 SELECTION-SCREEN BEGIN OF LINE.
 SELECTION-SCREEN COMMENT 1(10) TEXT-t23 FOR FIELD p_cdsnam.
 SELECTION-SCREEN POSITION 25.
-PARAMETERS: p_cdsnam TYPE zdbbr_cds_view_name OBLIGATORY.
+PARAMETERS: p_cdsnam TYPE zsat_cds_view_name OBLIGATORY.
 SELECTION-SCREEN END OF LINE.
 SELECTION-SCREEN INCLUDE BLOCKS variant.
 SELECTION-SCREEN SKIP.
@@ -250,7 +250,7 @@ SELECTION-SCREEN BEGIN OF BLOCK target_query WITH FRAME TITLE TEXT-t11.
 SELECTION-SCREEN BEGIN OF LINE.
 SELECTION-SCREEN COMMENT 1(15) TEXT-t07 FOR FIELD p_scrnt.
 SELECTION-SCREEN POSITION 25.
-PARAMETERS: p_scrnt TYPE zdbbr_query_name OBLIGATORY.
+PARAMETERS: p_scrnt TYPE zsat_query_name OBLIGATORY.
 SELECTION-SCREEN POSITION 60.
 PARAMETERS: p_xglobt TYPE zdbbr_is_global_query AS CHECKBOX.
 SELECTION-SCREEN COMMENT 65(10) TEXT-t08 FOR FIELD p_xglobt.
@@ -281,11 +281,11 @@ SELECTION-SCREEN BEGIN OF SCREEN 1700 TITLE TEXT-t24 AS WINDOW.
 SELECTION-SCREEN BEGIN OF BLOCK jointab WITH FRAME TITLE TEXT-b01. " NO INTERVALS.
 PARAMETERS: p_jointb TYPE tabname MATCHCODE OBJECT zdbbr_dbentity_sh OBLIGATORY.
 ***PARAMETERS: p_jointb TYPE tabname MATCHCODE OBJECT zdbbr_dbtab_sh OBLIGATORY.
-PARAMETERS: p_jointa TYPE zdbbr_entity_alias MODIF ID exp.
+PARAMETERS: p_jointa TYPE zsat_entity_alias MODIF ID exp.
 SELECTION-SCREEN END OF BLOCK jointab.
 
 SELECTION-SCREEN BEGIN OF BLOCK jointabdef WITH FRAME TITLE TEXT-b02. " NO INTERVALS.
-PARAMETERS: p_jointy TYPE zdbbr_jointype AS LISTBOX VISIBLE LENGTH 20 OBLIGATORY DEFAULT zif_dbbr_c_join_types=>inner_join,
+PARAMETERS: p_jointy TYPE zsat_jointype AS LISTBOX VISIBLE LENGTH 20 OBLIGATORY DEFAULT zif_sat_c_join_types=>inner_join,
             p_xjvirt TYPE abap_bool AS CHECKBOX.
 SELECTION-SCREEN END OF BLOCK jointabdef.
 
@@ -296,7 +296,7 @@ SELECTION-SCREEN BEGIN OF SCREEN 1701 TITLE joincond AS WINDOW.
 
 SELECTION-SCREEN BEGIN OF BLOCK sourcefield WITH FRAME TITLE TEXT-b03. " NO INTERVALS.
 PARAMETERS: p_srcfld TYPE fieldname.
-PARAMETERS: p_srctab TYPE zdbbr_entity_alias.
+PARAMETERS: p_srctab TYPE zsat_entity_alias.
 PARAMETERS: p_srcdtp TYPE datatype_d MODIF ID off.
 PARAMETERS: p_srclng TYPE ddleng MODIF ID off.
 SELECTION-SCREEN END OF BLOCK sourcefield.
@@ -306,15 +306,15 @@ PARAMETERS: p_comp1 TYPE voperator AS LISTBOX VISIBLE LENGTH 25 USER-COMMAND cmp
 SELECTION-SCREEN END OF BLOCK compare1.
 
 SELECTION-SCREEN BEGIN OF BLOCK values WITH FRAME TITLE TEXT-b05. " NO INTERVALS.
-PARAMETERS: p_valty TYPE zdbbr_join_cond_value_type AS LISTBOX VISIBLE LENGTH 20 MODIF ID val USER-COMMAND valtypchanged.
-PARAMETERS: p_val1 TYPE zdbbr_value MODIF ID val.
+PARAMETERS: p_valty TYPE zsat_join_cond_value_type AS LISTBOX VISIBLE LENGTH 20 MODIF ID val USER-COMMAND valtypchanged.
+PARAMETERS: p_val1 TYPE zsat_value MODIF ID val.
 SELECTION-SCREEN COMMENT /5(20) TEXT-t25 MODIF ID vl2.
-PARAMETERS: p_val2 TYPE zdbbr_value MODIF ID vl2.
+PARAMETERS: p_val2 TYPE zsat_value MODIF ID vl2.
 SELECTION-SCREEN END OF BLOCK values.
 
 SELECTION-SCREEN BEGIN OF BLOCK targetfield WITH FRAME TITLE TEXT-b06. " NO INTERVALS.
 PARAMETERS: p_trgfld TYPE fieldname MODIF ID trg.
-PARAMETERS: p_trgtab TYPE zdbbr_entity_alias MODIF ID trg.
+PARAMETERS: p_trgtab TYPE zsat_entity_alias MODIF ID trg.
 PARAMETERS: p_trgdtp TYPE datatype_d MODIF ID off.
 PARAMETERS: p_trglng TYPE ddleng MODIF ID off.
 SELECTION-SCREEN END OF BLOCK targetfield.

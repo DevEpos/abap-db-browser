@@ -8,9 +8,9 @@ CLASS zcl_dbbr_variant_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Choose variant for given entity</p>
     CLASS-METHODS select_and_load_variant
       IMPORTING
-        iv_entity_id         TYPE zdbbr_entity_id
-        iv_entity_name       TYPE zdbbr_entity_id_raw OPTIONAL
-        iv_entity_type       TYPE zdbbr_entity_type
+        iv_entity_id         TYPE ZSAT_ENTITY_ID
+        iv_entity_name       TYPE ZSAT_ENTITY_ID_raw OPTIONAL
+        iv_entity_type       TYPE ZSAT_ENTITY_TYPE
         ir_s_global_data     TYPE REF TO zdbbr_global_data
         ir_t_selfields       TYPE REF TO zdbbr_selfield_itab OPTIONAL
         ir_t_selfields_multi TYPE REF TO zdbbr_selfield_itab OPTIONAL
@@ -49,7 +49,7 @@ CLASS zcl_dbbr_variant_util IMPLEMENTATION.
 
     TRY.
         DATA(ls_variant_info) = lo_variant_loader->load( ).
-      CATCH zcx_dbbr_validation_exception INTO DATA(lr_valid_error).
+      CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lr_valid_error).
         lr_valid_error->show_message( ).
         RETURN.
     ENDTRY.

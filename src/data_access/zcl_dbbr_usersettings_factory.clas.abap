@@ -28,8 +28,8 @@ CLASS zcl_dbbr_usersettings_factory DEFINITION
         !value TYPE zdbbr_user_settings_a .
     CLASS-METHODS update_start_settings
       IMPORTING
-        !iv_entity_id   TYPE zdbbr_entity_id
-        !iv_entity_type TYPE zdbbr_entity_type .
+        !iv_entity_id   TYPE ZSAT_ENTITY_ID
+        !iv_entity_type TYPE ZSAT_ENTITY_TYPE .
     CLASS-METHODS should_read_db_size
       RETURNING
         VALUE(result) TYPE abap_bool .
@@ -54,7 +54,7 @@ CLASS zcl_dbbr_usersettings_factory IMPLEMENTATION.
       rs_settings = VALUE #(
         max_hits        = 500
         link_mode       = zif_dbbr_c_eb_link_mode=>open_in_db_browser_new_task
-        search_function = zif_dbbr_c_object_browser_mode=>cds_view
+        search_function = ZIF_SAT_C_OBJECT_BROWSER_MODE=>cds_view
       ).
     ENDIF.
   ENDMETHOD.
@@ -84,7 +84,7 @@ CLASS zcl_dbbr_usersettings_factory IMPLEMENTATION.
           color_formula_fields  = abap_true
           object_navigator_open = abap_true
           initial_obj_nav_mode = zif_dbbr_c_obj_navigator_mode=>object_browser
-          initial_obj_brws_mode = zif_dbbr_c_object_browser_mode=>cds_view
+          initial_obj_brws_mode = ZIF_SAT_C_OBJECT_BROWSER_MODE=>cds_view
       ).
     ENDIF.
   ENDMETHOD.

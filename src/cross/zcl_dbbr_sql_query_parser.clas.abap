@@ -71,7 +71,8 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
     "!
     METHODS constructor
       IMPORTING
-        iv_query TYPE string.
+        iv_query                 TYPE string
+        if_fill_log_for_messages TYPE abap_bool DEFAULT abap_true.
     CLASS-METHODS class_constructor.
     "! <p class="shorttext synchronized" lang="en">Parse the query</p>
     "!
@@ -100,6 +101,7 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
     DATA mt_query_lines TYPE STANDARD TABLE OF string.
     DATA mv_select_query_end_row TYPE i.
     DATA mf_single_result TYPE abap_bool.
+    DATA: mf_fill_log_for_msg TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Tokenize the query statement</p>
     "!
     METHODS tokenize
@@ -159,6 +161,7 @@ ENDCLASS.
 CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
   METHOD constructor.
     mv_raw_query = iv_query.
+    mf_fill_log_for_msg = if_fill_log_for_messages.
     SPLIT mv_raw_query AT cl_abap_char_utilities=>cr_lf INTO TABLE mt_query_lines.
   ENDMETHOD.
 
@@ -394,7 +397,6 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
 
     CHECK mt_parameter IS NOT INITIAL.
 
-    DATA(lo_protocol) = zcl_uitb_protocol=>get_instance( ).
     ASSIGN mt_stmnt[ is_main_query = abap_true ] TO FIELD-SYMBOL(<ls_select>).
     CHECK sy-subrc = 0.
 
@@ -410,12 +412,15 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
     ENDLOOP.
 
     IF line_exists( mt_parameter[ is_used = abap_false ] ).
-      LOOP AT mt_parameter ASSIGNING <ls_parameter> WHERE is_used = abap_false.
-        lo_protocol->add_warning(
-            iv_message     = |Parameter { <ls_parameter>-name } is not used in query|
-            iv_line_number = CONV #( <ls_parameter>-line_in_query )
-        ).
-      ENDLOOP.
+      IF mf_fill_log_for_msg = abap_true.
+        DATA(lo_protocol) = zcl_uitb_protocol=>get_instance( ).
+        LOOP AT mt_parameter ASSIGNING <ls_parameter> WHERE is_used = abap_false.
+          lo_protocol->add_warning(
+              iv_message     = |Parameter { <ls_parameter>-name } is not used in query|
+              iv_line_number = CONV #( <ls_parameter>-line_in_query )
+          ).
+        ENDLOOP.
+      ENDIF.
     ENDIF.
   ENDMETHOD.
 

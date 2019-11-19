@@ -50,14 +50,14 @@ CLASS zcl_dbbr_virtual_join_helper DEFINITION
       IMPORTING
         !is_post_join   TYPE zdbbr_post_join_data
       RETURNING
-        VALUE(rt_where) TYPE zdbbr_string_t .
+        VALUE(rt_where) TYPE string_table .
     "! <p class="shorttext synchronized" lang="en">Builds where clause for cache select</p>
     "!
     METHODS build_where_clause
       IMPORTING
         !is_post_join   TYPE zdbbr_post_join_data
       RETURNING
-        VALUE(rt_where) TYPE zdbbr_string_t .
+        VALUE(rt_where) TYPE string_table .
     "! <p class="shorttext synchronized" lang="en">Builds where condition out of join and current output line</p>
     "!
     METHODS build_where_for_cache_query
@@ -65,7 +65,7 @@ CLASS zcl_dbbr_virtual_join_helper DEFINITION
         !is_virtual_join TYPE zdbbr_post_join_data
         !is_line         TYPE any
       RETURNING
-        VALUE(rt_where)  TYPE zdbbr_string_t .
+        VALUE(rt_where)  TYPE string_table .
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     "!
     METHODS constructor
@@ -127,7 +127,7 @@ CLASS zcl_dbbr_virtual_join_helper DEFINITION
       IMPORTING
         !it_filter_cond      TYPE zdbbr_join_filter_cond_ui_t
       RETURNING
-        VALUE(rt_conditions) TYPE zcl_dbbr_join_helper=>tt_join_conditions .
+        VALUE(rt_conditions) TYPE ZCL_SAT_JOIN_HELPER=>tt_join_conditions .
     "! <p class="shorttext synchronized" lang="en">Parse field conditions for virtual join table</p>
     "!
     METHODS parst_virtjtab_field_cond
@@ -135,7 +135,7 @@ CLASS zcl_dbbr_virtual_join_helper DEFINITION
         !it_field_cond       TYPE zdbbr_join_field_cond_ui_t
         !is_line             TYPE any
       RETURNING
-        VALUE(rt_conditions) TYPE zcl_dbbr_join_helper=>tt_join_conditions .
+        VALUE(rt_conditions) TYPE ZCL_SAT_JOIN_HELPER=>tt_join_conditions .
     "! <p class="shorttext synchronized" lang="en">Processes a single line in the output table</p>
     "!
     METHODS process_line
@@ -151,7 +151,7 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
 
   METHOD build_for_all_where_clause.
 
-    DATA: lt_conditions TYPE zcl_dbbr_join_helper=>tt_join_conditions.
+    DATA: lt_conditions TYPE ZCL_SAT_JOIN_HELPER=>tt_join_conditions.
 
 *.. parse field conditions
     LOOP AT is_post_join-field_cond ASSIGNING FIELD-SYMBOL(<ls_field_cond>).
@@ -180,13 +180,13 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
     ).
 
 *.. finally create the where string table for the select
-    rt_where = zcl_dbbr_join_helper=>build_where_for_conditions( lt_conditions ).
+    rt_where = ZCL_SAT_JOIN_HELPER=>build_where_for_conditions( lt_conditions ).
 
   ENDMETHOD.
 
 
   METHOD build_where_clause.
-    DATA: lt_conditions TYPE zcl_dbbr_join_helper=>tt_join_conditions.
+    DATA: lt_conditions TYPE ZCL_SAT_JOIN_HELPER=>tt_join_conditions.
 
 *.. parse field conditions
     LOOP AT is_post_join-field_cond ASSIGNING FIELD-SYMBOL(<ls_field_cond>).
@@ -205,13 +205,13 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
     ).
 
 *.. finally create the where string table for the select
-    rt_where = zcl_dbbr_join_helper=>build_where_for_conditions( lt_conditions ).
+    rt_where = ZCL_SAT_JOIN_HELPER=>build_where_for_conditions( lt_conditions ).
 
   ENDMETHOD.
 
 
   METHOD build_where_for_cache_query.
-    DATA: lt_conditions TYPE zcl_dbbr_join_helper=>tt_join_conditions.
+    DATA: lt_conditions TYPE ZCL_SAT_JOIN_HELPER=>tt_join_conditions.
 
 *.. parse field conditions
     LOOP AT is_virtual_join-field_cond ASSIGNING FIELD-SYMBOL(<ls_field_cond>).
@@ -335,7 +335,7 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
 
 
   METHOD create_cache_tables.
-    DATA: lt_fields TYPE zdbbr_dfies_itab.
+    DATA: lt_fields TYPE ZSAT_DFIES_ITAB.
 
     LOOP AT mt_post_join_data ASSIGNING FIELD-SYMBOL(<ls_post_join>).
       " collect key fields from join definition
@@ -347,7 +347,7 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
       ).
 
       " get output fields for join table
-      lt_fields = VALUE zdbbr_dfies_itab(
+      lt_fields = VALUE ZSAT_DFIES_ITAB(
         BASE lt_fields
         FOR <ls_field> IN mt_conditional_fields
         WHERE ( output_active = abap_true AND
@@ -361,7 +361,7 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
 
       CHECK lt_fields IS NOT INITIAL.
 
-      <ls_post_join>-data_cache = zcl_dbbr_dictionary_helper=>build_dynamic_sorted_table(
+      <ls_post_join>-data_cache = zcl_dbbr_ddic_util=>build_dynamic_sorted_table(
         it_fields     = lt_fields
         if_unique_key = <ls_post_join>-is_conversion_needed
       ).
@@ -402,7 +402,7 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
 
   METHOD fill_cache_single_select.
     DATA: lt_select     TYPE TABLE OF string,
-          lt_conditions TYPE zcl_dbbr_join_helper=>tt_join_conditions,
+          lt_conditions TYPE ZCL_SAT_JOIN_HELPER=>tt_join_conditions,
           lt_sort_key   TYPE abap_sortorder_tab,
           lr_cache_copy TYPE REF TO data.
 
@@ -419,13 +419,13 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
 
     ASSIGN cs_post_join-data_cache->* TO <lt_cache>.
 
-    DATA(lr_cache_table_temp) = zcl_dbbr_dictionary_helper=>build_dynamic_std_table( EXPORTING it_fields = cs_post_join-cache_fields ).
+    DATA(lr_cache_table_temp) = zcl_dbbr_ddic_util=>build_dynamic_std_table( EXPORTING it_fields = cs_post_join-cache_fields ).
     ASSIGN lr_cache_table_temp->* TO <lt_cache_copy>.
 
     LOOP AT it_table ASSIGNING FIELD-SYMBOL(<ls_data>).
 *.... create where clause for the current line and the already created
 *.... filter conditions
-      DATA(lt_where) = zcl_dbbr_join_helper=>build_where_for_conditions(
+      DATA(lt_where) = ZCL_SAT_JOIN_HELPER=>build_where_for_conditions(
         VALUE #(
           ( LINES OF parst_virtjtab_field_cond(
                         is_line       = <ls_data>
@@ -521,7 +521,7 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
       ENDLOOP.
     ENDLOOP.
 
-    IF sy-subrc <> 0 AND is_virtual_join-join_type = zif_dbbr_c_join_types=>inner_join.
+    IF sy-subrc <> 0 AND is_virtual_join-join_type = ZIF_SAT_C_JOIN_TYPES=>inner_join.
       CLEAR: <lt_existing>.
     ELSEIF <lt_new_lines> IS NOT INITIAL.
       <lt_existing> = <lt_new_lines>.
@@ -560,10 +560,10 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
           lv_parenthesis_open   TYPE string,
           lv_parenthesis_closed TYPE string,
 
-          ls_new_condition      TYPE zcl_dbbr_join_helper=>ty_join_condition,
+          ls_new_condition      TYPE ZCL_SAT_JOIN_HELPER=>ty_join_condition,
           lv_previous_join_cond TYPE string.
 
-    FIELD-SYMBOLS: <ls_last_condition> TYPE zcl_dbbr_join_helper=>ty_join_condition.
+    FIELD-SYMBOLS: <ls_last_condition> TYPE ZCL_SAT_JOIN_HELPER=>ty_join_condition.
 
 *.. parse the filter conditions
     LOOP AT it_filter_cond INTO DATA(ls_filter_cond) WHERE is_for_add_table = abap_true.
@@ -584,8 +584,8 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
       ENDIF.
 
 *.... handle LIKE and NOT LIKE operator
-      IF ls_filter_cond-operator = zif_dbbr_c_operator=>like OR
-         ls_filter_cond-operator = zif_dbbr_c_operator=>not_like.
+      IF ls_filter_cond-operator = ZIF_SAT_C_OPERATOR=>like OR
+         ls_filter_cond-operator = ZIF_SAT_C_OPERATOR=>not_like.
         ls_filter_cond-value = replace( val = ls_filter_cond-value sub = '*' with = '%' occ = 0 ).
 
         IF ls_filter_cond-value2 IS NOT INITIAL.
@@ -594,7 +594,7 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
       ENDIF.
 
       DATA(lv_value1) = COND #(
-        WHEN ls_filter_cond-value_type = zif_dbbr_c_join_cond_val_type=>system_value_input THEN
+        WHEN ls_filter_cond-value_type = ZIF_SAT_C_JOIN_COND_VAL_TYPE=>system_value_input THEN
           |@{ ls_filter_cond-value }|
         ELSE
           cl_abap_dyn_prg=>quote( ls_filter_cond-value )
@@ -602,7 +602,7 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
 
       IF ls_filter_cond-operator = 'BETWEEN'.
         lv_value2 = COND #(
-          WHEN ls_filter_cond-value_type = zif_dbbr_c_join_cond_val_type=>system_value_input THEN
+          WHEN ls_filter_cond-value_type = ZIF_SAT_C_JOIN_COND_VAL_TYPE=>system_value_input THEN
             |@{ ls_filter_cond-value2 }|
           ELSE
             cl_abap_dyn_prg=>quote( ls_filter_cond-value2 )
@@ -622,7 +622,7 @@ CLASS zcl_dbbr_virtual_join_helper IMPLEMENTATION.
           closing_bracket = lv_parenthesis_closed )
       ).
 
-      lv_previous_join_cond = COND #( WHEN ls_filter_cond-and_or = zif_dbbr_c_selection_condition=>or THEN
+      lv_previous_join_cond = COND #( WHEN ls_filter_cond-and_or = ZIF_SAT_C_SELECTION_CONDITION=>or THEN
                                         mv_or_string
                                       ELSE
                                         mv_and_string ).

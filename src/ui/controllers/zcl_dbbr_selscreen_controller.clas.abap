@@ -39,8 +39,8 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
     "! <p class="shorttext synchronized" lang="en">Load current entity into selection screen</p>
     METHODS load_entity
       IMPORTING
-        !iv_entity_id    TYPE zdbbr_entity_id OPTIONAL
-        !iv_entity_type  TYPE zdbbr_entity_type OPTIONAL
+        !iv_entity_id    TYPE zsat_entity_id OPTIONAL
+        !iv_entity_type  TYPE zsat_entity_type OPTIONAL
         if_force_load    TYPE abap_bool OPTIONAL
         !if_fill_history TYPE abap_bool DEFAULT abap_true .
     METHODS reset_flags .
@@ -79,7 +79,7 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
     DATA mo_util TYPE REF TO zcl_dbbr_selscreen_util .
     DATA:
       BEGIN OF ms_entity_update,
-        error_ref  TYPE REF TO zcx_dbbr_validation_exception,
+        error_ref  TYPE REF TO zcx_sat_validation_exception,
         is_new     TYPE abap_bool,
         is_initial TYPE abap_bool,
       END OF ms_entity_update .
@@ -207,6 +207,7 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
         iv_mode TYPE zdbbr_selscreen_mode OPTIONAL .
     "! <p class="shorttext synchronized" lang="en">Assigns custom value help(s) to Table Field</p>
     METHODS assign_custom_f4.
+    METHODS delete_all_input.
 ENDCLASS.
 
 
@@ -297,24 +298,24 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     TRY.
         CASE <ls_entity_info>-entity_type.
 
-          WHEN zif_dbbr_c_entity_type=>table.
+          WHEN zif_sat_c_entity_type=>table.
 
-            zcl_dbbr_dictionary_helper=>validate_table_name(
+            zcl_dbbr_ddic_util=>validate_table_name(
               iv_table_name               = <ls_entity_info>-entity_id
               if_customizing_view_allowed = abap_false
               iv_dynpro_fieldname         = lv_entity_id_field
             ).
 
-          WHEN zif_dbbr_c_entity_type=>cds_view.
+          WHEN zif_sat_c_entity_type=>cds_view.
 
-            IF NOT zcl_dbbr_cds_view_factory=>exists( <ls_entity_info>-entity_id ).
+            IF NOT zcl_sat_cds_view_factory=>exists( <ls_entity_info>-entity_id ).
               MESSAGE e072(zdbbr_info) WITH <ls_entity_info>-entity_id INTO lv_msg.
-              zcx_dbbr_validation_exception=>raise_from_sy(
+              zcx_sat_validation_exception=>raise_from_sy(
                  iv_parameter = lv_entity_id_field
               ).
             ENDIF.
 
-          WHEN zif_dbbr_c_entity_type=>query.
+          WHEN zif_sat_c_entity_type=>query.
 
             " Validate the query name
             DATA(lr_query_f) = NEW zcl_dbbr_query_factory( ).
@@ -325,7 +326,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
             IF ls_query IS INITIAL.
               MESSAGE e035(zdbbr_info) WITH <ls_entity_info>-entity_id INTO lv_msg.
-              zcx_dbbr_validation_exception=>raise_from_sy(
+              zcx_sat_validation_exception=>raise_from_sy(
                  iv_parameter = lv_entity_id_field
               ).
             ENDIF.
@@ -334,7 +335,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
         ms_entity_update-is_new = abap_true.
         CLEAR ms_entity_update-error_ref.
-      CATCH zcx_dbbr_validation_exception INTO ms_entity_update-error_ref.
+      CATCH zcx_sat_validation_exception INTO ms_entity_update-error_ref.
     ENDTRY.
 
   ENDMETHOD.
@@ -406,7 +407,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
         ev_type        = DATA(lv_entity_type)
     ).
 
-    IF lv_entity_type = zif_dbbr_c_entity_type=>query.
+    IF lv_entity_type = zif_sat_c_entity_type=>query.
       lv_primary_entity = mo_data->mr_s_join_def->primary_table.
 *.... For CDS Views as main entity there has to be done something differently to get the raw name
       lv_primary_entity_raw = mo_data->mr_s_join_def->primary_table.
@@ -430,6 +431,11 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD delete_all_input.
+    mo_selection_table->zif_uitb_table~delete_all( ).
+    delete_aggregations( ).
+    mo_data->clear_multi_or( ).
+  ENDMETHOD.
 
   METHOD delete_aggregations.
     mo_selection_table->delete_aggregations( ).
@@ -522,6 +528,9 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     FIELD-SYMBOLS: <lr_tabfields>     TYPE REF TO zcl_dbbr_tabfield_list,
                    <lr_tabfields_all> TYPE REF TO zcl_dbbr_tabfield_list.
 
+*.. Do some pre validation of the current entity
+    CHECK mo_util->can_execute(  ).
+
     DATA(lr_formula) = mo_data->get_formula( ).
 
     refresh_alternative_texts( mo_data->mo_tabfield_list ).
@@ -559,8 +568,8 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             is_join_definition    = mo_data->mr_s_join_def->*
             is_technical_infos    = CORRESPONDING #( mo_data->mr_s_global_data->* )
         )->validate( ).
-      CATCH zcx_dbbr_validation_exception INTO DATA(lr_validation_exc).
-        lr_validation_exc->zif_dbbr_exception_message~print( ).
+      CATCH zcx_sat_validation_exception INTO DATA(lr_validation_exc).
+        lr_validation_exc->zif_sat_exception_message~print( ).
         RETURN.
     ENDTRY.
 
@@ -660,10 +669,10 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD load_entity.
-    DATA: lv_new_query_name TYPE zdbbr_query_name,
+    DATA: lv_new_query_name TYPE zsat_query_name,
           lf_is_query       TYPE abap_bool,
           lf_cds_mode       TYPE abap_bool,
-          lv_cds_name       TYPE zdbbr_cds_view_name,
+          lv_cds_name       TYPE zsat_cds_view_name,
           lv_new_tab_name   TYPE tabname16.
 
     IF iv_entity_id IS NOT INITIAL AND
@@ -676,16 +685,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       mo_util->clear( ).
 
       CASE iv_entity_type.
-        WHEN zif_dbbr_c_entity_type=>table OR
-             zif_dbbr_c_entity_type=>view.
+        WHEN zif_sat_c_entity_type=>table OR
+             zif_sat_c_entity_type=>view.
           mo_data->mr_s_global_data->primary_table = iv_entity_id.
           update_util( zif_dbbr_c_selscreen_mode=>table ).
 
-        WHEN zif_dbbr_c_entity_type=>cds_view.
+        WHEN zif_sat_c_entity_type=>cds_view.
           mo_data->mr_s_global_data->primary_table = iv_entity_id.
           update_util( zif_dbbr_c_selscreen_mode=>cds_view ).
 
-        WHEN zif_dbbr_c_entity_type=>query.
+        WHEN zif_sat_c_entity_type=>query.
           CLEAR: mo_data->mr_s_global_data->primary_table.
           mo_data->mr_s_global_data->query_name = iv_entity_id.
           update_util( zif_dbbr_c_selscreen_mode=>query ).
@@ -897,8 +906,8 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
        mo_cursor->get_field( ) = lif_selfield_names=>c_scrtext_m.
       lf_field_navigation = abap_true.
     ELSEIF mo_cursor->get_field( ) = 'GS_ENTITY_INFO-ENTITY_ID' AND
-           ( mo_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>cds_view OR
-             mo_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>table ).
+           ( mo_data->mr_s_entity_info->entity_type = zif_sat_c_entity_type=>cds_view OR
+             mo_data->mr_s_entity_info->entity_type = zif_sat_c_entity_type=>table ).
       lf_entity_navigation = abap_true.
     ENDIF.
 
@@ -919,16 +928,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     ENDIF.
 
     IF lf_entity_navigation = abap_true.
-      IF mo_data->mr_s_entity_info->entity_type = zif_dbbr_c_entity_type=>cds_view.
+      IF mo_data->mr_s_entity_info->entity_type = zif_sat_c_entity_type=>cds_view.
         TRY.
-            zcl_dbbr_adt_util=>jump_adt(
+            zcl_sat_adt_util=>jump_adt(
                 iv_obj_name     = |{ mo_data->mr_s_entity_info->entity_id }|
                 iv_obj_type     = 'DDLS'
             ).
-          CATCH zcx_dbbr_adt_error.
+          CATCH zcx_sat_adt_error.
         ENDTRY.
       ELSE.
-        zcl_dbbr_dictionary_helper=>navigate_to_table( mo_data->mr_s_entity_info->entity_id ).
+        zcl_dbbr_ddic_util=>navigate_to_table( mo_data->mr_s_entity_info->entity_id ).
       ENDIF.
     ENDIF.
   ENDMETHOD.
@@ -1047,7 +1056,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 *.. load the saved query
     load_entity(
         iv_entity_id    = lr_save_query_controller->get_query_name( )
-        iv_entity_type  = zif_dbbr_c_entity_type=>query
+        iv_entity_type  = zif_sat_c_entity_type=>query
     ).
   ENDMETHOD.
 
@@ -1275,7 +1284,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
           ).
         CATCH zcx_dbbr_formula_exception INTO DATA(lr_exception).
 *........ should not happen at this point at all because formula has just been activated
-          lr_exception->zif_dbbr_exception_message~print( ).
+          lr_exception->zif_sat_exception_message~print( ).
       ENDTRY.
     ELSEIF lo_formula_editor->has_formula_been_deleted( ).
       CLEAR lo_formula.
@@ -1675,6 +1684,9 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             delete_variant( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_all_input.
+            delete_all_input( ).
+
+          WHEN zif_dbbr_c_selscreen_functions=>delete_all_criteria.
             mo_selection_table->zif_uitb_table~delete_all( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>go_to_next_table.
@@ -1715,6 +1727,12 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_aggregations.
             delete_aggregations( ).
+
+          WHEN zif_dbbr_c_selscreen_functions=>select_group_by_all.
+            mo_selection_table->select_all_group_by( ).
+
+          WHEN zif_dbbr_c_selscreen_functions=>unselect_group_by_all.
+            mo_selection_table->unselect_all_group_by( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_all_or_tuple.
             mo_data->clear_multi_or( ).
@@ -1798,7 +1816,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
         ENDCASE.
 
-      CATCH zcx_dbbr_validation_exception INTO DATA(lr_valid_exc).
+      CATCH zcx_sat_validation_exception INTO DATA(lr_valid_exc).
 *        CLEAR ms_entity_update.
         IF lr_valid_exc->parameter_name IS NOT INITIAL.
           mo_cursor->set_line( lr_valid_exc->loop_line ).

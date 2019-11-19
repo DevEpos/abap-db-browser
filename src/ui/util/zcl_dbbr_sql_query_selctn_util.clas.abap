@@ -10,8 +10,7 @@ CLASS zcl_dbbr_sql_query_selctn_util DEFINITION
         REDEFINITION.
     METHODS get_entity_name
         REDEFINITION.
-    METHODS handle_alv_ctx_menu_request
-        REDEFINITION.
+
     METHODS init
         REDEFINITION.
     METHODS refresh_selection
@@ -122,19 +121,17 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
     ASSIGN mr_t_data->* TO <lt_output_data>.
     MOVE-CORRESPONDING <lt_data> TO <lt_output_data>.
 
-    RAISE EVENT selection_finished.
-
+    RAISE EVENT selection_finished
+      EXPORTING
+        ef_reset_alv_table = if_reset_table_in_alv.
   ENDMETHOD.
 
   METHOD build_simple_alv_title.
-    result = COND #( WHEN mv_entity_id IS NOT INITIAL THEN |{ 'Result of'(001) } { mv_entity_id }| ELSE |Result of Querytest| ).
+    result = COND #( WHEN mv_entity_id IS NOT INITIAL THEN |{ 'Result of'(001) } { mv_entity_id }| ELSE |Result of Querytest - { mv_execution_time_str }| ).
   ENDMETHOD.
 
   METHOD get_entity_name.
 
-  ENDMETHOD.
-
-  METHOD handle_alv_ctx_menu_request.
   ENDMETHOD.
 
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
@@ -243,7 +240,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
   METHOD create_field_catalog.
     DATA(lt_dfies) = zcl_uitb_alv_data_descr=>read_structdescr(
         ir_structdescr = mo_query_result_line_type
-        iv_language    = zcl_dbbr_system_helper=>get_system_language( )
+        iv_language    = zcl_sat_system_helper=>get_system_language( )
     ).
 
     LOOP AT lt_dfies ASSIGNING FIELD-SYMBOL(<ls_dfies>).

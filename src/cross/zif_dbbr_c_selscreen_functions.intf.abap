@@ -30,9 +30,12 @@ INTERFACE zif_dbbr_c_selscreen_functions
   CONSTANTS deactiv_optl_or_select TYPE sy-ucomm VALUE 'OR_SEL_OFF' ##NO_TEXT.
   CONSTANTS define_joins TYPE sy-ucomm VALUE 'SET_JOINS' ##NO_TEXT.
   CONSTANTS define_sub_queries TYPE sy-ucomm VALUE 'DEFSUBQURY' ##NO_TEXT.
+  CONSTANTS select_group_by_all TYPE sy-ucomm VALUE 'SELECT_GROUP_BY_ALL' ##NO_TEXT.
+  CONSTANTS unselect_group_by_all TYPE sy-ucomm VALUE 'UNSELECT_GROUP_BY_ALL' ##NO_TEXT.
   CONSTANTS delete_aggregations TYPE sy-ucomm VALUE 'DEL_AGGREG' ##NO_TEXT.
   CONSTANTS delete_all_input TYPE sy-ucomm VALUE 'DELETE_ALL' ##NO_TEXT.
   CONSTANTS delete_all_or_tuple TYPE sy-ucomm VALUE 'DEL_ORTUPL' ##NO_TEXT.
+  CONSTANTS delete_all_criteria TYPE sy-ucomm VALUE 'DELALLCRIT' ##NO_TEXT.
   CONSTANTS delete_f4_from_field TYPE sy-ucomm VALUE 'DELETE_F4' ##NO_TEXT.
   CONSTANTS delete_joins TYPE sy-ucomm VALUE 'DEL_JOIN' ##NO_TEXT.
   CONSTANTS delete_line_input TYPE sy-ucomm VALUE 'DELETE' ##NO_TEXT.

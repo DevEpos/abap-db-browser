@@ -12,12 +12,12 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
       IMPORTING
         !if_only_create_count_logic TYPE abap_bool OPTIONAL
         !if_create_for_all          TYPE abap_bool OPTIONAL
-        !is_association_target      TYPE zdbbr_cds_association OPTIONAL
-        !it_select                  TYPE zdbbr_string_t
-        !it_from                    TYPE zdbbr_string_t
-        !it_where                   TYPE zdbbr_string_t
-        !it_order_by                TYPE zdbbr_string_t
-        !it_group_by                TYPE zdbbr_string_t
+        !is_association_target      TYPE ZSAT_CDS_ASSOCIATION OPTIONAL
+        !it_select                  TYPE string_table
+        !it_from                    TYPE string_table
+        !it_where                   TYPE string_table
+        !it_order_by                TYPE string_table
+        !it_group_by                TYPE string_table
         !iv_max_size                TYPE i
       RETURNING
         VALUE(rr_instance)          TYPE REF TO zcl_dbbr_select_prog_creator
@@ -63,52 +63,52 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
     "!
     METHODS update_from
       IMPORTING
-        it_from TYPE zdbbr_string_t.
+        it_from TYPE string_table.
   PROTECTED SECTION.
   PRIVATE SECTION.
 
     "! List of Strings
-    DATA mt_select TYPE zdbbr_string_t .
+    DATA mt_select TYPE string_table .
     "! List of Strings
-    DATA mt_from TYPE zdbbr_string_t .
+    DATA mt_from TYPE string_table .
     "! List of Strings
-    DATA mt_where TYPE zdbbr_string_t .
+    DATA mt_where TYPE string_table .
     "! List of Strings
-    DATA mt_order_by TYPE zdbbr_string_t .
+    DATA mt_order_by TYPE string_table .
     "! List of Strings
-    DATA mt_group_by TYPE zdbbr_string_t .
+    DATA mt_group_by TYPE string_table .
     DATA mv_max_size TYPE i .
     DATA mv_class TYPE string .
     DATA mf_only_create_count_logic TYPE abap_bool .
     DATA mf_create_for_all TYPE abap_bool .
     "! Association Information for CDS View
-    DATA ms_assocication_target TYPE zdbbr_cds_association .
+    DATA ms_assocication_target TYPE ZSAT_CDS_ASSOCIATION .
 
     "! <p class="shorttext synchronized" lang="en">Fill coding lines with from clause</p>
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_from
       CHANGING
-        !ct_lines TYPE zdbbr_string_t .
+        !ct_lines TYPE string_table .
     "! <p class="shorttext synchronized" lang="en">Fill coding lines with group by clause</p>
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_group_by
       CHANGING
-        !ct_lines TYPE zdbbr_string_t .
+        !ct_lines TYPE string_table .
     "! <p class="shorttext synchronized" lang="en">Fill coding lines with order by clause</p>
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_order_by
       CHANGING
-        !ct_lines TYPE zdbbr_string_t .
+        !ct_lines TYPE string_table .
     "! <p class="shorttext synchronized" lang="en">Fill coding lines with select clause</p>
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_select
       CHANGING
-        !ct_lines TYPE zdbbr_string_t .
+        !ct_lines TYPE string_table .
     "! <p class="shorttext synchronized" lang="en">Fill coding lines with where clause</p>
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_where
       CHANGING
-        !ct_lines TYPE zdbbr_string_t .
+        !ct_lines TYPE string_table .
     "! <p class="shorttext synchronized" lang="en">Generate subroutine pool for selection</p>
     "!
     METHODS generate_subroutine
@@ -301,7 +301,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
 
 
   METHOD generate_subroutine.
-    DATA: lt_lines          TYPE zdbbr_string_t,
+    DATA: lt_lines          TYPE string_table,
           lv_prog           TYPE string,
           lv_error_message  TYPE string,
           lv_code_line      TYPE string,
@@ -347,7 +347,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     ENDIF.
     lt_lines = VALUE #( BASE lt_lines
       ( |      EXPORTING|                            )
-      ( |                ev_size TYPE i|             )
+      ( |                ev_size TYPE zdbbr_no_of_lines|             )
       ( |      RAISING   zcx_dbbr_selection_common.|           )
     ) .
     IF mf_only_create_count_logic = abap_false.

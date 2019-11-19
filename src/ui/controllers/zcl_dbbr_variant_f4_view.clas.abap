@@ -9,9 +9,9 @@ CLASS zcl_dbbr_variant_f4_view DEFINITION
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
-        iv_entity_id   TYPE zdbbr_entity_id
-        iv_entity_name TYPE zdbbr_entity_id_raw OPTIONAL
-        iv_entity_type TYPE zdbbr_entity_type.
+        iv_entity_id   TYPE ZSAT_ENTITY_ID
+        iv_entity_name TYPE ZSAT_ENTITY_ID_raw OPTIONAL
+        iv_entity_type TYPE ZSAT_ENTITY_TYPE.
     "! <p class="shorttext synchronized" lang="en">Display ALV popup to show variant options</p>
     METHODS choose_variant
       RETURNING
@@ -28,8 +28,8 @@ CLASS zcl_dbbr_variant_f4_view DEFINITION
   PRIVATE SECTION.
 
     DATA mt_variant TYPE zdbbr_variant_info_itab.
-    DATA mv_entity_id TYPE zdbbr_entity_id.
-    DATA mv_entity_type TYPE zdbbr_entity_type.
+    DATA mv_entity_id TYPE ZSAT_ENTITY_ID.
+    DATA mv_entity_type TYPE ZSAT_ENTITY_TYPE.
     DATA mv_variant_id TYPE zdbbr_variant_id.
 
     "! <p class="shorttext synchronized" lang="en">Finds variants for the current entity and filter value</p>

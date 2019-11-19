@@ -25,7 +25,7 @@ TYPES: lty_node_type TYPE char20.
 TYPES:
   BEGIN OF lty_s_node_map,
     node_key  TYPE tm_nodekey,
-    alias     TYPE zdbbr_entity_alias,
+    alias     TYPE zsat_entity_alias,
     tabname   TYPE tabname,
     node_type TYPE lty_node_type,
   END OF lty_s_node_map.
@@ -60,13 +60,13 @@ CLASS lcl_join_field DEFINITION
 
     DATA mv_node_key TYPE tm_nodekey READ-ONLY.
     DATA mv_table TYPE tabname READ-ONLY.
-    DATA mv_table_alias TYPE zdbbr_entity_alias READ-ONLY.
+    DATA mv_table_alias TYPE zsat_entity_alias READ-ONLY.
 
     METHODS constructor
       IMPORTING
         is_field    TYPE zdbbr_joinfld
         iv_table    TYPE tabname
-        iv_alias    TYPE zdbbr_entity_alias
+        iv_alias    TYPE zsat_entity_alias
         iv_node_key TYPE tm_nodekey.
     METHODS get_field
       RETURNING
@@ -90,17 +90,17 @@ CLASS lcl_join_filter DEFINITION
 
     DATA mv_node_key TYPE tm_nodekey READ-ONLY.
     DATA mv_table TYPE tabname READ-ONLY.
-    DATA mv_table_alias TYPE zdbbr_entity_alias READ-ONLY.
+    DATA mv_table_alias TYPE zsat_entity_alias READ-ONLY.
 
     METHODS constructor
       IMPORTING
         is_filter   TYPE zdbbr_joinfil
         iv_table    TYPE tabname
-        iv_alias    TYPE zdbbr_entity_alias
+        iv_alias    TYPE zsat_entity_alias
         iv_node_key TYPE tm_nodekey.
     METHODS set_and_or
       IMPORTING
-        value TYPE vsconj DEFAULT zif_dbbr_c_selection_condition=>and.
+        value TYPE vsconj DEFAULT ZIF_SAT_C_SELECTION_CONDITION=>and.
     METHODS set_or_group_node
       IMPORTING
         iv_node_key TYPE tm_nodekey.
@@ -135,8 +135,8 @@ CLASS lcl_join_table DEFINITION.
 
     DATA mv_node_key TYPE tm_nodekey READ-ONLY.
     DATA mv_tabname TYPE tabname READ-ONLY.
-    DATA mv_type TYPE zdbbr_entity_type READ-ONLY.
-    DATA mv_alias TYPE zdbbr_entity_alias READ-ONLY.
+    DATA mv_type TYPE ZSAT_ENTITY_TYPE READ-ONLY.
+    DATA mv_alias TYPE zsat_entity_alias READ-ONLY.
 
     DATA ms_table_info TYPE zdbbr_joint READ-ONLY.
     DATA mt_filter_cond TYPE STANDARD TABLE OF ty_s_filter_cond WITH KEY node_key READ-ONLY.
@@ -193,8 +193,8 @@ CLASS lcl_join_table DEFINITION.
     METHODS delete_fields.
     METHODS update_alias
       IMPORTING
-        iv_alias_old              TYPE zdbbr_entity_alias
-        iv_alias_new              TYPE zdbbr_entity_alias
+        iv_alias_old              TYPE zsat_entity_alias
+        iv_alias_new              TYPE zsat_entity_alias
       RETURNING
         VALUE(rt_nodes_to_update) TYPE lty_t_node_to_update.
   PROTECTED SECTION.
@@ -209,23 +209,23 @@ CLASS lcl_join DEFINITION.
     TYPES:
       BEGIN OF ty_s_table,
         tabname  TYPE tabname,
-        alias    TYPE zdbbr_entity_alias,
+        alias    TYPE zsat_entity_alias,
         node_key TYPE tm_nodekey,
         tab_ref  TYPE REF TO lcl_join_table,
       END OF ty_s_table.
 
-    DATA mv_primary_entity_type TYPE zdbbr_entity_type READ-ONLY.
-    DATA mv_primary_entity TYPE zdbbr_entity_id READ-ONLY.
-    DATA mv_primary_entity_raw TYPE zdbbr_entity_id_raw READ-ONLY.
-    DATA mv_primary_entity_alias TYPE zdbbr_entity_alias READ-ONLY.
+    DATA mv_primary_entity_type TYPE ZSAT_ENTITY_TYPE READ-ONLY.
+    DATA mv_primary_entity TYPE ZSAT_ENTITY_ID READ-ONLY.
+    DATA mv_primary_entity_raw TYPE ZSAT_ENTITY_ID_raw READ-ONLY.
+    DATA mv_primary_entity_alias TYPE zsat_entity_alias READ-ONLY.
     DATA mt_tables TYPE STANDARD TABLE OF ty_s_table WITH EMPTY KEY READ-ONLY.
 
     METHODS constructor
       IMPORTING
-        is_primary_entity TYPE zdbbr_entity.
+        is_primary_entity TYPE ZSAT_ENTITY.
     METHODS update_alias
       IMPORTING
-        iv_alias                  TYPE zdbbr_entity_alias
+        iv_alias                  TYPE zsat_entity_alias
       RETURNING
         VALUE(rt_nodes_to_update) TYPE lty_t_node_to_update.
     METHODS has_changes
@@ -238,17 +238,17 @@ CLASS lcl_join DEFINITION.
         VALUE(rs_join_def) TYPE zdbbr_join_def.
     METHODS get_possible_entities_for_f4
       IMPORTING
-        iv_entity_alias    TYPE zdbbr_entity_alias
+        iv_entity_alias    TYPE zsat_entity_alias
       RETURNING
-        VALUE(rt_entities) TYPE zdbbr_entity_t.
+        VALUE(rt_entities) TYPE ZSAT_ENTITY_T.
     METHODS has_entity
       IMPORTING
-        iv_alias         TYPE zdbbr_entity_alias
+        iv_alias         TYPE zsat_entity_alias
       RETURNING
         VALUE(rf_exists) TYPE abap_bool.
     METHODS get_entity
       IMPORTING
-        iv_alias        TYPE zdbbr_entity_alias
+        iv_alias        TYPE zsat_entity_alias
       RETURNING
         VALUE(rr_table) TYPE REF TO lcl_join_table.
     METHODS add_table
