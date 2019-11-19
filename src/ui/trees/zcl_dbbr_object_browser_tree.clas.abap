@@ -9,14 +9,15 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     INTERFACES zif_uitb_gui_control .
     INTERFACES zif_uitb_gui_view.
     INTERFACES zif_uitb_content_searcher .
-    INTERFACES zif_sat_c_object_browser .
+    interfaces zif_dbbr_c_object_browser.
+    INTERFACES zif_sat_c_object_search .
     INTERFACES zif_sat_ty_object_browser .
     INTERFACES zif_sat_c_object_browser_mode.
 
     ALIASES c_node_type
-      FOR zif_sat_c_object_browser~c_tree_node_type .
+      FOR zif_dbbr_c_object_browser~c_tree_node_type .
     ALIASES c_search_option
-      FOR zif_sat_c_object_browser~c_search_option .
+      FOR zif_sat_c_object_search~c_search_option .
     ALIASES focus
       FOR zif_uitb_gui_control~focus .
     ALIASES has_focus

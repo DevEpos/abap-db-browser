@@ -5,7 +5,7 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    INTERFACES zif_sat_c_object_browser .
+    INTERFACES zif_dbbr_c_object_browser .
 
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     "!
@@ -19,7 +19,7 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
         REDEFINITION.
 
     ALIASES c_node_type
-      FOR zif_sat_c_object_browser~c_tree_node_type .
+      FOR zif_dbbr_c_object_browser~c_tree_node_type .
   PROTECTED SECTION.
     METHODS create_content
         REDEFINITION.

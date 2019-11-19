@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Controlling for editing a single join table</p>
 CLASS zcl_dbbr_edit_join_cond_view DEFINITION
   PUBLIC
   FINAL
@@ -15,18 +16,26 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
     CONSTANTS c_field_mode TYPE i VALUE 1 ##NO_TEXT.
     CONSTANTS c_value_mode TYPE i VALUE 2 ##NO_TEXT.
 
+    "! <p class="shorttext synchronized" lang="en">Created new filter condition</p>
     EVENTS created_filter_condition
       EXPORTING
         VALUE(es_filter) TYPE zdbbr_joinfil .
+    "! <p class="shorttext synchronized" lang="en">Created new field condition</p>
     EVENTS created_field_condition
       EXPORTING
         VALUE(es_field) TYPE zdbbr_joinfld .
 
+    "! <p class="shorttext synchronized" lang="en">CLASS_CONSTRUCTOR</p>
     CLASS-METHODS class_constructor .
+    "! <p class="shorttext synchronized" lang="en">Value Help for Source Field</p>
     METHODS call_source_field_f4 .
+    "! <p class="shorttext synchronized" lang="en">Value Helpr for Target Field</p>
     METHODS call_target_field_f4 .
+    "! <p class="shorttext synchronized" lang="en">Value Help for Value1 field</p>
     METHODS call_value1_f4 .
+    "! <p class="shorttext synchronized" lang="en">Value Help for Value2 field</p>
     METHODS call_value2_f4 .
+    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
         !if_is_new             TYPE abap_bool DEFAULT abap_true
@@ -37,6 +46,7 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
         !iv_source_table       TYPE tabname OPTIONAL
         is_source_entity       TYPE zdbbr_joint OPTIONAL
         !it_target_entity_list TYPE zsat_entity_t OPTIONAL .
+    "! <p class="shorttext synchronized" lang="en">Gets the updated condition</p>
     METHODS get_updated_condition
       EXPORTING
         !es_field_condition  TYPE zdbbr_joinfld
@@ -81,7 +91,9 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
     CONSTANTS c_p_join_source_fld_length TYPE dynfnam VALUE 'P_SRCLNG' ##NO_TEXT.
     "! Type - ZSAT_ENTITY_ID
     CONSTANTS c_p_join_trgt_tab TYPE dynfnam VALUE 'P_TRGTAB' ##NO_TEXT.
+    "! <p class="shorttext synchronized" lang="en">Field name</p>
     CONSTANTS c_p_join_cond_value_type TYPE dynfnam VALUE 'P_VALTY' ##NO_TEXT.
+    "! <p class="shorttext synchronized" lang="en">Field name</p>
     CONSTANTS c_r_edit_join_cond_view TYPE dynfnam VALUE 'GR_EDIT_JOIN_COND_VIEW' ##NO_TEXT.
     CONSTANTS:
       BEGIN OF c_functions,
@@ -106,10 +118,12 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
     DATA mr_join_target_offset_length TYPE REF TO ddleng .
     DATA mv_source_entity TYPE zsat_entity_id.
     DATA mv_mode TYPE i .
+    "! <p class="shorttext synchronized" lang="en">Description of Domain Fixed Values</p>
     CLASS-DATA st_comparator_fix_vals TYPE vrm_values .
     DATA mf_value2_visible TYPE abap_bool .
     DATA mr_title TYPE REF TO syst_title .
     DATA mv_value_field_length TYPE i .
+    "! <p class="shorttext synchronized" lang="en">Data element (semantic domain)</p>
     DATA mv_value_field_rollname TYPE rollname .
     DATA mt_target_entity_list TYPE zsat_entity_t .
     DATA mf_allow_offset TYPE abap_bool .
@@ -117,34 +131,49 @@ CLASS zcl_dbbr_edit_join_cond_view DEFINITION
     DATA mr_join_source_fld_datatype TYPE REF TO datatype_d .
     DATA mr_join_trgt_fld_length TYPE REF TO ddleng .
     DATA mr_join_source_fld_length TYPE REF TO ddleng .
+    "! <p class="shorttext synchronized" lang="en">Join Field Condition</p>
     DATA ms_field_condition TYPE zdbbr_joinfld .
+    "! <p class="shorttext synchronized" lang="en">Join Filter Condition</p>
     DATA ms_filter_condition TYPE zdbbr_joinfil .
     DATA mo_cursor TYPE REF TO zcl_uitb_cursor .
     DATA mr_save_func TYPE REF TO smp_dyntxt .
     DATA mr_save_new_func TYPE REF TO smp_dyntxt .
     DATA mf_error TYPE abap_bool .
 
+    "! <p class="shorttext synchronized" lang="en">Validate Parameter input</p>
     METHODS validate_parameter .
+    "! <p class="shorttext synchronized" lang="en">Call Built-In Value help for Source Field</p>
     METHODS call_built_in_f4_for_value
       IMPORTING
         !iv_dynp_fieldname TYPE dynfnam
       CHANGING
         !cv_value          TYPE zsat_value .
+    "! <p class="shorttext synchronized" lang="en">Clear field attribute fields</p>
     METHODS clear_field_attributes .
+    "! <p class="shorttext synchronized" lang="en">Convert values to internal format</p>
     METHODS convert_values_to_internal .
+    "! <p class="shorttext synchronized" lang="en">Conver values to display format</p>
     METHODS convert_values_to_display .
+    "! <p class="shorttext synchronized" lang="en">Fills list options for comparator field</p>
     METHODS fill_comparator_list .
+    "! <p class="shorttext synchronized" lang="en">Fill attribute fields for source/target table field</p>
     METHODS fill_field_attribute_fields
       IMPORTING
         !if_source               TYPE abap_bool OPTIONAL
         !io_screen_field_manager TYPE REF TO zcl_uitb_screen_field_manager OPTIONAL
         !iv_fieldname            TYPE fieldname OPTIONAL
         !iv_tabname              TYPE zsat_entity_id OPTIONAL .
+    "! <p class="shorttext synchronized" lang="en">Sends new condition via event and initializes screen values</p>
     METHODS send_new_condition_via_event .
+    "! <p class="shorttext synchronized" lang="en">Set function icons/texts</p>
     METHODS set_functions .
+    "! <p class="shorttext synchronized" lang="en">Transfer Values before screen is left</p>
     METHODS transfer_values .
+    "! <p class="shorttext synchronized" lang="en">Transfer values to screen if entry is to be changed</p>
     METHODS transfer_values_to_screen .
+    "! <p class="shorttext synchronized" lang="en">Validate screen parameters</p>
     METHODS validate .
+    "! <p class="shorttext synchronized" lang="en">Validation of entered system field</p>
     METHODS validate_system_field .
     METHODS get_entity_for_alias
       IMPORTING

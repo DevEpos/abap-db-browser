@@ -33,7 +33,7 @@ CLASS zcl_dbbr_ob_query_searcher IMPLEMENTATION.
       CASE <ls_option>-option.
 
 *...... Find queries with a specific description
-        WHEN zif_sat_c_object_browser=>c_search_option-by_description.
+        WHEN zif_sat_c_object_search=>c_search_option-by_description.
           add_option_filter(
             iv_fieldname    = 'description'
             iv_sql_function = zif_sat_c_sql_function=>upper
@@ -41,14 +41,14 @@ CLASS zcl_dbbr_ob_query_searcher IMPLEMENTATION.
           ).
 
 *...... Find objects which were created by a specific user
-        WHEN zif_sat_c_object_browser=>c_search_option-by_owner.
+        WHEN zif_sat_c_object_search=>c_search_option-by_owner.
           add_option_filter(
             iv_fieldname    = 'created_by'
             it_values       = <ls_option>-value_range
           ).
 
 *...... Find queries whoose tables match the filters condition
-        WHEN zif_sat_c_object_browser=>c_search_option-by_select_from.
+        WHEN zif_sat_c_object_search=>c_search_option-by_select_from.
           add_join_table(
               iv_join_table = |{ zif_dbbr_c_select_source_id=>zdbbr_queryt }|
               iv_alias      = 'table'

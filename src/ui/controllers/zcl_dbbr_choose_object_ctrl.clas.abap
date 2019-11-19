@@ -17,7 +17,7 @@ CLASS zcl_dbbr_choose_object_ctrl DEFINITION
     METHODS get_chosen_entry
       EXPORTING
         !ev_entry TYPE tabname
-        !ev_type  TYPE ZSAT_FAVMENU_TYPE .
+        !ev_type  TYPE zsat_favmenu_type .
     METHODS validate_user_input
       IMPORTING
         !iv_function_code TYPE sy-ucomm .
@@ -76,7 +76,7 @@ CLASS zcl_dbbr_choose_object_ctrl IMPLEMENTATION.
 
     IF mr_s_entity->table_mode = abap_true.
       IF mr_s_entity->tab_name = space.
-        ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text( 'Enter a table' ).
+        zcx_sat_validation_exception=>raise_with_text( 'Enter a table' ).
       ENDIF.
 
       zcl_dbbr_ddic_util=>validate_table_name(
@@ -85,7 +85,7 @@ CLASS zcl_dbbr_choose_object_ctrl IMPLEMENTATION.
       ).
     ELSEIF mr_s_entity->query_mode = abap_true. " query mode is active
       IF mr_s_entity->query_name = space.
-        ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text( 'Enter a query' ).
+        zcx_sat_validation_exception=>raise_with_text( 'Enter a query' ).
       ENDIF.
 
       " Validate the query name
@@ -97,21 +97,21 @@ CLASS zcl_dbbr_choose_object_ctrl IMPLEMENTATION.
 
       IF ls_query IS INITIAL.
         MESSAGE e035(zdbbr_info) WITH mr_s_entity->query_name INTO DATA(lv_msg).
-        ZCX_SAT_VALIDATION_EXCEPTION=>raise_from_sy( ).
+        zcx_sat_validation_exception=>raise_from_sy( ).
       ELSEIF ls_query-is_global = abap_false AND
              mf_global_fav_mode = abap_true AND
              mf_for_fav_menu = abap_true.
-        ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text( |The Global Favorite menu allows only Global Favorites| ).
+        zcx_sat_validation_exception=>raise_with_text( |The Global Favorite menu allows only Global Favorites| ).
       ENDIF.
     ELSE.
       " cds view mode
       IF mr_s_entity->cds_name = space.
-        ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text( 'Enter a CDS View Name' ).
+        zcx_sat_validation_exception=>raise_with_text( 'Enter a CDS View Name' ).
       ENDIF.
 
-      IF NOT ZCL_SAT_CDS_VIEW_FACTORY=>exists( mr_s_entity->cds_name ).
+      IF NOT zcl_sat_cds_view_factory=>exists( mr_s_entity->cds_name ).
         MESSAGE e072(zdbbr_info) WITH mr_s_entity->cds_name INTO lv_msg.
-        ZCX_SAT_VALIDATION_EXCEPTION=>raise_from_sy( ).
+        zcx_sat_validation_exception=>raise_from_sy( ).
       ENDIF.
     ENDIF.
   ENDMETHOD.
@@ -207,8 +207,8 @@ CLASS zcl_dbbr_choose_object_ctrl IMPLEMENTATION.
             validate_user_input( lv_function ).
             mf_take_data = abap_true.
             zcl_dbbr_screen_helper=>leave_screen( ).
-          CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lr_validation_exc).
-            MESSAGE lr_validation_exc->ZIF_SAT_EXCEPTION_MESSAGE~get_message( ) TYPE 'S' DISPLAY LIKE 'E'.
+          CATCH zcx_sat_validation_exception INTO DATA(lr_validation_exc).
+            MESSAGE lr_validation_exc->zif_sat_exception_message~get_message( ) TYPE 'S' DISPLAY LIKE 'E'.
         ENDTRY.
 
     ENDCASE.
