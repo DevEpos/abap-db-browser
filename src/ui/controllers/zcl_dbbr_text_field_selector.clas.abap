@@ -31,6 +31,8 @@ CLASS zcl_dbbr_text_field_selector DEFINITION
         REDEFINITION.
     METHODS has_selections
         REDEFINITION.
+    METHODS get_mark_field_description
+        REDEFINITION.
   PRIVATE SECTION.
     TYPES:
       BEGIN OF ty_s_field_with_text,
@@ -180,5 +182,11 @@ CLASS zcl_dbbr_text_field_selector IMPLEMENTATION.
 
   METHOD has_selections.
     rf_has_selections = abap_true.
+  ENDMETHOD.
+
+  METHOD get_mark_field_description.
+    ev_short =
+    ev_medium =
+    ev_long = |{ 'Show?'(002) }|.
   ENDMETHOD.
 ENDCLASS.

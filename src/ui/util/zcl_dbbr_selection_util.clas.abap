@@ -810,13 +810,13 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
       DATA(lr_current_field) = mo_tabfields->get_next_entry( ).
 
-*...exclude some fields right away from the field catalog
+*.... exclude some fields right away from the field catalog
       CHECK lr_current_field->is_parameter = abap_false.
 
       " handle text field
       IF lr_current_field->is_text_field = abap_true.
         IF lr_current_field->output_active = abap_true.
-**...handle additional fields text output
+**........handle additional fields text output
           mt_fieldcat = VALUE #( BASE mt_fieldcat
            ( create_text_fieldcat_entry( lr_current_field ) )
           ).
@@ -826,7 +826,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
       IF ms_technical_info-use_reduced_memory = abap_true.
         IF lr_current_field->output_active = abap_true OR
-**...key fields will always be included in output table
+**.........key fields will always be included in output table
            lr_current_field->is_key = abap_true.
           lf_create_fieldcat_entry = abap_true.
         ENDIF.
@@ -839,108 +839,111 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         lf_create_fieldcat_entry = abap_true.
       ENDIF.
 
-      IF lf_create_fieldcat_entry = abap_true.
-        DATA(lv_tabix) = sy-tabix.
-        DATA(ls_field) = VALUE lvc_s_fcat( ).
+      CHECK lf_create_fieldcat_entry = abap_true.
 
-        IF lr_current_field->is_formula_field = abap_false.
-          DATA(ls_dtel_infos) = zcl_sat_ddic_repo_access=>get_table_field_info( iv_tablename = lr_current_field->tabname
-                                                                                   iv_fieldname = lr_current_field->fieldname ).
-          ls_field-convexit = ls_dtel_infos-convexit.
-        ENDIF.
+      DATA(lv_tabix) = sy-tabix.
+      DATA(ls_field) = VALUE lvc_s_fcat( ).
 
-        IF lr_current_field->is_key = abap_true.
-          ls_field-parameter2 = 'K'.
-          IF lr_current_field->tabname = ms_control_info-primary_table.
-            ls_field-fix_column = xsdbool( ms_technical_info-key_cols_not_fixed = abap_false ).
-            ls_field-key_sel = abap_true.
-          ELSE.
-            ls_field-emphasize = zif_dbbr_global_consts=>gc_alv_emphasize-key_color.
-          ENDIF.
-        ENDIF.
-
-        IF lr_current_field->is_formula_field = abap_true.
-          ls_field-emphasize = COND #( WHEN ms_technical_info-color_formula_fields = abap_true THEN
-                                                zif_dbbr_global_consts=>gc_alv_colors-light_yellow ).
-          ls_field-parameter2 = 'F'.
-          ls_field-icon = zcl_dbbr_formula_helper=>is_icon_field( lr_current_field ).
-        ENDIF.
-
-*...... Special settings for numerical fields
-        IF lr_current_field->is_numeric = abap_true.
-          ls_field-no_zero = ms_technical_info-zero_val_as_blank.
-        ENDIF.
-
-**......check conversion exit setting
-        IF ms_technical_info-no_convexit = abap_true.
-          IF ls_field-convexit <> space.
-            ls_field-no_convext = abap_true.
-            CLEAR ls_field-edit_mask.
-            ls_field-convexit = 'EMPTY'.
-          ENDIF.
-        ELSE. " use conversion exit
-          IF  ls_field-convexit = space.
-*.......... 1) try to find mapping entry for the current domain
-            ls_field-convexit = VALUE #( lt_domain2convexit[ domname = lr_current_field->domname ]-convexit OPTIONAL ).
-          ENDIF.
-
-          IF ls_field-convexit = space AND
-             lr_current_field->is_numeric = abap_true.
-            IF ms_technical_info-no_trailing_sign = abap_true.
-              ls_field-convexit = 'NUM'.
-
-              lf_use_num_conversion = abap_true.
-            ENDIF.
-          ENDIF.
-
-        ENDIF.
-
-        IF lr_current_field->is_formula_field = abap_false.
-          ls_field-ref_field = lr_current_field->fieldname.
-          ls_field-ref_table = lr_current_field->tabname.
-        ENDIF.
-
-        ls_field-fieldname = lr_current_field->alv_fieldname.
-        ls_field-lowercase = lr_current_field->is_lowercase.
-        ls_field-outputlen = lr_current_field->outputlen.
-        ls_field-intlen = lr_current_field->length.
-
-        IF lf_use_num_conversion = abap_false.
-          fill_fcat_quan_curr_field(
-            EXPORTING ir_tabfield       = lr_current_field
-                      ir_tabfields      = mo_tabfields
-            CHANGING  cv_quantity_field = ls_field-qfieldname
-                      cv_currency_field = ls_field-cfieldname
-          ).
-        ENDIF.
-
-        set_fieldcat_coltexts(
-          EXPORTING ir_field    = lr_current_field
-          CHANGING  cs_fieldcat = ls_field
-        ).
-
-        handle_possible_jumpfield(
-          EXPORTING ir_current_field = lr_current_field
-          CHANGING  cs_field         = ls_field
-        ).
-
-        ls_field-no_out = xsdbool( lr_current_field->output_active = abap_false ).
-
-**...set output mode to checkbox if there is at least one domain fix value with value 'X'
-        ls_field-checkbox = determine_checkbox_output( EXPORTING ir_field = lr_current_field ).
-
-        ls_field-inttype = lr_current_field->inttype.
-        ls_field-decimals = lr_current_field->decimals.
-        ls_field-datatype = lr_current_field->datatype.
-        ls_field-rollname = lr_current_field->rollname.
-        ls_field-domname = lr_current_field->domname.
-        ls_field-dd_roll = lr_current_field->rollname.
-
-        ls_field-f4availabl = lr_current_field->f4_available.
-
-        ls_field-sp_group = VALUE #( mt_group_tab_map[ tabname = lr_current_field->tabname ]-sp_group OPTIONAL ).
-        APPEND ls_field TO mt_fieldcat.
+      IF lr_current_field->is_formula_field = abap_false.
+        DATA(ls_dtel_infos) = zcl_sat_ddic_repo_access=>get_table_field_info( iv_tablename = lr_current_field->tabname
+                                                                                 iv_fieldname = lr_current_field->fieldname ).
+        ls_field-convexit = ls_dtel_infos-convexit.
       ENDIF.
+
+      IF lr_current_field->is_key = abap_true.
+        ls_field-parameter2 = 'K'.
+        IF lr_current_field->tabname = ms_control_info-primary_table.
+          ls_field-fix_column = xsdbool( ms_technical_info-key_cols_not_fixed = abap_false ).
+          ls_field-key_sel = abap_true.
+        ELSE.
+          ls_field-emphasize = zif_dbbr_global_consts=>gc_alv_emphasize-key_color.
+        ENDIF.
+      ENDIF.
+
+      IF lr_current_field->is_formula_field = abap_true.
+        ls_field-emphasize = COND #( WHEN ms_technical_info-color_formula_fields = abap_true THEN
+                                              zif_dbbr_global_consts=>gc_alv_colors-light_yellow ).
+        ls_field-parameter2 = 'F'.
+        ls_field-icon = zcl_dbbr_formula_helper=>is_icon_field( lr_current_field ).
+      ENDIF.
+
+*.... Special settings for numerical fields
+      IF lr_current_field->is_numeric = abap_true.
+        ls_field-no_zero = ms_technical_info-zero_val_as_blank.
+      ENDIF.
+
+**....check conversion exit setting
+      IF ms_technical_info-no_convexit = abap_true.
+        IF ls_field-convexit <> space.
+          ls_field-no_convext = abap_true.
+          CLEAR ls_field-edit_mask.
+          ls_field-convexit = 'EMPTY'.
+        ENDIF.
+      ELSE. " use conversion exit
+        IF  ls_field-convexit = space.
+*........ 1) try to find mapping entry for the current domain
+          ls_field-convexit = VALUE #( lt_domain2convexit[ domname = lr_current_field->domname ]-convexit OPTIONAL ).
+        ENDIF.
+
+        IF ls_field-convexit = space AND
+           lr_current_field->is_numeric = abap_true.
+          IF ms_technical_info-no_trailing_sign = abap_true.
+            ls_field-convexit = 'NUM'.
+
+            lf_use_num_conversion = abap_true.
+          ENDIF.
+        ENDIF.
+
+      ENDIF.
+
+      ls_field-fieldname = lr_current_field->alv_fieldname.
+      ls_field-lowercase = lr_current_field->is_lowercase.
+      ls_field-outputlen = lr_current_field->outputlen.
+      ls_field-intlen = lr_current_field->length.
+
+      IF lr_current_field->is_formula_field = abap_false.
+        ls_field-ref_field = lr_current_field->fieldname.
+        ls_field-ref_table = lr_current_field->tabname.
+      ENDIF.
+
+
+      IF lf_use_num_conversion = abap_false.
+        fill_fcat_quan_curr_field(
+          EXPORTING ir_tabfield       = lr_current_field
+                    ir_tabfields      = mo_tabfields
+          CHANGING  cv_quantity_field = ls_field-qfieldname
+                    cv_currency_field = ls_field-cfieldname
+        ).
+      ENDIF.
+
+      set_fieldcat_coltexts(
+        EXPORTING ir_field    = lr_current_field
+        CHANGING  cs_fieldcat = ls_field
+      ).
+
+      handle_possible_jumpfield(
+        EXPORTING ir_current_field = lr_current_field
+        CHANGING  cs_field         = ls_field
+      ).
+
+      ls_field-no_out = xsdbool( lr_current_field->output_active = abap_false ).
+
+**....set output mode to checkbox if there is at least one domain fix value with value 'X'
+      ls_field-checkbox = determine_checkbox_output( EXPORTING ir_field = lr_current_field ).
+
+      ls_field-inttype = lr_current_field->inttype.
+      ls_field-decimals = lr_current_field->decimals.
+      ls_field-datatype = lr_current_field->datatype.
+      ls_field-rollname = lr_current_field->rollname.
+      ls_field-domname = lr_current_field->domname.
+      ls_field-dd_roll = lr_current_field->rollname.
+
+      ls_field-f4availabl = lr_current_field->f4_available.
+
+      ls_field-sp_group = VALUE #( mt_group_tab_map[ tabname = lr_current_field->tabname ]-sp_group OPTIONAL ).
+
+      APPEND ls_field TO mt_fieldcat.
+
     ENDWHILE.
 
     add_line_index_column( ).
@@ -1353,15 +1356,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 
   METHOD handle_alv_ctx_menu_request.
-    IF if_selected_cols = abap_true.
-      get_text_field_util( )->add_text_field_column_func(
-        EXPORTING it_selected_cols = it_selected_cols
-                  it_fieldcat      = it_fieldcat
-        CHANGING  ct_menu_entries  = ct_menu_entries
-      ).
-    ENDIF.
   ENDMETHOD.
-
 
   METHOD handle_possible_jumpfield.
     TRY .
@@ -1816,14 +1811,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
                     iv_start_tab    = zcl_dbbr_user_settings_sc=>c_tab_ids-output_tab
           CHANGING  cs_settings     = ms_technical_info-settings
         ).
-
-      WHEN zif_dbbr_c_selection_functions=>add_text_field.
-        CLEAR cv_function.
-        get_text_field_util( )->add_text_field_columns( ).
-
-      WHEN zif_dbbr_c_selection_functions=>manage_text_fields.
-        CLEAR cv_function.
-        get_text_field_util( )->manage_text_field_columns( ).
     ENDCASE.
   ENDMETHOD.
+
 ENDCLASS.

@@ -120,6 +120,7 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     DATA mo_splitter_container TYPE REF TO cl_gui_splitter_container .
     DATA mo_output_container TYPE REF TO cl_gui_container .
     DATA mf_selection_finished TYPE abap_bool .
+    DATA: mo_textfield_util TYPE REF TO zcl_dbbr_text_field_ui_util.
 
     "! <p class="shorttext synchronized" lang="en">Indicates if the ALV header needs a refresh</p>
     METHODS alv_headers_needs_refresh
@@ -139,7 +140,8 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     METHODS call_jumpfield_transaction
       IMPORTING
         !iv_fieldname TYPE lvc_s_col-fieldname
-        !iv_row_index TYPE lvc_s_row-index .
+        is_row_data   TYPE any.
+*        !iv_row_index TYPE lvc_s_row-index .
     METHODS compare_selected_lines .
     METHODS constructor
       IMPORTING
@@ -389,6 +391,11 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ASSIGN COMPONENT ls_cell-col_id-fieldname OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_value>).
     CHECK sy-subrc = 0.
 
+    IF <lv_value> IS INITIAL.
+      MESSAGE |No String content to display| TYPE 'S'.
+      RETURN.
+    ENDIF.
+
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
     DATA(ls_field) = lt_fieldcat[ fieldname = ls_cell-col_id-fieldname ].
 
@@ -468,26 +475,19 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD call_jumpfield_transaction.
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE,
-                   <ls_line>  TYPE any.
-
-    ASSIGN mo_util->mr_t_data->* TO <lt_table>.
-
-    ASSIGN <lt_table>[ iv_row_index ] TO <ls_line>.
     " column is automatically a jump field
     " 1) get jumpfield definition
-    DATA(ls_field) = mo_util->mt_fieldcat[ fieldname = iv_fieldname ].
     DATA(lr_tabfield) = mo_util->mo_tabfields->get_field_ref_by_alv_name( iv_fieldname ).
 
     LOOP AT mo_util->mt_jumpdest INTO DATA(ls_jumpfield) WHERE jump_source_field = lr_tabfield->fieldname
-                                                  AND jump_source_table = lr_tabfield->tabname.
+                                                           AND jump_source_table = lr_tabfield->tabname.
       " 2) check if conditions are met
       IF ls_jumpfield-crit_field IS NOT INITIAL.
         DATA(ls_crit_field) = mo_util->mo_tabfields->get_field(
             iv_tabname   = ls_jumpfield-crit_table
             iv_fieldname = ls_jumpfield-crit_field
         ).
-        ASSIGN COMPONENT ls_crit_field-alv_fieldname OF STRUCTURE <ls_line> TO FIELD-SYMBOL(<lv_crit_val>).
+        ASSIGN COMPONENT ls_crit_field-alv_fieldname OF STRUCTURE is_row_data TO FIELD-SYMBOL(<lv_crit_val>).
         CASE ls_jumpfield-crit_operation.
           WHEN 'EQ'.
             IF NOT <lv_crit_val> EQ ls_jumpfield-crit_value.
@@ -517,7 +517,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
               MESSAGE |Parameter Field { <ls_param>-param_table }-{ <ls_param>-param_field } was not found. Jump was aborted!| TYPE 'S' DISPLAY LIKE 'E'.
               RETURN.
           ENDTRY.
-          ASSIGN COMPONENT lr_param_field->alv_fieldname OF STRUCTURE <ls_line> TO FIELD-SYMBOL(<lv_param_val>).
+          ASSIGN COMPONENT lr_param_field->alv_fieldname OF STRUCTURE is_row_data TO FIELD-SYMBOL(<lv_param_val>).
           <ls_param>-param_value = <lv_param_val>.
         ENDIF.
 
@@ -643,6 +643,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 *... create util instance for handling selection stuff
     mo_util = zcl_dbbr_selection_util=>create_util( is_selection_data ).
+    mo_textfield_util = NEW zcl_dbbr_text_field_ui_util( mo_util ).
 
     SET HANDLER:
       on_selection_finish FOR mo_util,
@@ -1490,6 +1491,11 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
       ENDIF.
     ELSEIF lt_index_cols IS NOT INITIAL.
+      mo_textfield_util->add_text_field_column_func(
+        EXPORTING it_selected_cols = lt_index_cols
+                  it_fieldcat      = lt_fieldcat
+        CHANGING  ct_menu_entries  = lt_menu_flat
+      ).
       IF lt_cells IS INITIAL.
         DATA(lv_hide_func_index) = line_index( lt_menu_flat[ fcode = zif_uitb_c_alv_functions=>column_invisible ] ).
         INSERT VALUE #(
@@ -1634,9 +1640,17 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD on_hotspot_click.
-    call_jumpfield_transaction( iv_fieldname = e_column_id-fieldname
-                                iv_row_index = e_row_id-index ).
+    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE,
+                   <ls_line>  TYPE any.
 
+    ASSIGN mo_util->mr_t_data->* TO <lt_table>.
+    ASSIGN <lt_table>[ e_row_id-index ] TO <ls_line>.
+
+    mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_field_cat) ).
+    DATA(ls_field) = lt_field_cat[ fieldname = e_column_id-fieldname ].
+
+    call_jumpfield_transaction( iv_fieldname = e_column_id-fieldname
+                                is_row_data  = <ls_line> ).
   ENDMETHOD.
 
 
@@ -1778,6 +1792,12 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selection_functions=>control_tech_view.
         control_tech_view( ).
+
+      WHEN zif_dbbr_c_selection_functions=>add_text_field.
+        mo_textfield_util->add_text_field_columns( ).
+
+      WHEN zif_dbbr_c_selection_functions=>manage_text_fields.
+        mo_textfield_util->manage_text_field_columns( ).
 
       WHEN OTHERS.
         DATA(lf_trigger_pbo) = SWITCH #( e_ucomm
