@@ -19,7 +19,8 @@ CLASS zcl_dbbr_custom_f4_selector DEFINITION
       matches_filter REDEFINITION,
       set_selected_element REDEFINITION,
       adjust_column REDEFINITION,
-      has_selections REDEFINITION.
+      has_selections REDEFINITION,
+      get_mark_field_description REDEFINITION.
   PRIVATE SECTION.
     TYPES:
       BEGIN OF ty_s_f4,
@@ -202,6 +203,12 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
 
   METHOD has_selections.
     rf_has_selections = abap_true.
+  ENDMETHOD.
+
+  method get_mark_field_description.
+    ev_short =
+    ev_medium =
+    ev_long = |{ 'Assign?'(001) }|.
   ENDMETHOD.
 
 ENDCLASS.

@@ -180,7 +180,7 @@ CLASS zcl_dbbr_jumplist_controller IMPLEMENTATION.
                                                 ls_fieldinfo-fieldtext
                                               ELSE
                                                 ls_fieldinfo-scrtext_l ).
-        ls_tabfield-is_numeric      = zcl_dbbr_ddic_util=>is_type_numeric( ls_fieldinfo-inttype )..
+        ls_tabfield-is_numeric      = zcl_dbbr_ddic_util=>is_type_numeric( ls_fieldinfo-inttype ).
 
         mr_query_tabfields->add( REF #( ls_tabfield ) ).
       ENDLOOP.
