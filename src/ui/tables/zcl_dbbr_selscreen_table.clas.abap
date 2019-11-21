@@ -904,8 +904,8 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
       ENDLOOP.
     ENDIF.
 
-    " .check for LCHR and do not allow input (more than 1333 character in datatype LCHR)
-    IF mr_selfield_line->datatype = 'LCHR'.
+    " .check for LCHR or String and do not allow input (more than 1333 character in datatype LCHR)
+    IF mr_selfield_line->datatype = 'LCHR' OR mr_selfield_line->inttype = cl_abap_typedescr=>typekind_string.
       LOOP AT SCREEN.
         IF screen-group1 = 'INP'.
           screen-input = 0.
