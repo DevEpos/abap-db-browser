@@ -108,6 +108,8 @@ CLASS zcl_dbbr_output_alv_util DEFINITION
       END OF t_compare_field .
     TYPES:
       tt_compare_field TYPE STANDARD TABLE OF t_compare_field .
+    CONSTANTS: c_max_filter_length TYPE i VALUE 40,
+               c_string_inttype    TYPE string VALUE 'Cg' ##NO_TEXT.
 
     DATA mf_db_filters_changed TYPE abap_bool .
     DATA mf_ui_filters_changed TYPE abap_bool .
@@ -115,11 +117,17 @@ CLASS zcl_dbbr_output_alv_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Check if two rows differ in their values</p>
     METHODS rows_differ
       IMPORTING
-        !is_left_row          TYPE any
-        !it_compare_by        TYPE tt_compare_field
-        !is_right_row         TYPE any
+        is_left_row           TYPE any
+        it_compare_by         TYPE tt_compare_field
+        is_right_row          TYPE any
       RETURNING
         VALUE(rf_rows_differ) TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Handles String/LCHR columns</p>
+    "!
+    "! @parameter cs_filter | <p class="shorttext synchronized" lang="en">The current ALV Filter value</p>
+    METHODS handle_lob_filter
+      CHANGING
+        cs_filter TYPE lvc_s_filt.
 ENDCLASS.
 
 
@@ -434,14 +442,18 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
           seltext   = lr_fieldcat_entry->coltext
           lowercase = lr_fieldcat_entry->lowercase
           inttype   = lr_fieldcat_entry->inttype
+          datatype  = lr_fieldcat_entry->datatype
           no_sign   = abap_true
           ref_field = lr_fieldcat_entry->ref_field
           ref_table = lr_fieldcat_entry->ref_table
           low       = <lv_value>
           sign      = COND #( WHEN if_exclusion_mode = abap_true THEN 'E' ELSE 'I' )
-          option    = 'EQ'
+          option    = zif_sat_c_options=>equals
       ) TO lt_filter ASSIGNING FIELD-SYMBOL(<ls_new_filter>).
       <ls_new_filter>-low = condense( <ls_new_filter>-low ).
+      IF lr_fieldcat_entry->inttype CA c_string_inttype.
+        handle_lob_filter( CHANGING cs_filter = <ls_new_filter> ).
+      ENDIF.
     ENDLOOP.
 
     SORT lt_filter BY fieldname low sign option.
@@ -596,6 +608,16 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
     mf_col_grouping_active = abap_false.
   ENDMETHOD.
 
+  METHOD handle_lob_filter.
+    CHECK cs_filter-low IS NOT INITIAL.
+
+    DATA(lv_length) = numofchar( cs_filter-low ).
+    IF lv_length > c_max_filter_length.
+      lv_length = c_max_filter_length - 1.
+      cs_filter-low = cs_filter-low(lv_length) && '*'.
+      cs_filter-option = zif_sat_c_options=>contains_pattern.
+    ENDIF.
+  ENDMETHOD.
 
   METHOD rows_differ.
     LOOP AT it_compare_by ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE is_numeric = abap_false.
@@ -636,7 +658,8 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
 
             IF lr_field->is_text_field = abap_true OR
                lr_field->is_formula_field = abap_true OR
-               lr_field->is_virtual_join_field = abap_true.
+               lr_field->is_virtual_join_field = abap_true OR
+               lr_field->inttype CA c_string_inttype.
               ASSIGN ms_new_filters-ui_filter TO <lt_filters>.
             ELSE.
               ASSIGN ms_new_filters-db_filter TO <lt_filters>.
