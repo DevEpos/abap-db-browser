@@ -3,4 +3,5 @@ ABAP Database Browser (Tables, Views, CDS Views, Custom Queries, ...)
 
 ### Dependencies
 
-- [UI Toolbox](https://github.com/stockbal/UIToolbox)
+- [abap-search-tools](https://github.com/stockbal/abap-search-tools)
+- [abap-ui-toolbox](https://github.com/stockbal/abap-ui-toolbox)
