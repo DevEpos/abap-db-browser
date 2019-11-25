@@ -46,7 +46,7 @@ DATA: gr_dynamic_table TYPE REF TO data.
 
 DATA:
   BEGIN OF gs_object_search,
-    search_type  TYPE zsat_obj_browser_mode,
+    search_type  TYPE zdbbr_obj_browser_mode,
     search_input TYPE string,
   END OF gs_object_search.
 

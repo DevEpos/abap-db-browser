@@ -85,7 +85,7 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
             text     = |{ 'Change'(007) }| )
           ( function = c_functions-delete
             icon     = icon_delete
-            quickinfo = |{ text-006 }| )
+            quickinfo = |{ TEXT-006 }| )
         )
       IMPORTING
         eo_toolbar   = DATA(lo_toolbar)
@@ -105,7 +105,7 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
   METHOD create_tree.
     TYPES: BEGIN OF lty_s_fav_groups,
              name TYPE string,
-             type TYPE ZSAT_OBJ_BROWSER_MODE,
+             type TYPE zdbbr_obj_browser_mode,
            END OF lty_s_fav_groups.
     DATA: lt_fav_groups TYPE STANDARD TABLE OF lty_s_fav_groups.
 
@@ -124,8 +124,8 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
         iv_header_text    = |{ 'Description'(004) }|
     ).
 
-    set handler:
-       on_node_double_click for mo_tree->get_events( ).
+    SET HANDLER:
+       on_node_double_click FOR mo_tree->get_events( ).
 
     mo_tree->create_tree_control( ).
 
@@ -133,10 +133,10 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
     DATA(lt_favorites) = zcl_dbbr_ob_fav_factory=>get_favorites( ).
 
     lt_fav_groups = VALUE #(
-      ( type = ZIF_SAT_C_OBJECT_BROWSER_MODE=>cds_view            name = 'CDS view' )
-      ( type = ZIF_SAT_C_OBJECT_BROWSER_MODE=>database_table_view name = 'Database Table/View' )
-      ( type = ZIF_SAT_C_OBJECT_BROWSER_MODE=>query               name = 'Query' )
-      ( type = ZIF_SAT_C_OBJECT_BROWSER_MODE=>package             name = 'Package' )
+      ( type = zif_dbbr_c_object_browser_mode=>cds_view            name = 'CDS view' )
+      ( type = zif_dbbr_c_object_browser_mode=>database_table_view name = 'Database Table/View' )
+      ( type = zif_dbbr_c_object_browser_mode=>query               name = 'Query' )
+      ( type = zif_dbbr_c_object_browser_mode=>package             name = 'Package' )
     ).
 
     DATA(lo_nodes) = mo_tree->get_nodes( ).
@@ -224,7 +224,7 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_node_double_click.
-    check mo_tree->get_nodes( )->node_has_user_data( ev_node_key ).
+    CHECK mo_tree->get_nodes( )->node_has_user_data( ev_node_key ).
 
     edit_favorite_name( ).
   ENDMETHOD.

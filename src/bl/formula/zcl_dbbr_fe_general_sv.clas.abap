@@ -38,7 +38,7 @@ CLASS ZCL_DBBR_FE_GENERAL_SV IMPLEMENTATION.
             textid          = ZCX_DBBR_fe_stmnt_valid_exc=>invalid_keyword_found
             msgv1           = |{ cs_statement-first_token_str }|
             msgv2           = |{ cs_statement-tokens[ 1 ]-row }|
-            invalid_row     = cs_statement-trow.
+            invalid_row     = cs_statement-tokens[ 1 ]-row.
       ENDIF.
     ENDIF.
 

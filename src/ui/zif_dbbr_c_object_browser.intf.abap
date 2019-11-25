@@ -3,6 +3,11 @@ INTERFACE zif_dbbr_c_object_browser
   PUBLIC .
 
   CONSTANTS:
+    BEGIN OF c_search_type,
+      query   TYPE zif_sat_ty_object_search=>ty_search_type VALUE 'QUERY',
+      package TYPE zif_sat_ty_object_search=>ty_search_type VALUE 'PACKAGE',
+    END OF c_search_type.
+  CONSTANTS:
     "! <p class="shorttext synchronized" lang="en">Type for tree node of object browser</p>
     BEGIN OF c_tree_node_type,
       package               TYPE i VALUE 10,

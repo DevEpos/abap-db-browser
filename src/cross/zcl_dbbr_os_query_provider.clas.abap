@@ -1,34 +1,32 @@
 "! <p class="shorttext synchronized" lang="en">Query searcher for Object Browser</p>
-CLASS zcl_dbbr_ob_query_searcher DEFINITION
+CLASS zcl_dbbr_os_query_provider DEFINITION
   PUBLIC
   CREATE PUBLIC
-  INHERITING FROM zcl_sat_ob_generic_searcher.
+  INHERITING FROM zcl_sat_base_search_provider.
 
   PUBLIC SECTION.
-    INTERFACES zif_sat_object_searcher.
   PROTECTED SECTION.
+    METHODS prepare_search
+        REDEFINITION.
   PRIVATE SECTION.
     CONSTANTS c_base_table TYPE string VALUE 'queryhead'.
 ENDCLASS.
 
 
-CLASS zcl_dbbr_ob_query_searcher IMPLEMENTATION.
+CLASS zcl_dbbr_os_query_provider IMPLEMENTATION.
 
-  METHOD zif_sat_object_searcher~search.
+  METHOD prepare_search.
 
     set_base_select_table(
         iv_entity     = zif_dbbr_c_select_source_id=>zdbbr_queryh
         iv_alias      = c_base_table
     ).
 
-    IF mo_search_query->has_search_string( ).
-      add_filter( VALUE #( sqlfieldname  = 'query_name'
-                           option        = mo_search_query->mv_search_option
-                           sign          = 'I'
-                           low           = mo_search_query->mv_search_string ) ).
+    IF mo_search_query->has_search_terms( ).
+      add_search_terms_to_search( it_field_names = VALUE #( ( `query_name` ) ) ).
     ENDIF.
 
-    LOOP AT mo_search_query->get_options( ) ASSIGNING FIELD-SYMBOL(<ls_option>).
+    LOOP AT mo_search_query->mt_search_options ASSIGNING FIELD-SYMBOL(<ls_option>).
 
       CASE <ls_option>-option.
 
@@ -74,10 +72,6 @@ CLASS zcl_dbbr_ob_query_searcher IMPLEMENTATION.
     add_order_by( iv_entity = c_base_table iv_fieldname = 'query_name' ).
 
     new_and_cond_list( ).
-
-    search( ).
-
-    rt_result = mt_result.
   ENDMETHOD.
 
 ENDCLASS.

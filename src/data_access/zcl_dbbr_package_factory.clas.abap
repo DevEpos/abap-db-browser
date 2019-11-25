@@ -17,7 +17,7 @@ CLASS zcl_dbbr_package_factory DEFINITION
       RETURNING
         VALUE(rr_package) TYPE REF TO if_package
       RAISING
-        ZCX_SAT_DATA_READ_ERROR.
+        zcx_sat_data_read_error.
     CLASS-METHODS find_packages
       IMPORTING
         iv_package    TYPE devclass
@@ -37,7 +37,7 @@ CLASS zcl_dbbr_package_factory IMPLEMENTATION.
   METHOD get_package.
     cl_package_factory=>load_package(
       EXPORTING
-        i_package_name             = iv_package
+        i_package_name             = to_upper( iv_package )
 *        i_force_reload             =     " Force System to Read from Database (X=Yes)
       IMPORTING
         e_package                  = rr_package    " Package Instance
@@ -50,7 +50,7 @@ CLASS zcl_dbbr_package_factory IMPLEMENTATION.
         OTHERS                     = 6
     ).
     IF sy-subrc <> 0.
-      ZCX_SAT_DATA_READ_ERROR=>raise_data_read_error_sy( ).
+      zcx_sat_data_read_error=>raise_data_read_error_sy( ).
     ENDIF.
   ENDMETHOD.
 
@@ -111,9 +111,9 @@ CLASS zcl_dbbr_package_factory IMPLEMENTATION.
   METHOD find_packages.
     DATA: lt_package_range TYPE RANGE OF devclass.
 
-    lt_package_range = VALUE #( ( sign = 'I' option = 'CP' low = iv_package ) ).
+    lt_package_range = VALUE #( ( sign = 'I' option = 'CP' low = to_upper( iv_package ) ) ).
 
-    DATA(lv_descr_language) = ZCL_SAT_SYSTEM_HELPER=>get_system_language( ).
+    DATA(lv_descr_language) = zcl_sat_system_helper=>get_system_language( ).
 
     SELECT package~devclass AS package, text~ctext AS ddtext
       FROM tdevc AS package
@@ -122,7 +122,7 @@ CLASS zcl_dbbr_package_factory IMPLEMENTATION.
          AND text~spras = @lv_descr_language
       WHERE package~devclass IN @lt_package_range
       ORDER BY package~devclass
-    into corresponding fields of table @RESULT
+    INTO CORRESPONDING FIELDS OF TABLE @result
       UP TO 50 ROWS.
   ENDMETHOD.
 

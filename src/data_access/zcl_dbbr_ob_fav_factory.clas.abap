@@ -13,7 +13,7 @@ CLASS zcl_dbbr_ob_fav_factory DEFINITION
     CLASS-METHODS create_favorite
       IMPORTING
         iv_query          TYPE string
-        iv_type           TYPE ZSAT_OBJ_BROWSER_MODE
+        iv_type           TYPE zdbbr_obj_browser_mode
         iv_name           TYPE zdbbr_objbrs_favorite_name
       RETURNING
         VALUE(rf_success) TYPE abap_bool.
@@ -41,7 +41,7 @@ CLASS zcl_dbbr_ob_fav_factory IMPLEMENTATION.
 
   METHOD create_favorite.
     DATA(ls_favorite) = VALUE zdbbr_objbrsfav(
-        id            = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( )
+        id            = zcl_sat_system_helper=>create_guid_22( )
         created_by    = sy-uname
         entity_type   = iv_type
         favorite_name = iv_name
@@ -61,7 +61,7 @@ CLASS zcl_dbbr_ob_fav_factory IMPLEMENTATION.
     SELECT *
       FROM zdbbr_objbrsfav
       WHERE created_by = @sy-uname
-      order by entity_type ASCENDING
+      ORDER BY entity_type ASCENDING
     INTO CORRESPONDING FIELDS OF TABLE @rt_favorites.
   ENDMETHOD.
 

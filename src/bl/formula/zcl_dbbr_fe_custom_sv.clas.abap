@@ -1,26 +1,26 @@
-class ZCL_DBBR_FE_CUSTOM_SV definition
-  public
-  create public .
+CLASS zcl_dbbr_fe_custom_sv DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_DBBR_STATEMENT_VALIDATOR .
-protected section.
-private section.
+    INTERFACES zif_dbbr_statement_validator .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 
-  methods VALIDATE_TOKEN_COUNT
-    importing
-      !IS_STATEMENT type ZIF_DBBR_FE_TYPES=>TY_STATEMENT
-    raising
-      ZCX_DBBR_FE_STMNT_VALID_EXC .
+    METHODS validate_token_count
+      IMPORTING
+        !is_statement TYPE zif_dbbr_fe_types=>ty_statement
+      RAISING
+        zcx_dbbr_fe_stmnt_valid_exc .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_FE_CUSTOM_SV IMPLEMENTATION.
+CLASS zcl_dbbr_fe_custom_sv IMPLEMENTATION.
 
 
-  method VALIDATE_TOKEN_COUNT.
+  METHOD validate_token_count.
 
     DATA: lv_template TYPE string,
           lf_error    TYPE abap_bool.
@@ -29,73 +29,73 @@ CLASS ZCL_DBBR_FE_CUSTOM_SV IMPLEMENTATION.
 
       WHEN zif_dbbr_c_fe_keywords=>define_field.
         IF is_statement-token_count <> 4.
-          lv_template = ZCL_DBBR_fe_templates=>sv_form_field_tmplt.
+          lv_template = zcl_dbbr_fe_templates=>gv_form_field_tmplt.
           lf_error = abap_true.
         ENDIF.
 
       WHEN zif_dbbr_c_fe_keywords=>define_icon.
         IF is_statement-token_count <> 2.
-          lv_template = ZCL_DBBR_fe_templates=>sv_icon_field_tmplt.
+          lv_template = zcl_dbbr_fe_templates=>gv_icon_field_tmplt.
           lf_error = abap_true.
         ENDIF.
 
       WHEN zif_dbbr_c_fe_keywords=>define_icon_quick.
         IF is_statement-token_count <> 2.
-          lv_template = ZCL_DBBR_fe_templates=>sv_icon_tt_field_tmplt.
+          lv_template = zcl_dbbr_fe_templates=>gv_icon_tt_field_tmplt.
           lf_error = abap_true.
         ENDIF.
 
       WHEN zif_dbbr_c_fe_keywords=>set_icon_value.
         IF is_statement-token_count <> 4.
-          lv_template = ZCL_DBBR_fe_templates=>sv_set_icon_tmplt.
+          lv_template = zcl_dbbr_fe_templates=>gv_set_icon_tmplt.
           lf_error = abap_true.
         ENDIF.
 
       WHEN zif_dbbr_c_fe_keywords=>define_description.
         IF is_statement-token_count <> 3 AND
            is_statement-token_count <> 4.
-          lv_template = ZCL_DBBR_fe_templates=>sv_text_for_field_tmplt.
+          lv_template = zcl_dbbr_fe_templates=>gv_text_for_field_tmplt.
           lf_error = abap_true.
         ENDIF.
 
       WHEN zif_dbbr_c_fe_keywords=>set_row_color.
         IF is_statement-token_count <> 2.
-          lv_template = ZCL_DBBR_fe_templates=>sv_set_row_color_template.
+          lv_template = zcl_dbbr_fe_templates=>gv_set_row_color_template.
           lf_error = abap_true.
         ENDIF.
 
       WHEN zif_dbbr_c_fe_keywords=>set_cell_color.
         IF is_statement-token_count <> 3.
-          lv_template = ZCL_DBBR_fe_templates=>sv_set_cell_color_template.
+          lv_template = zcl_dbbr_fe_templates=>gv_set_cell_color_template.
           lf_error = abap_true.
         ENDIF.
 
     ENDCASE.
 
     IF lf_error = abap_true.
-      RAISE EXCEPTION TYPE ZCX_DBBR_fe_stmnt_valid_exc
+      RAISE EXCEPTION TYPE zcx_dbbr_fe_stmnt_valid_exc
         EXPORTING
-          textid = ZCX_DBBR_fe_stmnt_valid_exc=>formfield_not_tmplt_conform
+          textid      = zcx_dbbr_fe_stmnt_valid_exc=>formfield_not_tmplt_conform
           invalid_row = is_statement-trow
-          msgv1  = |{ is_statement-first_token_str }|
-          msgv2  = |{ lv_template }|.
+          msgv1       = |{ is_statement-first_token_str }|
+          msgv2       = |{ lv_template }|.
     ENDIF.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method ZIF_DBBR_STATEMENT_VALIDATOR~VALIDATE.
+  METHOD zif_dbbr_statement_validator~validate.
 
 
-    IF NOT ZCL_DBBR_fe_token_validator=>is_definition_keyword( cs_statement-first_token_str ).
-      RAISE EXCEPTION TYPE ZCX_DBBR_fe_stmnt_valid_exc
+    IF NOT zcl_dbbr_fe_token_validator=>is_definition_keyword( cs_statement-first_token_str ).
+      RAISE EXCEPTION TYPE zcx_dbbr_fe_stmnt_valid_exc
         EXPORTING
-          textid       = ZCX_DBBR_fe_stmnt_valid_exc=>unknown_keyword_found
-          invalid_row  = cs_statement-tokens[ 1 ]-row
-          msgv1        = |{ cs_statement-first_token_str }|.
+          textid      = zcx_dbbr_fe_stmnt_valid_exc=>unknown_keyword_found
+          invalid_row = cs_statement-tokens[ 1 ]-row
+          msgv1       = |{ cs_statement-first_token_str }|.
     ELSE.
       cs_statement-is_form_stmnt = abap_true.
-      cs_statement-is_function_call = ZCL_DBBR_fe_token_validator=>is_function_keyword( cs_statement-first_token_str ).
+      cs_statement-is_function_call = zcl_dbbr_fe_token_validator=>is_function_keyword( cs_statement-first_token_str ).
 
       IF cs_statement-is_function_call = abap_true.
         cs_statement-is_form_stmnt = abap_false.
@@ -107,13 +107,13 @@ CLASS ZCL_DBBR_FE_CUSTOM_SV IMPLEMENTATION.
     validate_token_count( cs_statement ).
 
     " keyword is valid, get the correct token validator
-    DATA(lr_validator) = ZCL_DBBR_fe_token_validator=>get_validator( cs_statement-first_token_str ).
+    DATA(lr_validator) = zcl_dbbr_fe_token_validator=>get_validator( cs_statement-first_token_str ).
 
     LOOP AT cs_statement-tokens ASSIGNING FIELD-SYMBOL(<ls_token>) FROM 2.
       lr_validator->validate( CHANGING cs_token = <ls_token> ).
     ENDLOOP.
 
-    cs_statement-exclude_from_subroutine = xsdbool( NOT ZCL_DBBR_fe_token_validator=>is_subroutine_relevant( cs_statement-first_token_str ) ).
+    cs_statement-exclude_from_subroutine = xsdbool( NOT zcl_dbbr_fe_token_validator=>is_subroutine_relevant( cs_statement-first_token_str ) ).
 
-  endmethod.
+  ENDMETHOD.
 ENDCLASS.

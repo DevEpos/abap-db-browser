@@ -36,7 +36,7 @@ CLASS zcl_dbbr_obj_brws_search_sc DEFINITION
 
     DATA: mr_v_search_input  TYPE REF TO string,
           mr_s_object_search TYPE REF TO data,
-          mr_v_search_type   TYPE REF TO ZSAT_OBJ_BROWSER_MODE.
+          mr_v_search_type   TYPE REF TO zdbbr_obj_browser_mode.
 
     "! <p class="shorttext synchronized" lang="en">Handler for closing this dialog</p>
     "!

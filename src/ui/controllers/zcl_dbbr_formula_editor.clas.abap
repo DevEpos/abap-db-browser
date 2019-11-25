@@ -226,7 +226,7 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
     IF mv_current_formula <> mv_formula.
       IF zcl_dbbr_appl_util=>popup_to_confirm(
           iv_title                 = 'Unsaved Changes'
-          iv_query                 = 'There unsaved Changes. If you continue these Changes will be lost. Do you want to continue?'
+          iv_query                 = 'There are unsaved Changes. If you continue these Changes will be lost. Do you want to continue?'
           iv_icon_type             = 'ICON_INFORMATION' ) <> '1' .
 
         io_callback->cancel_exit( ).
@@ -478,8 +478,8 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
               iv_line_number = CONV #( lr_exception->invalid_row )
           ).
         ELSE.
-          lr_exception->ZIF_SAT_EXCEPTION_MESSAGE~get_message( ).
-          lr_protocol->add_error_from_sy( ).
+          lr_exception->zif_sat_exception_message~get_message( ).
+          lr_protocol->add_error_from_sy( iv_line_number = CONV #( lr_exception->invalid_row ) ).
         ENDIF.
         lr_protocol->show_protocol( ).
     ENDTRY.

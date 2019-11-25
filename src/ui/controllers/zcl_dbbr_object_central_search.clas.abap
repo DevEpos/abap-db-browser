@@ -50,11 +50,11 @@ CLASS zcl_dbbr_object_central_search DEFINITION
     DATA mo_search_settings_menu TYPE REF TO cl_ctmenu.
     DATA mf_start_transaction_mode TYPE abap_bool .
     DATA mo_input_dd TYPE REF TO cl_dd_document.
-    DATA mv_current_search_type TYPE zsat_obj_browser_mode .
+    DATA mv_current_search_type TYPE zdbbr_obj_browser_mode .
     DATA ms_settings TYPE zdbbr_entbrwsus.
     DATA: mo_search_input       TYPE REF TO cl_dd_input_element,
           mo_search_type_select TYPE REF TO cl_dd_select_element,
-          mo_search_query       TYPE REF TO zcl_sat_object_search_query,
+          mo_search_query       TYPE REF TO zif_sat_object_search_query,
           mo_alv                TYPE REF TO zcl_uitb_alv,
           mr_current_selected   TYPE REF TO zcl_dbbr_object_central_search=>ty_s_result.
 
@@ -129,6 +129,19 @@ CLASS zcl_dbbr_object_central_search DEFINITION
       IMPORTING
           !ev_row
           !ev_column .
+    METHODS parse_query
+      IMPORTING
+        iv_query        TYPE string
+        iv_browser_mode TYPE zdbbr_obj_browser_mode
+      RETURNING
+        VALUE(ro_query) TYPE REF TO zif_sat_object_search_query
+      RAISING
+        zcx_sat_object_search.
+    METHODS search_objects
+      EXPORTING
+        et_results TYPE zsat_entity_t
+      RAISING
+        zcx_sat_object_search.
 ENDCLASS.
 
 
@@ -298,9 +311,9 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
       EXPORTING
         tooltip        = |{ 'Object Category'(002) }|
         options        = VALUE #(
-          ( value = zif_sat_c_object_browser_mode=>cds_view            text = 'CDS View'(003) )
-          ( value = zif_sat_c_object_browser_mode=>database_table_view text = 'Database Table/View'(004) )
-          ( value = zif_sat_c_object_browser_mode=>query               text = 'Query'(005) )
+          ( value = zif_dbbr_c_object_browser_mode=>cds_view            text = 'CDS View'(003) )
+          ( value = zif_dbbr_c_object_browser_mode=>database_table_view text = 'Database Table/View'(004) )
+          ( value = zif_dbbr_c_object_browser_mode=>query               text = 'Query'(005) )
         )
       IMPORTING
         select_element = mo_search_type_select
@@ -309,13 +322,13 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
     CASE mv_search_entity_type.
 
       WHEN zif_sat_c_entity_type=>cds_view.
-        mo_search_type_select->set_value( |{ zif_sat_c_object_browser_mode=>cds_view }| ).
+        mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>cds_view }| ).
 
       WHEN zif_sat_c_entity_type=>table.
-        mo_search_type_select->set_value( |{ zif_sat_c_object_browser_mode=>database_table_view }| ).
+        mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>database_table_view }| ).
 
       WHEN zif_sat_c_entity_type=>query.
-        mo_search_type_select->set_value( |{ zif_sat_c_object_browser_mode=>query }| ).
+        mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>query }| ).
 
       WHEN OTHERS.
         mo_search_type_select->set_value( |{ ms_settings-search_function }| ).
@@ -451,10 +464,9 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
     CHECK mo_search_input->value IS NOT INITIAL.
 
     TRY.
-        mo_search_query = zcl_sat_object_search_query=>parse_query_string(
-           iv_query                = |{ mo_search_input->value }|
-           iv_search_type          = mv_current_search_type
-           is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+        mo_search_query = parse_query(
+           iv_query        = |{ mo_search_input->value }|
+           iv_browser_mode = mv_current_search_type
         ).
       CATCH zcx_sat_object_search INTO DATA(lx_parse_error).
         MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
@@ -469,10 +481,9 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
     CHECK mo_search_input->value IS NOT INITIAL.
 
     TRY.
-        mo_search_query = zcl_sat_object_search_query=>parse_query_string(
-           iv_query                = |{ mo_search_input->value }|
-           iv_search_type          = mv_current_search_type
-           is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+        mo_search_query = parse_query(
+           iv_query        = |{ mo_search_input->value }|
+           iv_browser_mode = mv_current_search_type
         ).
       CATCH zcx_sat_object_search INTO DATA(lx_parse_error).
         MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
@@ -508,19 +519,19 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
         CASE mv_current_search_type.
 
 *........ New CDS View Search
-          WHEN zif_sat_c_object_browser_mode=>cds_view.
-            lt_search_result = NEW zcl_sat_ob_cds_searcher( ir_query = mo_search_query )->zif_sat_object_searcher~search( ).
+          WHEN zif_dbbr_c_object_browser_mode=>cds_view.
+            search_objects( IMPORTING et_results = lt_search_result ).
 
 *........ New Package search
-          WHEN zif_sat_c_object_browser_mode=>package.
+          WHEN zif_dbbr_c_object_browser_mode=>package.
 
 *........ New Database Table/View search
-          WHEN zif_sat_c_object_browser_mode=>database_table_view.
-            lt_search_result = NEW zcl_sat_ob_dbtab_searcher( ir_query = mo_search_query )->zif_sat_object_searcher~search( ).
+          WHEN zif_dbbr_c_object_browser_mode=>database_table_view.
+            search_objects( IMPORTING et_results = lt_search_result ).
 
 *........ New Query search
-          WHEN zif_sat_c_object_browser_mode=>query.
-            lt_search_result = NEW zcl_dbbr_ob_query_searcher( ir_query = mo_search_query )->zif_sat_object_searcher~search( ).
+          WHEN zif_dbbr_c_object_browser_mode=>query.
+            search_objects( IMPORTING et_results = lt_search_result ).
 
         ENDCASE.
 
@@ -689,6 +700,35 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
         checked = mf_use_and_for_filter_opt
     ).
     CLEAR mo_search_query.
+  ENDMETHOD.
+
+  METHOD parse_query.
+    DATA(lv_search_type) = SWITCH zif_sat_ty_object_search=>ty_search_type( iv_browser_mode
+      WHEN zif_dbbr_c_object_browser_mode=>cds_view THEN zif_sat_c_object_search=>c_search_type-cds_view
+      WHEN zif_dbbr_c_object_browser_mode=>database_table_view THEN zif_sat_c_object_search=>c_search_type-db_tab_view
+      WHEN zif_dbbr_c_object_browser_mode=>query THEN zif_dbbr_c_object_browser=>c_search_type-query
+      WHEN zif_dbbr_c_object_browser_mode=>package THEN zif_dbbr_c_object_browser=>c_search_type-package
+
+    ).
+    DATA(lo_search_engine) = CAST zif_sat_search_engine( zcl_sat_ioc_lookup=>get_instance(
+                                                           iv_contract = 'zif_sat_search_engine' ) ).
+    ro_query = lo_search_engine->parse_query(
+        iv_search_query = iv_query
+        iv_search_type  = lv_search_type
+    ).
+  ENDMETHOD.
+
+  METHOD search_objects.
+    DATA(lo_search_engine) = CAST zif_sat_search_engine( zcl_sat_ioc_lookup=>get_instance(
+                                  iv_contract = 'zif_sat_search_engine'
+                                  iv_filter   = |{ mo_search_query->mv_type }| )
+                                ).
+    lo_search_engine->search_objects_by_query(
+      EXPORTING io_query                = mo_search_query
+                is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+      IMPORTING et_results              = et_results
+    ).
+
   ENDMETHOD.
 
 ENDCLASS.
