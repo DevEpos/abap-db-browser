@@ -7,6 +7,12 @@ INTERFACE zif_dbbr_c_object_browser
       query   TYPE zif_sat_ty_object_search=>ty_search_type VALUE 'QUERY',
       package TYPE zif_sat_ty_object_search=>ty_search_type VALUE 'PACKAGE',
     END OF c_search_type.
+
+  CONSTANTS:
+    BEGIN OF c_query_options,
+      from type string value 'selectFrom',
+    END OF c_query_options.
+
   CONSTANTS:
     "! <p class="shorttext synchronized" lang="en">Type for tree node of object browser</p>
     BEGIN OF c_tree_node_type,

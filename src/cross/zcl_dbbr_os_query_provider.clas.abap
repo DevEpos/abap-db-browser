@@ -31,7 +31,7 @@ CLASS zcl_dbbr_os_query_provider IMPLEMENTATION.
       CASE <ls_option>-option.
 
 *...... Find queries with a specific description
-        WHEN zif_sat_c_object_search=>c_search_option-by_description.
+        WHEN c_general_search_options-description.
           add_option_filter(
             iv_fieldname    = 'description'
             iv_sql_function = zif_sat_c_sql_function=>upper
@@ -39,14 +39,14 @@ CLASS zcl_dbbr_os_query_provider IMPLEMENTATION.
           ).
 
 *...... Find objects which were created by a specific user
-        WHEN zif_sat_c_object_search=>c_search_option-by_owner.
+        WHEN c_general_search_options-user.
           add_option_filter(
             iv_fieldname    = 'created_by'
             it_values       = <ls_option>-value_range
           ).
 
 *...... Find queries whoose tables match the filters condition
-        WHEN zif_sat_c_object_search=>c_search_option-by_select_from.
+        WHEN zif_dbbr_c_object_browser=>c_query_options-from.
           add_join_table(
               iv_join_table = |{ zif_dbbr_c_select_source_id=>zdbbr_queryt }|
               iv_alias      = 'table'
