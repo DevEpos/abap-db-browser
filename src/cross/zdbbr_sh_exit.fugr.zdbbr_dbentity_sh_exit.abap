@@ -11,7 +11,7 @@ FUNCTION ZDBBR_DBENTITY_SH_EXIT.
 *"     REFERENCE(CALLCONTROL) TYPE  DDSHF4CTRL
 *"----------------------------------------------------------------------
   IF callcontrol-step = 'SELECT'.
-    DATA: lt_entity_range       TYPE RANGE OF ZSAT_ENTITY_ID,
+    DATA: lt_entity_range       TYPE RANGE OF zsat_entity_id,
           lt_package_range      TYPE RANGE OF devclass,
           lt_description_selopt TYPE RANGE OF ddtext.
 
@@ -22,7 +22,7 @@ FUNCTION ZDBBR_DBENTITY_SH_EXIT.
                         option = <ls_selopt>-option
                         low    = <ls_selopt>-low
                         high   = <ls_selopt>-high ) TO lt_entity_range.
-      ELSEIF <ls_selopt>-shlpfield = 'DESCRIPTION'.
+      ELSEIF <ls_selopt>-shlpfield = 'DDTEXT'.
         APPEND VALUE #( sign   = <ls_selopt>-sign
                         option = <ls_selopt>-option
                         low    = <ls_selopt>-low
@@ -36,16 +36,16 @@ FUNCTION ZDBBR_DBENTITY_SH_EXIT.
 
     ENDLOOP.
 
-    DATA: lt_result TYPE ZSAT_ENTITY_T.
+    DATA: lt_result TYPE TABLE OF zdbbr_entity_sh_result.
 
-    DATA(lv_language) = ZCL_SAT_SYSTEM_HELPER=>get_system_language( ).
+    DATA(lv_language) = zcl_sat_system_helper=>get_system_language( ).
 
-    SELECT entityraw AS entity_id, type AS entity_type, description, developmentpackage AS devclass
+    SELECT entityraw AS entity_id, description AS ddtext, developmentpackage AS devclass
       FROM zsat_i_databaseentity( p_language = @lv_language )
       WHERE entity IN @lt_entity_range
         AND developmentpackage IN @lt_package_range
         AND description IN @lt_description_selopt
-      order by entity ASCENDING
+      ORDER BY entity ASCENDING
     INTO CORRESPONDING FIELDS OF TABLE @lt_result
       UP TO @callcontrol-maxrecords ROWS.
 
@@ -54,7 +54,7 @@ FUNCTION ZDBBR_DBENTITY_SH_EXIT.
 
       CALL FUNCTION 'F4UT_RESULTS_MAP'
         EXPORTING
-          source_structure = 'ZSAT_ENTITY'
+          source_structure = 'ZDBBR_ENTITY_SH_RESULT'
         TABLES
           shlp_tab         = shlp_tab
           record_tab       = record_tab
