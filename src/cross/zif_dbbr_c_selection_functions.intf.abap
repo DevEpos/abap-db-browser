@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Function codes for Selection/Output</p>
 INTERFACE zif_dbbr_c_selection_functions
   PUBLIC .
   CONSTANTS add_text_field TYPE sy-ucomm VALUE 'ADD_TEXT_FIELDS' ##NO_TEXT.
@@ -25,7 +26,7 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS keep_lines TYPE sy-ucomm VALUE 'KEEP_SELECTED' ##NO_TEXT.
   CONSTANTS show_hidden_lines TYPE sy-ucomm VALUE 'DISP_HIDRO' ##NO_TEXT.
   CONSTANTS delete_hidden_lines TYPE sy-ucomm VALUE 'DEL_HIDROW' ##NO_TEXT.
-  CONSTANTS delete_filters_from_cols TYPE sy-ucomm VALUE 'DELCOLFILTERS' ##NO_TEXT.
+  CONSTANTS delete_filters_from_cols TYPE sy-ucomm VALUE 'RMVFILTCOL' ##NO_TEXT.
   CONSTANTS emphasize_lines TYPE sy-ucomm VALUE 'EMPH_LINES' ##NO_TEXT.
   CONSTANTS emph_light_green TYPE sy-ucomm VALUE 'EMPH_LIGHT_GREEN' ##NO_TEXT.
   CONSTANTS emph_green TYPE sy-ucomm VALUE 'EMPH_GREEN' ##NO_TEXT.
@@ -60,7 +61,9 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS reset_alv_layout TYPE sy-ucomm VALUE 'RESET_LYT' ##NO_TEXT.
   CONSTANTS show_active_formula TYPE sy-ucomm VALUE 'SHOWFORM' ##NO_TEXT.
   CONSTANTS navigate_association TYPE sy-ucomm VALUE 'NAVASSOC' ##NO_TEXT.
+  "! <p class="shorttext synchronized" lang="en">ABAP System Field: PAI-Triggering Function Code</p>
   CONSTANTS hide_other_columns TYPE sy-ucomm VALUE 'HIDE_OTHERS' ##NO_TEXT.
+  "! <p class="shorttext synchronized" lang="en">ABAP System Field: PAI-Triggering Function Code</p>
   CONSTANTS show_details TYPE sy-ucomm VALUE 'DETAILS' ##NO_TEXT.
   CONSTANTS change_max_row_count TYPE sy-ucomm VALUE 'CHMAXROWS' ##no_text.
   CONSTANTS show_users_settings TYPE sy-ucomm VALUE 'SETTINGS' ##no_text.

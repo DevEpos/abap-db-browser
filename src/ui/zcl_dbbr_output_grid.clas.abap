@@ -243,6 +243,9 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f2
         mapped_function = zif_dbbr_c_selection_functions=>set_focus_to_assoc_list
         text            = |{ 'Set Focus to Associations'(051) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f9
+        mapped_function = zif_dbbr_c_selection_functions=>delete_filters_from_cols
+        text            = |{ 'Delete Filters from selected Columns'(053) }| )
     ).
 
 *.. Create and fill button menus

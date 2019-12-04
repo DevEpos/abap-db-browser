@@ -318,6 +318,12 @@
      <ENTRY>Show CDS Source Code</ENTRY>
      <LENGTH>40</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>053</KEY>
+     <ENTRY>Delete Filters from selected Columns</ENTRY>
+     <LENGTH>72</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>

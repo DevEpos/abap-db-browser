@@ -15,6 +15,7 @@ CLASS zcl_dbbr_search_ioc DEFINITION
     CONSTANTS:
       BEGIN OF c_contracts,
         query_validator TYPE classname VALUE 'ZIF_SAT_QUERY_VALIDATOR',
+        query_converter TYPE classname VALUE 'ZIF_SAT_QUERY_CONVERTER',
         query_parser    TYPE classname VALUE 'ZIF_SAT_OBJECT_QUERY_PARSER',
         query_config    TYPE classname VALUE 'ZIF_SAT_OBJECT_SEARCH_CONFIG',
         search_provider TYPE classname VALUE 'ZIF_SAT_OBJECT_SEARCH_PROVIDER',
@@ -44,14 +45,16 @@ CLASS zcl_dbbr_search_ioc IMPLEMENTATION.
                         iv_implementer = c_implementer-query_parser
                         it_dependencies = VALUE #(
                          ( parameter = 'IO_CONFIGURATION' contract = c_contracts-query_config    filter = c_search_type-query )
-                         ( parameter = 'IO_VALIDATOR'     contract = c_contracts-query_validator filter = c_search_type-query ) )
+                         ( parameter = 'IO_VALIDATOR'     contract = c_contracts-query_validator filter = c_search_type-query )
+                         ( parameter = 'IO_CONVERTER'     contract = c_contracts-query_converter ) )
     ).
     add_contract( iv_contract = c_contracts-query_parser
     )->add_implementer( iv_filter      = |{ c_search_type-package }|
                         iv_implementer = c_implementer-query_parser
                         it_dependencies = VALUE #(
                          ( parameter = 'IO_CONFIGURATION' contract = c_contracts-query_config    filter = c_search_type-package )
-                         ( parameter = 'IO_VALIDATOR'     contract = c_contracts-query_validator ) )
+                         ( parameter = 'IO_VALIDATOR'     contract = c_contracts-query_validator )
+                         ( parameter = 'IO_CONVERTER'     contract = c_contracts-query_converter ) )
     ).
   ENDMETHOD.
 

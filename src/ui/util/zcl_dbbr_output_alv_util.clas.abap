@@ -22,7 +22,9 @@ CLASS zcl_dbbr_output_alv_util DEFINITION
         ir_t_fieldcat          TYPE REF TO lvc_t_fcat
         !ir_tabfields          TYPE REF TO zcl_dbbr_tabfield_list .
     "! <p class="shorttext synchronized" lang="en">Delete filters from selected columns</p>
-    METHODS del_filter_from_selected_cols .
+    METHODS del_filter_from_selected_cols
+      RETURNING
+        VALUE(rf_filter_removed) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Group data by selected columns</p>
     METHODS execute_column_grouping .
     "! <p class="shorttext synchronized" lang="en">Execute a quick filter for the selected cells</p>
@@ -250,11 +252,16 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
     DATA: lt_fields_range TYPE RANGE OF fieldname.
 
     mr_alv->get_selected_columns( IMPORTING et_index_columns = DATA(lt_selected_cols) ).
+    CHECK lt_selected_cols IS NOT INITIAL.
 
     lt_fields_range = VALUE #( FOR col IN lt_selected_cols ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
 
     mr_alv->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter) ).
     DELETE lt_filter WHERE fieldname IN lt_fields_range.
+
+    rf_filter_removed = xsdbool( sy-subrc = 0 ).
+    CHECK rf_filter_removed = abap_true.
+
     mr_alv->set_filter_criteria( lt_filter ).
   ENDMETHOD.
 
@@ -660,8 +667,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
                lr_field->is_formula_field = abap_true OR
                lr_field->is_virtual_join_field = abap_true OR
                lr_field->inttype = cl_abap_typedescr=>typekind_string OR
-               ( lr_field->inttype = cl_abap_typedescr=>typekind_char AND
-                 lr_field->length >= c_max_filter_length ).
+               lr_field->datatype = 'LCHR'.
               ASSIGN ms_new_filters-ui_filter TO <lt_filters>.
             ELSE.
               ASSIGN ms_new_filters-db_filter TO <lt_filters>.

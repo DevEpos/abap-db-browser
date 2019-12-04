@@ -29,7 +29,7 @@ CLASS zcl_dbbr_cds_tabfield_util DEFINITION
       IMPORTING
         !ir_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list
         io_custom_f4_map  TYPE REF TO zcl_dbbr_custom_f4_map OPTIONAL
-        !it_parameters    TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_parameter
+        !it_parameters    TYPE zif_sat_ty_global=>ty_t_cds_parameter
       RETURNING
         VALUE(rs_entity)  TYPE zdbbr_entity_info .
   PROTECTED SECTION.
@@ -69,8 +69,8 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
         fieldname_raw    = <ls_param>-parametername_raw
         is_parameter     = abap_true
         selection_active = abap_true
-        default_option   = ZIF_SAT_C_OPTIONS=>equals
-        default_sign     = ZIF_SAT_C_OPTIONS=>including
+        default_option   = zif_sat_c_options=>equals
+        default_sign     = zif_sat_c_options=>including
         default_low      = <ls_param>-default_value
         is_technical     = <ls_param>-has_system_anno
         ddic_order       = <ls_param>-posnr
@@ -117,7 +117,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
        active_selection     = abap_true
        tabname              = zif_dbbr_global_consts=>c_parameter_dummy_table
        tabname_alias        = zif_dbbr_global_consts=>c_parameter_dummy_table
-       type                 = ZIF_SAT_C_ENTITY_TYPE=>table
+       type                 = zif_sat_c_entity_type=>table
        description          = 'Parameters'
        no_output            = abap_true
     ).
@@ -132,6 +132,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
           lv_rollname TYPE rollname.
 
     DATA(lr_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
+    data(lo_altcoltext_f) = new zcl_dbbr_altcoltext_factory( ).
 
     LOOP AT it_columns ASSIGNING FIELD-SYMBOL(<ls_column>).
       CLEAR: lv_rollname,
@@ -145,6 +146,11 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
            'LANGU'
       ).
 
+      DATA(ls_altcoltext) = lo_altcoltext_f->find_alternative_text(
+          iv_tabname   = <ls_column>-strucobjn
+          iv_fieldname = <ls_column>-fieldname
+      ).
+
       DATA(ls_tabfield) = VALUE zdbbr_tabfield_info_ui(
         tabname          = iv_name
         tabname_raw      = iv_raw_name
@@ -154,7 +160,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
         is_key           = <ls_column>-keyflag
         selection_active = if_selection
         output_active    = if_output
-        default_sign     = ZIF_SAT_C_OPTIONS=>including
+        default_sign     = zif_sat_c_options=>including
         ddic_order       = <ls_column>-position
         length           = <ls_column>-leng
         decimals         = <ls_column>-decimals
@@ -162,6 +168,8 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
         rollname         = lv_rollname
         ref_field        = <ls_column>-reffield
         ref_tab          = <ls_column>-reftable
+        alt_long_text    = ls_altcoltext-alt_long_text
+        alt_medium_text  = ls_altcoltext-alt_short_text
       ).
 
       IF io_custom_f4_map IS BOUND.
@@ -235,7 +243,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
       tabname              = iv_name
       tabname_alias        = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE iv_name )
       has_params           = if_has_params
-      type                 = ZIF_SAT_C_ENTITY_TYPE=>cds_view
+      type                 = zif_sat_c_entity_type=>cds_view
       description          = iv_description
       fields_are_loaded    = abap_true
       is_primary           = if_is_primary

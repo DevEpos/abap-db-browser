@@ -1906,7 +1906,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD remove_filt_from_selected_cols.
-    mo_util->get_alv_util( )->del_filter_from_selected_cols( ).
+    CHECK mo_util->get_alv_util( )->del_filter_from_selected_cols( ).
     process_filter_change( ).
   ENDMETHOD.
 
@@ -2347,6 +2347,10 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selection_functions=>set_focus_to_list.
         cl_gui_control=>set_focus( mo_alv_grid ).
+        RETURN.
+
+      WHEN zif_dbbr_c_selection_functions=>delete_filters_from_cols.
+        remove_filt_from_selected_cols( ).
         RETURN.
 
       WHEN zif_dbbr_c_selection_functions=>hide_cols_without_values.

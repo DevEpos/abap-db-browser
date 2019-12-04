@@ -2618,11 +2618,11 @@
        <CONT_NAME>ALTCOLTEXT_TC</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>GS_ALTCOLTEXT-TABNAME</NAME>
-       <TEXT>________________</TEXT>
+       <TEXT>______________________________</TEXT>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
-       <LENGTH>016</LENGTH>
-       <VISLENGTH>018</VISLENGTH>
+       <LENGTH>030</LENGTH>
+       <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
        <FORMAT>CHAR</FORMAT>
        <OUTPUT_FLD>X</OUTPUT_FLD>
