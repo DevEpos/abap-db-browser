@@ -23,7 +23,7 @@ CLASS zcl_dbbr_design_studio_util DEFINITION
     CONSTANTS: c_http               TYPE i VALUE 1,
                c_https              TYPE i VALUE 2,
                c_flp_url_part       TYPE string VALUE '/sap/bc/ui2/flp',
-               c_design_studio      TYPE string VALUE '#AnalyticQuery-analyze?',
+               c_design_studio      TYPE string VALUE '#AnalyticQuery-analyze',
                c_query_param        TYPE string VALUE 'XQUERY',
                c_sap_language_param TYPE string VALUE 'sap-language',
                c_sap_client_param   TYPE string VALUE 'sap-client',
@@ -53,7 +53,7 @@ CLASS zcl_dbbr_design_studio_util IMPLEMENTATION.
 
   METHOD open_in_design_studio.
 
-    DATA(lv_url) = |{ gv_design_studio_base_url }&{ c_query_param }=2C{ mo_cds_view->get_header( )-ddlview }| &&
+    DATA(lv_url) = |{ gv_design_studio_base_url }?{ c_query_param }=2C{ mo_cds_view->get_header( )-ddlview }| &&
                    mv_url_params.
 
     cl_gui_frontend_services=>execute(
