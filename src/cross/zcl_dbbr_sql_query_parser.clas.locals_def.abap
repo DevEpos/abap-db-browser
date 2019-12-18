@@ -68,6 +68,7 @@ CLASS lcl_token_parser DEFINITION
     METHODS get_token
       IMPORTING
         iv_token         TYPE string
+        if_from_current  TYPE abap_bool optional
       RETURNING
         VALUE(rf_exists) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Checks if there is another token after the current one</p>

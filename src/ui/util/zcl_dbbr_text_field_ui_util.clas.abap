@@ -100,7 +100,11 @@ CLASS ZCL_DBBR_TEXT_FIELD_UI_UTIL IMPLEMENTATION.
 *.. Check if selected columns have associated text field
 
     LOOP AT it_selected_cols ASSIGNING FIELD-SYMBOL(<ls_col>).
-      DATA(lr_field) = lo_tabfields->get_field_ref_by_alv_name( iv_alv_fieldname = <ls_col>-fieldname ).
+      TRY.
+          DATA(lr_field) = lo_tabfields->get_field_ref_by_alv_name( iv_alv_fieldname = <ls_col>-fieldname ).
+        CATCH cx_sy_itab_line_not_found.
+          CONTINUE.
+      ENDTRY.
       CHECK lr_field->has_text_field = abap_true.
 
 *.... Check if the text field is invisible

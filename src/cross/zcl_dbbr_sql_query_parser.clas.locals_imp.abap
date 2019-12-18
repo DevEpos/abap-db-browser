@@ -66,28 +66,29 @@ CLASS lcl_token_parser IMPLEMENTATION.
     DATA: lt_token_list  TYPE string_table,
           lt_token_range TYPE RANGE OF string.
 
+    DATA(lv_start_index) = COND #( WHEN if_from_current = abap_true THEN mv_current_index ELSE 1 ).
+
     IF iv_token CS ','.
       SPLIT iv_token AT ',' INTO TABLE lt_token_list.
       lt_token_range = VALUE #(
         LET i = 'I' eq = 'EQ' IN
         FOR token IN lt_token_list ( sign = i option = eq low = token )
       ).
-      LOOP AT mt_token ASSIGNING FIELD-SYMBOL(<ls_token>) WHERE value IN lt_token_range.
-        DATA(lv_index) = sy-tabix.
-        EXIT.
-      ENDLOOP.
-      IF sy-subrc = 0.
-        mv_current_index = lv_index.
-        ms_current_token = <ls_token>.
-        rf_exists = abap_true.
-      ENDIF.
     ELSE.
-      DATA(lv_token_index) = line_index( mt_token[ value = iv_token ] ).
-      IF lv_token_index > 0.
-        mv_current_index = lv_token_index.
-        ms_current_token = mt_token[ lv_token_index ].
-        rf_exists = abap_true.
-      ENDIF.
+      lt_token_range = VALUE #(
+        ( sign = 'I' option = 'EQ' low = iv_token )
+      ).
+    ENDIF.
+
+    LOOP AT mt_token ASSIGNING FIELD-SYMBOL(<ls_token>) FROM lv_start_index WHERE value IN lt_token_range.
+      DATA(lv_index) = sy-tabix.
+      EXIT.
+    ENDLOOP.
+
+    IF sy-subrc = 0.
+      mv_current_index = lv_index.
+      ms_current_token = <ls_token>.
+      rf_exists = abap_true.
     ENDIF.
   ENDMETHOD.
 
@@ -307,7 +308,7 @@ CLASS lcl_query_token_simplifier IMPLEMENTATION.
       ENDIF.
     ENDWHILE.
 
-    WHILE get_token( 'NOT' ).
+    WHILE get_token( iv_token = 'NOT' if_from_current = abap_true ).
 
       next_token( ).
 
@@ -319,6 +320,7 @@ CLASS lcl_query_token_simplifier IMPLEMENTATION.
         ms_current_token-value = |NOT { ms_current_token-value }|.
         update_from_current( ).
         delete_previous( ).
+
       ENDIF.
     ENDWHILE.
   ENDMETHOD.

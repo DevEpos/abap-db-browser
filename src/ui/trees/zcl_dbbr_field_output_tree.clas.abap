@@ -514,7 +514,16 @@ CLASS ZCL_DBBR_FIELD_OUTPUT_TREE IMPLEMENTATION.
       mr_tree_model->node_get_user_object( EXPORTING node_key    = <lv_node>
                                            IMPORTING user_object = DATA(lr_user_object) ).
 
-      CAST ZCL_DBBR_tabfield( lr_user_object )->set_custom_active( abap_false ).
+      DATA(lo_tabfield) = CAST zcl_dbbr_tabfield( lr_user_object ).
+      IF mf_field_aggregation = abap_true.
+        IF lo_tabfield->get_tabfield_info( )-is_text_field = abap_false.
+          MESSAGE |{ 'Only Text Fields can be deleted if Aggregation is active' }| TYPE 'E'.
+          RETURN.
+        ENDIF.
+      ENDIF.
+
+      lo_tabfield->set_custom_active( abap_false ).
+
       " delete the node
       mr_tree_model->delete_node( node_key = <lv_node> ).
     ENDLOOP.

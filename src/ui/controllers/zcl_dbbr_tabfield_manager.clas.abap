@@ -681,24 +681,24 @@ CLASS ZCL_DBBR_TABFIELD_MANAGER IMPLEMENTATION.
 
       IF mr_active_tab->* = mc_tabs-all_fields_tab.
         lt_exclude_tab = VALUE #( ( mc_functions-delete_selected )
-                                 ( mc_functions-sort_in_ddic )
-                                 ( mc_functions-move_node_up )
-                                 ( mc_functions-move_node_down )
-                                 ( mc_functions-move_node_top )
-                                 ( mc_functions-move_node_bottom ) ).
+                                  ( mc_functions-sort_in_ddic )
+                                  ( mc_functions-move_node_up )
+                                  ( mc_functions-move_node_down )
+                                  ( mc_functions-move_node_top )
+                                  ( mc_functions-move_node_bottom ) ).
       ELSE.
         lt_exclude_tab = VALUE #( ( mc_functions-select_fields )
-                                 ( mc_functions-select_key_fields )
-                                 ( mc_functions-deselect_fields )
-                                 ( mc_functions-select_text_fields )
-                                 ( mc_functions-deselect_text_fields )
-                                 ( mc_functions-insert_association ) ).
-        IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output AND
-           mf_field_aggregation = abap_true.
-          lt_exclude_tab = VALUE #( BASE lt_exclude_tab
-            ( mc_functions-delete_selected )
-          ).
-        ENDIF.
+                                  ( mc_functions-select_key_fields )
+                                  ( mc_functions-deselect_fields )
+                                  ( mc_functions-select_text_fields )
+                                  ( mc_functions-deselect_text_fields )
+                                  ( mc_functions-insert_association ) ).
+*        IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output AND
+*           mf_field_aggregation = abap_true.
+*          lt_exclude_tab = VALUE #( BASE lt_exclude_tab
+*            ( mc_functions-delete_selected )
+*          ).
+*        ENDIF.
       ENDIF.
 
       CASE mv_mode.

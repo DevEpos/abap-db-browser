@@ -61,6 +61,7 @@ CLASS zcl_dbbr_altcoltxt_controller IMPLEMENTATION.
 
     WHILE mr_tabfield_list->has_more_lines( ).
       DATA(lr_current_entry) = mr_tabfield_list->get_next_entry( ).
+      CHECK lr_current_entry->is_text_field = abap_false.
       APPEND VALUE zdbbr_altcoltext_data(
             tabname        = lr_current_entry->tabname
             fieldname      = lr_current_entry->fieldname
