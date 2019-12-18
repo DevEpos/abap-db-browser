@@ -334,6 +334,10 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
         mo_search_type_select->set_value( |{ ms_settings-search_function }| ).
     ENDCASE.
 
+    IF mo_search_type_select->value IS INITIAL.
+      mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>cds_view }| ).
+    ENDIF.
+
     mv_current_search_type = mo_search_type_select->value.
 
     lo_form->line_with_layout( end = abap_true ).
