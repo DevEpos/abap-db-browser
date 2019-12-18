@@ -7,6 +7,7 @@ INTERFACE zif_dbbr_c_selscreen_functions
   CONSTANTS object_browser_search TYPE sy-ucomm VALUE 'NEWOBJSRCH' ##no_text.
   CONSTANTS open_cds_query_in_aox TYPE sy-ucomm VALUE 'OPENQRYINAOX' ##NO_TEXT.
   CONSTANTS open_cds_query_in_qry_mon TYPE sy-ucomm VALUE 'OPENQRTINQRYMON' ##NO_TEXT.
+  constants open_in_design_studio type sy-ucomm value 'OPENQUERYINDESIGNSTUDIO' ##NO_TEXT.
   CONSTANTS edit_sql_query TYPE sy-ucomm VALUE 'EDITSQLQUERY' ##no_text.
   CONSTANTS create_sql_query TYPE sy-ucomm VALUE 'CREATESQLQUERY' ##no_text.
   CONSTANTS show_cds_dependency_tree TYPE sy-ucomm VALUE 'SHOWCDSDEPTREE' ##no_text.

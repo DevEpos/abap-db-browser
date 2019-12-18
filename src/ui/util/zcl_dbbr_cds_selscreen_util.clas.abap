@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Util for Handling CDS Selection Screen Logic</p>
 CLASS zcl_dbbr_cds_selscreen_util DEFINITION
   PUBLIC
   INHERITING FROM zcl_dbbr_selscreen_util
@@ -41,20 +42,27 @@ CLASS zcl_dbbr_cds_selscreen_util DEFINITION
   PRIVATE SECTION.
 
     DATA mo_cds_view TYPE REF TO zcl_sat_cds_view .
+    "! <p class="shorttext synchronized" lang="en">Name of CDS view</p>
     DATA mv_cds_view TYPE zsat_cds_view_name .
     DATA mv_cds_view_description TYPE ddtext .
+    "! <p class="shorttext synchronized" lang="en">DD: Header for Structured Objects</p>
     DATA mv_cds_view_name_raw TYPE zsat_cds_view_name .
     DATA mf_associations_loaded TYPE abap_bool .
+    CLASS-DATA gv_design_studio_base_url TYPE string.
 
 
+    "! <p class="shorttext synchronized" lang="en">Choose sub entity of CDS View for selection screen</p>
     METHODS choose_cds_sub_entity
       IMPORTING
         if_return_chosen_directly    TYPE abap_bool OPTIONAL
         if_only_associations         TYPE abap_bool OPTIONAL
       RETURNING
         VALUE(rs_chosen_association) TYPE zsat_cds_association .
+    "! <p class="shorttext synchronized" lang="en">Builds the custom default functions</p>
     METHODS build_default_custom_function.
+    "! <p class="shorttext synchronized" lang="en">Builds custom functions for cds query</p>
     METHODS build_cust_func_for_cds_qry.
+
 ENDCLASS.
 
 
@@ -448,6 +456,12 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
           ENDIF.
         ENDIF.
 
+      WHEN zif_dbbr_c_selscreen_functions=>open_in_design_studio.
+        TRY.
+            NEW zcl_dbbr_design_studio_util( io_cds_view = mo_cds_view io_selscreen_data = mo_data )->open_in_design_studio( ).
+          CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_error).
+            lx_appl_error->show_message( ).
+        ENDTRY.
     ENDCASE.
   ENDMETHOD.
 
@@ -484,6 +498,10 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
     mo_custom_menu->add_function(
       fcode = zif_dbbr_c_selscreen_functions=>open_cds_query_in_qry_mon
       text  = |{ 'Open with Query Monitor (RSRT)'(013) }|
+    ).
+    mo_custom_menu->add_function(
+      fcode = zif_dbbr_c_selscreen_functions=>open_in_design_studio
+      text  = |{ 'Open with Design Studio'(014) }|
     ).
   ENDMETHOD.
 

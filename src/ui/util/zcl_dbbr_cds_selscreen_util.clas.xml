@@ -90,8 +90,26 @@
      <ENTRY>Open with Query Monitor (RSRT)</ENTRY>
      <LENGTH>60</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>014</KEY>
+     <ENTRY>Open with Design Studio</ENTRY>
+     <LENGTH>46</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_SELSCREEN_UTIL</CLSNAME>
+     <CMPNAME>BUILD_CUST_FUNC_FOR_CDS_QRY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Builds custom functions for cds query</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CDS_SELSCREEN_UTIL</CLSNAME>
+     <CMPNAME>BUILD_DEFAULT_CUSTOM_FUNCTION</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Builds the custom default functions</DESCRIPT>
+    </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_CDS_SELSCREEN_UTIL</CLSNAME>
      <CMPNAME>CHOOSE_CDS_SUB_ENTITY</CMPNAME>
