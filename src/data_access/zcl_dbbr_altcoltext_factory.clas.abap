@@ -36,7 +36,8 @@ CLASS zcl_dbbr_altcoltext_factory IMPLEMENTATION.
         COMMIT WORK.
       ENDIF.
     ELSE. " at least one entry is filled
-      MODIFY zdbbr_altcolt FROM is_altcoltext_data.
+      DATA(ls_altcoltext) = CORRESPONDING zdbbr_altcolt( is_altcoltext_data ).
+      MODIFY zdbbr_altcolt FROM ls_altcoltext.
       COMMIT WORK.
     ENDIF.
   ENDMETHOD.
