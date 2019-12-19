@@ -31,6 +31,8 @@ CLASS lcl_executor IMPLEMENTATION.
         FOR <ls_result_col> IN ms_query_result-columns
         ( <ls_result_col>-metadata )
     ).
+    ev_message = ms_query_result-message.
+    ev_message_type = ms_query_result-message_severity.
     ev_execution_time = ms_query_result-query_execution_time.
     er_data = mr_query_result.
   ENDMETHOD.
@@ -59,8 +61,7 @@ CLASS lcl_executor IMPLEMENTATION.
 
 *.. Check if an error occurred
     IF ms_query_result-message IS NOT INITIAL.
-*.... Show message
-      MESSAGE |{ ms_query_result-message }| TYPE 'S' DISPLAY LIKE ms_query_result-message_severity.
+      RETURN.
     ELSE.
       CLEAR mr_query_result.
 
@@ -153,8 +154,8 @@ CLASS lcl_executor IMPLEMENTATION.
 
           CATCH cx_sy_struct_creation
                 cx_sy_table_creation.
-            MESSAGE |Error during type creation. Preview not possible| TYPE 'I' DISPLAY LIKE 'E'.
-            RETURN.
+            ms_query_result-message = |Error during type creation. Preview not possible|.
+            ms_query_result-message_severity = 'E'.
         ENDTRY.
       ENDIF.
 

@@ -31,7 +31,7 @@ FUNCTION ZDBBR_EXECUTE_SQL_QUERY.
       ENDIF.
 
     CATCH zcx_dbbr_sql_query_error INTO DATA(lx_sql_error).
-      es_query_result-message = lx_sql_error->get_text( ).
+      es_query_result-message = lx_sql_error->zif_sat_exception_message~get_message( ).
       es_query_result-message_severity = 'E'.
   ENDTRY.
 ENDFUNCTION.

@@ -51,9 +51,16 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
       IMPORTING
         et_data_info      = mt_query_result_col
         ev_execution_time = mv_execution_time_str
+        ev_message        = DATA(lv_message)
+        ev_message_type   = DATA(lv_message_type)
         er_data           = mr_query_result
         ev_line_count     = ms_control_info-number
     ).
+
+    IF lv_message IS NOT INITIAL.
+      MESSAGE |{ lv_message }| TYPE 'I' DISPLAY LIKE lv_message_type.
+      CHECK lv_message_type <> 'E'.
+    ENDIF.
 
     IF mo_query->ms_data-is_single_result_query = abap_true.
       DATA(lv_number_of_lines) = |{ ms_control_info-number NUMBER = USER }|.
