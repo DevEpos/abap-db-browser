@@ -369,8 +369,9 @@ CLASS zcl_dbbr_fe_dnd_tree_model IMPLEMENTATION.
 
     mo_element_dnd_behaviour->get_handle( IMPORTING handle = DATA(lv_handle) ).
 
-    LOOP AT lr_fields->* ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE is_text_field = abap_false
+    LOOP AT lr_fields->* ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE is_text_field    = abap_false
                                                               AND is_formula_field = abap_false
+                                                              and is_parameter     = abap_false
       GROUP BY ( alias   = <ls_field>-alias
                  tabname = <ls_field>-tabname )
 
