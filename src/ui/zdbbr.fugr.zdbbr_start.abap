@@ -75,8 +75,8 @@ FUNCTION ZDBBR_START.
                  OR ddlname  = @lv_entity_id
             INTO @DATA(ls_cds_entity).
             IF sy-subrc <> 0.
-              CLEAR lv_entity_id.
-              CLEAR lv_skip_selscreen_value.
+              MESSAGE |The CDS View { lv_entity_id } does not exist| TYPE 'E'.
+              RETURN.
             ELSEIF ls_cds_entity-parentddlname IS NOT INITIAL.
 *............ If the view is an extension view, just use the parent instead
               SELECT SINGLE entityid
