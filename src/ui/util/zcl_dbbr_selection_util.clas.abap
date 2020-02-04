@@ -766,13 +766,13 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         is_tech_info       = ms_technical_info )
     ).
 
-    DATA(lr_struct_descr) = cl_abap_structdescr=>create(
+    DATA(lr_struct_descr) = cl_abap_structdescr=>get(
       p_components = CORRESPONDING #( mt_dyntab_components )
       p_strict     = abap_false
     ).
     TRY.
         " create table type
-        DATA(lr_table_descr) = cl_abap_tabledescr=>create( p_line_type = lr_struct_descr ).
+        DATA(lr_table_descr) = cl_abap_tabledescr=>get( p_line_type = lr_struct_descr ).
         " create table
         CREATE DATA mr_t_data TYPE HANDLE lr_table_descr.
         " create another table with the same definition for comparing table entries
@@ -1805,7 +1805,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       WHEN zif_dbbr_c_selection_functions=>show_users_settings.
         CLEAR cv_function.
 
-        zcl_dbbr_app_starter=>show_user_settings(
+        zcl_dbbr_dialogs=>show_user_settings(
           EXPORTING if_disable_save = abap_true
                     iv_start_dynnr  = zif_dbbr_screen_ids=>c_user_settings-output_tab
                     iv_start_tab    = zcl_dbbr_user_settings_sc=>c_tab_ids-output_tab

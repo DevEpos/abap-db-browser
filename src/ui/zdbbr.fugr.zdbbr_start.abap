@@ -10,19 +10,6 @@ FUNCTION ZDBBR_START.
   gs_entity_info-entity_type = zif_sat_c_entity_type=>table.
 
   IF if_initialize = abap_true.
-    gt_sel_init = VALUE #(
-        ( option = zif_dbbr_global_consts=>gc_options-eq low = abap_true )
-        ( option = zif_dbbr_global_consts=>gc_options-ne low = abap_true )
-        ( option = zif_dbbr_global_consts=>gc_options-bt low = abap_true high = abap_true )
-        ( option = zif_dbbr_global_consts=>gc_options-nb low = abap_true high = abap_true )
-        ( option = zif_dbbr_global_consts=>gc_options-gt low = abap_true )
-        ( option = zif_dbbr_global_consts=>gc_options-lt low = abap_true )
-        ( option = zif_dbbr_global_consts=>gc_options-ge low = abap_true )
-        ( option = zif_dbbr_global_consts=>gc_options-le low = abap_true )
-        ( option = zif_dbbr_global_consts=>gc_options-is_null     no_multi = abap_true )
-        ( option = zif_dbbr_global_consts=>gc_options-is_not_null no_multi = abap_true )
-    ).
-
     " clear edit flags
     CLEAR: gs_data-edit,
            gs_data-delete_mode.

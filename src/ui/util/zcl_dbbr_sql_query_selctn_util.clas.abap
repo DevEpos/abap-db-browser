@@ -246,7 +246,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
 
   METHOD create_field_catalog.
     DATA(lt_dfies) = zcl_uitb_alv_data_descr=>read_structdescr(
-        ir_structdescr = mo_query_result_line_type
+        io_structdescr = mo_query_result_line_type
         iv_language    = zcl_sat_system_helper=>get_system_language( )
     ).
 

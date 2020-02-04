@@ -43,12 +43,6 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
 
     "! <p class="shorttext synchronized" lang="en">CLASS_CONSTRUCTOR</p>
     CLASS-METHODS init_selscreen_table_tb .
-    "! <p class="shorttext synchronized" lang="en">Choose select option</p>
-    CLASS-METHODS choose_sel_option
-      IMPORTING
-        if_allow_null           TYPE abap_bool DEFAULT abap_true
-      RETURNING
-        VALUE(rs_chosen_option) TYPE se16n_sel_option .
     "! <p class="shorttext synchronized" lang="en">Checks edit mode</p>
     METHODS check_edit_mode .
     "! <p class="shorttext synchronized" lang="en">Performs mandatory checks</p>
@@ -366,119 +360,6 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     rf_success = abap_true.
   ENDMETHOD.
 
-
-  METHOD choose_sel_option.
-*& Description: Shows pop-up for choosing a select option (e.g. EQ, BT, ...)
-*&---------------------------------------------------------------------*
-    DATA: lt_sel_option TYPE STANDARD TABLE OF se16n_sel_option,
-          lt_fieldcat   TYPE lvc_t_fcat.
-
-    lt_sel_option = VALUE #(
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-default
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-bt
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-cp
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-np
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-eq
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-nb
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-ne
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-gt
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-lt
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-ge
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-le
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-    ).
-    IF if_allow_null = abap_true.
-      lt_sel_option = VALUE #( BASE lt_sel_option
-        ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-is_null
-                                                         iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-        ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-is_not_null
-                                                         iv_sign      = zif_dbbr_global_consts=>gc_options-i ) )
-      ).
-    ENDIF.
-    lt_sel_option = VALUE #( BASE lt_sel_option
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-bt
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-e ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-cp
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-e ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-np
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-e ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-eq
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-e ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-nb
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-e ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-ne
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-e ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-gt
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-e ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-lt
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-e ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-ge
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-e ) )
-      ( zcl_dbbr_icon_handler=>create_sel_option_icon( iv_icon_name = zif_dbbr_global_consts=>gc_options-le
-                                                       iv_sign      = zif_dbbr_global_consts=>gc_options-e ) )
-    ).
-
-    CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
-      EXPORTING
-        i_buffer_active        = ' '
-        i_structure_name       = 'SE16N_SEL_OPTION'
-      CHANGING
-        ct_fieldcat            = lt_fieldcat
-      EXCEPTIONS
-        inconsistent_interface = 1
-        program_error          = 2
-        OTHERS                 = 3.
-
-    IF sy-subrc <> 0.
-      EXIT.
-    ENDIF.
-
-    LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fieldcat>).
-      CASE <ls_fieldcat>-fieldname.
-        WHEN 'SIGN'.
-          <ls_fieldcat>-no_out = abap_true.
-        WHEN 'OPTION'.
-          <ls_fieldcat>-no_out = abap_true.
-        WHEN 'ICON'.
-          <ls_fieldcat>-outputlen = 2.
-      ENDCASE.
-    ENDLOOP.
-
-    DATA: ls_selfield TYPE slis_selfield,
-          lf_exit     TYPE abap_bool.
-
-*.. Show popup with the options and give one back
-    DATA(lt_status_exclude) = VALUE lvc_t_excl(
-      ( func = '&OL0' ) ( func = '&ELP' ) ( func = '&OAD' ) ( func = '&RNT' ) ( func = '&AVE' )
-    ).
-    CALL FUNCTION 'LVC_SINGLE_ITEM_SELECTION'
-      EXPORTING
-        i_title         = |{ 'Choose Option'(001) }|
-        it_fieldcatalog = lt_fieldcat
-        it_status_excl  = lt_status_exclude
-      IMPORTING
-        es_selfield     = ls_selfield
-        e_exit          = lf_exit
-      TABLES
-        t_outtab        = lt_sel_option.
-
-    IF lf_exit <> abap_true.
-      TRY .
-          rs_chosen_option = lt_sel_option[ ls_selfield-tabindex ].
-        CATCH cx_sy_itab_line_not_found.
-      ENDTRY.
-    ENDIF.
-  ENDMETHOD.
 
   METHOD load_entity.
     rf_entity_loaded = load_entity_internal( ).
@@ -912,7 +793,6 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     mo_data->mo_tabfield_list->add_table( rs_entity_info ).
 
   ENDMETHOD.
-
 
 
   METHOD create_table_header.

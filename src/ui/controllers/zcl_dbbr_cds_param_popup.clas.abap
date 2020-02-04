@@ -255,6 +255,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
         on_data_changed FOR lr_events,
         on_f4 FOR lr_events.
 
+    mo_alv->get_selections( )->set_current_cell( value #( row = 1 column = 'VALUE' ) ).
     mo_alv->display( ).
     mo_alv->zif_uitb_gui_control~focus( ).
   ENDMETHOD.

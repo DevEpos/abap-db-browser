@@ -34,9 +34,7 @@ CLASS zcl_dbbr_multi_select_table DEFINITION
 
   PRIVATE SECTION.
 
-    DATA mv_linecount LIKE sy-tabix .
     DATA ms_template TYPE zdbbr_selfield .
-    DATA mr_custom_f4_map TYPE REF TO zcl_dbbr_custom_f4_map .
     DATA mr_selfield_lines TYPE REF TO zdbbr_selfield_itab.
     DATA mr_ui_multi_select_ctrl TYPE REF TO cxtab_control.
     DATA mr_ui_option_button TYPE REF TO zdbbr_button.
@@ -44,7 +42,6 @@ CLASS zcl_dbbr_multi_select_table DEFINITION
     DATA mr_ui_push_button TYPE REF TO zdbbr_button.
     DATA mr_ui_linecount TYPE REF TO syst_tabix.
     DATA mr_ui_multi_select_lines TYPE REF TO syst_tabix.
-    DATA mr_ui_sel_opt_init TYPE REF TO zdbbr_selopt_control_itab.
     DATA ms_option_template TYPE se16n_sel_option.
 
 ENDCLASS.
@@ -100,30 +97,17 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
       EXPORTING
         iv_icon_name = lv_push_icon_name
       IMPORTING
-        ev_info_text = DATA(lv_icon_text)
         ev_push      = mr_ui_push_button->*
     ).
 
-    IF NOT mr_selfield_line->option IS INITIAL.
-      DATA(lv_option_icon_name) = zcl_dbbr_icon_handler=>get_sign_icon_name(
-          iv_sign      = mr_selfield_line->sign
-          iv_option    = mr_selfield_line->option
-      ).
-    ELSE.
-      lv_option_icon_name = 'ICON_SELECTION'.
-    ENDIF.
-
-    zcl_dbbr_icon_handler=>create_icon(
-      EXPORTING
-        iv_icon_name = lv_option_icon_name
-      IMPORTING
-        ev_info_text = lv_icon_text
-        ev_push      = mr_ui_option_button->*
+    mr_ui_option_button->* = zcl_dbbr_selopt_util=>create_option_icon(
+      iv_option = mr_selfield_line->option
+      iv_sign   = mr_selfield_line->sign
     ).
 
     " depending on the select option, not all fields are inputable
     TRY .
-        DATA(ls_sel_init) = mr_ui_sel_opt_init->*[ option = mr_selfield_line->option ].
+        DATA(ls_sel_init) = zcl_dbbr_selopt_util=>get_selopt_control( mr_selfield_line->option ).
         IF ls_sel_init-high <> abap_true.
           LOOP AT SCREEN.
             IF screen-name = 'GS_MULTI_SELECT-HIGH'.
@@ -177,7 +161,6 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
     mr_ui_option_button = CAST zdbbr_button( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_option ) ).
     mr_ui_linecount = CAST syst_tabix( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_linecount ) ).
     mr_ui_multi_select_lines = CAST syst_tabix( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_multi_select_lines ) ).
-    mr_ui_sel_opt_init = CAST zdbbr_selopt_control_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_sel_init ) ).
     mr_ui_opt_template = CAST #( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_option_template ) ).
   ENDMETHOD.
 
@@ -220,7 +203,7 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
   METHOD display_lines.
 
     IF mr_selfield_line->is_parameter = abap_true.
-      ZCL_SAT_DATA_CONVERTER=>convert_values_to_disp_format(
+      zcl_sat_data_converter=>convert_values_to_disp_format(
         EXPORTING
           iv_rollname = mr_selfield_line->rollname
           iv_type     = mr_selfield_line->inttype
@@ -230,7 +213,7 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
                   cv_value2    = mr_selfield_line->high
       ).
     ELSE.
-      ZCL_SAT_DATA_CONVERTER=>convert_selopt_to_disp_format(
+      zcl_sat_data_converter=>convert_selopt_to_disp_format(
         EXPORTING iv_tabname   = mr_selfield_line->tabname
                   iv_fieldname = mr_selfield_line->fieldname
         CHANGING  cv_value1    = mr_selfield_line->low
@@ -269,7 +252,7 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
     ENDTRY.
 
     " get user selection
-    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option(
+    DATA(ls_chosen_option) = zcl_dbbr_selopt_util=>choose_sel_option(
       if_allow_null = xsdbool( ls_current_line-is_parameter = abap_false )
     ).
     IF ls_chosen_option IS INITIAL.
@@ -280,13 +263,10 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
     ls_current_line-option = ls_chosen_option-option.
     " GT_sel_init contains info if low and/or high are allowed for
     " the selected option
-    TRY .
-        DATA(ls_sel_init) = mr_ui_sel_opt_init->*[ option = ls_chosen_option-option ].
-        IF ls_sel_init-high <> abap_true.
-          CLEAR ls_current_line-high.
-        ENDIF.
-      CATCH cx_sy_itab_line_not_found.
-    ENDTRY.
+    DATA(ls_sel_init) = zcl_dbbr_selopt_util=>get_selopt_control( ls_chosen_option-option ).
+    IF ls_sel_init-high <> abap_true.
+      CLEAR ls_current_line-high.
+    ENDIF.
 
     MODIFY mr_selfield_lines->* FROM ls_current_line INDEX lv_current_line.
 
@@ -349,8 +329,8 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
         conv_selfields_to_internal(
             if_no_uppercase_conversion = lf_no_uppercase_conversion ).
 
-      CATCH ZCX_SAT_CONVERSION_EXC INTO DATA(lx_conv_error).
-        lx_conv_error->ZIF_SAT_EXCEPTION_MESSAGE~print( iv_msg_type = 'E' ).
+      CATCH zcx_sat_conversion_exc INTO DATA(lx_conv_error).
+        lx_conv_error->zif_sat_exception_message~print( iv_msg_type = 'E' ).
         RETURN.
     ENDTRY.
 

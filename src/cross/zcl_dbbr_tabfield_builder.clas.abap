@@ -1,29 +1,29 @@
-class ZCL_DBBR_TABFIELD_BUILDER definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_tabfield_builder DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  class-methods CREATE_TABFIELDS
-    importing
-      !IV_TABLENAME type TABNAME
-      !IF_IS_PRIMARY type ABAP_BOOL optional
-      !IR_TABFIELD_LIST type ref to ZCL_DBBR_TABFIELD_LIST
-      !IF_SELECTION_ACTIVE type BOOLEAN optional
-      !IF_OUTPUT_ACTIVE type BOOLEAN optional .
-  class-methods CREATE_TABFIELDS_FOR_TABS
-    importing
-      !IT_TABNAME_RANGE type ZDBBR_TABNAME_RANGE_ITAB
-    returning
-      value(RR_LIST) type ref to ZCL_DBBR_TABFIELD_LIST .
+    CLASS-METHODS create_tabfields
+      IMPORTING
+        !iv_tablename        TYPE tabname
+        !if_is_primary       TYPE abap_bool OPTIONAL
+        !ir_tabfield_list    TYPE REF TO zcl_dbbr_tabfield_list
+        !if_selection_active TYPE boolean OPTIONAL
+        !if_output_active    TYPE boolean OPTIONAL .
+    CLASS-METHODS create_tabfields_for_tabs
+      IMPORTING
+        !it_tabname_range TYPE zdbbr_tabname_range_itab
+      RETURNING
+        VALUE(rr_list)    TYPE REF TO zcl_dbbr_tabfield_list .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_TABFIELD_BUILDER IMPLEMENTATION.
+CLASS zcl_dbbr_tabfield_builder IMPLEMENTATION.
 
 
   METHOD create_tabfields.
@@ -45,9 +45,11 @@ CLASS ZCL_DBBR_TABFIELD_BUILDER IMPLEMENTATION.
                 header_text     = reptext
                 f4_available    = f4availabl
                 is_key          = keyflag
-                field_ddtext    = scrtext_l
                 length          = leng
       ).
+      ls_tabfield-field_ddtext = cond #( when <ls_dfies>-scrtext_l is initial then
+                                            <ls_dfies>-fieldtext
+                                         else <ls_dfies>-scrtext_l ).
 
       ls_tabfield-is_numeric = zcl_dbbr_ddic_util=>is_type_numeric( <ls_dfies>-inttype ).
       ls_tabfield-is_foreign_key = xsdbool( <ls_dfies>-checktable IS NOT INITIAL ).
@@ -62,7 +64,7 @@ CLASS ZCL_DBBR_TABFIELD_BUILDER IMPLEMENTATION.
         active_selection     = abap_true
         tabname              = iv_tablename
         tabname_alias        = iv_tablename
-        type                 = ZIF_SAT_C_ENTITY_TYPE=>table
+        type                 = zif_sat_c_entity_type=>table
         selection_order      = 1
         description          = ls_table_info-ddtext
         fields_are_loaded    = abap_true
@@ -85,6 +87,8 @@ CLASS ZCL_DBBR_TABFIELD_BUILDER IMPLEMENTATION.
       ).
     ENDLOOP.
 
+    rr_list->update_tables( ).
+    rr_list->update_alias_names( ).
     rr_list->build_complete_fieldnames( ).
   ENDMETHOD.
 ENDCLASS.

@@ -39,7 +39,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
       IMPORTING
         !if_update_tables            TYPE abap_bool OPTIONAL
       RETURNING
-        VALUE(rt_table_to_alias_map) TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB .
+        VALUE(rt_table_to_alias_map) TYPE zsat_table_to_alias_map_itab .
     METHODS checked_field_exists
       IMPORTING
         !iv_specific_table TYPE tabname OPTIONAL
@@ -59,7 +59,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
         !it_fields      TYPE zdbbr_tabfield_info_ui_itab OPTIONAL
         !it_tables      TYPE zdbbr_entity_info_t OPTIONAL
         !iv_mode        TYPE zdbbr_field_chooser_mode DEFAULT zif_dbbr_global_consts=>gc_field_chooser_modes-output
-        !iv_entity_type TYPE ZSAT_ENTITY_TYPE DEFAULT ZIF_SAT_C_ENTITY_TYPE=>table .
+        !iv_entity_type TYPE zsat_entity_type DEFAULT zif_sat_c_entity_type=>table .
     "! <p class="shorttext synchronized" lang="en">Converts list to deep structure</p>
     METHODS convert_to_structure
       RETURNING
@@ -76,10 +76,10 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
         !is_field TYPE zdbbr_tabfield_info_ui .
     METHODS delete_fields
       IMPORTING
-        !it_fields_selopt TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt .
+        !it_fields_selopt TYPE zif_sat_ty_global=>ty_t_selopt .
     METHODS delete_fields_by_alv_fieldname
       IMPORTING
-        !it_fields_selopt TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt .
+        !it_fields_selopt TYPE zif_sat_ty_global=>ty_t_selopt .
     METHODS delete_formula_fields .
     METHODS delete_inactive_fields .
     METHODS delete_text_fields .
@@ -136,7 +136,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
         VALUE(rr_fields_ref) TYPE REF TO zdbbr_tabfield_info_ui_itab .
     METHODS get_field_by_sql_name
       IMPORTING
-        !iv_sql_fieldname  TYPE ZSAT_FIELDNAME_WITH_ALIAS
+        !iv_sql_fieldname  TYPE zsat_fieldname_with_alias
       RETURNING
         VALUE(rs_tabfield) TYPE zdbbr_tabfield_info_ui
       RAISING
@@ -235,7 +235,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     "! <p class="shorttext synchronized" lang="en">Sets the entity type attribute</p>
     METHODS set_entity_type
       IMPORTING
-        !value TYPE ZSAT_ENTITY_TYPE .
+        !value TYPE zsat_entity_type .
     METHODS set_table_list
       IMPORTING
         !it_tables TYPE zdbbr_entity_info_t .
@@ -311,7 +311,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     DATA mv_iterator_index TYPE sy-tabix .
     DATA mf_iterator_for_active TYPE boolean .
     "! <p class="shorttext synchronized" lang="en">Type of Entity</p>
-    DATA mv_entity_type TYPE ZSAT_ENTITY_TYPE .
+    DATA mv_entity_type TYPE zsat_entity_type .
     DATA: mf_multi_table_mode TYPE abap_bool.
 
     METHODS fill_full_fieldnames
@@ -380,14 +380,14 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
       ls_entity_info-selection_order = lines( mt_tables ) + 1.
     ENDIF.
 
-    IF ls_entity_info-tabname = zif_dbbr_global_consts=>c_parameter_dummy_table OR
-       ls_entity_info-tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
+    IF ls_entity_info-tabname = zif_dbbr_global_consts=>c_parameter_dummy_table.
       ls_entity_info-is_custom = abap_true.
       DATA(lf_insert_first) = abap_true.
+    ENDIF.
 
-      IF ls_entity_info-tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
-        ls_entity_info-alias = zif_dbbr_global_consts=>c_formula_alias.
-      ENDIF.
+    IF ls_entity_info-tabname = zif_dbbr_global_consts=>gc_formula_dummy_table.
+      ls_entity_info-is_custom = abap_true.
+      ls_entity_info-alias = zif_dbbr_global_consts=>c_formula_alias.
     ENDIF.
 
     TRY.
@@ -479,11 +479,6 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
 
   METHOD clear_active_flag.
-*&---------------------------------------------------------------------*
-*& Author:    stockbal     Date: 2016/11/25
-*&---------------------------------------------------------------------*
-*& Description: description
-*&---------------------------------------------------------------------*
 
     LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
       IF iv_tablename IS NOT INITIAL AND

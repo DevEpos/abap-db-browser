@@ -1,17 +1,23 @@
 CLASS zcl_dbbr_association_manager DEFINITION
   PUBLIC
-  CREATE PUBLIC .
+  CREATE PUBLIC
+  INHERITING FROM zcl_uitb_gui_modal_dialog.
 
   PUBLIC SECTION.
 
-    INTERFACES zif_uitb_view .
 
     METHODS constructor .
+    METHODS zif_uitb_gui_command_handler~execute_command
+        REDEFINITION.
+    METHODS zif_uitb_gui_screen~show
+        REDEFINITION.
   PROTECTED SECTION.
+    METHODS create_content
+        REDEFINITION.
   PRIVATE SECTION.
-    CONSTANTS c_query_dnd_flavor TYPE cndd_flavor VALUE 'query'.
+    CONSTANTS c_query_dnd_flavor TYPE cndd_flavor VALUE 'QUERY'.
     CONSTANTS c_table_dnd_flavor TYPE cndd_flavor VALUE 'TABLE'.
-    CONSTANTS c_queries_root TYPE string VALUE 'queryS' ##NO_TEXT.
+    CONSTANTS c_queries_root TYPE string VALUE 'QUERYS' ##NO_TEXT.
     CONSTANTS c_tables_root TYPE string VALUE 'TABLES' ##NO_TEXT.
 
     DATA mr_template_prog TYPE REF TO zif_uitb_template_prog .
@@ -22,11 +28,7 @@ CLASS zcl_dbbr_association_manager DEFINITION
           mr_db_table_tree          TYPE REF TO zcl_uitb_column_tree_model,
           mr_query_alv              TYPE REF TO zcl_uitb_alv.
 
-    METHODS on_before_output
-          FOR EVENT before_output OF zif_uitb_view_callback
-      IMPORTING
-          er_callback.
-    METHODS do_before_first_screen_call .
+
     METHODS create_db_table_search
       IMPORTING
         ir_container TYPE REF TO cl_gui_container.
@@ -46,39 +48,84 @@ CLASS zcl_dbbr_association_manager DEFINITION
         ir_nodes        TYPE REF TO zcl_uitb_ctm_nodes.
     METHODS add_new_table.
     METHODS on_exit
-          FOR EVENT exit OF zif_uitb_view_callback
+        FOR EVENT exit OF zif_uitb_view_callback
       IMPORTING
-          er_callback.
-    METHODS on_user_command
-          FOR EVENT user_command OF zif_uitb_view_callback
-      IMPORTING
-          er_callback
-          ev_function_id.
+        er_callback.
+
 
     METHODS on_toolbar_function
-          FOR EVENT function_selected OF zif_uitb_toolbar_events
+        FOR EVENT function_selected OF zif_uitb_toolbar_events
       IMPORTING
-          ev_fcode.
+        ev_fcode.
     METHODS on_context_menu_request
-          FOR EVENT node_context_menu_request OF zcl_uitb_ctm_events
+        FOR EVENT node_context_menu_request OF zcl_uitb_ctm_events
       IMPORTING
-          er_menu
-          ev_node_key.
+        er_menu
+        ev_node_key.
     METHODS on_context_menu_select
-          FOR EVENT node_context_menu_select OF zcl_uitb_ctm_events
+        FOR EVENT node_context_menu_select OF zcl_uitb_ctm_events
       IMPORTING
-          ev_fcode
-          ev_node_key.
+        ev_fcode
+        ev_node_key.
     METHODS on_db_tree_nd_dbl_click
-          FOR EVENT node_double_click OF zcl_uitb_ctm_events
+        FOR EVENT node_double_click OF zcl_uitb_ctm_events
       IMPORTING
-          ev_node_key
-          sender.
+        ev_node_key
+        sender.
 ENDCLASS.
 
 
 
 CLASS zcl_dbbr_association_manager IMPLEMENTATION.
+
+  METHOD constructor.
+    super->constructor( iv_title = |{ TEXT-tit }| ).
+  ENDMETHOD.
+
+  METHOD zif_uitb_gui_screen~show.
+    super->show(
+        iv_top    = 10
+        iv_left   = 2
+        iv_width  = 150
+        iv_height = 25
+    ).
+  ENDMETHOD.
+
+  METHOD zif_uitb_gui_command_handler~execute_command.
+    CASE io_command->mv_function.
+
+      WHEN zif_uitb_template_prog=>c_search.
+      WHEN zif_uitb_template_prog=>c_search_more.
+
+    ENDCASE.
+
+  ENDMETHOD.
+
+  METHOD create_content.
+    " create screen layout
+    mr_main_split = NEW cl_gui_splitter_container(
+        parent  = io_container
+        columns = 2
+        rows    = 1
+    ).
+    mr_main_split->set_column_width( id = 1 width = 35 ).
+
+    DATA(lr_left_col) = mr_main_split->get_container(
+        row    = 1
+        column = 1
+    ).
+
+    DATA(lr_right_col) = mr_main_split->get_container(
+        row    = 1
+        column = 2
+    ).
+
+    create_association_tree( lr_left_col ).
+    create_db_table_search( lr_right_col ).
+
+    fill_association_tree( ).
+  ENDMETHOD.
+
 
 
   METHOD add_new_table.
@@ -120,17 +167,6 @@ CLASS zcl_dbbr_association_manager IMPLEMENTATION.
 
 
   ENDMETHOD.
-
-
-  METHOD constructor.
-    mr_template_prog = zcl_uitb_templt_prog_callback=>create_template_program( iv_title = TEXT-tit ).
-
-    SET HANDLER:
-      on_exit FOR mr_template_prog,
-      on_user_command FOR mr_template_prog,
-      on_before_output FOR mr_template_prog.
-  ENDMETHOD.
-
 
   METHOD create_association_tree.
 
@@ -250,34 +286,6 @@ CLASS zcl_dbbr_association_manager IMPLEMENTATION.
     ENDTRY.
   ENDMETHOD.
 
-
-  METHOD do_before_first_screen_call.
-    " create screen layout
-    mr_main_split = NEW cl_gui_splitter_container(
-        parent  = mr_template_prog->get_container( )
-        columns = 2
-        rows    = 1
-    ).
-    mr_main_split->set_column_width( id = 1 width = 35 ).
-
-    DATA(lr_left_col) = mr_main_split->get_container(
-        row    = 1
-        column = 1
-    ).
-
-    DATA(lr_right_col) = mr_main_split->get_container(
-        row    = 1
-        column = 2
-    ).
-
-    create_association_tree( lr_left_col ).
-    create_db_table_search( lr_right_col ).
-
-    fill_association_tree( ).
-
-  ENDMETHOD.
-
-
   METHOD fill_association_tree.
 
   ENDMETHOD.
@@ -306,10 +314,6 @@ CLASS zcl_dbbr_association_manager IMPLEMENTATION.
             )
       ).
     ENDWHILE.
-  ENDMETHOD.
-
-
-  METHOD on_before_output.
   ENDMETHOD.
 
 
@@ -355,20 +359,4 @@ CLASS zcl_dbbr_association_manager IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
-
-  METHOD on_user_command.
-    CASE ev_function_id.
-
-      WHEN zif_uitb_template_prog=>c_search.
-      WHEN zif_uitb_template_prog=>c_search_more.
-
-    ENDCASE.
-  ENDMETHOD.
-
-
-  METHOD zif_uitb_view~show.
-    do_before_first_screen_call( ).
-
-    mr_template_prog->zif_uitb_view~show( ).
-  ENDMETHOD.
 ENDCLASS.

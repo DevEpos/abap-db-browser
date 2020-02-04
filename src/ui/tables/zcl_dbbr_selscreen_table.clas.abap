@@ -89,7 +89,6 @@ CLASS zcl_dbbr_selscreen_table DEFINITION
     DATA mr_option_icon TYPE REF TO zdbbr_button .
     DATA mr_push_icon TYPE REF TO zdbbr_button .
     DATA mr_selfields_multi TYPE REF TO zdbbr_selfield_itab .
-    DATA mr_sel_init_table TYPE REF TO zdbbr_selopt_control_itab .
     DATA mr_subquery_icon TYPE REF TO zdbbr_button .
     DATA mr_table_data TYPE REF TO zdbbr_selfield_itab .
     DATA ms_selscreen_settings TYPE zdbbr_selscreen_settings .
@@ -97,7 +96,6 @@ CLASS zcl_dbbr_selscreen_table DEFINITION
     DATA mv_current_line LIKE sy-tabix .
     DATA mv_linecount LIKE sy-tabix .
     DATA mv_looplines TYPE sy-loopc .
-    DATA mv_search TYPE string .
     DATA mr_tableview TYPE REF TO cxtab_control.
 
     METHODS check_aggregation_validity .
@@ -230,7 +228,6 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
     mr_push_icon = CAST zdbbr_button( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_push ) ).
     mr_option_icon = CAST zdbbr_button( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_option ) ).
     mr_global_data = CAST zdbbr_global_data( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
-    mr_sel_init_table = CAST zdbbr_selopt_control_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_sel_init ) ).
     mr_selfields_multi = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_selection_fields_multi ) ).
     mr_subquery_icon = CAST #( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_subquery ) ).
     mr_expand_button = CAST #( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_bt_expand ) ).
@@ -619,9 +616,7 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
   METHOD search_value.
 *& Description: Search for a value, that the user enters
 *&---------------------------------------------------------------------*
-    DATA: lv_rcode(1),
-          lt_table_fields TYPE lty_t_col_selection,
-          lt_fields       TYPE TABLE OF sval.
+    DATA: lt_table_fields TYPE lty_t_col_selection.
 
     LOOP AT mr_table_data->* ASSIGNING FIELD-SYMBOL(<ls_table_field>) WHERE is_table_header = abap_false.
       DATA(lv_tabix) = sy-tabix.
@@ -661,56 +656,54 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
   METHOD update_input_field_status.
 
 *.. depending on the select option, not all fields are inputable
-    DATA(ls_sel_init) = VALUE #( mr_sel_init_table->*[ option = mr_selfield_line->option ] OPTIONAL ).
-    IF ls_sel_init IS NOT INITIAL.
-*.... Deactivate all field input
-      IF ls_sel_init-no_input = abap_true.
+    DATA(ls_sel_init) =  zcl_dbbr_selopt_util=>get_selopt_control( mr_selfield_line->option ).
+*.. Deactivate all field input
+    IF ls_sel_init-no_input = abap_true.
+      LOOP AT SCREEN.
+        IF screen-name = c_fields-low_value OR
+           screen-name = c_fields-high_value OR
+           screen-name = c_fields-push OR
+           screen-name = c_fields-system_value_type OR
+           screen-name = c_fields-group_by OR
+           screen-name = c_fields-aggregation.
+          screen-input = 0.
+          MODIFY SCREEN.
+        ENDIF.
+      ENDLOOP.
+    ELSE.
+      IF ls_sel_init-high <> abap_true.
         LOOP AT SCREEN.
-          IF screen-name = c_fields-low_value OR
-             screen-name = c_fields-high_value OR
-             screen-name = c_fields-push OR
-             screen-name = c_fields-system_value_type OR
-             screen-name = c_fields-group_by OR
+          IF screen-name = c_fields-high_value.
+            screen-input = 0.
+            MODIFY SCREEN.
+          ENDIF.
+        ENDLOOP.
+      ENDIF.
+      IF ls_sel_init-low <> abap_true.
+        LOOP AT SCREEN.
+          IF screen-name = c_fields-low_value.
+            screen-input = 0.
+            MODIFY SCREEN.
+          ENDIF.
+        ENDLOOP.
+      ENDIF.
+      IF ls_sel_init-no_multi = abap_true.
+        LOOP AT SCREEN.
+          IF screen-name = c_fields-push OR
+             screen-name = c_fields-system_value_type.
+            screen-input = 0.
+            MODIFY SCREEN.
+          ENDIF.
+        ENDLOOP.
+      ENDIF.
+      IF ls_sel_init-no_aggregation = abap_true.
+        LOOP AT SCREEN.
+          IF screen-name = c_fields-group_by OR
              screen-name = c_fields-aggregation.
             screen-input = 0.
             MODIFY SCREEN.
           ENDIF.
         ENDLOOP.
-      ELSE.
-        IF ls_sel_init-high <> abap_true.
-          LOOP AT SCREEN.
-            IF screen-name = c_fields-high_value.
-              screen-input = 0.
-              MODIFY SCREEN.
-            ENDIF.
-          ENDLOOP.
-        ENDIF.
-        IF ls_sel_init-low <> abap_true.
-          LOOP AT SCREEN.
-            IF screen-name = c_fields-low_value.
-              screen-input = 0.
-              MODIFY SCREEN.
-            ENDIF.
-          ENDLOOP.
-        ENDIF.
-        IF ls_sel_init-no_multi = abap_true.
-          LOOP AT SCREEN.
-            IF screen-name = c_fields-push OR
-               screen-name = c_fields-system_value_type.
-              screen-input = 0.
-              MODIFY SCREEN.
-            ENDIF.
-          ENDLOOP.
-        ENDIF.
-        IF ls_sel_init-no_aggregation = abap_true.
-          LOOP AT SCREEN.
-            IF screen-name = c_fields-group_by OR
-               screen-name = c_fields-aggregation.
-              screen-input = 0.
-              MODIFY SCREEN.
-            ENDIF.
-          ENDLOOP.
-        ENDIF.
       ENDIF.
     ENDIF.
 
@@ -837,8 +830,6 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
   METHOD zif_uitb_table~pbo.
     DATA: ls_screen TYPE screen.
 
-    FIELD-SYMBOLS: <ls_table_column> TYPE scxtab_column.
-
     IF mr_selfield_line->inttype IS NOT INITIAL AND
        NOT zcl_sat_system_helper=>syst_value_allwd_for_inttyp( mr_selfield_line->inttype ).
       LOOP AT SCREEN INTO ls_screen.
@@ -856,27 +847,13 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
     ENDIF.
 
     zcl_dbbr_icon_handler=>create_icon(
-      EXPORTING
-        iv_icon_name = lv_push_icon_name
-      IMPORTING
-        ev_info_text = DATA(lv_icon_text)
-        ev_push      = mr_push_icon->*
+      EXPORTING iv_icon_name = lv_push_icon_name
+      IMPORTING ev_push      = mr_push_icon->*
     ).
 
-    IF NOT mr_selfield_line->option IS INITIAL.
-      DATA(lv_option_icon_name) = zcl_dbbr_icon_handler=>get_sign_icon_name(
-          iv_sign      = mr_selfield_line->sign
-          iv_option    = mr_selfield_line->option
-      ).
-    ELSE.
-      lv_option_icon_name = 'ICON_SELECTION'.
-    ENDIF.
-
-    zcl_dbbr_icon_handler=>create_icon(
-      EXPORTING
-        iv_icon_name = lv_option_icon_name
-      IMPORTING
-        ev_push      = mr_option_icon->*
+    mr_option_icon->* = zcl_dbbr_selopt_util=>create_option_icon(
+      iv_option = mr_selfield_line->option
+      iv_sign   = mr_selfield_line->sign
     ).
 
 *.. update other field attributes

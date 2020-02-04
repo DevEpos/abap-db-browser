@@ -1663,10 +1663,6 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
                                         entity_type   = ls_favmenu_data-favtype   ) )
       ).
     ENDIF.
-**    zcl_dbbr_selscr_nav_events=>raise_display_object_list(
-**        iv_entity_id    = ls_favmenu_data-fav_entry
-**        iv_entity_type  = ls_favmenu_data-favtype
-**    ).
   ENDMETHOD.
 
 

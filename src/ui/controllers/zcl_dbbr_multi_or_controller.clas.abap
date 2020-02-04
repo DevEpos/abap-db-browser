@@ -57,7 +57,6 @@ CLASS zcl_dbbr_multi_or_controller DEFINITION
     DATA mr_ui_multi_or_fields TYPE REF TO zdbbr_selfield_itab .
     DATA mr_ui_multi_or_tuple_no TYPE REF TO tswpos .
     DATA mr_ui_selfields TYPE REF TO zdbbr_selfield_itab .
-    DATA mr_ui_sel_option_init TYPE REF TO zdbbr_selopt_control_itab .
     DATA mr_ui_multi_or_ctrl TYPE REF TO cxtab_control .
 
     METHODS copy_values_from_main_selscrn .
@@ -115,7 +114,6 @@ CLASS zcl_dbbr_multi_or_controller IMPLEMENTATION.
     mr_ui_selfields = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_selection_fields ) ).
     mr_ui_multi_or_fields = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_multi_or ) ).
     mr_ui_multi_or_tuple_no = CAST tswpos( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_or_tuple_number ) ).
-    mr_ui_sel_option_init = CAST zdbbr_selopt_control_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_sel_init ) ).
     mr_ui_multi_or_ctrl = CAST cxtab_control( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_multi_or_tc ) ).
 
     " fill table from selection criteria table
@@ -327,14 +325,14 @@ CLASS zcl_dbbr_multi_or_controller IMPLEMENTATION.
   METHOD show_multi_selection_dialog.
 
     mr_multi_or_table->zif_uitb_table~determine_current_line( ).
+    DATA(lv_current_line) = mr_multi_or_table->zif_uitb_table~get_current_line_index( ).
+    ASSIGN mr_ui_multi_or_fields->*[ lv_current_line ] TO FIELD-SYMBOL(<ls_selfield>).
+    CHECK sy-subrc = 0.
 
-    zcl_dbbr_app_starter=>show_multi_select(
-      EXPORTING
-        iv_current_line   = mr_multi_or_table->zif_uitb_table~get_current_line_index( )
-        ir_custom_f4_map  = mr_custom_f4_map
-      CHANGING
-        ct_selfield       = mr_ui_multi_or_fields->*
-        ct_selfield_multi = mt_multi_selection
+    zcl_dbbr_dialogs=>show_multi_select(
+      EXPORTING io_custom_f4_map  = mr_custom_f4_map
+      CHANGING  cs_selfield       = <ls_selfield>
+                ct_selfield_multi = mt_multi_selection
     ).
 
   ENDMETHOD.
@@ -351,7 +349,7 @@ CLASS zcl_dbbr_multi_or_controller IMPLEMENTATION.
     ENDIF.
 
     " get user selection
-    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option(
+    DATA(ls_chosen_option) = zcl_dbbr_selopt_util=>choose_sel_option(
        if_allow_null = xsdbool( ls_current_line-is_parameter = abap_false )
     ).
     IF ls_chosen_option IS INITIAL.
@@ -362,13 +360,10 @@ CLASS zcl_dbbr_multi_or_controller IMPLEMENTATION.
     ls_current_line-option = ls_chosen_option-option.
     " GT_sel_init contains info if low and/or high are allowed for
     " the selected option
-    TRY .
-        DATA(ls_sel_init) = mr_ui_sel_option_init->*[ option = ls_chosen_option-option ].
-        IF ls_sel_init-high <> abap_true.
-          CLEAR ls_current_line-high.
-        ENDIF.
-      CATCH cx_sy_itab_line_not_found.
-    ENDTRY.
+    DATA(ls_sel_init) = zcl_dbbr_selopt_util=>get_selopt_control( ls_chosen_option-option ).
+    IF ls_sel_init-high <> abap_true.
+      CLEAR ls_current_line-high.
+    ENDIF.
 
     MODIFY mr_ui_multi_or_fields->* FROM ls_current_line INDEX mr_multi_or_table->zif_uitb_table~get_current_line_index( ).
 

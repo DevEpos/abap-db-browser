@@ -59,8 +59,8 @@ CLASS zcl_dbbr_output_grid DEFINITION
     DATA mt_excluded TYPE RANGE OF ui_func.
 
     TYPES: BEGIN OF ty_s_tb_button.
-        INCLUDE TYPE stb_button.
-    TYPES: fkey  TYPE ui_func.
+             INCLUDE TYPE stb_button.
+             TYPES: fkey TYPE ui_func.
     TYPES:END OF ty_s_tb_button.
 
     CLASS-DATA gt_shortcuts_map TYPE zif_uitb_ty_gui_screen=>ty_t_fkey_map.
@@ -73,19 +73,21 @@ CLASS zcl_dbbr_output_grid DEFINITION
         VALUE(rt_buttons) TYPE ttb_button.
     "! <p class="shorttext synchronized" lang="en">Handler for toolbar build event</p>
     METHODS on_toolbar
-          FOR EVENT toolbar OF cl_gui_alv_grid
+        FOR EVENT toolbar OF cl_gui_alv_grid
       IMPORTING
-          e_interactive
-          e_object.
+        e_interactive
+        e_object.
     METHODS on_toolbar_button
-          FOR EVENT toolbar_button_click OF cl_gui_alv_grid
+        FOR EVENT toolbar_button_click OF cl_gui_alv_grid
       IMPORTING
-          fcode.
+        fcode.
+
 ENDCLASS.
 
 
 
 CLASS zcl_dbbr_output_grid IMPLEMENTATION.
+
 
   METHOD class_constructor.
 *.. Create default toolbar buttons
@@ -329,18 +331,6 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD show_active_default_shortcuts.
-    DATA: lt_active_buttons_range TYPE RANGE OF ui_func.
-
-    DATA(lt_shortcuts) = gt_shortcuts_map.
-
-    IF mt_excluded IS NOT INITIAL.
-      DELETE lt_shortcuts WHERE mapped_function IN mt_excluded.
-    ENDIF.
-
-    zcl_uitb_app_shortcuts_viewer=>display_shortcuts( it_shortcuts = lt_shortcuts ).
-
-  ENDMETHOD.
 
   METHOD constructor.
     super->constructor(
@@ -352,13 +342,6 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     SET HANDLER:
       on_toolbar FOR me,
       on_toolbar_button FOR me.
-  ENDMETHOD.
-
-  METHOD set_default_toolbar.
-    set_toolbar_functions(
-        it_functions = CORRESPONDING #( gt_default_tb_buttons )
-        it_menus     = gt_default_tb_menu
-    ).
   ENDMETHOD.
 
 
@@ -383,11 +366,12 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         OTHERS            = 2
     ).
     IF sy-subrc <> 0.
-* Implement suitable error handling here
+*.... Implement suitable error handling here
       RETURN.
     ENDIF.
+*    ENDIF.
 
-    " handle specific function codes
+*.. handle specific function codes
     CASE lv_action.
       WHEN mc_mb_variant OR
            mc_fc_current_variant OR
@@ -414,6 +398,29 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD get_active_toolbar_buttons.
+    rt_buttons = mt_toolbar_buttons.
+*.. Remove exluded functions
+    IF mt_excluded IS NOT INITIAL.
+      DELETE rt_buttons WHERE function IN mt_excluded.
+    ENDIF.
+*.. Remove adjacent separators
+    DATA(lf_sep_found) = abap_false.
+
+    LOOP AT rt_buttons ASSIGNING FIELD-SYMBOL(<ls_button>).
+      IF lf_sep_found = abap_true.
+        IF <ls_button>-butn_type = cntb_btype_sep.
+          DELETE rt_buttons.
+        ELSE.
+          CLEAR lf_sep_found.
+        ENDIF.
+      ELSE.
+        lf_sep_found = xsdbool( <ls_button>-butn_type = cntb_btype_sep ).
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
+
+
   METHOD get_all_selected_rows.
     get_selected_rows(
       IMPORTING
@@ -436,6 +443,23 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
 
     SORT result.
     DELETE ADJACENT DUPLICATES FROM result.
+  ENDMETHOD.
+
+
+  METHOD get_variant_fieldcat.
+    get_internal_fieldcat( IMPORTING et_fieldcatalog = rt_fieldcat ).
+
+    set_toolbar_buttons(
+      EXPORTING
+        toolbar_table = mt_toolbar_buttons
+*      EXCEPTIONS
+*        error         = 1
+*        others        = 2
+    ).
+    IF sy-subrc <> 0.
+*     MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
+*       WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
+    ENDIF.
   ENDMETHOD.
 
 
@@ -480,6 +504,36 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD on_toolbar.
+    e_object->mt_btnmnu =  mt_toolbar_menu.
+    e_object->mt_toolbar = mt_toolbar_buttons.
+
+*.. Remove exluded functions
+    IF mt_excluded IS NOT INITIAL.
+      DELETE e_object->mt_toolbar WHERE function IN mt_excluded.
+    ENDIF.
+*.. Remove adjacent separators
+    DATA(lf_sep_found) = abap_false.
+
+    LOOP AT e_object->mt_toolbar ASSIGNING FIELD-SYMBOL(<ls_button>).
+      IF lf_sep_found = abap_true.
+        IF <ls_button>-butn_type = cntb_btype_sep.
+          DELETE e_object->mt_toolbar.
+        ELSE.
+          CLEAR lf_sep_found.
+        ENDIF.
+      ELSE.
+        lf_sep_found = xsdbool( <ls_button>-butn_type = cntb_btype_sep ).
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
+
+
+  METHOD on_toolbar_button.
+
+  ENDMETHOD.
+
+
   METHOD optimize_columns.
     optimize_all_cols(
 *      EXPORTING
@@ -516,63 +570,13 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD set_sort_criteria.
-*&---------------------------------------------------------------------*
-*& Author:    stockbal     Date: 2016/12/01
-*&---------------------------------------------------------------------*
-    super->set_sort_criteria( EXPORTING it_sort = it_sort ).
-
-    RAISE EVENT sorted_fields_changed.
-  ENDMETHOD.
-
-  METHOD get_variant_fieldcat.
-    get_internal_fieldcat( IMPORTING et_fieldcatalog = rt_fieldcat ).
-
-    set_toolbar_buttons(
-      EXPORTING
-        toolbar_table = mt_toolbar_buttons
-*      EXCEPTIONS
-*        error         = 1
-*        others        = 2
+  METHOD set_default_toolbar.
+    set_toolbar_functions(
+        it_functions = CORRESPONDING #( gt_default_tb_buttons )
+        it_menus     = gt_default_tb_menu
     ).
-    IF sy-subrc <> 0.
-*     MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
-*       WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
-    ENDIF.
   ENDMETHOD.
 
-  METHOD on_toolbar.
-    e_object->mt_btnmnu =  mt_toolbar_menu.
-    e_object->mt_toolbar = mt_toolbar_buttons.
-
-*.. Remove exluded functions
-    IF mt_excluded IS NOT INITIAL.
-      DELETE e_object->mt_toolbar WHERE function IN mt_excluded.
-    ENDIF.
-*.. Remove adjacent separators
-    DATA(lf_sep_found) = abap_false.
-
-    LOOP AT e_object->mt_toolbar ASSIGNING FIELD-SYMBOL(<ls_button>).
-      IF lf_sep_found = abap_true.
-        IF <ls_button>-butn_type = cntb_btype_sep.
-          DELETE e_object->mt_toolbar.
-        ELSE.
-          CLEAR lf_sep_found.
-        ENDIF.
-      ELSE.
-        lf_sep_found = xsdbool( <ls_button>-butn_type = cntb_btype_sep ).
-      ENDIF.
-    ENDLOOP.
-  ENDMETHOD.
-
-  METHOD on_toolbar_button.
-
-  ENDMETHOD.
-
-  METHOD set_toolbar_functions.
-    mt_toolbar_buttons = it_functions.
-    mt_toolbar_menu = it_menus.
-  ENDMETHOD.
 
   METHOD set_excluded_functions.
     mt_excluded = VALUE #( FOR function IN it_functions ( sign = 'I' option = 'EQ' low = function ) ).
@@ -621,26 +625,34 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-  METHOD get_active_toolbar_buttons.
-    rt_buttons = mt_toolbar_buttons.
-*.. Remove exluded functions
-    IF mt_excluded IS NOT INITIAL.
-      DELETE rt_buttons WHERE function IN mt_excluded.
-    ENDIF.
-*.. Remove adjacent separators
-    DATA(lf_sep_found) = abap_false.
 
-    LOOP AT rt_buttons ASSIGNING FIELD-SYMBOL(<ls_button>).
-      IF lf_sep_found = abap_true.
-        IF <ls_button>-butn_type = cntb_btype_sep.
-          DELETE rt_buttons.
-        ELSE.
-          CLEAR lf_sep_found.
-        ENDIF.
-      ELSE.
-        lf_sep_found = xsdbool( <ls_button>-butn_type = cntb_btype_sep ).
-      ENDIF.
-    ENDLOOP.
+  METHOD set_sort_criteria.
+*&---------------------------------------------------------------------*
+*& Author:    stockbal     Date: 2016/12/01
+*&---------------------------------------------------------------------*
+    super->set_sort_criteria( EXPORTING it_sort = it_sort ).
+
+    RAISE EVENT sorted_fields_changed.
+  ENDMETHOD.
+
+
+  METHOD set_toolbar_functions.
+    mt_toolbar_buttons = it_functions.
+    mt_toolbar_menu = it_menus.
+  ENDMETHOD.
+
+
+  METHOD show_active_default_shortcuts.
+    DATA: lt_active_buttons_range TYPE RANGE OF ui_func.
+
+    DATA(lt_shortcuts) = gt_shortcuts_map.
+
+    IF mt_excluded IS NOT INITIAL.
+      DELETE lt_shortcuts WHERE mapped_function IN mt_excluded.
+    ENDIF.
+
+    zcl_uitb_app_shortcuts_viewer=>display_shortcuts( it_shortcuts = lt_shortcuts ).
+
   ENDMETHOD.
 
 ENDCLASS.

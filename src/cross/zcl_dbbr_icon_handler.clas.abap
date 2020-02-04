@@ -1,9 +1,17 @@
+"! <p class="shorttext synchronized" lang="en">Util class for icons</p>
 CLASS zcl_dbbr_icon_handler DEFINITION
   PUBLIC
   CREATE PUBLIC .
 
   PUBLIC SECTION.
 
+    "! <p class="shorttext synchronized" lang="en">Creates icon</p>
+    "!
+    "! @parameter iv_icon_name | <p class="shorttext synchronized" lang="en">Name of an icon</p>
+    "! @parameter iv_text | <p class="shorttext synchronized" lang="en">Tooltip for the icon</p>
+    "! @parameter iv_info | <p class="shorttext synchronized" lang="en">Info Text of the Icon</p>
+    "! @parameter ev_info_text | <p class="shorttext synchronized" lang="en">Created info text of the icon</p>
+    "! @parameter ev_push | <p class="shorttext synchronized" lang="en">The created icon</p>
     CLASS-METHODS create_icon
       IMPORTING
         !iv_icon_name TYPE iconname
@@ -12,27 +20,24 @@ CLASS zcl_dbbr_icon_handler DEFINITION
       EXPORTING
         !ev_info_text TYPE iconquick
         !ev_push      TYPE any .
-    CLASS-METHODS get_sign_icon_name
-      IMPORTING
-        !iv_sign            TYPE any
-        !iv_option          TYPE any
-      RETURNING
-        VALUE(rv_icon_name) TYPE iconname .
-    CLASS-METHODS create_sel_option_icon
-      IMPORTING
-        !iv_icon_name        TYPE any
-        !iv_sign             TYPE any
-      RETURNING
-        VALUE(rs_sel_option) TYPE se16n_sel_option .
+
+    "! <p class="shorttext synchronized" lang="en">Shows Icon Value Help</p>
+    "!
+    "! @parameter result | <p class="shorttext synchronized" lang="en">The chosen icon</p>
     CLASS-METHODS show_icon_value_help
       RETURNING
         VALUE(result) TYPE icon-name .
+    "! <p class="shorttext synchronized" lang="en">Create icon string with quicktip</p>
+    "!
+    "! @parameter iv_icon | <p class="shorttext synchronized" lang="en">The icon</p>
+    "! @oarameter iv_quicktip | <p class="shorttext synchronized" lang="en">The tooltip for the icon</p>
     CLASS-METHODS create_icon_with_tip
       IMPORTING
         !iv_icon                     TYPE icon_d
         !iv_quicktip                 TYPE string
       RETURNING
         VALUE(rv_icon_with_quicktip) TYPE string .
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -48,11 +53,11 @@ CLASS zcl_dbbr_icon_handler IMPLEMENTATION.
 *&---------------------------------------------------------------------*
 
     IF iv_icon_name = 'ICON_EQUAL'.
-      ev_push = |@{ icon_equal+1(2) }\\Q{ 'Is Null'(001) }@|.
+      ev_push = |@{ icon_equal+1(2) }\\Q{ 'Select: Is Null'(001) }@|.
       ev_info_text = |{ 'Select: Is Null'(003) }|.
       RETURN.
     ELSEIF iv_icon_name = 'ICON_NOT_EQUAL'.
-      ev_push = |@{ icon_not_equal+1(2) }\\Q{ 'Is Not Null'(002) }@|.
+      ev_push = |@{ icon_not_equal+1(2) }\\Q{ 'Select: Is Not Null'(002) }@|.
       ev_info_text = |{ 'Select: Is Not Null'(004) }|.
       RETURN.
     ELSEIF iv_icon_name = 'ICON_SELECTION'.
@@ -106,77 +111,6 @@ CLASS zcl_dbbr_icon_handler IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD create_sel_option_icon.
-*& Description: Creates select option icon line
-*&---------------------------------------------------------------------*
-    rs_sel_option-option = iv_icon_name.
-    rs_sel_option-sign = iv_sign.
-
-    DATA(lv_icon_name) = get_sign_icon_name(
-      iv_sign      = iv_sign
-      iv_option    = iv_icon_name
-    ).
-
-    CHECK: lv_icon_name IS NOT INITIAL.
-
-    create_icon(
-      EXPORTING
-        iv_icon_name = lv_icon_name
-      IMPORTING
-        ev_info_text = DATA(lv_icon_quickinfo)
-        ev_push      = rs_sel_option-icon
-    ).
-
-    rs_sel_option-text = lv_icon_quickinfo.
-
-  ENDMETHOD.
-
-
-  METHOD get_sign_icon_name.
-*&---------------------------------------------------------------------*
-*& Description: Returns icon name
-*&---------------------------------------------------------------------*
-
-    CASE iv_option.
-      WHEN zif_dbbr_global_consts=>gc_options-default.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-default.
-      WHEN zif_dbbr_global_consts=>gc_options-bt.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-bt.
-      WHEN zif_dbbr_global_consts=>gc_options-nb.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-nb.
-      WHEN zif_dbbr_global_consts=>gc_options-eq.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-eq.
-      WHEN zif_dbbr_global_consts=>gc_options-ne.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-ne.
-      WHEN zif_dbbr_global_consts=>gc_options-gt.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-gt.
-      WHEN zif_dbbr_global_consts=>gc_options-lt.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-lt.
-      WHEN zif_dbbr_global_consts=>gc_options-ge.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-ge.
-      WHEN zif_dbbr_global_consts=>gc_options-le.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-le.
-      WHEN zif_dbbr_global_consts=>gc_options-cp.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-cp.
-      WHEN zif_dbbr_global_consts=>gc_options-np.
-        rv_icon_name = zif_dbbr_global_consts=>gc_icons-np.
-      WHEN zif_dbbr_global_consts=>gc_options-is_null.
-        rv_icon_name = 'ICON_EQUAL'.
-      WHEN zif_dbbr_global_consts=>gc_options-is_not_null.
-        rv_icon_name = 'ICON_NOT_EQUAL'.
-    ENDCASE.
-
-    IF iv_sign = zif_dbbr_global_consts=>gc_options-i OR
-       iv_sign = space.
-      REPLACE '#' WITH zif_dbbr_global_consts=>gc_icons-green INTO rv_icon_name.
-    ELSE.
-      REPLACE '#' WITH zif_dbbr_global_consts=>gc_icons-red INTO rv_icon_name.
-    ENDIF.
-
-
-  ENDMETHOD.
-
-
   METHOD show_icon_value_help.
     CALL FUNCTION 'ICON_SHOW'
       IMPORTING
@@ -185,9 +119,6 @@ CLASS zcl_dbbr_icon_handler IMPLEMENTATION.
         no_icon_selected = 1
         no_object_found  = 2
         OTHERS           = 3.
-    IF sy-subrc <> 0.
-*     MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
-*                WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
-    ENDIF.
   ENDMETHOD.
+
 ENDCLASS.

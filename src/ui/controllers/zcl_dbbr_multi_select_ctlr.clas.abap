@@ -8,7 +8,7 @@ CLASS zcl_dbbr_multi_select_ctlr DEFINITION
 
     METHODS constructor
       IMPORTING
-        !ir_custom_f4_map   TYPE REF TO zcl_dbbr_custom_f4_map
+        !io_custom_f4_map   TYPE REF TO zcl_dbbr_custom_f4_map
         !ir_selection_table TYPE REF TO zcl_dbbr_multi_select_table .
     METHODS determine_line_count .
     METHODS call_f4_help
@@ -30,7 +30,7 @@ CLASS zcl_dbbr_multi_select_ctlr DEFINITION
     ALIASES get_screen_id
       FOR zif_uitb_screen_controller~get_screen_id .
 
-    DATA mr_custom_f4_map TYPE REF TO zcl_dbbr_custom_f4_map .
+    DATA mo_custom_f4_map TYPE REF TO zcl_dbbr_custom_f4_map .
     DATA mo_table TYPE REF TO zcl_dbbr_multi_select_table .
     DATA mf_transfer TYPE boolean .
     DATA mr_ui_multi_select_field TYPE REF TO zdbbr_selfield .
@@ -79,7 +79,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
               iv_repid         = zif_dbbr_c_report_id=>main
               iv_selfield_name = 'GS_MULTI_SELECT'
               iv_current_line  = lv_current_line
-              ir_custom_f4_map = mr_custom_f4_map
+              ir_custom_f4_map = mo_custom_f4_map
             CHANGING
               cs_selfield      = ls_selfield
           ).
@@ -102,12 +102,12 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
     FIELD-SYMBOLS: <lv_selvalue> TYPE se16n_value.
 
     " 1) read f4 help definition
-    mr_custom_f4_map->read_custom_f4_definition(
+    mo_custom_f4_map->read_custom_f4_definition(
       EXPORTING
         iv_tablename     = mr_ui_multi_select_field->tabname
         iv_fieldname     = mr_ui_multi_select_field->fieldname
         iv_rollname      = mr_ui_multi_select_field->rollname
-        is_built_in_type = value #(
+        is_built_in_type = VALUE #(
           datatype = mr_ui_multi_select_field->datatype
           leng     = mr_ui_multi_select_field->intlen
         )
@@ -128,7 +128,6 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
         cs_selfield        = mr_ui_multi_select_field->*
         ct_selfield        = mr_ui_multi_select_fields->*
     ).
-
 
   ENDMETHOD.
 
@@ -163,8 +162,8 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
 
 
   METHOD choose_option_template.
-    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option(
-      if_allow_null = xsdbool( mo_table->get_template_line( )-is_parameter = abap_false )
+    DATA(ls_chosen_option) = zcl_dbbr_selopt_util=>choose_sel_option(
+       if_allow_null = xsdbool( mo_table->get_template_line( )-is_parameter = abap_false )
     ).
 
     IF ls_chosen_option IS INITIAL.
@@ -179,7 +178,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
 
   METHOD constructor.
 
-    mr_custom_f4_map = ir_custom_f4_map.
+    mo_custom_f4_map = io_custom_f4_map.
     mo_table = ir_selection_table.
     mo_table->update_option_template( ms_option_template ).
 
@@ -234,7 +233,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
       ENDIF.
 
       " convert input
-      ZCL_SAT_DATA_CONVERTER=>convert_selopt_to_int_format(
+      zcl_sat_data_converter=>convert_selopt_to_int_format(
         EXPORTING iv_tabname   = mr_ui_multi_select_field->tabname
                   iv_fieldname = mr_ui_multi_select_field->fieldname
         CHANGING  cv_value1    = mr_ui_multi_select_field->low
@@ -303,6 +302,13 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
 
 
   METHOD zif_uitb_screen_controller~call_screen.
+    DATA(ls_screen) = COND zif_uitb_screen_controller=>ty_s_screen_size(
+        WHEN is_screen_size IS NOT INITIAL THEN
+          is_screen_size
+        ELSE
+          VALUE #( top = 2 left = 10 columns = 70 rows = 15 )
+    ).
+
     zcl_uitb_screen_util=>call_screen(
         iv_screen_id    = get_screen_id( )
         iv_report_id    = get_report_id( )
@@ -312,10 +318,10 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
           ( variable_name = zif_dbbr_main_report_var_ids=>c_r_multi_select_table
             global_ref    = mo_table )
         )
-        iv_start_column = 10
-        iv_start_line   = 2
-        iv_end_column   = 80
-        iv_end_line     = 17
+        iv_start_line   = ls_screen-top
+        iv_start_column = ls_screen-left
+        iv_end_column   = ls_screen-left + ls_screen-columns
+        iv_end_line     = ls_screen-top + ls_screen-rows
     ).
   ENDMETHOD.
 
@@ -392,21 +398,9 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
 
     LOOP AT SCREEN INTO DATA(ls_screen).
       IF ls_screen-name = 'OPTION_TEMPLATE'.
-        IF NOT ms_option_template IS INITIAL.
-          DATA(lv_option_icon_name) = zcl_dbbr_icon_handler=>get_sign_icon_name(
-              iv_sign      = ms_option_template-sign
-              iv_option    = ms_option_template-option
-          ).
-        ELSE.
-          lv_option_icon_name = 'ICON_SELECTION'.
-        ENDIF.
-
-        zcl_dbbr_icon_handler=>create_icon(
-          EXPORTING
-            iv_icon_name = lv_option_icon_name
-          IMPORTING
-            ev_info_text = DATA(lv_icon_text)
-            ev_push      = mr_ui_option_templ_button->*
+        mr_ui_option_templ_button->* = zcl_dbbr_selopt_util=>create_option_icon(
+          iv_option = ms_option_template-option
+          iv_sign   = ms_option_template-sign
         ).
       ENDIF.
     ENDLOOP.

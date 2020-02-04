@@ -93,22 +93,6 @@ INTERFACE zif_dbbr_global_consts
       n(40)          VALUE 'NB,NE' ##no_text,
     END OF gc_options .
   CONSTANTS:
-    BEGIN OF gc_icons,
-      default(50) VALUE 'ICON_SELECTION' ##no_text,
-      eq(50)      VALUE 'ICON_EQUAL_#' ##no_text,
-      ne(50)      VALUE 'ICON_NOT_EQUAL_#' ##no_text,
-      gt(50)      VALUE 'ICON_GREATER_#' ##no_text,
-      lt(50)      VALUE 'ICON_LESS_#' ##no_text,
-      ge(50)      VALUE 'ICON_GREATER_EQUAL_#' ##no_text,
-      le(50)      VALUE 'ICON_LESS_EQUAL_#' ##no_text,
-      bt(50)      VALUE 'ICON_INTERVAL_INCLUDE_#' ##no_text,
-      nb(50)      VALUE 'ICON_INTERVAL_EXCLUDE_#' ##no_text,
-      cp(50)      VALUE 'ICON_PATTERN_INCLUDE_#' ##no_text,
-      np(50)      VALUE 'ICON_PATTERN_EXCLUDE_#' ##no_text,
-      green(5)    VALUE 'GREEN' ##no_text,
-      red(3)      VALUE 'RED' ##no_text,
-    END OF gc_icons .
-  CONSTANTS:
     BEGIN OF gc_alv_emphasize,
       key_color         TYPE char4 VALUE 'C11' ##no_text,
       foreign_key_color TYPE char4 VALUE 'C30' ##no_text,

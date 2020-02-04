@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_DBBR_APP_STARTER</CLSNAME>
+    <CLSNAME>ZCL_DBBR_SELOPT_UTIL</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Starts screen for DB Browser</DESCRIPT>
+    <DESCRIPT>Utility regarding Select Options</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
@@ -13,10 +13,16 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_APP_STARTER</CLSNAME>
-     <CMPNAME>START_SELECTION_FROM_MEMORY</CMPNAME>
+     <CLSNAME>ZCL_DBBR_SELOPT_UTIL</CLSNAME>
+     <CMPNAME>CHOOSE_SEL_OPTION</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Start new DB Browser selection from memory</DESCRIPT>
+     <DESCRIPT>Choose select option</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SELOPT_UTIL</CLSNAME>
+     <CMPNAME>GET_SELOPT_CONTROL</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Returns controlling params for option</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

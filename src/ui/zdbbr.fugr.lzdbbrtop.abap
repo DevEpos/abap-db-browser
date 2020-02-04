@@ -39,8 +39,6 @@ DATA: gt_selection_fields       TYPE zdbbr_selfield_itab,
       gv_multi_select_lines     LIKE sy-tabix,
       gv_option_template        TYPE se16n_option.
 
-DATA: gt_sel_init TYPE zdbbr_selopt_control_itab.
-
 FIELD-SYMBOLS: <gt_table> TYPE table.
 DATA: gr_dynamic_table TYPE REF TO data.
 

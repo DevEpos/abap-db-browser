@@ -179,7 +179,6 @@ CLASS zcl_dbbr_selscreen_data IMPLEMENTATION.
        mr_v_multi_or_icon         zif_dbbr_main_report_var_ids=>c_multi_or_icon,
        mr_v_option_icon           zif_dbbr_main_report_var_ids=>c_option,
        mr_s_global_data           zif_dbbr_main_report_var_ids=>c_s_data,
-       mr_t_sel_init_table        zif_dbbr_main_report_var_ids=>c_t_sel_init,
        mr_t_selfields_multi       zif_dbbr_main_report_var_ids=>c_t_selection_fields_multi,
        mr_v_seltext_gui           zif_dbbr_main_report_var_ids=>c_s_sel_text_gui_text,
        mr_s_browser_mode          zif_dbbr_main_report_var_ids=>c_s_browser_mode,

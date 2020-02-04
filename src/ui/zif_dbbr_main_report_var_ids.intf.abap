@@ -56,8 +56,6 @@ INTERFACE zif_dbbr_main_report_var_ids
   CONSTANTS c_t_selection_fields TYPE string VALUE 'GT_SELECTION_FIELDS' ##NO_TEXT.
   "! Type - ZDBBR_selfield_itab
   CONSTANTS c_t_selection_fields_multi TYPE string VALUE 'GT_SELECTION_FIELDS_MULTI' ##NO_TEXT.
-  "! Type - ZDBBR_selopt_control_itab
-  CONSTANTS c_t_sel_init TYPE string VALUE 'GT_SEL_INIT' ##NO_TEXT.
   "! Type - syst_ucomm
   CONSTANTS c_v_active_tab TYPE string VALUE 'GV_ACTIVE_TAB' ##NO_TEXT.
   "! Type - ZDBBR_button

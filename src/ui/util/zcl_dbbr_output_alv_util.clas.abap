@@ -73,7 +73,7 @@ CLASS zcl_dbbr_output_alv_util DEFINITION
   PROTECTED SECTION.
 
     "! <p class="shorttext synchronized" lang="en">ALV Output</p>
-    DATA mr_alv TYPE REF TO zcl_dbbr_output_grid .
+    DATA mo_alv TYPE REF TO zcl_dbbr_output_grid .
     DATA:
       BEGIN OF ms_new_filters,
         ui_filter TYPE lvc_t_filt,
@@ -88,7 +88,7 @@ CLASS zcl_dbbr_output_alv_util DEFINITION
     DATA mf_col_grouping_active TYPE abap_bool .
     DATA mr_t_fieldcat TYPE REF TO lvc_t_fcat.
     "! <p class="shorttext synchronized" lang="en">Wrapper for list of table fields</p>
-    DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
 
     "! <p class="shorttext synchronized" lang="en">Check fi the db filters changed</p>
     METHODS check_db_filter_changed .
@@ -153,7 +153,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
        ASSIGNING FIELD-SYMBOL(<ls_filter_group>).
 
       TRY.
-          DATA(lr_fieldname) = mr_tabfields->get_field_ref_by_alv_name( <ls_filter_group>-fieldname ).
+          DATA(lr_fieldname) = mo_tabfields->get_field_ref_by_alv_name( <ls_filter_group>-fieldname ).
         CATCH cx_sy_itab_line_not_found.
           CONTINUE.
       ENDTRY.
@@ -242,8 +242,8 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
     mf_use_live_filter = if_use_live_filter.
     mr_t_data = ir_t_data.
     mr_t_fieldcat = ir_t_fieldcat.
-    mr_tabfields = ir_tabfields.
-    mr_alv = ir_alv_grid.
+    mo_tabfields = ir_tabfields.
+    mo_alv = ir_alv_grid.
     mf_aggregation_active = if_aggregation_active.
   ENDMETHOD.
 
@@ -251,18 +251,18 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
   METHOD del_filter_from_selected_cols.
     DATA: lt_fields_range TYPE RANGE OF fieldname.
 
-    mr_alv->get_selected_columns( IMPORTING et_index_columns = DATA(lt_selected_cols) ).
+    mo_alv->get_selected_columns( IMPORTING et_index_columns = DATA(lt_selected_cols) ).
     CHECK lt_selected_cols IS NOT INITIAL.
 
     lt_fields_range = VALUE #( FOR col IN lt_selected_cols ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
 
-    mr_alv->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter) ).
+    mo_alv->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter) ).
     DELETE lt_filter WHERE fieldname IN lt_fields_range.
 
     rf_filter_removed = xsdbool( sy-subrc = 0 ).
     CHECK rf_filter_removed = abap_true.
 
-    mr_alv->set_filter_criteria( lt_filter ).
+    mo_alv->set_filter_criteria( lt_filter ).
   ENDMETHOD.
 
 
@@ -279,7 +279,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
           lt_alv_sort_criteria TYPE lvc_t_sort,
           lt_field_compare     TYPE tt_compare_field.
 
-    mr_alv->get_selected_columns( IMPORTING et_index_columns = DATA(lt_columns) ).
+    mo_alv->get_selected_columns( IMPORTING et_index_columns = DATA(lt_columns) ).
 
     IF lt_columns IS INITIAL.
       MESSAGE s062(zdbbr_info).
@@ -293,7 +293,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
         low = col-fieldname )
     ).
 
-    mr_alv->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+    mo_alv->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
 
     LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_field>).
       IF <ls_field>-fieldname NOT IN lt_col_selopt.
@@ -390,11 +390,11 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
     <ls_line_index_col>-tech = abap_false.
 
 
-    mr_alv->set_sort_criteria( lt_alv_sort_criteria ).
-    mr_alv->set_filter_criteria( VALUE #( ) ).
-    mr_alv->set_frontend_fieldcatalog( lt_fieldcat ).
-    mr_alv->refresh_table_display( ).
-    mr_alv->optimize_columns( ).
+    mo_alv->set_sort_criteria( lt_alv_sort_criteria ).
+    mo_alv->set_filter_criteria( VALUE #( ) ).
+    mo_alv->set_frontend_fieldcatalog( lt_fieldcat ).
+    mo_alv->refresh_table_display( ).
+    mo_alv->optimize_columns( ).
 
     mf_col_grouping_active = abap_true.
 
@@ -416,9 +416,9 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
 
 *.. get filter criteria for evaluating the fields, that need to be filled for
 *.. quick filter
-    mr_alv->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter) ).
-    mr_alv->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
-    mr_alv->get_selected_cells( IMPORTING et_cell = DATA(lt_cells) ).
+    mo_alv->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter) ).
+    mo_alv->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+    mo_alv->get_selected_cells( IMPORTING et_cell = DATA(lt_cells) ).
 
     " convert selected cells into internal structure
     lt_selected_cells_internal = VALUE #(
@@ -465,7 +465,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
 
     SORT lt_filter BY fieldname low sign option.
     DELETE ADJACENT DUPLICATES FROM lt_filter COMPARING fieldname low sign option.
-    mr_alv->set_filter_criteria( lt_filter ).
+    mo_alv->set_filter_criteria( lt_filter ).
 
   ENDMETHOD.
 
@@ -480,7 +480,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
       ENDLOOP.
     ENDIF.
 
-    mr_alv->get_filtered_entries( IMPORTING et_filtered_entries = DATA(lt_filtered) ).
+    mo_alv->get_filtered_entries( IMPORTING et_filtered_entries = DATA(lt_filtered) ).
     result = lines( lt_filtered ).
   ENDMETHOD.
 
@@ -497,7 +497,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
   METHOD get_filter_from_criteria.
     CHECK mf_use_live_filter = abap_true.
 
-    mr_alv->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+    mo_alv->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
     IF lt_fieldcat IS INITIAL.
       lt_fieldcat = mr_t_fieldcat->*.
     ENDIF.
@@ -513,7 +513,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
 
 *..... get table field to get alias name
       TRY.
-          DATA(lr_selection_field) = mr_tabfields->get_field_ref(
+          DATA(lr_selection_field) = mo_tabfields->get_field_ref(
               iv_tabname_alias   = <ls_selfield>-tabname_alias
               iv_fieldname = <ls_selfield>-fieldname
           ).
@@ -651,7 +651,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
            mf_db_filters_changed,
            mf_ui_filters_changed.
 
-    mr_alv->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter) ).
+    mo_alv->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter) ).
     SORT lt_filter BY fieldname low high option sign.
     DELETE ADJACENT DUPLICATES FROM lt_filter COMPARING fieldname low high option sign.
 
@@ -661,7 +661,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
         ASSIGNING FIELD-SYMBOL(<ls_filter_group>).
 
         TRY.
-            DATA(lr_field) = mr_tabfields->get_field_ref_by_alv_name( <ls_filter_group>-fieldname ).
+            DATA(lr_field) = mo_tabfields->get_field_ref_by_alv_name( <ls_filter_group>-fieldname ).
 
             IF lr_field->is_text_field = abap_true OR
                lr_field->is_formula_field = abap_true OR

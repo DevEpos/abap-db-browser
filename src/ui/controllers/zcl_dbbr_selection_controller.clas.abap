@@ -196,48 +196,48 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     "! <p class="shorttext synchronized" lang="en">Discard all non selected rows</p>
     METHODS keep_selected_rows .
     METHODS on_after_user_command
-          FOR EVENT after_user_command OF cl_gui_alv_grid
+        FOR EVENT after_user_command OF cl_gui_alv_grid
       IMPORTING
-          !e_not_processed
-          !e_saved
-          !e_ucomm .
+        !e_not_processed
+        !e_saved
+        !e_ucomm .
     METHODS on_before_user_command
-          FOR EVENT before_user_command OF cl_gui_alv_grid
+        FOR EVENT before_user_command OF cl_gui_alv_grid
       IMPORTING
-          !e_ucomm .
+        !e_ucomm .
     METHODS on_context_menu_request
-          FOR EVENT context_menu_request OF cl_gui_alv_grid
+        FOR EVENT context_menu_request OF cl_gui_alv_grid
       IMPORTING
-          !e_object .
+        !e_object .
     METHODS on_double_click
-          FOR EVENT double_click OF cl_gui_alv_grid
+        FOR EVENT double_click OF cl_gui_alv_grid
       IMPORTING
-          !e_row
-          !e_column
-          !es_row_no .
+        !e_row
+        !e_column
+        !es_row_no .
     METHODS on_hotspot_click
-          FOR EVENT hotspot_click OF cl_gui_alv_grid
+        FOR EVENT hotspot_click OF cl_gui_alv_grid
       IMPORTING
-          !e_column_id
-          !e_row_id
-          !es_row_no .
+        !e_column_id
+        !e_row_id
+        !es_row_no .
     METHODS on_no_data
-          FOR EVENT no_data OF zcl_dbbr_selection_util
+        FOR EVENT no_data OF zcl_dbbr_selection_util
       IMPORTING
-          ef_criteria_exist.
+        ef_criteria_exist.
     METHODS on_selection_finish
-          FOR EVENT selection_finished OF zcl_dbbr_selection_util
+        FOR EVENT selection_finished OF zcl_dbbr_selection_util
       IMPORTING
-          ef_first_select
-          ef_reset_alv_table.
+        ef_first_select
+        ef_reset_alv_table.
     METHODS on_toolbar_clicked
-          FOR EVENT function_selected OF cl_gui_toolbar
+        FOR EVENT function_selected OF cl_gui_toolbar
       IMPORTING
-          !fcode .
+        !fcode .
     METHODS on_user_command
-          FOR EVENT user_command OF cl_gui_alv_grid
+        FOR EVENT user_command OF cl_gui_alv_grid
       IMPORTING
-          !e_ucomm .
+        !e_ucomm .
     "! <p class="shorttext synchronized" lang="en">Performs a quick filter</p>
     METHODS perform_quick_filter
       IMPORTING
@@ -1396,10 +1396,22 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD on_before_user_command.
-*&---------------------------------------------------------------------*
-*& Author: stockbal     Date: 2017/01/11
-*&---------------------------------------------------------------------*
+
+    DATA: lr_s_dummy_line TYPE REF TO data.
+    FIELD-SYMBOLS: <lt_data> TYPE table.
+
     CASE e_ucomm.
+
+      WHEN cl_gui_alv_grid=>mc_fc_filter.
+*...... This is necessary due to a change in the ALV logic, that
+*...... the filters cannot be adjusted if the underlying table is empty
+        ASSIGN mo_util->mr_t_data->* TO <lt_data>.
+        IF sy-subrc = 0 AND <lt_data> IS INITIAL.
+          CREATE DATA lr_s_dummy_line LIKE LINE OF <lt_data>.
+          ASSIGN lr_s_dummy_line->* TO FIELD-SYMBOL(<ls_line>).
+          APPEND <ls_line> TO <lt_data>.
+        ENDIF.
+
       WHEN cl_gui_alv_grid=>mc_fc_delete_filter.
         mo_alv_grid->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter_criteria) ).
         IF line_exists( lt_filter_criteria[ fieldname = ss_hide_row_filter-fieldname ] ).
@@ -2420,12 +2432,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         APPEND zif_dbbr_c_selection_functions=>clear_filter TO lt_excluding.
         APPEND zif_dbbr_c_selection_functions=>transfer_filter_values TO lt_excluding.
       ENDIF.
-      mo_alv_grid->get_subtotals(
-        IMPORTING
-          ep_collect00 = DATA(lr_ref)
-      ).
-      ASSIGN lr_ref->* TO <lt_table>.
-      IF sy-subrc = 0 AND <lt_table> IS INITIAL.
+      mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+      IF NOT line_exists( lt_fieldcat[ do_sum = abap_true ] ).
         APPEND zif_dbbr_c_selection_functions=>sum_column TO lt_excluding.
       ENDIF.
     ENDIF.

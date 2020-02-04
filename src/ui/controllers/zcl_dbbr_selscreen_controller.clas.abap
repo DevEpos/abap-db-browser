@@ -116,48 +116,48 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
         FOR EVENT aggregation_attr_changed OF zcl_dbbr_selscreen_table .
     "! <p class="shorttext synchronized" lang="en">Handler for selection of favorite entry</p>
     METHODS on_faventry_selected
-          FOR EVENT entity_chosen OF zcl_dbbr_selscr_nav_events
+        FOR EVENT entity_chosen OF zcl_dbbr_selscr_nav_events
       IMPORTING
-          !ev_entity_id
-          !ev_entity_type .
+        !ev_entity_id
+        !ev_entity_type .
     "! <p class="shorttext synchronized" lang="en">Handler for favorites tree event</p>
     METHODS on_fav_tree_event
-          FOR EVENT favtree_event OF zcl_dbbr_selscr_nav_events
+        FOR EVENT favtree_event OF zcl_dbbr_selscr_nav_events
       IMPORTING
-          !er_handler .
+        !er_handler .
     "! <p class="shorttext synchronized" lang="en">Handler for history navigation event</p>
     METHODS on_history_navigation
-          FOR EVENT navigated OF zcl_dbbr_selscreen_history
+        FOR EVENT navigated OF zcl_dbbr_selscreen_history
       IMPORTING
-          !es_history_entry
-          !ev_current_index .
+        !es_history_entry
+        !ev_current_index .
     "! <p class="shorttext synchronized" lang="en">Event handler for requesting new entity for screen</p>
     METHODS on_request_new_entity
-          FOR EVENT request_new_entity OF zcl_dbbr_selscreen_util
+        FOR EVENT request_new_entity OF zcl_dbbr_selscreen_util
       IMPORTING
-          !ev_id
-          !ev_type
-          ef_force_loading.
+        !ev_id
+        !ev_type
+        ef_force_loading.
     "! <p class="shorttext synchronized" lang="en">Event Handler for requesting new object search</p>
     METHODS on_request_object_search
-          FOR EVENT request_object_search OF zcl_dbbr_selscr_nav_events
+        FOR EVENT request_object_search OF zcl_dbbr_selscr_nav_events
       IMPORTING
-          ev_object_type
-          ev_search_query
-          ef_close_popup.
+        ev_object_type
+        ev_search_query
+        ef_close_popup.
     "! <p class="shorttext synchronized" lang="en">Handler for Toolbar button press event</p>
     METHODS on_toolbar_button_pressed
-          FOR EVENT toolbar_button_pressed OF zcl_dbbr_toolbar_util
+        FOR EVENT toolbar_button_pressed OF zcl_dbbr_toolbar_util
       IMPORTING
-          !ev_function .
+        !ev_function .
     "! <p class="shorttext synchronized" lang="en">Handler for variant favorites entry selection</p>
     METHODS on_variant_faventry_selected
-          FOR EVENT variant_entry_chosen OF zcl_dbbr_selscr_nav_events
+        FOR EVENT variant_entry_chosen OF zcl_dbbr_selscr_nav_events
       IMPORTING
-          !ev_entity_id
-          !ev_entity_type
-          !ev_variant_id
-          !ef_go_to_result .
+        !ev_entity_id
+        !ev_entity_type
+        !ev_variant_id
+        !ef_go_to_result .
     "! <p class="shorttext synchronized" lang="en">Performs extended Entity Search</p>
     METHODS perform_extended_search .
     "! <p class="shorttext synchronized" lang="en">Performs pick navigation (F2/Double Click)</p>
@@ -343,7 +343,8 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
   METHOD choose_other_entity.
 
-    mo_cursor->set_field( |{ zif_dbbr_main_report_var_ids=>c_s_entity_info }-ENTITY_TYPE| ).
+    mo_cursor->set_field( |{ zif_dbbr_main_report_var_ids=>c_s_entity_info }-ENTITY_ID| ).
+    mo_cursor->set_line( 0 ).
     mo_cursor->request_update( ).
 
   ENDMETHOD.
@@ -623,7 +624,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     ENDTRY.
 
     " get user selection
-    DATA(ls_chosen_option) = zcl_dbbr_selscreen_util=>choose_sel_option(
+    DATA(ls_chosen_option) = zcl_dbbr_selopt_util=>choose_sel_option(
       if_allow_null = xsdbool( ls_current_line-is_parameter = abap_false )
     ).
     IF ls_chosen_option IS INITIAL.
@@ -634,13 +635,10 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     ls_current_line-option = ls_chosen_option-option.
     " GT_sel_init contains info if low and/or high are allowed for
     " the selected option
-    TRY .
-        DATA(ls_sel_init) = mo_data->mr_t_sel_init_table->*[ option = ls_chosen_option-option ].
-        IF ls_sel_init-high <> abap_true.
-          CLEAR ls_current_line-high.
-        ENDIF.
-      CATCH cx_sy_itab_line_not_found.
-    ENDTRY.
+    DATA(ls_sel_init) = zcl_dbbr_selopt_util=>get_selopt_control( ls_chosen_option-option ).
+    IF ls_sel_init-high <> abap_true.
+      CLEAR ls_current_line-high.
+    ENDIF.
 
     MODIFY mo_data->mr_t_table_data->* FROM ls_current_line INDEX lv_current_line.
   ENDMETHOD.
@@ -1341,13 +1339,14 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD show_multi_select.
-    zcl_dbbr_app_starter=>show_multi_select(
-      EXPORTING
-        iv_current_line   = mo_selection_table->get_current_line( )
-        ir_custom_f4_map  = mo_data->mo_custom_f4_map
-      CHANGING
-        ct_selfield       = mo_data->mr_t_table_data->*
-        ct_selfield_multi = mo_data->mr_t_selfields_multi->*
+    DATA(lv_current_line) = mo_selection_table->get_current_line( ).
+    ASSIGN mo_data->mr_t_table_data->*[ lv_current_line ] TO FIELD-SYMBOL(<ls_selfield>).
+    CHECK sy-subrc = 0.
+
+    zcl_dbbr_dialogs=>show_multi_select(
+      EXPORTING io_custom_f4_map  = mo_data->mo_custom_f4_map
+      CHANGING  cs_selfield       = <ls_selfield>
+                ct_selfield_multi = mo_data->mr_t_selfields_multi->*
     ).
   ENDMETHOD.
 
@@ -1672,7 +1671,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             zcl_dbbr_screen_helper=>leave_screen( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>show_technical_settings.
-            zcl_dbbr_app_starter=>show_user_settings( CHANGING cs_settings = mo_data->mr_s_global_data->settings ).
+            zcl_dbbr_dialogs=>show_user_settings( CHANGING cs_settings = mo_data->mr_s_global_data->settings ).
 
           WHEN zif_dbbr_c_selscreen_functions=>save_variant.
             save_variant( ).
@@ -1770,7 +1769,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
           WHEN zif_dbbr_c_selscreen_functions=>manage_associations.
             CHECK zcl_dbbr_usersettings_factory=>is_experimental_mode_active( ).
-            NEW zcl_dbbr_association_manager( )->zif_uitb_view~show( ).
+            NEW zcl_dbbr_association_manager( )->show( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>choose_different_entity.
             choose_other_entity( ).
