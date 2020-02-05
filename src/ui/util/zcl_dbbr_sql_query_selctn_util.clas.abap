@@ -26,6 +26,8 @@ CLASS zcl_dbbr_sql_query_selctn_util DEFINITION
         REDEFINITION.
     METHODS is_f4_saving_allowed
         REDEFINITION.
+    METHODS select_data
+        REDEFINITION.
   PRIVATE SECTION.
     DATA mo_query TYPE REF TO zcl_dbbr_sql_query.
     DATA mo_query_result_line_type TYPE REF TO cl_abap_structdescr.
@@ -43,24 +45,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
   METHOD execute_selection.
     FIELD-SYMBOLS: <lt_data> TYPE table.
 
-    zcl_dbbr_sql_query_exec=>execute_query(
-      EXPORTING
-        io_query          = mo_query
-        iv_row_count      = ms_technical_info-max_lines
-        if_count_only     = mf_count_lines
-      IMPORTING
-        et_data_info      = mt_query_result_col
-        ev_execution_time = mv_execution_time_str
-        ev_message        = DATA(lv_message)
-        ev_message_type   = DATA(lv_message_type)
-        er_data           = mr_query_result
-        ev_line_count     = ms_control_info-number
-    ).
-
-    IF lv_message IS NOT INITIAL.
-      MESSAGE |{ lv_message }| TYPE 'I' DISPLAY LIKE lv_message_type.
-      CHECK lv_message_type <> 'E'.
-    ENDIF.
+    CHECK select_data( ).
 
     IF mo_query->ms_data-is_single_result_query = abap_true.
       DATA(lv_number_of_lines) = |{ ms_control_info-number NUMBER = USER }|.
@@ -217,6 +202,29 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
       ENDIF.
 
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD select_data.
+    CLEAR rf_success.
+    zcl_dbbr_sql_query_exec=>execute_query(
+      EXPORTING
+        io_query          = mo_query
+        iv_row_count      = ms_technical_info-max_lines
+        if_count_only     = mf_count_lines
+      IMPORTING
+        et_data_info      = mt_query_result_col
+        ev_execution_time = mv_execution_time_str
+        ev_message        = DATA(lv_message)
+        ev_message_type   = DATA(lv_message_type)
+        er_data           = mr_query_result
+        ev_line_count     = ms_control_info-number
+    ).
+    IF lv_message IS NOT INITIAL.
+      MESSAGE |{ lv_message }| TYPE 'I' DISPLAY LIKE lv_message_type.
+      CHECK lv_message_type <> 'E'.
+    ENDIF.
+
+    rf_success = abap_true.
   ENDMETHOD.
 
   METHOD create_dynamic_table.

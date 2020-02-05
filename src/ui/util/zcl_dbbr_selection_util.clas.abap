@@ -1483,9 +1483,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
           ms_control_info-number = lines( <lt_table> ).
 
-**....... also determine the maximum number of lines if no join is active
-          IF NOT is_join_active( ) AND
-             ms_control_info-number = ms_technical_info-max_lines.
+**....... determine the maximum number of lines
+           IF sy-dbsys = 'HDB' and ms_control_info-number = ms_technical_info-max_lines.
 
             zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 

@@ -2457,8 +2457,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
                                            ELSE
                                              current_line_count( ) - lv_alv_filtered_entries ).
 
-    " differentiate headers of join and default/custom query selection
-    IF mo_util->is_join_active( ) OR mo_util->mf_custom_query_active = abap_true.
+    IF sy-dbsys <> 'HDB' OR mo_util->mf_custom_query_active = abap_true.
       DATA(lv_selection_count_text) = |{ lv_filtered_line_count NUMBER = USER } Entries|.
     ELSE.
       lv_selection_count_text = |{ lv_filtered_line_count NUMBER = USER } of { mo_util->mv_max_lines_existing NUMBER = USER } Entries|.
