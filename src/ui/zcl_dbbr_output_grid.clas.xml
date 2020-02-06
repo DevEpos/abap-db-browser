@@ -324,8 +324,20 @@
      <ENTRY>Delete Filters from selected Columns</ENTRY>
      <LENGTH>72</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>054</KEY>
+     <ENTRY>Unfreeze Rows</ENTRY>
+     <LENGTH>27</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OUTPUT_GRID</CLSNAME>
+     <CMPNAME>CHANGE_FIXED_ROWS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Changes the number of fixed rows</DESCRIPT>
+    </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OUTPUT_GRID</CLSNAME>
      <CMPNAME>CLASS_CONSTRUCTOR</CMPNAME>

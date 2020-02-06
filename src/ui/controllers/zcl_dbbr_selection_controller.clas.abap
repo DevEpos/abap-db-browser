@@ -39,6 +39,8 @@ CLASS zcl_dbbr_selection_controller DEFINITION
         emph_red                 TYPE gui_text VALUE 'Red',
         emph_red_inverted        TYPE gui_text VALUE 'Red (Inverted)',
         hide_other_columns       TYPE gui_text VALUE 'Hide not selected columns',
+        set_fixed_rows           TYPE gui_text VALUE 'Freeze to Row',
+        remove_fixed_rows        TYPE gui_text VALUE 'Unfreeze Rows',
       END OF c_function_texts .
 
     "! <p class="shorttext synchronized" lang="en">Global initializer for class</p>
@@ -1465,31 +1467,28 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ).
 
     IF lt_index_rows IS NOT INITIAL.
-      lt_menu_flat = VALUE #( BASE lt_menu_flat ( type = sctx_c_type_separator ) ).
       lt_menu_flat = VALUE #( BASE lt_menu_flat
+        ( type  = sctx_c_type_separator )
+        ( type = sctx_c_type_function
+          fcode = zif_dbbr_c_selection_functions=>set_fixed_rows
+          text  = c_function_texts-set_fixed_rows )
+        ( type = sctx_c_type_function
+          fcode = zif_dbbr_c_selection_functions=>remove_fixed_rows
+          text  = c_function_texts-remove_fixed_rows )
+        ( type  = sctx_c_type_separator )
         ( type  = sctx_c_type_function
           fcode = zif_dbbr_c_selection_functions=>hide_lines
-          text  = c_function_texts-hide_lines
-        )
-      ).
-      lt_menu_flat = VALUE #( BASE lt_menu_flat
+          text  = c_function_texts-hide_lines )
         ( type  = sctx_c_type_function
           fcode = zif_dbbr_c_selection_functions=>keep_lines
-          text  = c_function_texts-keep_lines
-        )
-      ).
-      lt_menu_flat = VALUE #( BASE lt_menu_flat ( type = sctx_c_type_separator ) ).
-      lt_menu_flat = VALUE #( BASE lt_menu_flat
+          text  = c_function_texts-keep_lines )
+        ( type  = sctx_c_type_separator )
         ( type  = sctx_c_type_submenu
           text  = 'Color selected Rows'
-          menu  = lr_emph_menu
-        )
-      ).
-      lt_menu_flat = VALUE #( BASE lt_menu_flat
+          menu  = lr_emph_menu )
         ( type  = sctx_c_type_function
           fcode = zif_dbbr_c_selection_functions=>no_emphasize_lines
-          text  = c_function_texts-dont_emphasize_rows
-        )
+          text  = c_function_texts-dont_emphasize_rows )
       ).
 
       IF lines( lt_index_rows ) > 1.
@@ -1750,6 +1749,13 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
   METHOD on_user_command.
     CASE e_ucomm.
+
+      WHEN zif_dbbr_c_selection_functions=>set_fixed_rows.
+        mo_alv_grid->change_fixed_rows( if_from_selection = abap_true ).
+
+      WHEN zif_dbbr_c_selection_functions=>remove_fixed_rows.
+        mo_alv_grid->change_fixed_rows( iv_rows = 0 ).
+
       WHEN zif_dbbr_c_selection_functions=>quick_filter.
         perform_quick_filter( ).
 

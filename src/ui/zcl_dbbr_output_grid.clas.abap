@@ -52,6 +52,12 @@ CLASS zcl_dbbr_output_grid DEFINITION
     METHODS set_default_toolbar.
     "! <p class="shorttext synchronized" lang="en">Shows the defined default GUI Status shortcuts</p>
     METHODS show_active_default_shortcuts.
+
+    "! <p class="shorttext synchronized" lang="en">Changes the number of fixed rows</p>
+    METHODS change_fixed_rows
+      IMPORTING
+        iv_rows           TYPE i OPTIONAL
+        if_from_selection TYPE abap_bool OPTIONAL.
   PROTECTED SECTION.
   PRIVATE SECTION.
     DATA mt_toolbar_buttons TYPE ttb_button.
@@ -277,6 +283,11 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     lo_rows_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>emphasize_negative_values
         text  = |{ 'Mark negative values'(038) }|
+    ).
+    lo_rows_menu->add_separator( ).
+    lo_rows_menu->add_function(
+       fcode  = zif_dbbr_c_selection_functions=>remove_fixed_rows
+       text   = |{ 'Remove fixed rows'(054) }|
     ).
 
     DATA(lo_cols_menu) = NEW cl_ctmenu( ).
@@ -653,6 +664,16 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
 
     zcl_uitb_app_shortcuts_viewer=>display_shortcuts( it_shortcuts = lt_shortcuts ).
 
+  ENDMETHOD.
+
+  METHOD change_fixed_rows.
+    IF if_from_selection = abap_true.
+      get_selected_rows( IMPORTING et_index_rows = DATA(lt_row) ).
+      CHECK lt_row IS NOT INITIAL.
+      set_fixed_rows( CONV #( lt_row[ lines( lt_row ) ]-index ) ).
+    ELSE.
+      set_fixed_rows( iv_rows ).
+    ENDIF.
   ENDMETHOD.
 
 ENDCLASS.
