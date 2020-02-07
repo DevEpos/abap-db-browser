@@ -1141,12 +1141,28 @@
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
        <CONT_NAME>SELFIELDS_TC</CONT_NAME>
        <TYPE>TEXT</TYPE>
+       <NAME>TXT_TOTALS</NAME>
+       <TEXT>Totals</TEXT>
+       <LINE>001</LINE>
+       <COLUMN>009</COLUMN>
+       <LENGTH>006</LENGTH>
+       <VISLENGTH>007</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <GROUP4>GRP</GROUP4>
+       <FORMAT>CHAR</FORMAT>
+       <REQU_ENTRY>N</REQU_ENTRY>
+       <TC_HEADING>X</TC_HEADING>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
+       <CONT_NAME>SELFIELDS_TC</CONT_NAME>
+       <TYPE>TEXT</TYPE>
        <NAME>TXT_GROUP_BY</NAME>
        <TEXT>Group</TEXT>
        <LINE>001</LINE>
-       <COLUMN>009</COLUMN>
+       <COLUMN>010</COLUMN>
        <LENGTH>005</LENGTH>
-       <VISLENGTH>010</VISLENGTH>
+       <VISLENGTH>008</VISLENGTH>
        <HEIGHT>001</HEIGHT>
        <GROUP4>GRP</GROUP4>
        <FORMAT>CHAR</FORMAT>
@@ -1160,7 +1176,7 @@
        <NAME>TXT_AGGREGATE</NAME>
        <TEXT>Aggregate</TEXT>
        <LINE>001</LINE>
-       <COLUMN>010</COLUMN>
+       <COLUMN>011</COLUMN>
        <LENGTH>009</LENGTH>
        <VISLENGTH>011</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1176,7 +1192,7 @@
        <NAME>TXT_DATATYPE</NAME>
        <TEXT>Data_type</TEXT>
        <LINE>001</LINE>
-       <COLUMN>011</COLUMN>
+       <COLUMN>012</COLUMN>
        <LENGTH>009</LENGTH>
        <VISLENGTH>010</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1191,7 +1207,7 @@
        <NAME>TXT_INTERNAL_LENGTH</NAME>
        <TEXT>Internal_Length</TEXT>
        <LINE>001</LINE>
-       <COLUMN>012</COLUMN>
+       <COLUMN>013</COLUMN>
        <LENGTH>015</LENGTH>
        <VISLENGTH>006</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1207,7 +1223,7 @@
        <NAME>TXT_OUTPUT_LENGTH</NAME>
        <TEXT>Output_Length</TEXT>
        <LINE>001</LINE>
-       <COLUMN>013</COLUMN>
+       <COLUMN>014</COLUMN>
        <LENGTH>013</LENGTH>
        <VISLENGTH>006</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1223,7 +1239,7 @@
        <NAME>TXT_CONVEXIT</NAME>
        <TEXT>Conv.Exit</TEXT>
        <LINE>001</LINE>
-       <COLUMN>014</COLUMN>
+       <COLUMN>015</COLUMN>
        <LENGTH>009</LENGTH>
        <VISLENGTH>005</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1239,7 +1255,7 @@
        <NAME>TXT_DATAELEMENT</NAME>
        <TEXT>Data_Element</TEXT>
        <LINE>001</LINE>
-       <COLUMN>015</COLUMN>
+       <COLUMN>016</COLUMN>
        <LENGTH>012</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1406,15 +1422,29 @@
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
        <CONT_NAME>SELFIELDS_TC</CONT_NAME>
        <TYPE>CHECK</TYPE>
-       <NAME>GS_SELFIELDS-GROUP_BY</NAME>
+       <NAME>GS_SELFIELDS-TOTALS</NAME>
        <LINE>001</LINE>
        <COLUMN>009</COLUMN>
        <LENGTH>001</LENGTH>
-       <VISLENGTH>010</VISLENGTH>
+       <VISLENGTH>007</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <GROUP4>GRP</GROUP4>
+       <FORMAT>CHAR</FORMAT>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
+       <CONT_NAME>SELFIELDS_TC</CONT_NAME>
+       <TYPE>CHECK</TYPE>
+       <NAME>GS_SELFIELDS-GROUP_BY</NAME>
+       <LINE>001</LINE>
+       <COLUMN>010</COLUMN>
+       <LENGTH>001</LENGTH>
+       <VISLENGTH>008</VISLENGTH>
        <HEIGHT>001</HEIGHT>
        <GROUP1>INP</GROUP1>
        <GROUP4>GRP</GROUP4>
-       <PUSH_FCODE>GRPBYCHECK</PUSH_FCODE>
        <FORMAT>CHAR</FORMAT>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
@@ -1427,7 +1457,7 @@
        <TEXT>___</TEXT>
        <DROPDOWN>L</DROPDOWN>
        <LINE>001</LINE>
-       <COLUMN>010</COLUMN>
+       <COLUMN>011</COLUMN>
        <LENGTH>003</LENGTH>
        <VISLENGTH>011</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1444,7 +1474,7 @@
        <NAME>GS_SELFIELDS-DATATYPE</NAME>
        <TEXT>__________</TEXT>
        <LINE>001</LINE>
-       <COLUMN>011</COLUMN>
+       <COLUMN>012</COLUMN>
        <LENGTH>010</LENGTH>
        <VISLENGTH>010</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1460,7 +1490,7 @@
        <NAME>GS_SELFIELDS-INTLEN</NAME>
        <TEXT>______</TEXT>
        <LINE>001</LINE>
-       <COLUMN>012</COLUMN>
+       <COLUMN>013</COLUMN>
        <LENGTH>006</LENGTH>
        <VISLENGTH>006</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1476,7 +1506,7 @@
        <NAME>GS_SELFIELDS-OUTPUTLEN</NAME>
        <TEXT>______</TEXT>
        <LINE>001</LINE>
-       <COLUMN>013</COLUMN>
+       <COLUMN>014</COLUMN>
        <LENGTH>006</LENGTH>
        <VISLENGTH>006</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1492,7 +1522,7 @@
        <NAME>GS_SELFIELDS-CONVEXIT</NAME>
        <TEXT>_____</TEXT>
        <LINE>001</LINE>
-       <COLUMN>014</COLUMN>
+       <COLUMN>015</COLUMN>
        <LENGTH>005</LENGTH>
        <VISLENGTH>005</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1508,7 +1538,7 @@
        <NAME>GS_SELFIELDS-ROLLNAME</NAME>
        <TEXT>______________________________</TEXT>
        <LINE>001</LINE>
-       <COLUMN>015</COLUMN>
+       <COLUMN>016</COLUMN>
        <LENGTH>030</LENGTH>
        <VISLENGTH>030</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1601,6 +1631,9 @@
        <LINE>FIELD gs_selfields-group_by.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
+       <LINE>FIELD gs_selfields-totals.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
        <LINE>FIELD gs_selfields-aggregation.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
@@ -1661,6 +1694,7 @@
       <item>0</item>
       <item>2</item>
       <item>4</item>
+      <item>6</item>
       <item>6</item>
       <item>6</item>
       <item>6</item>

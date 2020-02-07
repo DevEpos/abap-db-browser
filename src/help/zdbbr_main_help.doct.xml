@@ -3,40 +3,52 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <DOC>
-    <HEAD>
-     <TDOBJECT>DOKU</TDOBJECT>
-     <TDNAME>ZDBBR_MAIN_HELP</TDNAME>
-     <TDID>TX</TDID>
-     <TDSPRAS>E</TDSPRAS>
-     <TDFORM>S_DOCU_SHOW</TDFORM>
-     <TDSTYLE>S_DOCUS1</TDSTYLE>
-     <TDVERSION>00001</TDVERSION>
-     <TDLINESIZE>072</TDLINESIZE>
-    </HEAD>
-    <LINES>
-     <TLINE>
-      <TDFORMAT>U2</TDFORMAT>
-      <TDLINE>Definition</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
-      <TDLINE>This document provides an entry point for the most important topic for</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>DB Browser Application</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U2</TDFORMAT>
-      <TDLINE>Index</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>=</TDFORMAT>
-      <TDLINE>&lt;DS:TX.ZDBBR_JOIN_MANAGER_HELP&gt;Join Manager&lt;/&gt;</TDLINE>
-     </TLINE>
-    </LINES>
+    <item>
+     <DOKIL>
+      <ID>TX</ID>
+      <OBJECT>ZDBBR_MAIN_HELP</OBJECT>
+      <LANGU>E</LANGU>
+      <TYP>E</TYP>
+      <VERSION>0001</VERSION>
+      <MASTERLANG>X</MASTERLANG>
+      <TXTLINES>00005</TXTLINES>
+      <DOKSTATE>R</DOKSTATE>
+     </DOKIL>
+     <HEAD>
+      <TDOBJECT>DOKU</TDOBJECT>
+      <TDNAME>ZDBBR_MAIN_HELP</TDNAME>
+      <TDID>TX</TDID>
+      <TDSPRAS>E</TDSPRAS>
+      <TDFORM>S_DOCU_SHOW</TDFORM>
+      <TDSTYLE>S_DOCUS1</TDSTYLE>
+      <TDVERSION>00001</TDVERSION>
+      <TDLINESIZE>072</TDLINESIZE>
+     </HEAD>
+     <LINES>
+      <TLINE>
+       <TDFORMAT>U2</TDFORMAT>
+       <TDLINE>Definition</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>*</TDFORMAT>
+       <TDLINE>This document provides an entry point for the most important topic for</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>DB Browser Application</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U2</TDFORMAT>
+       <TDLINE>Index</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>=</TDFORMAT>
+       <TDLINE>&lt;DS:TX.ZDBBR_JOIN_MANAGER_HELP&gt;Join Manager&lt;/&gt;</TDLINE>
+      </TLINE>
+     </LINES>
+    </item>
    </DOC>
   </asx:values>
  </asx:abap>

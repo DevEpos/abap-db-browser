@@ -368,6 +368,9 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
       LOOP AT lt_vardata_group ASSIGNING FIELD-SYMBOL(<ls_vardata_group_entry>).
         CASE <ls_vardata_group_entry>-data_type.
 
+          WHEN zif_dbbr_global_consts=>gc_variant_datatypes-totals.
+            <ls_selfield>-totals = abap_true.
+
           WHEN zif_dbbr_global_consts=>gc_variant_datatypes-aggregation.
             <ls_selfield>-aggregation = <ls_vardata_group_entry>-low_val.
 

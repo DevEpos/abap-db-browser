@@ -9,7 +9,7 @@ INTERFACE zif_dbbr_global_consts
   CONSTANTS c_dummy_variant TYPE zdbbr_variant_id VALUE 'DUMMY' ##NO_TEXT.
   CONSTANTS c_default_max_lines TYPE sy-tabix VALUE 500 ##NO_TEXT.
   CONSTANTS c_default_last_used_favs TYPE sy-tabix VALUE 10 ##NO_TEXT.
-  CONSTANTS c_formula_alias TYPE ZSAT_TABLE_ALIAS VALUE 'X' ##NO_TEXT.
+  CONSTANTS c_formula_alias TYPE zsat_table_alias VALUE 'X' ##NO_TEXT.
   CONSTANTS gc_default_numeric_type TYPE dd04l-rollname VALUE 'ZDBBR_DEC17_5' ##NO_TEXT.
   CONSTANTS gc_formula_dummy_table TYPE tabname VALUE '-FORMULA-' ##NO_TEXT.
   CONSTANTS c_parameter_dummy_table TYPE tabname VALUE '-PARAMS-' ##NO_TEXT.
@@ -49,6 +49,7 @@ INTERFACE zif_dbbr_global_consts
     BEGIN OF gc_variant_datatypes,
       group_by     TYPE zdbbr_variant_datatype VALUE 'GROUP_BY' ##no_text,
       aggregation  TYPE zdbbr_variant_datatype VALUE 'AGGREGATION' ##no_text,
+      totals       TYPE zdbbr_variant_datatype VALUE 'TOTALS' ##no_text,
       or_selection TYPE zdbbr_variant_datatype VALUE 'OR_SELECTION' ##no_text,
     END OF gc_variant_datatypes .
   CONSTANTS:

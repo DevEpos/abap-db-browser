@@ -1404,7 +1404,8 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     DATA(lt_tables) = mo_data->mo_tabfield_list->get_table_list( ).
 
     LOOP AT mo_data->mr_t_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE group_by = abap_true
-                                                                              OR aggregation <> space.
+                                                                              OR aggregation <> space
+                                                                              OR totals = abap_true.
 
       " get existing field in ungrouped tabfield list
       DATA(ls_tabfield) = mo_data->mo_tabfield_list->get_field( iv_tabname   = <ls_selfield>-tabname_alias
@@ -1421,7 +1422,8 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
         ls_tabfield-sort_active = abap_true.
         ls_tabfield-sort_order = sy-tabix.
         ls_tabfield-sort_direction = zif_dbbr_global_consts=>gc_sort_direction-ascending.
-      ELSEIF <ls_selfield>-aggregation <> space.
+      ELSEIF <ls_selfield>-aggregation <> space OR
+             <ls_selfield>-totals = abap_true.
         CLEAR: ls_tabfield-sort_active,
                ls_tabfield-sort_order,
                ls_tabfield-sort_direction.

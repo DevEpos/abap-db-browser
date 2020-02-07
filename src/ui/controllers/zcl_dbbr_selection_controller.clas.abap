@@ -41,6 +41,7 @@ CLASS zcl_dbbr_selection_controller DEFINITION
         hide_other_columns       TYPE gui_text VALUE 'Hide not selected columns',
         set_fixed_rows           TYPE gui_text VALUE 'Freeze to Row',
         remove_fixed_rows        TYPE gui_text VALUE 'Unfreeze Rows',
+        freeze_rows_cols         TYPE gui_text VALUE 'Freeze to here',
       END OF c_function_texts .
 
     "! <p class="shorttext synchronized" lang="en">Global initializer for class</p>

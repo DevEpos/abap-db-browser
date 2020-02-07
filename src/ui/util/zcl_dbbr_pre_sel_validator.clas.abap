@@ -1,4 +1,4 @@
-CLASS ZCL_DBBR_PRE_SEL_VALIDATOR DEFINITION
+CLASS zcl_dbbr_pre_sel_validator DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -6,25 +6,25 @@ CLASS ZCL_DBBR_PRE_SEL_VALIDATOR DEFINITION
   PUBLIC SECTION.
     METHODS constructor
       IMPORTING
-        it_selection_fields   TYPE ZDBBR_selfield_itab
-        ir_tabfields          TYPE REF TO ZCL_DBBR_tabfield_list
-        is_join_definition    TYPE ZDBBR_join_def
-        is_technical_infos    TYPE ZDBBR_tech_info.
+        it_selection_fields TYPE zdbbr_selfield_itab
+        ir_tabfields        TYPE REF TO zcl_dbbr_tabfield_list
+        is_join_definition  TYPE zdbbr_join_def
+        is_technical_infos  TYPE zdbbr_tech_info.
     METHODS validate.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    DATA mt_selection_fields   TYPE ZDBBR_selfield_itab.
-    DATA mr_tabfields          TYPE REF TO ZCL_DBBR_tabfield_list.
-    DATA ms_join_definition    TYPE ZDBBR_join_def.
-    DATA ms_technical_infos    TYPE ZDBBR_tech_info.
+    DATA mt_selection_fields   TYPE zdbbr_selfield_itab.
+    DATA mr_tabfields          TYPE REF TO zcl_dbbr_tabfield_list.
+    DATA ms_join_definition    TYPE zdbbr_join_def.
+    DATA ms_technical_infos    TYPE zdbbr_tech_info.
     DATA: mf_virtual_join TYPE xsdboolean,
-          mf_group_by TYPE xsdboolean.
+          mf_group_by     TYPE xsdboolean.
     METHODS determine_selection_status.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_PRE_SEL_VALIDATOR IMPLEMENTATION.
+CLASS zcl_dbbr_pre_sel_validator IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -40,7 +40,8 @@ CLASS ZCL_DBBR_PRE_SEL_VALIDATOR IMPLEMENTATION.
                                line_exists( ms_join_definition-tables[ is_virtual = abap_true ] ) ).
 
     LOOP AT mt_selection_fields ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE group_by = abap_true
-                                                                         OR aggregation <> ''.
+                                                                         OR aggregation <> ''
+                                                                         OR totals = abap_true.
       EXIT.
     ENDLOOP.
 
@@ -52,9 +53,9 @@ CLASS ZCL_DBBR_PRE_SEL_VALIDATOR IMPLEMENTATION.
   METHOD validate.
     determine_selection_status( ).
 
-    if mf_group_by = abap_true and mf_virtual_join = abap_true.
-    " check if all
+    IF mf_group_by = abap_true AND mf_virtual_join = abap_true.
+      " check if all
 
-    endif.
+    ENDIF.
   ENDMETHOD.
 ENDCLASS.

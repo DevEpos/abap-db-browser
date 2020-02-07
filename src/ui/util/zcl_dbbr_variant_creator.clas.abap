@@ -207,6 +207,16 @@ CLASS zcl_dbbr_variant_creator IMPLEMENTATION.
         ).
       ENDIF.
 
+      " totals ?
+      IF <ls_selection_field>-totals = abap_true.
+        add_special_variant_data(
+          EXPORTING iv_layout_data_type = zif_dbbr_global_consts=>gc_variant_datatypes-totals
+          CHANGING  cs_layout_data      = ls_vardata_entry
+                    ct_layout_data      = rs_variant-variant_data
+                    cv_line_counter     = lv_counter
+        ).
+      ENDIF.
+
     ENDLOOP.
 
 *.. add multi or data to variant

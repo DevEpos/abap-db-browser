@@ -39,13 +39,6 @@
      <DOMVALUE_L>AVG</DOMVALUE_L>
      <DDTEXT>Average</DDTEXT>
     </DD07V>
-    <DD07V>
-     <DOMNAME>ZDBBR_AGGR</DOMNAME>
-     <VALPOS>0005</VALPOS>
-     <DDLANGUAGE>E</DDLANGUAGE>
-     <DOMVALUE_L>SUM</DOMVALUE_L>
-     <DDTEXT>Sum</DDTEXT>
-    </DD07V>
    </DD07V_TAB>
    <I18N_LANGS>
     <LANGU>D</LANGU>
@@ -79,12 +72,6 @@
      <DDLANGUAGE>D</DDLANGUAGE>
      <DOMVALUE_L>AVG</DOMVALUE_L>
      <DDTEXT>Durchschnitt</DDTEXT>
-    </item>
-    <item>
-     <VALPOS>0005</VALPOS>
-     <DDLANGUAGE>D</DDLANGUAGE>
-     <DOMVALUE_L>SUM</DOMVALUE_L>
-     <DDTEXT>Summe</DDTEXT>
     </item>
    </DD07_TEXTS>
   </asx:values>

@@ -3,362 +3,374 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <DOC>
-    <HEAD>
-     <TDOBJECT>DOKU</TDOBJECT>
-     <TDNAME>ZDBBR_OB_HELP</TDNAME>
-     <TDID>TX</TDID>
-     <TDSPRAS>E</TDSPRAS>
-     <TDFORM>S_DOCU_SHOW</TDFORM>
-     <TDSTYLE>S_DOCUS1</TDSTYLE>
-     <TDVERSION>00001</TDVERSION>
-     <TDLINESIZE>072</TDLINESIZE>
-    </HEAD>
-    <LINES>
-     <TLINE>
-      <TDFORMAT>U2</TDFORMAT>
-      <TDLINE>Definition</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
-      <TDLINE>Describes the usage of the Object Search</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U2</TDFORMAT>
-      <TDLINE>General Use</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
-      <TDLINE>The object search can be used in one of the following ways. You can</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>enter a search term, which can contain the following wildcards:</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>&apos;&lt;ZH&gt;*&lt;/&gt;&apos;: any string</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>&apos;&lt;ZH&gt;+&lt;/&gt;&apos;: any character</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>Ending with &apos;&lt;ZH&gt;&lt;(&gt;&lt;&lt;)&gt;&lt;/&gt;&apos; will prevent the automatic prefix matching</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>/</TDFORMAT>
-      <TDLINE>i.e. a search term &lt;ZK&gt;i_product&lt;/&gt; will find all objects that start</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>with &lt;ZK&gt;i_product&lt;/&gt;, and &lt;ZK&gt;i_product&lt;(&gt;&lt;&lt;)&gt;&lt;/&gt; will only find</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>objects that are named &lt;ZK&gt;i_product&lt;/&gt;.</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
-      <TDLINE>Additionally to an entered search query several search options can be</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>provided. A search option always has to be entered in the following way</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>&lt;ZH&gt;option&lt;/&gt;:&lt;ZH&gt;value&lt;/&gt;. For most of the available search options</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>there is also the possibility to enter the value with wildcards, e.g.</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>owner:&lt;ZH&gt;mue*&lt;/&gt;. To supply more than one value for a search option you</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>can either do that via separating the values via a comma character e.g.</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>&lt;ZH&gt;owner:user1,user2&lt;/&gt; or by enter several option-value combinations</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>e.g. &lt;ZH&gt;owner:user1 owner:user2. &lt;/&gt;</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U3</TDFORMAT>
-      <TDLINE>How to use option value exclusion</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
-      <TDLINE>If you want to exclude entities which possess a certain option value</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>from the result view you do this either with a leading &apos;!&apos; or &apos;&lt;&gt;&apos;. So</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>let&apos;s say you want objects whose description contains &apos;Mat&apos; but don&apos;t</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>want to see those which contain &apos;cond&apos; you do this with the following</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>query: &lt;ZK&gt;desc&lt;/&gt;:*Mat*,!*cond*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U2</TDFORMAT>
-      <TDLINE>The available search options</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
-      <TDLINE>The following sections describe the different search options that are</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>available.,,,,,,,,,,</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>K3</TDFORMAT>
-      <TDLINE>[Option],,[Description],,[Exclusion Allowed],,[Possible Values]</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>owner,,Responsible Person,,X,,[*&lt;(&gt;,&lt;)&gt;me]</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>desc,,Description,,X,,*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>api,,API State,,X,,[add_custom_fields&lt;(&gt;,&lt;)&gt;released</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>=</TDFORMAT>
-      <TDLINE>,use_in_key_user_apps,user_as_remote_api,use_in_sap_cloud_platform]</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>from,,Select from part,,X,,*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>assoc,,Search Associations,,X,,*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>type,,Object type,,X,,[hierarchy,function,view]</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>package,,Development package,,X,,*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>anno&lt;ZH&gt;*&lt;/&gt;,,Annotation Name,,X,,*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>field,,Fieldname of object,,X,,*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>extby,,Extension view,,-,,*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>param,,View with specific parameter,,X,,*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>params,,View with parameters,,-,,[true,false]</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>maxrows,,Sets max rows of result (default is 50),,-,,numeric</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U2</TDFORMAT>
-      <TDLINE>Special notes about some search options</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U3</TDFORMAT>
-      <TDLINE>Search by annotation</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
-      <TDLINE>For annotation search there exists a special search option as</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>annotations in a CDS view always consist of a &lt;ZK&gt;name&lt;/&gt; and a &lt;ZK&gt;v</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>=</TDFORMAT>
-      <TDLINE>alue&lt;/&gt;. To use this kind of search, you must adhere to the following</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>pattern: &lt;ZK&gt;anno:&lt;name_1&gt;=&lt;value_1&gt;,&lt;name_x&gt;=&lt;value_x&gt;&lt;/&gt;. Of course,</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>you also can combine name-only searches with name-value searches, e.g.</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>anno:&lt;name_1&gt;,&lt;name_2&gt;=&lt;value_2&gt;. For an example look in the section</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>&lt;ZH&gt;Examples&lt;/&gt; below.</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U2</TDFORMAT>
-      <TDLINE>Available options by search mode</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>K3</TDFORMAT>
-      <TDLINE>[Option],,[CDS View],,[Database Table/View],,[Package],,[Query]</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>owner,,X,,X,,X,,X</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>desc,,X,,X,,X,,X</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>api,,X,,-,,-,,-</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>from,,X,,-,,-,,X</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>assoc,,X,,-,,-,,-</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>type,,X,,-,,-,,-</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>package,,X,,X,,-,,-</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>anno,,X,,-,,-,,-</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>field,,X,,X,,-,,-</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>extby,,X,,-,,-,,-</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>params,,X,,-,,-,,-</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>T3</TDFORMAT>
-      <TDLINE>maxrows,,X,,X,,X,,X,,</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U2</TDFORMAT>
-      <TDLINE>Examples</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U3</TDFORMAT>
-      <TDLINE>CDS View searches:</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>&lt;ZK&gt;from&lt;/&gt;:mara,marc &lt;ZK&gt;maxrows&lt;/&gt;:500</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>BL</TDFORMAT>
-      <TDLINE>Searches for all CDS views that select from tables mara or marc, also</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>the maximum result count is raised to 500</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>&lt;ZK&gt;assoc&lt;/&gt;:i_prod* &lt;ZK&gt;api&lt;/&gt;:released</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>BL</TDFORMAT>
-      <TDLINE>Searches for all CDS views that have an association to entities that</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>start with &quot;i_prod&quot; and have a released api state</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>&lt;ZK&gt;params&lt;/&gt;:true &lt;ZK&gt;type&lt;/&gt;:hierarchy i_*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>BL</TDFORMAT>
-      <TDLINE>Searches for all CDS views that have parameters and are of type</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>&quot;hierarchy&quot; and whose name starts with &quot;i_&quot;</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>&lt;ZK&gt;desc&lt;/&gt;:*Mater*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>BL</TDFORMAT>
-      <TDLINE>Searches for all CDS Views whose Description contains the string &quot;Mater&quot;</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>&lt;ZK&gt;anno&lt;/&gt;:analytics*query</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>BL</TDFORMAT>
-      <TDLINE>Searches for all CDS Views that have an annotation like</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>&quot;analytics*query&quot;</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>anno:vdm.private*=true,*query*=true</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>BL</TDFORMAT>
-      <TDLINE>Searches for all CDS Views that have an annotation @VDM.private: true or</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>an Annotation like *query*: true,,</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U3</TDFORMAT>
-      <TDLINE>Database Table/View searches</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>&lt;ZK&gt;field&lt;/&gt;:matnr &lt;ZK&gt;desc&lt;/&gt;:*Cond* &lt;ZK&gt;package&lt;/&gt;:test*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>BL</TDFORMAT>
-      <TDLINE>Searches for all database tables/views that have a field named &quot;MATNR&quot;,</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>whose description contains &quot;Cond&quot;, and that lie in a development package</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>starting with &quot;TEST&quot;</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>B1</TDFORMAT>
-      <TDLINE>&lt;ZK&gt;owner&lt;/&gt;:sy-uname cs*</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>BL</TDFORMAT>
-      <TDLINE>Searches for all database tables/views where the responsible person is</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDLINE>the currently logged on user and which start with the name &quot;CS&quot;</TDLINE>
-     </TLINE>
-    </LINES>
+    <item>
+     <DOKIL>
+      <ID>TX</ID>
+      <OBJECT>ZDBBR_OB_HELP</OBJECT>
+      <LANGU>E</LANGU>
+      <TYP>E</TYP>
+      <VERSION>0001</VERSION>
+      <MASTERLANG>X</MASTERLANG>
+      <TXTLINES>00093</TXTLINES>
+      <DOKSTATE>A</DOKSTATE>
+     </DOKIL>
+     <HEAD>
+      <TDOBJECT>DOKU</TDOBJECT>
+      <TDNAME>ZDBBR_OB_HELP</TDNAME>
+      <TDID>TX</TDID>
+      <TDSPRAS>E</TDSPRAS>
+      <TDFORM>S_DOCU_SHOW</TDFORM>
+      <TDSTYLE>S_DOCUS1</TDSTYLE>
+      <TDVERSION>00001</TDVERSION>
+      <TDLINESIZE>072</TDLINESIZE>
+     </HEAD>
+     <LINES>
+      <TLINE>
+       <TDFORMAT>U2</TDFORMAT>
+       <TDLINE>Definition</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>*</TDFORMAT>
+       <TDLINE>Describes the usage of the Object Search</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U2</TDFORMAT>
+       <TDLINE>General Use</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>*</TDFORMAT>
+       <TDLINE>The object search can be used in one of the following ways. You can</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>enter a search term, which can contain the following wildcards:</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&apos;&lt;ZH&gt;*&lt;/&gt;&apos;: any string</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&apos;&lt;ZH&gt;+&lt;/&gt;&apos;: any character</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>Ending with &apos;&lt;ZH&gt;&lt;(&gt;&lt;&lt;)&gt;&lt;/&gt;&apos; will prevent the automatic prefix matching</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>/</TDFORMAT>
+       <TDLINE>i.e. a search term &lt;ZK&gt;i_product&lt;/&gt; will find all objects that start</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>with &lt;ZK&gt;i_product&lt;/&gt;, and &lt;ZK&gt;i_product&lt;(&gt;&lt;&lt;)&gt;&lt;/&gt; will only find</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>objects that are named &lt;ZK&gt;i_product&lt;/&gt;.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>*</TDFORMAT>
+       <TDLINE>Additionally to an entered search query several search options can be</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>provided. A search option always has to be entered in the following way</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>&lt;ZH&gt;option&lt;/&gt;:&lt;ZH&gt;value&lt;/&gt;. For most of the available search options</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>there is also the possibility to enter the value with wildcards, e.g.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>owner:&lt;ZH&gt;mue*&lt;/&gt;. To supply more than one value for a search option you</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>can either do that via separating the values via a comma character e.g.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>&lt;ZH&gt;owner:user1,user2&lt;/&gt; or by enter several option-value combinations</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>e.g. &lt;ZH&gt;owner:user1 owner:user2. &lt;/&gt;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U3</TDFORMAT>
+       <TDLINE>How to use option value exclusion</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>*</TDFORMAT>
+       <TDLINE>If you want to exclude entities which possess a certain option value</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>from the result view you do this either with a leading &apos;!&apos; or &apos;&lt;&gt;&apos;. So</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>let&apos;s say you want objects whose description contains &apos;Mat&apos; but don&apos;t</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>want to see those which contain &apos;cond&apos; you do this with the following</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>query: &lt;ZK&gt;desc&lt;/&gt;:*Mat*,!*cond*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U2</TDFORMAT>
+       <TDLINE>The available search options</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>*</TDFORMAT>
+       <TDLINE>The following sections describe the different search options that are</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>available.,,,,,,,,,,</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>K3</TDFORMAT>
+       <TDLINE>[Option],,[Description],,[Exclusion Allowed],,[Possible Values]</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>owner,,Responsible Person,,X,,[*&lt;(&gt;,&lt;)&gt;me]</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>desc,,Description,,X,,*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>api,,API State,,X,,[add_custom_fields&lt;(&gt;,&lt;)&gt;released</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>=</TDFORMAT>
+       <TDLINE>,use_in_key_user_apps,user_as_remote_api,use_in_sap_cloud_platform]</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>from,,Select from part,,X,,*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>assoc,,Search Associations,,X,,*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>type,,Object type,,X,,[hierarchy,function,view]</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>package,,Development package,,X,,*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>anno&lt;ZH&gt;*&lt;/&gt;,,Annotation Name,,X,,*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>field,,Fieldname of object,,X,,*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>extby,,Extension view,,-,,*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>param,,View with specific parameter,,X,,*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>params,,View with parameters,,-,,[true,false]</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>maxrows,,Sets max rows of result (default is 50),,-,,numeric</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U2</TDFORMAT>
+       <TDLINE>Special notes about some search options</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U3</TDFORMAT>
+       <TDLINE>Search by annotation</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>*</TDFORMAT>
+       <TDLINE>For annotation search there exists a special search option as</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>annotations in a CDS view always consist of a &lt;ZK&gt;name&lt;/&gt; and a &lt;ZK&gt;v</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>=</TDFORMAT>
+       <TDLINE>alue&lt;/&gt;. To use this kind of search, you must adhere to the following</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>pattern: &lt;ZK&gt;anno:&lt;name_1&gt;=&lt;value_1&gt;,&lt;name_x&gt;=&lt;value_x&gt;&lt;/&gt;. Of course,</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>you also can combine name-only searches with name-value searches, e.g.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>anno:&lt;name_1&gt;,&lt;name_2&gt;=&lt;value_2&gt;. For an example look in the section</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>&lt;ZH&gt;Examples&lt;/&gt; below.</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U2</TDFORMAT>
+       <TDLINE>Available options by search mode</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>K3</TDFORMAT>
+       <TDLINE>[Option],,[CDS View],,[Database Table/View],,[Package],,[Query]</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>owner,,X,,X,,X,,X</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>desc,,X,,X,,X,,X</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>api,,X,,-,,-,,-</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>from,,X,,-,,-,,X</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>assoc,,X,,-,,-,,-</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>type,,X,,-,,-,,-</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>package,,X,,X,,-,,-</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>anno,,X,,-,,-,,-</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>field,,X,,X,,-,,-</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>extby,,X,,-,,-,,-</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>params,,X,,-,,-,,-</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>T3</TDFORMAT>
+       <TDLINE>maxrows,,X,,X,,X,,X,,</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U2</TDFORMAT>
+       <TDLINE>Examples</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U3</TDFORMAT>
+       <TDLINE>CDS View searches:</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;ZK&gt;from&lt;/&gt;:mara,marc &lt;ZK&gt;maxrows&lt;/&gt;:500</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>BL</TDFORMAT>
+       <TDLINE>Searches for all CDS views that select from tables mara or marc, also</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>the maximum result count is raised to 500</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;ZK&gt;assoc&lt;/&gt;:i_prod* &lt;ZK&gt;api&lt;/&gt;:released</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>BL</TDFORMAT>
+       <TDLINE>Searches for all CDS views that have an association to entities that</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>start with &quot;i_prod&quot; and have a released api state</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;ZK&gt;params&lt;/&gt;:true &lt;ZK&gt;type&lt;/&gt;:hierarchy i_*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>BL</TDFORMAT>
+       <TDLINE>Searches for all CDS views that have parameters and are of type</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>&quot;hierarchy&quot; and whose name starts with &quot;i_&quot;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;ZK&gt;desc&lt;/&gt;:*Mater*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>BL</TDFORMAT>
+       <TDLINE>Searches for all CDS Views whose Description contains the string &quot;Mater&quot;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;ZK&gt;anno&lt;/&gt;:analytics*query</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>BL</TDFORMAT>
+       <TDLINE>Searches for all CDS Views that have an annotation like</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>&quot;analytics*query&quot;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>anno:vdm.private*=true,*query*=true</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>BL</TDFORMAT>
+       <TDLINE>Searches for all CDS Views that have an annotation @VDM.private: true or</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>an Annotation like *query*: true,,</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U3</TDFORMAT>
+       <TDLINE>Database Table/View searches</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;ZK&gt;field&lt;/&gt;:matnr &lt;ZK&gt;desc&lt;/&gt;:*Cond* &lt;ZK&gt;package&lt;/&gt;:test*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>BL</TDFORMAT>
+       <TDLINE>Searches for all database tables/views that have a field named &quot;MATNR&quot;,</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>whose description contains &quot;Cond&quot;, and that lie in a development package</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>starting with &quot;TEST&quot;</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>B1</TDFORMAT>
+       <TDLINE>&lt;ZK&gt;owner&lt;/&gt;:sy-uname cs*</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>BL</TDFORMAT>
+       <TDLINE>Searches for all database tables/views where the responsible person is</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDLINE>the currently logged on user and which start with the name &quot;CS&quot;</TDLINE>
+      </TLINE>
+     </LINES>
+    </item>
    </DOC>
   </asx:values>
  </asx:abap>

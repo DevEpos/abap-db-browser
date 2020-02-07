@@ -495,7 +495,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD clear_aggregation_fields.
     LOOP AT ct_selection_fields ASSIGNING FIELD-SYMBOL(<ls_selection_field>).
       CLEAR: <ls_selection_field>-group_by,
-             <ls_selection_field>-aggregation.
+             <ls_selection_field>-aggregation,
+             <ls_selection_field>-totals.
     ENDLOOP.
   ENDMETHOD.
 
@@ -1089,8 +1090,13 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       TRY.
           DATA(lr_selfield) = REF #( mt_selection_fields[ tabname   = lr_current_entry->tabname
                                                           fieldname = lr_current_entry->fieldname ] ).
-          IF lr_selfield->aggregation <> space.
-            APPEND |{ lr_selfield->aggregation }( { lr_current_entry->sql_fieldname_long } ) AS { lr_current_entry->alv_fieldname }, | TO mt_select.
+          IF lr_selfield->aggregation <> space OR
+             lr_selfield->totals = abap_true.
+            DATA(lv_aggr_function) = COND string(
+               WHEN lr_selfield->aggregation <> space THEN lr_selfield->aggregation
+               ELSE                                        'SUM'
+            ).
+            APPEND |{ lv_aggr_function }( { lr_current_entry->sql_fieldname_long } ) AS { lr_current_entry->alv_fieldname }, | TO mt_select.
           ELSE.
             APPEND |{ lr_current_entry->sql_fieldname_long } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
           ENDIF.
@@ -1168,7 +1174,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   METHOD determine_aggregation_state.
     " determine if single aggregation is active
-    LOOP AT mt_selection_fields ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE aggregation <> space.
+    LOOP AT mt_selection_fields ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE aggregation <> space
+                                                                         OR totals = abap_true.
       mf_aggregation = abap_true.
       EXIT.
     ENDLOOP.
@@ -1484,7 +1491,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
           ms_control_info-number = lines( <lt_table> ).
 
 **....... determine the maximum number of lines
-           IF sy-dbsys = 'HDB' and ms_control_info-number = ms_technical_info-max_lines.
+          IF sy-dbsys = 'HDB' AND ms_control_info-number = ms_technical_info-max_lines.
 
             zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 

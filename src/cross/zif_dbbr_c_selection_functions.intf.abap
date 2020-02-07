@@ -65,8 +65,9 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS hide_other_columns TYPE sy-ucomm VALUE 'HIDE_OTHERS' ##NO_TEXT.
   "! <p class="shorttext synchronized" lang="en">ABAP System Field: PAI-Triggering Function Code</p>
   CONSTANTS show_details TYPE sy-ucomm VALUE 'DETAILS' ##NO_TEXT.
-  CONSTANTS change_max_row_count TYPE sy-ucomm VALUE 'CHMAXROWS' ##no_text.
-  CONSTANTS show_users_settings TYPE sy-ucomm VALUE 'SETTINGS' ##no_text.
-  CONSTANTS set_fixed_rows TYPE sy-ucomm VALUE 'SET_FIXED_ROWS' ##no_text.
-  CONSTANTS remove_fixed_rows TYPE sy-ucomm VALUE 'REMOVE_FIXED_ROWS' ##no_text.
+  CONSTANTS change_max_row_count TYPE sy-ucomm VALUE 'CHMAXROWS' ##NO_TEXT.
+  CONSTANTS show_users_settings TYPE sy-ucomm VALUE 'SETTINGS' ##NO_TEXT.
+  CONSTANTS set_fixed_rows TYPE sy-ucomm VALUE 'SET_FIXED_ROWS' ##NO_TEXT.
+  CONSTANTS remove_fixed_rows TYPE sy-ucomm VALUE 'REMOVE_FIXED_ROWS' ##NO_TEXT.
+  CONSTANTS freeze_rows_cols TYPE sy-ucomm VALUE 'FIX_ROWS_COLS' ##NO_TEXT.
 ENDINTERFACE.

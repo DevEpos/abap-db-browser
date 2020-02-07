@@ -3,36 +3,48 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <DOC>
-    <HEAD>
-     <TDOBJECT>DOKU</TDOBJECT>
-     <TDNAME>ZDBBR_JOIN_MANAGER_HELP</TDNAME>
-     <TDID>TX</TDID>
-     <TDSPRAS>E</TDSPRAS>
-     <TDFORM>S_DOCU_SHOW</TDFORM>
-     <TDSTYLE>S_DOCUS1</TDSTYLE>
-     <TDVERSION>00001</TDVERSION>
-     <TDLINESIZE>072</TDLINESIZE>
-    </HEAD>
-    <LINES>
-     <TLINE>
-      <TDFORMAT>U2</TDFORMAT>
-      <TDLINE>Definition</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
-      <TDLINE>Describes the usage for defining Joins for a database entity</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>U2</TDFORMAT>
-      <TDLINE>Usage</TDLINE>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
-     </TLINE>
-     <TLINE>
-      <TDFORMAT>*</TDFORMAT>
-     </TLINE>
-    </LINES>
+    <item>
+     <DOKIL>
+      <ID>TX</ID>
+      <OBJECT>ZDBBR_JOIN_MANAGER_HELP</OBJECT>
+      <LANGU>E</LANGU>
+      <TYP>E</TYP>
+      <VERSION>0001</VERSION>
+      <MASTERLANG>X</MASTERLANG>
+      <TXTLINES>00003</TXTLINES>
+      <DOKSTATE>R</DOKSTATE>
+     </DOKIL>
+     <HEAD>
+      <TDOBJECT>DOKU</TDOBJECT>
+      <TDNAME>ZDBBR_JOIN_MANAGER_HELP</TDNAME>
+      <TDID>TX</TDID>
+      <TDSPRAS>E</TDSPRAS>
+      <TDFORM>S_DOCU_SHOW</TDFORM>
+      <TDSTYLE>S_DOCUS1</TDSTYLE>
+      <TDVERSION>00001</TDVERSION>
+      <TDLINESIZE>072</TDLINESIZE>
+     </HEAD>
+     <LINES>
+      <TLINE>
+       <TDFORMAT>U2</TDFORMAT>
+       <TDLINE>Definition</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>*</TDFORMAT>
+       <TDLINE>Describes the usage for defining Joins for a database entity</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>U2</TDFORMAT>
+       <TDLINE>Usage</TDLINE>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>*</TDFORMAT>
+      </TLINE>
+      <TLINE>
+       <TDFORMAT>*</TDFORMAT>
+      </TLINE>
+     </LINES>
+    </item>
    </DOC>
   </asx:values>
  </asx:abap>

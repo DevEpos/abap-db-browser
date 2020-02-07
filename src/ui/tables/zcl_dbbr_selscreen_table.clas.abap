@@ -81,6 +81,7 @@ CLASS zcl_dbbr_selscreen_table DEFINITION
         low_value         TYPE string VALUE 'GS_SELFIELDS-LOW' ##NO_TEXT,
         group_by          TYPE string VALUE 'GS_SELFIELDS-GROUP_BY' ##NO_TEXT,
         aggregation       TYPE string VALUE 'GS_SELFIELDS-AGGREGATION' ##NO_TEXT,
+        totals            TYPE string VALUE 'GS_SELFIELDS-TOTALS' ##NO_TEXT,
         push              TYPE string VALUE 'PUSH' ##NO_TEXT,
         option            TYPE string VALUE 'OPTION' ##NO_TEXT,
       END OF c_fields .
@@ -140,14 +141,16 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
   METHOD aggregation_is_active.
     CLEAR result.
 
-    LOOP AT mr_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE group_by = abap_true OR
-                                                                         aggregation <> space.
+    LOOP AT mr_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE group_by = abap_true
+                                                                      OR totals = abap_true
+                                                                      OR aggregation <> space.
       result = abap_true.
       RETURN.
     ENDLOOP.
 
     " check hidden fields
     LOOP AT mt_selection_fields_hidden ASSIGNING <ls_selfield> WHERE group_by = abap_true
+                                                                  OR totals = abap_true
                                                                   OR aggregation <> space.
       result = abap_true.
       RETURN.
@@ -239,7 +242,8 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
   METHOD delete_aggregations.
     LOOP AT mr_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>).
       CLEAR: <ls_selfield>-group_by,
-             <ls_selfield>-aggregation.
+             <ls_selfield>-aggregation,
+             <ls_selfield>-totals.
     ENDLOOP.
   ENDMETHOD.
 
@@ -486,7 +490,9 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
           <ls_table_column>-vislength = lv_low_high_width.
         WHEN c_fields-high_value.
           <ls_table_column>-vislength = lv_low_high_width.
-        WHEN 'GS_SELFIELDS-GROUP_BY'.
+        WHEN c_fields-group_by.
+          <ls_table_column>-vislength = lv_group_by_width.
+        WHEN c_fields-totals.
           <ls_table_column>-vislength = lv_group_by_width.
         WHEN 'GS_SELFIELDS-FIELDNAME_RAW'.
           <ls_table_column>-vislength = lv_fieldname_width.
@@ -867,6 +873,16 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
       ENDLOOP.
     ENDIF.
 
+    IF mr_selfield_line->is_numeric = abap_false.
+      LOOP AT SCREEN INTO ls_screen.
+        IF ls_screen-name = c_fields-totals.
+          ls_screen-active = 0.
+          MODIFY SCREEN FROM ls_screen.
+          EXIT.
+        ENDIF.
+      ENDLOOP.
+    ENDIF.
+
     update_input_field_status( ).
 
     handle_table_header_row( ).
@@ -962,7 +978,8 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
 
       """ check if state of `group by `/ `aggregation` changed since last input
       IF mr_selfield_line->group_by <> ls_selfield_old-group_by OR
-         mr_selfield_line->aggregation <> ls_selfield_old-aggregation.
+         mr_selfield_line->aggregation <> ls_selfield_old-aggregation OR
+         mr_selfield_line->totals <> ls_selfield_old-totals.
         RAISE EVENT aggregation_attr_changed.
       ENDIF.
 
