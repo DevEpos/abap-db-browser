@@ -12,12 +12,13 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
       IMPORTING
         !if_only_create_count_logic TYPE abap_bool OPTIONAL
         !if_create_for_all          TYPE abap_bool OPTIONAL
-        !is_association_target      TYPE ZSAT_CDS_ASSOCIATION OPTIONAL
+        !is_association_target      TYPE zsat_cds_association OPTIONAL
         !it_select                  TYPE string_table
         !it_from                    TYPE string_table
-        !it_where                   TYPE string_table
-        !it_order_by                TYPE string_table
-        !it_group_by                TYPE string_table
+        !it_where                   TYPE string_table OPTIONAL
+        !it_order_by                TYPE string_table OPTIONAL
+        !it_group_by                TYPE string_table OPTIONAL
+        it_having                   TYPE string_table OPTIONAL
         !iv_max_size                TYPE i
       RETURNING
         VALUE(rr_instance)          TYPE REF TO zcl_dbbr_select_prog_creator
@@ -77,13 +78,17 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
     DATA mt_order_by TYPE string_table .
     "! List of Strings
     DATA mt_group_by TYPE string_table .
+    DATA mt_having TYPE string_table.
     DATA mv_max_size TYPE i .
     DATA mv_class TYPE string .
     DATA mf_only_create_count_logic TYPE abap_bool .
     DATA mf_create_for_all TYPE abap_bool .
     "! Association Information for CDS View
-    DATA ms_assocication_target TYPE ZSAT_CDS_ASSOCIATION .
+    DATA ms_assocication_target TYPE zsat_cds_association .
 
+    METHODS fill_having
+      CHANGING
+        ct_lines TYPE string_table.
     "! <p class="shorttext synchronized" lang="en">Fill coding lines with from clause</p>
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_from
@@ -133,6 +138,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     rr_instance->ms_assocication_target = is_association_target.
     rr_instance->mt_select   = it_select.
     rr_instance->mt_from     = it_from.
+    rr_instance->mt_having   = it_having.
     rr_instance->mt_where    = it_where.
     rr_instance->mt_order_by = it_order_by.
     rr_instance->mt_group_by = it_group_by.
@@ -219,6 +225,20 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD fill_having.
+    DATA: lv_having TYPE string.
+
+    LOOP AT mt_having ASSIGNING FIELD-SYMBOL(<lv_having>).
+      CLEAR: lv_having.
+      IF sy-tabix = 1.
+        lv_having = |  HAVING { <lv_having> }|.
+      ELSE.
+        lv_having = |         { <lv_having> }|.
+      ENDIF.
+
+      ct_lines = VALUE #( BASE ct_lines ( lv_having ) ).
+    ENDLOOP.
+  ENDMETHOD.
 
   METHOD fill_from.
     DATA: lv_from TYPE string.
@@ -442,6 +462,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
 
       IF mf_create_for_all = abap_false.
         fill_group_by( CHANGING ct_lines = lt_lines ).
+        fill_having( CHANGING ct_lines = lt_lines ).
         fill_order_by( CHANGING ct_lines = lt_lines ).
       ENDIF.
 
@@ -502,6 +523,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
             FROM (mt_from)
             WHERE (mt_where)
             GROUP BY (mt_group_by)
+            HAVING (mt_having)
             ORDER BY (mt_order_by)
           INTO CORRESPONDING FIELDS OF TABLE @et_data
             UP TO @mv_max_size ROWS.
@@ -531,6 +553,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     fill_from( CHANGING ct_lines = lt_sql_lines ).
     fill_where( CHANGING ct_lines = lt_sql_lines ).
     fill_group_by( CHANGING ct_lines = lt_sql_lines ).
+    fill_having( changing ct_lines = lt_sql_lines ).
     fill_order_by( CHANGING ct_lines = lt_sql_lines ).
 
     CONCATENATE LINES OF lt_sql_lines INTO rv_select_sql SEPARATED BY cl_abap_char_utilities=>cr_lf.

@@ -47,6 +47,7 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
          selection_fields   = mt_selfields
          multi_or           = mt_selfields_or
          technical_infos    = CORRESPONDING #( ms_global_data )
+         grouping_minimum   = ms_global_data-grouping_minimum
          selfields_multi    = mt_selfields_multi
          tabfields          = lr_tabfields
          tabfields_all      = lr_tabfields_all
@@ -74,7 +75,7 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
       IF ms_global_data-called_from_adt = abap_true.
         zcl_dbbr_usersettings_factory=>update_start_settings(
           iv_entity_id   = mv_tabname
-          iv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>table
+          iv_entity_type = zif_sat_c_entity_type=>table
         ).
       ENDIF.
 

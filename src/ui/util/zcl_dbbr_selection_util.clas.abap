@@ -29,6 +29,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
         selection_fields     TYPE zdbbr_selfield_itab,
         technical_infos      TYPE zdbbr_tech_info,
         no_grouping          TYPE abap_bool,
+        grouping_minimum     TYPE zdbbr_grouping_minimum,
         multi_or             TYPE zdbbr_or_seltab_itab,
         edit_mode            TYPE abap_bool,
         delete_mode_active   TYPE abap_bool,
@@ -173,6 +174,8 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mt_group_by TYPE string_table .
     "! <p class="shorttext synchronized" lang="en">List of ORDER BY clauses</p>
     DATA mt_order_by TYPE string_table .
+    "! <p class="shorttext synchronized" lang="en">List of HAVING clauses</p>
+    DATA mt_having TYPE string_table.
     DATA mt_add_texts TYPE zdbbr_additional_text_itab .
     DATA mf_group_by TYPE boolean .
     DATA mt_or TYPE zif_sat_ty_global=>ty_t_or_seltab_sql .
@@ -185,6 +188,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
         primary_table          TYPE tabname,
         primary_table_name     TYPE ddtext,
         primary_table_tabclass TYPE tabclass,
+        grouping_minimum       TYPE zdbbr_grouping_minimum, " having count during group by
         alv_varianttext        TYPE slis_varbz,
         edit                   TYPE abap_bool, " is table editable?
         client_dependent       TYPE abap_bool, "table itself is client dependent
@@ -503,9 +507,10 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD constructor.
     " set control data
     ms_control_info = VALUE #(
-      primary_table   = COND #( WHEN is_selection_data-entity_type = zif_sat_c_entity_type=>table THEN is_selection_data-entity_id )
-      edit            = is_selection_data-edit_mode
-      delete_mode     = is_selection_data-delete_mode_active
+      primary_table    = COND #( WHEN is_selection_data-entity_type = zif_sat_c_entity_type=>table THEN is_selection_data-entity_id )
+      edit             = is_selection_data-edit_mode
+      delete_mode      = is_selection_data-delete_mode_active
+      grouping_minimum = is_selection_data-grouping_minimum
     ).
 
     mt_nav_breadcrumbs  = is_selection_data-nav_breadcrumbs.
@@ -1009,6 +1014,12 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         <lv_group_by_field> = <lv_group_by_field> && ','.
       ENDIF.
     ENDLOOP.
+
+    CHECK mt_group_by IS NOT INITIAL.
+
+    IF ms_control_info-grouping_minimum > 0.
+      mt_having = VALUE #( ( |COUNT( * ) >= { ms_control_info-grouping_minimum }| ) ).
+    ENDIF.
   ENDMETHOD.
 
   METHOD create_order_by_clause.
@@ -1471,6 +1482,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
               it_where                   = mt_where
               it_order_by                = mt_order_by
               it_group_by                = mt_group_by
+              it_having                  = mt_having
               iv_max_size                = ms_technical_info-max_lines
           ).
         ELSE.

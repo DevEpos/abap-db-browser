@@ -590,6 +590,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
               selection_fields     = lt_selfields
               technical_infos      = CORRESPONDING #( mo_data->mr_s_global_data->* )
               no_grouping          = if_no_grouping
+              grouping_minimum     = mo_data->mr_s_global_data->grouping_minimum
               multi_or             = mr_t_multi_or->*
               edit_mode            = mo_data->mr_s_global_data->edit
               delete_mode_active   = mo_data->mr_s_global_data->delete_mode

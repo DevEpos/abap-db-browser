@@ -183,6 +183,7 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
          selection_fields   = mt_selfields
          multi_or           = mt_selfields_or
          technical_infos    = CORRESPONDING #( ms_global_data )
+         grouping_minimum   = ms_global_data-grouping_minimum
          selfields_multi    = mt_selfields_multi
          tabfields          = lr_tabfields
          tabfields_all      = lr_tabfields_all
