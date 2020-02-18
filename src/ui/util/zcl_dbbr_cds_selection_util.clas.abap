@@ -62,11 +62,11 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
     "! @parameter EV_CHOSEN_ENTITY_TYPE | <p class="shorttext synchronized" lang="en"></p>
     "! @parameter ES_CHOSEN_ASSOCIATION | <p class="shorttext synchronized" lang="en"></p>
     METHODS on_association_chosen
-          FOR EVENT entity_chosen OF zcl_dbbr_cds_sub_entity_sel
+        FOR EVENT entity_chosen OF zcl_dbbr_cds_sub_entity_sel
       IMPORTING
-          !ev_chosen_entity_id
-          !ev_chosen_entity_type
-          !es_chosen_association .
+        !ev_chosen_entity_id
+        !ev_chosen_entity_type
+        !es_chosen_association .
 ENDCLASS.
 
 
@@ -265,6 +265,18 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
     create_dynamic_table( ).
 
+    IF mo_formula IS BOUND.
+      TRY.
+          mo_formula_calculator = zcl_dbbr_formula_calculator=>create(
+              ir_formula            = mo_formula
+              ir_tabfields          = mo_tabfields
+              it_tab_components     = mt_dyntab_components
+          ).
+        CATCH zcx_dbbr_exception INTO DATA(lr_exception).
+          lr_exception->zif_sat_exception_message~print( ).
+      ENDTRY.
+    ENDIF.
+
     CHECK select_data( ).
 
     " if no selection occurred, prevent screen visibility
@@ -277,6 +289,8 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
         RETURN.
       ENDIF.
     ENDIF.
+
+    execute_formula_for_lines( ).
 
     set_miscinfo_for_selected_data( ).
 
@@ -497,7 +511,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     set_miscinfo_for_selected_data( ).
 
     RAISE EVENT selection_finished
-      exporting
+      EXPORTING
         ef_reset_alv_table = if_reset_table_in_alv.
   ENDMETHOD.
 
