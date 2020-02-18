@@ -719,7 +719,15 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
 
     lt_value_stmnt = VALUE #( ( |VALUE #(| ) ).
 
+    get_filtered_entries( IMPORTING et_filtered_entries = DATA(lt_filtered_entries) ).
+
+    DATA(lv_copied_rows) = 0.
+
     LOOP AT <lt_data> ASSIGNING FIELD-SYMBOL(<ls_line>).
+      IF lt_filtered_entries IS NOT INITIAL.
+        CHECK NOT line_exists( lt_filtered_entries[ table_line = sy-tabix ] ).
+      ENDIF.
+
 
       lv_value_stmnt = |  (|.
       LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fieldcat>).
@@ -736,6 +744,7 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       lv_value_stmnt = lv_value_stmnt && | )|.
       REPLACE ALL OCCURRENCES OF '#' IN lv_value_stmnt WITH space.
       lt_value_stmnt = VALUE #( BASE lt_value_stmnt ( lv_value_stmnt ) ).
+      ADD 1 TO lv_copied_rows.
     ENDLOOP.
 
     lt_value_stmnt = VALUE #( BASE lt_value_stmnt ( |).| ) ).
@@ -775,7 +784,7 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
         WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
     ELSE.
-      MESSAGE |Copied VALUE #( ) Statement of { lines( <lt_data> ) } lines to Clipboard| TYPE 'S'.
+      MESSAGE |Copied VALUE #( ) Statement of { lv_copied_rows } lines to Clipboard| TYPE 'S'.
     ENDIF.
   ENDMETHOD.
 
