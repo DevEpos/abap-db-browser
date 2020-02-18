@@ -330,6 +330,12 @@
      <ENTRY>Unfreeze Rows</ENTRY>
      <LENGTH>27</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>055</KEY>
+     <ENTRY>Copy Rows as Value statement</ENTRY>
+     <LENGTH>56</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
@@ -349,6 +355,12 @@
      <CMPNAME>CONSTRUCTOR</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>CONSTRUCTOR</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OUTPUT_GRID</CLSNAME>
+     <CMPNAME>COPY_AS_VALUE_STATEMENT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Copy table content as ABAP Value Statement</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OUTPUT_GRID</CLSNAME>

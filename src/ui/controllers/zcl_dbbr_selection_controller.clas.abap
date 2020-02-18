@@ -2380,6 +2380,13 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         mo_alv_grid->show_active_default_shortcuts( ).
         RETURN.
 
+      WHEN zif_dbbr_c_selection_functions=>copy_as_val_stmnts OR
+           zif_dbbr_c_selection_functions=>copy_as_val_stmnt_compact.
+        mo_alv_grid->copy_as_value_statement(
+            if_compact = xsdbool( lv_function_code = zif_dbbr_c_selection_functions=>copy_as_val_stmnt_compact )
+        ).
+        RETURN.
+
       WHEN OTHERS.
         mo_util->handle_ui_function( CHANGING cv_function = lv_function_code ).
 

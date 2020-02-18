@@ -70,4 +70,6 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS set_fixed_rows TYPE sy-ucomm VALUE 'SET_FIXED_ROWS' ##NO_TEXT.
   CONSTANTS remove_fixed_rows TYPE sy-ucomm VALUE 'REMOVE_FIXED_ROWS' ##NO_TEXT.
   CONSTANTS freeze_rows_cols TYPE sy-ucomm VALUE 'FIX_ROWS_COLS' ##NO_TEXT.
+  CONSTANTS copy_as_val_stmnts TYPE sy-ucomm VALUE 'CPYVALSTMN' ##NO_TEXT.
+  CONSTANTS copy_as_val_stmnt_compact TYPE sy-ucomm VALUE 'CPYVALSTMNT_COMPACT' ##NO_TEXT.
 ENDINTERFACE.

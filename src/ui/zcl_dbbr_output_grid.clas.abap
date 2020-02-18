@@ -58,6 +58,12 @@ CLASS zcl_dbbr_output_grid DEFINITION
       IMPORTING
         iv_rows           TYPE i OPTIONAL
         if_from_selection TYPE abap_bool OPTIONAL.
+    "! <p class="shorttext synchronized" lang="en">Copy table content as ABAP Value Statement</p>
+    "!
+    "! @parameter if_compact | <p class="shorttext synchronized" lang="en">Compact mode on/off</p>
+    METHODS copy_as_value_statement
+      IMPORTING
+        if_compact TYPE abap_bool OPTIONAL.
   PROTECTED SECTION.
   PRIVATE SECTION.
     DATA mt_toolbar_buttons TYPE ttb_button.
@@ -221,6 +227,10 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         text      = |{ 'CDS Source' }|
         quickinfo = |{ 'Show CDS Source Code'(052) }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f10 )
+      ( function  = 'COPY_MENU'
+        icon      = icon_system_copy
+        butn_type = cntb_btype_menu
+        text      = 'Copy as...' )
     ).
 
 *.. Fill shortcut mapping from default toolbar buttons
@@ -254,6 +264,9 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f9
         mapped_function = zif_dbbr_c_selection_functions=>delete_filters_from_cols
         text            = |{ 'Delete Filters from selected Columns'(053) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f8
+        mapped_function = zif_dbbr_c_selection_functions=>copy_as_val_stmnts
+        text            = |{ 'Copy Rows as Value statement'(055) }| )
     ).
 
 *.. Create and fill button menus
@@ -329,6 +342,16 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         fcode = zif_dbbr_c_selection_functions=>leave_screen_with_layout
         text  = |{ 'Leave Screen (+ Transfer Layout)'(043) }|
     ).
+
+    DATA(lo_copy_menu) = NEW cl_ctmenu( ).
+    lo_copy_menu->add_function(
+        fcode = zif_dbbr_c_selection_functions=>copy_as_val_stmnts
+        text  = |{ 'Copy as VALUE Statement' }|
+    ).
+    lo_copy_menu->add_function(
+        fcode = zif_dbbr_c_selection_functions=>copy_as_val_stmnt_compact
+        text  = |{ 'Copy as VALUE Statement (Compact)' }|
+    ).
     gt_shortcuts_map = VALUE #( BASE gt_shortcuts_map ( text            = TEXT-043
                                                         fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f3
                                                         mapped_function = zif_dbbr_c_selection_functions=>leave_screen_with_layout ) ).
@@ -338,6 +361,7 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       ( function = cl_gui_alv_grid=>mc_fc_current_variant       ctmenu = lo_variant_menu )
       ( function = 'ROWS'                                       ctmenu = lo_rows_menu )
       ( function = 'COLS'                                       ctmenu = lo_cols_menu )
+      ( function = 'COPY_MENU'                                  ctmenu = lo_copy_menu )
     ).
 
   ENDMETHOD.
@@ -673,6 +697,85 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       set_fixed_rows( CONV #( lt_row[ lines( lt_row ) ]-index ) ).
     ELSE.
       set_fixed_rows( iv_rows ).
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD copy_as_value_statement.
+    TYPES: lty_value_line TYPE string.
+
+    DATA: lt_value_stmnt          TYPE TABLE OF lty_value_line,
+          lv_value_stmnt          TYPE lty_value_line,
+          lv_value                TYPE string,
+          lr_clipboard_export_tab TYPE REF TO data,
+          lv_rc                   TYPE i.
+
+    FIELD-SYMBOLS: <lt_data> TYPE table.
+
+    get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+    DELETE lt_fieldcat WHERE tech   = abap_true OR
+                             no_out = abap_true.
+    ASSIGN mt_outtab->* TO <lt_data>.
+
+    lt_value_stmnt = VALUE #( ( |VALUE #(| ) ).
+
+    LOOP AT <lt_data> ASSIGNING FIELD-SYMBOL(<ls_line>).
+
+      lv_value_stmnt = |  (|.
+      LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fieldcat>).
+        ASSIGN COMPONENT <ls_fieldcat>-fieldname OF STRUCTURE <ls_line> TO FIELD-SYMBOL(<lv_cell_value>).
+        CHECK sy-subrc = 0.
+        lv_value = |'{ <lv_cell_value> }'|.
+        IF if_compact = abap_true.
+          lv_value_stmnt = |{ lv_value_stmnt } { <ls_fieldcat>-fieldname  } = { lv_value }|.
+        ELSE.
+          lv_value_stmnt = |{ lv_value_stmnt } { <ls_fieldcat>-fieldname  } = { lv_value WIDTH = <ls_fieldcat>-outputlen + 2 }#|.
+        ENDIF.
+      ENDLOOP.
+
+      lv_value_stmnt = lv_value_stmnt && | )|.
+      REPLACE ALL OCCURRENCES OF '#' IN lv_value_stmnt WITH space.
+      lt_value_stmnt = VALUE #( BASE lt_value_stmnt ( lv_value_stmnt ) ).
+    ENDLOOP.
+
+    lt_value_stmnt = VALUE #( BASE lt_value_stmnt ( |).| ) ).
+
+*.. Determine line with maximum length
+    DATA(lv_max_char) = 0.
+    LOOP AT lt_value_stmnt ASSIGNING FIELD-SYMBOL(<lv_value_line>).
+      DATA(lv_length) = strlen( <lv_value_line> ).
+      IF lv_length > lv_max_char.
+        lv_max_char = lv_length.
+      ENDIF.
+    ENDLOOP.
+
+    DATA(lo_line_type_descr) = cl_abap_elemdescr=>get_c( lv_max_char ).
+    DATA(lo_table_descr) = cl_abap_tabledescr=>get(
+        p_line_type  = lo_line_type_descr
+    ).
+
+    CREATE DATA lr_clipboard_export_tab TYPE HANDLE lo_table_descr.
+    ASSIGN lr_clipboard_export_tab->* TO FIELD-SYMBOL(<lt_clipboard_data>).
+
+    IF sy-subrc = 0.
+      MOVE-CORRESPONDING lt_value_stmnt TO <lt_clipboard_data>.
+    ENDIF.
+
+    CHECK <lt_clipboard_data> IS NOT INITIAL.
+
+    cl_gui_frontend_services=>clipboard_export(
+*      EXPORTING
+*        no_auth_check        = space
+      IMPORTING
+        data                 = <lt_clipboard_data>
+      CHANGING
+        rc                   = lv_rc
+    ).
+    IF sy-subrc <> 0.
+      MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+        WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+    ELSE.
+      MESSAGE |Copied VALUE #( ) Statement of { lines( <lt_data> ) } lines to Clipboard| TYPE 'S'.
     ENDIF.
   ENDMETHOD.
 
