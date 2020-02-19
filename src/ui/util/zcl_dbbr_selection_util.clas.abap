@@ -610,6 +610,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     FIELD-SYMBOLS: <ls_selfield> TYPE zdbbr_selfield.
 
     DATA: lt_selfields     TYPE zif_sat_ty_global=>ty_t_seltab_sql,
+          lv_sql_function  TYPE zsat_sql_function,
           lt_selfields_and LIKE lt_selfields.
 
     CLEAR: mt_where,
@@ -623,6 +624,13 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
                option IS NOT INITIAL ).
 
       DATA(lf_is_raw) = abap_false.
+      CLEAR lv_sql_function.
+
+      IF ms_technical_info-search_ignore_case = abap_true AND
+         <ls_selfield>-inttype CA 'Cg' AND
+         <ls_selfield>-lowercase = abap_true.
+        lv_sql_function = zif_sat_c_sql_function=>upper.
+      ENDIF.
 
 *..... get table field to get alias name
       TRY.
@@ -645,6 +653,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       APPEND VALUE #(
         sqlfieldname = lv_fieldname_sql
         field        = lv_fieldname
+        sql_function = lv_sql_function
         low          = <ls_selfield>-low
         high         = <ls_selfield>-high
         sign         = <ls_selfield>-sign
@@ -667,6 +676,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         <ls_selfield_where>-low = VALUE sy-datum( ).
       ENDIF.
 
+
+
       " Search for multiple input
       LOOP AT mt_selfields_multi ASSIGNING FIELD-SYMBOL(<ls_selfield_multi>)
           WHERE fieldname     = <ls_selfield>-fieldname AND
@@ -687,6 +698,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         ELSE.
           APPEND VALUE #(
             sqlfieldname = lv_fieldname_sql
+            sql_function = lv_sql_function
             field        = lv_fieldname
             low          = COND #( WHEN lf_is_raw = abap_true AND <ls_selfield_multi>-low IS INITIAL THEN lv_initial_value ELSE <ls_selfield_multi>-low )
             high         = <ls_selfield_multi>-high
@@ -735,6 +747,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
           DATA(ls_multi_value) = CORRESPONDING zif_sat_ty_global=>ty_s_seltab_sql( <ls_or_tuple_multi_value> ).
           ls_multi_value-sqlfieldname = <ls_or_selfield>-sqlfieldname.
           ls_multi_value-field = <ls_or_selfield>-field.
+          ls_multi_value-sql_function = lv_sql_function.
           APPEND ls_multi_value TO <ls_or_selfields>-values.
         ENDLOOP.
 

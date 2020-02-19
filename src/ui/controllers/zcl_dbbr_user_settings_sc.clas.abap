@@ -255,10 +255,10 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
 
     zif_uitb_screen_controller~set_status( ).
     LOOP AT SCREEN.
-      IF screen-name = zif_dbbr_user_settings_ids=>c_search_ignore_case.
-        screen-input = 0.
-        MODIFY SCREEN.
-      ENDIF.
+***      IF screen-name = zif_dbbr_user_settings_ids=>c_search_ignore_case.
+***        screen-input = 0.
+***        MODIFY SCREEN.
+***      ENDIF.
       IF mv_start_tab = c_tab_ids-output_tab AND
          mf_disable_save = abap_true AND
          (
