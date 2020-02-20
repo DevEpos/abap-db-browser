@@ -1538,13 +1538,19 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         ENDLOOP.
         IF sy-subrc = 0.
           DATA(lv_sort_func_index) = line_index( lt_menu_flat[ fcode = cl_gui_alv_grid=>mc_fc_sort_asc ] ).
+          IF lv_sort_func_index = 0.
+            lv_sort_func_index = lines( lt_menu_flat ).
+          ENDIF.
 
-          INSERT VALUE #( type = sctx_c_type_separator ) INTO lt_menu_flat INDEX lv_sort_func_index.
-          INSERT VALUE #(
-            type  = sctx_c_type_function
-            fcode = zif_dbbr_c_selection_functions=>disable_checkbox_col_style
-            text  = 'Disable Checkbox Style'
-          ) INTO lt_menu_flat INDEX lv_sort_func_index.
+          lt_temp_menu_entries = value #(
+            ( type = sctx_c_type_separator )
+            ( type  = sctx_c_type_function
+              fcode = zif_dbbr_c_selection_functions=>disable_checkbox_col_style
+              text  = 'Disable Checkbox Style' )
+            ( type = sctx_c_type_separator )
+          ).
+
+          INSERT lines of lt_temp_menu_entries INTO lt_menu_flat INDEX lv_sort_func_index.
         ENDIF.
       ENDIF.
 
