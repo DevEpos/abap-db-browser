@@ -274,6 +274,9 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     METHODS set_multi_table_mode
       IMPORTING
         if_active_grouping TYPE abap_bool DEFAULT abap_true.
+    "! <p class="shorttext synchronized" lang="en">Fills missing attributes of table fields</p>
+    "!
+    METHODS complete_field_infos.
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -1286,4 +1289,34 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   METHOD zif_uitb_data_ref_list~size.
     rv_size = lines( mt_fields ).
   ENDMETHOD.
+
+  METHOD complete_field_infos.
+
+    LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
+
+*.... Determine checkbox status of field
+      IF <ls_field>-is_numeric = abap_false AND
+         <ls_field>-rollname IS NOT INITIAL.
+
+        DATA(lo_elem_descr) = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_name( <ls_field>-rollname ) ).
+
+        lo_elem_descr->get_ddic_fixed_values(
+          RECEIVING
+            p_fixed_values = DATA(lt_fix_values)
+          EXCEPTIONS
+            not_found      = 1
+            no_ddic_type   = 2
+            OTHERS         = 3
+        ).
+        IF sy-subrc = 0.
+          <ls_field>-is_checkbox = xsdbool( lines( lt_fix_values ) = 2 AND
+                                            line_exists( lt_fix_values[ low = 'X' ] ) AND
+                                            line_exists( lt_fix_values[ option = 'EQ' low = space ] ) ).
+        ENDIF.
+      ENDIF.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
 ENDCLASS.

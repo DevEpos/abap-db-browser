@@ -822,6 +822,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     mo_tabfields->sort( ).
 
     mo_tabfields->initialize_iterator( ).
+    mo_tabfields->complete_field_infos( ).
 
     WHILE mo_tabfields->has_more_lines( ).
       CLEAR: lf_create_fieldcat_entry,
@@ -948,8 +949,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       ls_field-no_out = xsdbool( lr_current_field->output_active = abap_false ).
 
 **....set output mode to checkbox if there is at least one domain fix value with value 'X'
-      ls_field-checkbox = determine_checkbox_output( EXPORTING ir_field = lr_current_field ).
-
+      ls_field-checkbox = lr_current_field->is_checkbox.
       ls_field-inttype = lr_current_field->inttype.
       ls_field-decimals = lr_current_field->decimals.
       ls_field-datatype = lr_current_field->datatype.

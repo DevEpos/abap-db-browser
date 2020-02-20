@@ -1,6 +1,7 @@
 "! <p class="shorttext synchronized" lang="en">Function codes for Selection/Output</p>
 INTERFACE zif_dbbr_c_selection_functions
   PUBLIC .
+
   CONSTANTS add_text_field TYPE sy-ucomm VALUE 'ADD_TEXT_FIELDS' ##NO_TEXT.
   CONSTANTS manage_text_fields TYPE sy-ucomm VALUE 'MANAGE_TEXT_FIELDS' ##NO_TEXT.
   CONSTANTS show_cds_source TYPE sy-ucomm VALUE 'SHOWCDSSRC' ##NO_TEXT.
@@ -72,4 +73,6 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS freeze_rows_cols TYPE sy-ucomm VALUE 'FIX_ROWS_COLS' ##NO_TEXT.
   CONSTANTS copy_as_val_stmnts TYPE sy-ucomm VALUE 'CPYVALSTMN' ##NO_TEXT.
   CONSTANTS copy_as_val_stmnt_compact TYPE sy-ucomm VALUE 'CPYVALSTMNT_COMPACT' ##NO_TEXT.
+  CONSTANTS disable_checkbox_col_style TYPE sy-ucomm VALUE 'DISCHKBOX_STYLE' ##NO_TEXT.
+  CONSTANTS disable_chkbox_col_style_all TYPE sy-ucomm VALUE 'DISCHKBOX_STYLE_ALL' ##NO_TEXT.
 ENDINTERFACE.

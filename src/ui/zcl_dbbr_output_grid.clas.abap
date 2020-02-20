@@ -64,6 +64,10 @@ CLASS zcl_dbbr_output_grid DEFINITION
     METHODS copy_as_value_statement
       IMPORTING
         if_compact TYPE abap_bool OPTIONAL.
+    "! <p class="shorttext synchronized" lang="en">Returns range of selected columns</p>
+    METHODS get_selected_cols_range
+      RETURNING
+        VALUE(rt_col_range) TYPE zif_sat_ty_global=>ty_t_selopt.
   PROTECTED SECTION.
   PRIVATE SECTION.
     DATA mt_toolbar_buttons TYPE ttb_button.
@@ -321,6 +325,11 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     lo_cols_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>remove_column_grouping
         text  = |{ TEXT-030 }|
+    ).
+    lo_cols_menu->add_separator( ).
+    lo_cols_menu->add_function(
+        fcode = zif_dbbr_c_selection_functions=>disable_chkbox_col_style_all
+        text  = |{ 'Disable checkbox cell style' }|
     ).
     lo_cols_menu->add_separator( ).
     lo_cols_menu->add_function(
@@ -786,6 +795,11 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     ELSE.
       MESSAGE |Copied VALUE #( ) Statement of { lv_copied_rows } lines to Clipboard| TYPE 'S'.
     ENDIF.
+  ENDMETHOD.
+
+  METHOD get_selected_cols_range.
+    get_selected_columns( IMPORTING et_index_columns = DATA(lt_cols) ).
+    rt_col_range = VALUE #( FOR col IN lt_cols ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
   ENDMETHOD.
 
 ENDCLASS.

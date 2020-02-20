@@ -1004,6 +1004,13 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
 
     handle_column_optimization( ).
 
+*.. Handle disabled columns
+    LOOP AT mr_tableview->cols ASSIGNING <ls_table_column>.
+      IF <ls_table_column>-screen-group4 = 'NOD'.
+        <ls_table_column>-invisible = 1.
+      ENDIF.
+    ENDLOOP.
+
 *.. if user wants the technical view, display more fields
     DATA(lv_techview_visibility) = COND #( WHEN mr_global_data->tech_view = abap_true THEN
                                              0

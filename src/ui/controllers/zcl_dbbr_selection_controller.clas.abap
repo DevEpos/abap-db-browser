@@ -284,6 +284,9 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     METHODS show_string_cell_content.
     "! <p class="shorttext synchronized" lang="en">Hides all columns where no cell has any values</p>
     METHODS hide_cols_without_values.
+    METHODS disable_checkbox_style
+      IMPORTING
+        if_selected_cols_only TYPE abap_bool OPTIONAL.
 ENDCLASS.
 
 
@@ -1431,6 +1434,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     DATA: ls_field             TYPE lvc_s_fcat,
           lt_serialized        TYPE sctx_serialize,
           lt_temp_menu_entries TYPE sctx_entrytab,
+          lt_cols              TYPE RANGE OF lvc_fname,
           lt_menu_flat         TYPE sctx_entrytab.
 
     e_object->if_ctxmnu_internal~serialize_menu( CHANGING menu = lt_serialized ).
@@ -1451,6 +1455,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ).
 
     mo_alv_grid->get_selected_columns( IMPORTING et_index_columns = DATA(lt_index_cols) ).
+    lt_cols = VALUE #( FOR col IN lt_index_cols ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
     mo_alv_grid->get_selected_cells( IMPORTING et_cell = DATA(lt_cells) ).
 
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
@@ -1460,7 +1465,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     mo_util->handle_alv_ctx_menu_request(
        EXPORTING if_selected_cells = xsdbool( lt_cells IS NOT INITIAL )
                  if_selected_rows  = xsdbool( lt_row_no IS NOT INITIAL )
-                 if_selected_cols  = xsdbool( lt_index_cols IS NOT INITIAL )
+                 if_selected_cols  = xsdbool( lt_cols IS NOT INITIAL )
                  it_selected_cells = lt_cells
                  it_selected_cols  = lt_index_cols
                  it_fieldcat       = lt_fieldcat
@@ -1502,7 +1507,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         ).
 
       ENDIF.
-    ELSEIF lt_index_cols IS NOT INITIAL.
+    ELSEIF lt_cols IS NOT INITIAL.
       mo_textfield_util->add_text_field_column_func(
         EXPORTING it_selected_cols = lt_index_cols
                   it_fieldcat      = lt_fieldcat
@@ -1523,6 +1528,25 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
           menu  = lr_emph_menu
         )
       ).
+
+*.... Option to disable checkbox style if at least one selected column has this style
+      DATA(lt_checkbox_style_cols) = lt_fieldcat.
+      DELETE lt_checkbox_style_cols WHERE checkbox = abap_false.
+      IF lt_checkbox_style_cols IS NOT INITIAL.
+        LOOP AT lt_checkbox_style_cols ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE fieldname IN lt_cols.
+          EXIT.
+        ENDLOOP.
+        IF sy-subrc = 0.
+          DATA(lv_sort_func_index) = line_index( lt_menu_flat[ fcode = cl_gui_alv_grid=>mc_fc_sort_asc ] ).
+
+          INSERT VALUE #( type = sctx_c_type_separator ) INTO lt_menu_flat INDEX lv_sort_func_index.
+          INSERT VALUE #(
+            type  = sctx_c_type_function
+            fcode = zif_dbbr_c_selection_functions=>disable_checkbox_col_style
+            text  = 'Disable Checkbox Style'
+          ) INTO lt_menu_flat INDEX lv_sort_func_index.
+        ENDIF.
+      ENDIF.
 
       lt_menu_flat = VALUE #( BASE lt_menu_flat
         ( type  = sctx_c_type_function
@@ -1768,6 +1792,12 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selection_functions=>keep_lines.
         keep_selected_rows( ).
+
+      WHEN zif_dbbr_c_selection_functions=>disable_checkbox_col_style.
+        disable_checkbox_style( if_selected_cols_only = abap_true ).
+
+      WHEN zif_dbbr_c_selection_functions=>disable_chkbox_col_style_all.
+        disable_checkbox_style(  ).
 
       WHEN zif_dbbr_c_selection_functions=>emph_light_green OR
            zif_dbbr_c_selection_functions=>emph_green OR
@@ -2387,6 +2417,10 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         ).
         RETURN.
 
+***      WHEN zif_dbbr_c_selection_functions=>disable_checkbox_col_style.
+***        disable_checkbox_style( ).
+***        RETURN.
+
       WHEN OTHERS.
         mo_util->handle_ui_function( CHANGING cv_function = lv_function_code ).
 
@@ -2537,6 +2571,31 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
 
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+  ENDMETHOD.
+
+
+  METHOD disable_checkbox_style.
+    DATA: lf_refresh TYPE abap_bool.
+
+    IF if_selected_cols_only = abap_true.
+      mo_alv_grid->get_selected_columns( IMPORTING et_index_columns = DATA(lt_cols) ).
+    ENDIF.
+
+    mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+
+    LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fcat>) WHERE checkbox = abap_true.
+      IF lt_cols IS NOT INITIAL.
+        CHECK line_exists( lt_cols[ fieldname = <ls_fcat>-fieldname ] ).
+      ENDIF.
+      <ls_fcat>-just = 'L'.
+      CLEAR: <ls_fcat>-checkbox.
+      lf_refresh = abap_true.
+    ENDLOOP.
+
+    CHECK lf_refresh = abap_true.
+
+    mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
     mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
   ENDMETHOD.
 

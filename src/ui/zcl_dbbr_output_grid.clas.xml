@@ -376,6 +376,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_OUTPUT_GRID</CLSNAME>
+     <CMPNAME>GET_SELECTED_COLS_RANGE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Returns range of selected columns</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_OUTPUT_GRID</CLSNAME>
      <CMPNAME>HAS_SELECTED_COLUMNS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Gibt &apos;X&apos; zurück wenn mind. 1 Spalte selektiert ist</DESCRIPT>
