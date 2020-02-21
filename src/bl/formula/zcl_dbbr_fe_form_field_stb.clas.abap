@@ -1,26 +1,24 @@
-class ZCL_DBBR_FE_FORM_FIELD_STB definition
-  public
-  create public .
+"! <p class="shorttext synchronized" lang="en">Statement builder for calculation field</p>
+CLASS zcl_dbbr_fe_form_field_stb DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_DBBR_STMNT_STRING_BUILDER .
-protected section.
-private section.
+    INTERFACES zif_dbbr_stmnt_string_builder .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
+CLASS zcl_dbbr_fe_form_field_stb IMPLEMENTATION.
 
-CLASS ZCL_DBBR_FE_FORM_FIELD_STB IMPLEMENTATION.
-
-
-  method ZIF_DBBR_STMNT_STRING_BUILDER~BUILD_STRING.
+  METHOD zif_dbbr_stmnt_string_builder~build_string.
 
     " $DEF <formula field> TYPE <type name>.
-
     cs_statement-stringform =
-       |DATA { cs_statement-tokens[ 2 ]-str } TYPE { cs_statement-tokens[ 4 ]-str }.|
-    .
+       |DATA { cs_statement-tokens[ 2 ]-str } TYPE { cs_statement-tokens[ 4 ]-str }.|.
 
-  endmethod.
+  ENDMETHOD.
+
 ENDCLASS.

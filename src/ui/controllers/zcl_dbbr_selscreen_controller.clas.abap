@@ -1027,7 +1027,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       TRY .
           NEW zcl_dbbr_fe_validator(
               iv_formula   = lr_formula->get_formula_string( )
-              ir_tabfields = mo_data->mo_tabfield_list
+              io_tabfields = mo_data->mo_tabfield_list
           )->validate( ).
 
           mo_data->mr_s_query_info->formula = lr_formula->get_formula_string( ).

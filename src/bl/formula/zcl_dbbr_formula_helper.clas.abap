@@ -1,13 +1,12 @@
-CLASS ZCL_DBBR_formula_helper DEFINITION
+"! <p class="shorttext synchronized" lang="en">Helper for formulas</p>
+CLASS zcl_dbbr_formula_helper DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
 
-    CLASS-METHODS generate_subroutine
-      IMPORTING
-        !it_lines TYPE string_table .
+
     CLASS-METHODS get_raw_row_field
       IMPORTING
         !iv_row_field TYPE string
@@ -15,36 +14,36 @@ CLASS ZCL_DBBR_formula_helper DEFINITION
         VALUE(result) TYPE string .
     CLASS-METHODS update_tabflds_from_formula
       IMPORTING
-        !ir_tabfields      TYPE REF TO ZCL_DBBR_tabfield_list
-        !ir_formula        TYPE REF TO ZCL_DBBR_formula
-        !it_form_selfields TYPE ZDBBR_tabfield_info_itab OPTIONAL
+        !ir_tabfields      TYPE REF TO zcl_dbbr_tabfield_list
+        !ir_formula        TYPE REF TO zcl_dbbr_formula
+        !it_form_selfields TYPE zdbbr_tabfield_info_itab OPTIONAL
       RAISING
-        ZCX_DBBR_formula_exception .
+        zcx_dbbr_formula_exception .
 
     CLASS-METHODS is_icon_field
       IMPORTING
-        !ir_tabfield  TYPE REF TO ZDBBR_tabfield_info_ui
+        !ir_tabfield  TYPE REF TO zdbbr_tabfield_info_ui
       RETURNING
         VALUE(result) TYPE abap_bool .
   PROTECTED SECTION.
   PRIVATE SECTION.
     CLASS-METHODS determine_calculation_fields
       IMPORTING
-        ir_tabfields TYPE REF TO ZCL_DBBR_tabfield_list
-        ir_formula   TYPE REF TO ZCL_DBBR_formula
+        ir_tabfields TYPE REF TO zcl_dbbr_tabfield_list
+        ir_formula   TYPE REF TO zcl_dbbr_formula
       RAISING
-        ZCX_DBBR_formula_exception.
+        zcx_dbbr_formula_exception.
     CLASS-METHODS add_form_field_to_tablist
       IMPORTING
-        !is_form_field             TYPE ZIF_DBBR_fe_types=>ty_form_field
-        !ir_tabfield_list          TYPE REF TO ZCL_DBBR_tabfield_list
-        is_tabfield_control        TYPE ZDBBR_tabfield_control
+        !is_form_field             TYPE zif_dbbr_fe_types=>ty_form_field
+        !ir_tabfield_list          TYPE REF TO zcl_dbbr_tabfield_list
+        is_tabfield_control        TYPE zdbbr_tabfield_control
         if_use_default_ctrl_values TYPE abap_bool .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_FORMULA_HELPER IMPLEMENTATION.
+CLASS zcl_dbbr_formula_helper IMPLEMENTATION.
 
 
   METHOD add_form_field_to_tablist.
@@ -70,12 +69,30 @@ CLASS ZCL_DBBR_FORMULA_HELPER IMPLEMENTATION.
     ls_tabfield-output_active = is_tabfield_control-output_active.
     ls_tabfield-output_order = is_tabfield_control-output_order.
 
+*.. Determine unit field
+    IF is_form_field-unit_field IS NOT INITIAL.
+      TRY.
+          DATA(lv_unit_field) = get_raw_row_field( is_form_field-unit_field ).
+          DATA(lr_s_unit_field) = COND #(
+            WHEN ir_tabfield_list->has_multiple_tables( ) THEN
+                ir_tabfield_list->get_field_ref_by_alv_name( iv_alv_fieldname = CONV #( lv_unit_field ) )
+            ELSE
+                ir_tabfield_list->get_field_ref( iv_fieldname = CONV #( lv_unit_field )  )
+          ).
+          ls_tabfield-ref_tab = lr_s_unit_field->tabname_alias.
+          ls_tabfield-ref_field = lr_s_unit_field->fieldname.
+*........ Unit field has to exist in the data selection
+          lr_s_unit_field->is_calculation_field = abap_true.
+        CATCH cx_sy_itab_line_not_found.
+      ENDTRY.
+    ENDIF.
+
     ir_tabfield_list->add( ir_s_element = REF #( ls_tabfield ) ).
   ENDMETHOD.
 
 
   METHOD determine_calculation_fields.
-    DATA: lr_field_ref TYPE REF TO ZDBBR_tabfield_info_ui.
+    DATA: lr_field_ref TYPE REF TO zdbbr_tabfield_info_ui.
 
     CHECK: ir_formula IS BOUND,
            ir_tabfields IS BOUND.
@@ -101,18 +118,13 @@ CLASS ZCL_DBBR_FORMULA_HELPER IMPLEMENTATION.
             " field was found -> add it to the list of needed calculation fields for the formula
             lr_field_ref->is_calculation_field = abap_true.
           CATCH cx_sy_itab_line_not_found.
-            RAISE EXCEPTION TYPE ZCX_DBBR_formula_exception
+            RAISE EXCEPTION TYPE zcx_dbbr_formula_exception
               EXPORTING
-                textid = ZCX_DBBR_formula_exception=>needed_calc_fld_not_in_list
+                textid = zcx_dbbr_formula_exception=>needed_calc_fld_not_in_list
                 msgv1  = |{ lv_row_field_raw }|.
         ENDTRY.
       ENDLOOP.
     ENDLOOP.
-  ENDMETHOD.
-
-
-  METHOD generate_subroutine.
-    GENERATE SUBROUTINE POOL it_lines NAME DATA(lv_prog) MESSAGE DATA(lv_message).
   ENDMETHOD.
 
 
@@ -125,8 +137,8 @@ CLASS ZCL_DBBR_FORMULA_HELPER IMPLEMENTATION.
 
   METHOD is_icon_field.
     result = xsdbool( ir_tabfield->is_formula_field = abap_true AND
-                      ( ir_tabfield->rollname = ZIF_DBBR_fe_constants=>c_icon_type OR
-                        ir_tabfield->rollname = ZIF_DBBR_fe_constants=>c_icon_tt_type ) ).
+                      ( ir_tabfield->rollname = zif_dbbr_fe_constants=>c_icon_type OR
+                        ir_tabfield->rollname = zif_dbbr_fe_constants=>c_icon_tt_type ) ).
   ENDMETHOD.
 
 

@@ -1,44 +1,44 @@
-class ZCL_DBBR_FE_GENERAL_SV definition
-  public
-  create public .
+"! <p class="shorttext synchronized" lang="en">General validation for statement</p>
+CLASS zcl_dbbr_fe_general_sv DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_DBBR_STATEMENT_VALIDATOR .
+    INTERFACES zif_dbbr_statement_validator .
 
-  methods CONSTRUCTOR
-    importing
-      !IR_FORMULA type ref to ZCL_DBBR_FORMULA .
-protected section.
-private section.
+    METHODS constructor
+      IMPORTING
+        !ir_formula TYPE REF TO zcl_dbbr_formula .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 
-  data MR_FORMULA type ref to ZCL_DBBR_FORMULA .
+    DATA mr_formula TYPE REF TO zcl_dbbr_formula .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_FE_GENERAL_SV IMPLEMENTATION.
+CLASS zcl_dbbr_fe_general_sv IMPLEMENTATION.
 
 
-  method CONSTRUCTOR.
+  METHOD constructor.
 
     mr_formula = ir_formula.
 
-  endmethod.
+  ENDMETHOD.
 
 
-  method ZIF_DBBR_STATEMENT_VALIDATOR~VALIDATE.
-
+  METHOD zif_dbbr_statement_validator~validate.
 
     IF cs_statement-type = 'K'.
       " check if keyword is valid
-      IF NOT cs_statement-first_token_str IN ZCL_DBBR_fe_templates=>st_valid_keywords_range.
-        RAISE EXCEPTION TYPE ZCX_DBBR_fe_stmnt_valid_exc
+      IF NOT cs_statement-first_token_str IN zcl_dbbr_fe_templates=>gt_valid_keywords_range.
+        RAISE EXCEPTION TYPE zcx_dbbr_fe_stmnt_valid_exc
           EXPORTING
-            textid          = ZCX_DBBR_fe_stmnt_valid_exc=>invalid_keyword_found
-            msgv1           = |{ cs_statement-first_token_str }|
-            msgv2           = |{ cs_statement-tokens[ 1 ]-row }|
-            invalid_row     = cs_statement-tokens[ 1 ]-row.
+            textid      = zcx_dbbr_fe_stmnt_valid_exc=>invalid_keyword_found
+            msgv1       = |{ cs_statement-first_token_str }|
+            msgv2       = |{ cs_statement-tokens[ 1 ]-row }|
+            invalid_row = cs_statement-tokens[ 1 ]-row.
       ENDIF.
     ENDIF.
 
@@ -50,5 +50,6 @@ CLASS ZCL_DBBR_FE_GENERAL_SV IMPLEMENTATION.
       ENDIF.
     ENDLOOP.
 
-  endmethod.
+  ENDMETHOD.
+
 ENDCLASS.

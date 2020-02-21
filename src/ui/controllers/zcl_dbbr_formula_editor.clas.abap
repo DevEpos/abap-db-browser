@@ -458,7 +458,7 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
         ).
 
         DATA(lr_validator) = NEW zcl_dbbr_fe_validator( iv_formula    = mv_current_formula
-                                                         ir_tabfields  = mo_tabfield_list ).
+                                                        io_tabfields  = mo_tabfield_list ).
         mo_formula = lr_validator->validate( ).
 
         IF if_hide_log_on_success = abap_false.

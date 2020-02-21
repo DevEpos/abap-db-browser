@@ -1,9 +1,9 @@
-CLASS ZCL_DBBR_formula DEFINITION
+CLASS zcl_dbbr_formula DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC
 
-  GLOBAL FRIENDS ZCL_DBBR_fe_validator .
+  GLOBAL FRIENDS zcl_dbbr_fe_validator .
 
   PUBLIC SECTION.
 
@@ -16,22 +16,22 @@ CLASS ZCL_DBBR_formula DEFINITION
         value TYPE abap_bool DEFAULT abap_true.
     METHODS add_stmnt
       IMPORTING
-        is_statement TYPE ZIF_DBBR_fe_types=>ty_statement.
+        is_statement TYPE zif_dbbr_fe_types=>ty_statement.
     METHODS set_stmnt
       IMPORTING
-        !it_stmnt TYPE ZIF_DBBR_fe_types=>tt_statement .
+        !it_stmnt TYPE zif_dbbr_fe_types=>tt_statement .
     METHODS add_field
       IMPORTING
-        !is_field TYPE ZIF_DBBR_fe_types=>ty_form_field
+        !is_field TYPE zif_dbbr_fe_types=>ty_form_field
       RAISING
-        ZCX_DBBR_formula_exception .
+        zcx_dbbr_formula_exception .
     METHODS get_field
       IMPORTING
         !iv_field            TYPE fieldname
       RETURNING
-        VALUE(rs_form_field) TYPE ZIF_DBBR_fe_types=>ty_form_field
+        VALUE(rs_form_field) TYPE zif_dbbr_fe_types=>ty_form_field
       RAISING
-        ZCX_DBBR_formula_exception .
+        zcx_dbbr_formula_exception .
     METHODS is_formula_field
       IMPORTING
         !iv_field     TYPE fieldname
@@ -42,17 +42,10 @@ CLASS ZCL_DBBR_formula DEFINITION
         VALUE(result) TYPE abap_bool.
     METHODS get_statements
       EXPORTING
-        !et_statements TYPE ZIF_DBBR_fe_types=>tt_statement .
-    METHODS update_description_of_field
-      IMPORTING
-        !iv_fieldname         TYPE fieldname
-        !iv_short_description TYPE scrtext_m OPTIONAL
-        !iv_long_description  TYPE scrtext_l OPTIONAL
-      RAISING
-        ZCX_DBBR_formula_exception .
+        !et_statements TYPE zif_dbbr_fe_types=>tt_statement .
     METHODS get_formula_fields
       EXPORTING
-        !et_fields TYPE ZIF_DBBR_fe_types=>tt_form_field .
+        !et_fields TYPE zif_dbbr_fe_types=>tt_form_field .
     METHODS has_executable_code
       RETURNING
         VALUE(result) TYPE abap_bool.
@@ -72,33 +65,51 @@ CLASS ZCL_DBBR_formula DEFINITION
   PRIVATE SECTION.
     DATA mf_color_column_needed TYPE abap_bool.
     DATA mv_formula_string TYPE string .
-    DATA mt_formula_stmnt TYPE ZIF_DBBR_fe_types=>tt_statement .
-    DATA mt_defined_fields TYPE ZIF_DBBR_fe_types=>tt_form_field .
+    DATA mt_formula_stmnt TYPE zif_dbbr_fe_types=>tt_statement .
+    DATA mt_defined_fields TYPE zif_dbbr_fe_types=>tt_form_field .
     DATA mv_executable_stmnt_count TYPE i.
     DATA mf_valid TYPE abap_bool.
     METHODS evaluate_stmnt
       IMPORTING
-        is_stmnt TYPE ZIF_DBBR_fe_types=>ty_statement.
+        is_stmnt TYPE zif_dbbr_fe_types=>ty_statement.
+    METHODS update_description_of_field
+      IMPORTING
+        !iv_fieldname         TYPE fieldname
+        !iv_short_description TYPE scrtext_m OPTIONAL
+        !iv_long_description  TYPE scrtext_l OPTIONAL
+      RAISING
+        zcx_dbbr_formula_exception .
+    METHODS update_unit_field_of_field
+      IMPORTING
+        iv_fieldname TYPE fieldname
+        iv_unit      TYPE string
+      RAISING
+        zcx_dbbr_formula_exception .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_formula IMPLEMENTATION.
+CLASS zcl_dbbr_formula IMPLEMENTATION.
 
 
   METHOD add_field.
     IF is_field-is_description = abap_true.
       update_description_of_field(
-          iv_fieldname         = is_field-field
-          iv_short_description = is_field-short_description
-          iv_long_description  = is_field-long_description
+         iv_fieldname         = is_field-field
+         iv_short_description = is_field-short_description
+         iv_long_description  = is_field-long_description
+      ).
+    ELSEIF is_field-is_unit = abap_true.
+      update_unit_field_of_field(
+          iv_fieldname = is_field-field
+          iv_unit      = is_field-unit_field
       ).
     ELSE.
       INSERT is_field INTO TABLE mt_defined_fields.
       IF sy-subrc <> 0.
-        RAISE EXCEPTION TYPE ZCX_DBBR_formula_exception
+        RAISE EXCEPTION TYPE zcx_dbbr_formula_exception
           EXPORTING
-            textid = ZCX_DBBR_formula_exception=>duplicate_form_field
+            textid = zcx_dbbr_formula_exception=>duplicate_form_field
             msgv1  = |{ is_field-field }|.
       ENDIF.
     ENDIF.
@@ -115,9 +126,9 @@ CLASS ZCL_DBBR_formula IMPLEMENTATION.
     TRY.
         rs_form_field = mt_defined_fields[ field = iv_field ].
       CATCH cx_sy_itab_line_not_found.
-        RAISE EXCEPTION TYPE ZCX_DBBR_formula_exception
+        RAISE EXCEPTION TYPE zcx_dbbr_formula_exception
           EXPORTING
-            textid = ZCX_DBBR_formula_exception=>form_field_not_defined
+            textid = zcx_dbbr_formula_exception=>form_field_not_defined
             msgv1  = |{ iv_field }|.
     ENDTRY.
   ENDMETHOD.
@@ -159,9 +170,22 @@ CLASS ZCL_DBBR_formula IMPLEMENTATION.
         lr_defined_field->short_description = iv_short_description.
         lr_defined_field->long_description = iv_long_description.
       CATCH cx_sy_itab_line_not_found.
-        RAISE EXCEPTION TYPE ZCX_DBBR_formula_exception
+        RAISE EXCEPTION TYPE zcx_dbbr_formula_exception
           EXPORTING
-            textid = ZCX_DBBR_formula_exception=>form_field_not_defined.
+            textid = zcx_dbbr_formula_exception=>form_field_not_defined
+            msgv1  = |{ iv_fieldname }|.
+    ENDTRY.
+  ENDMETHOD.
+
+  METHOD update_unit_field_of_field.
+    TRY.
+        DATA(lr_defined_field) = REF #( mt_defined_fields[ field = iv_fieldname ] ).
+        lr_defined_field->unit_field = iv_unit.
+      CATCH cx_sy_itab_line_not_found.
+        RAISE EXCEPTION TYPE zcx_dbbr_formula_exception
+          EXPORTING
+            textid = zcx_dbbr_formula_exception=>form_field_not_defined
+            msgv1  = |{ iv_fieldname }|.
     ENDTRY.
   ENDMETHOD.
 

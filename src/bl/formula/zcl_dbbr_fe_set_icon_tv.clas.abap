@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Validates tokens of SET_ICON call</p>
 CLASS zcl_dbbr_fe_set_icon_tv DEFINITION
   PUBLIC
   CREATE PUBLIC .
@@ -12,7 +13,6 @@ ENDCLASS.
 
 
 CLASS zcl_dbbr_fe_set_icon_tv IMPLEMENTATION.
-
 
   METHOD zif_dbbr_token_validator~validate.
 
@@ -33,7 +33,7 @@ CLASS zcl_dbbr_fe_set_icon_tv IMPLEMENTATION.
 
       WHEN 3.
         IF cs_token-type <> 'I'.
-          lv_error_string = |{ TEXT-pos } 3 { TEXT-e09 }|.
+          lv_error_string = |{ TEXT-pos } 3 { TEXT-e02 }|.
         ELSE.
           " validate the given token
           zcl_dbbr_icon_handler=>create_icon( iv_icon_name = CONV #( cs_token-str ) ).
@@ -45,7 +45,7 @@ CLASS zcl_dbbr_fe_set_icon_tv IMPLEMENTATION.
         ENDIF.
 
         IF cs_token-type <> 'S'.
-          lv_error_string = |{ TEXT-pos } 4 { TEXT-e01 }|.
+          lv_error_string = |{ TEXT-pos } 4 { TEXT-e09 }|.
         ELSEIF NOT matches( val = cs_token-str regex = |['`].\{0,30\}['`]| ).
           " validate if the string length is correct
           lv_error_string = |{ TEXT-pos } 4 { TEXT-e10 }|.
@@ -72,4 +72,5 @@ CLASS zcl_dbbr_fe_set_icon_tv IMPLEMENTATION.
     ENDIF.
 
   ENDMETHOD.
+
 ENDCLASS.

@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_DBBR_FE_ICON_TT_TV</CLSNAME>
+    <CLSNAME>ZCL_DBBR_FE_UNIT_DEF_TV</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Validates tokens of icon field with tooltip</DESCRIPT>
+    <DESCRIPT>Validates tokens of unit definition</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
@@ -14,27 +14,21 @@
    <TPOOL>
     <item>
      <ID>I</ID>
-     <KEY>E01</KEY>
-     <ENTRY>is not a String</ENTRY>
-     <LENGTH>25</LENGTH>
-    </item>
-    <item>
-     <ID>I</ID>
      <KEY>E02</KEY>
      <ENTRY>is not an identifier</ENTRY>
      <LENGTH>40</LENGTH>
     </item>
     <item>
      <ID>I</ID>
-     <KEY>E06</KEY>
-     <ENTRY>must be a string between 1 and 30 Characters</ENTRY>
-     <LENGTH>88</LENGTH>
+     <KEY>E03</KEY>
+     <ENTRY>has to be a valid column</ENTRY>
+     <LENGTH>48</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>E08</KEY>
-     <ENTRY>Name is longer than 28 characters</ENTRY>
-     <LENGTH>66</LENGTH>
+     <ENTRY>Name is greater than 28 characters</ENTRY>
+     <LENGTH>68</LENGTH>
     </item>
     <item>
      <ID>I</ID>

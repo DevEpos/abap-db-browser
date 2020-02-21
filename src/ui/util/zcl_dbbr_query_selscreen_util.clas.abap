@@ -516,7 +516,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
       TRY.
           DATA(lr_formula) = NEW zcl_dbbr_fe_validator(
               iv_formula   = mo_data->mr_s_query_info->formula
-              ir_tabfields = lr_tabfield_list
+              io_tabfields = lr_tabfield_list
           )->validate( ).
 
           zcl_dbbr_formula_helper=>update_tabflds_from_formula(

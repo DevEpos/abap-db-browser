@@ -5,12 +5,44 @@
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_FE_TEXT_DEF_TV</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Validates tokesn of formula description</DESCRIPT>
+    <DESCRIPT>Validates tokens of formula description</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
    </VSEOCLASS>
+   <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>E01</KEY>
+     <ENTRY>is not a string</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>E02</KEY>
+     <ENTRY>is not an identifier</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>E05</KEY>
+     <ENTRY>must be a string between 1 and 20 characters</ENTRY>
+     <LENGTH>88</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>E06</KEY>
+     <ENTRY>must be string between 1 and 40 characters</ENTRY>
+     <LENGTH>84</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>POS</KEY>
+     <ENTRY>Position</ENTRY>
+     <LENGTH>18</LENGTH>
+    </item>
+   </TPOOL>
   </asx:values>
  </asx:abap>
 </abapGit>

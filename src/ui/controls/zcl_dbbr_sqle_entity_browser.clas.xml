@@ -3,14 +3,22 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_DBBR_FE_COLOR_DEF_TV</CLSNAME>
+    <CLSNAME>ZCL_DBBR_SQLE_ENTITY_BROWSER</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Validates token of color field</DESCRIPT>
+    <DESCRIPT>Entity Browser for SQL Editor</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
     <UNICODE>X</UNICODE>
    </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_ENTITY_BROWSER</CLSNAME>
+     <CMPNAME>CONSTRUCTOR</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create new instance of alv field control</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
   </asx:values>
  </asx:abap>
 </abapGit>

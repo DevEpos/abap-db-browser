@@ -8,22 +8,22 @@ CLASS zcl_dbbr_fe_validator DEFINITION
     METHODS constructor
       IMPORTING
         !iv_formula   TYPE string
-        !ir_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
+        !io_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
     METHODS validate
       EXPORTING
         !et_defined_fields TYPE zif_dbbr_fe_types=>tt_form_field
       RETURNING
-        VALUE(rr_formula)  TYPE REF TO zcl_dbbr_formula
+        VALUE(ro_formula)  TYPE REF TO zcl_dbbr_formula
       RAISING
         zcx_dbbr_formula_exception .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mt_formula_lines TYPE string_table .
     DATA mv_formula_string TYPE string .
     DATA mt_formula_stmnt TYPE zif_dbbr_fe_types=>tt_statement .
-    DATA mr_formula TYPE REF TO zcl_dbbr_formula .
+    DATA mo_formula TYPE REF TO zcl_dbbr_formula .
     DATA mt_calc_fields TYPE zif_dbbr_fe_types=>tt_form_calc_field .
 
     METHODS tokenize_formula
@@ -54,29 +54,30 @@ CLASS zcl_dbbr_fe_validator IMPLEMENTATION.
           lv_word TYPE string.
 
     " include formula lines
-    DATA(lr_builder) = zcl_dbbr_fe_form_builder=>get_builder_for_check(
-        ir_formula   = mr_formula
-        ir_tabfields = mr_tabfields
+    DATA(lo_builder) = zcl_dbbr_fe_form_builder=>get_builder_for_check(
+        io_formula   = mo_formula
+        io_tabfields = mo_tabfields
     ).
 
-    lr_builder->build_formula( IMPORTING et_lines         = DATA(lt_code)
+    lo_builder->build_formula( IMPORTING et_lines         = DATA(lt_code)
                                          ev_starting_line = DATA(lv_starting_line) ).
 
-    SELECT SINGLE * FROM trdir
-    INTO @DATA(dir)
-    WHERE name = @sy-repid.
+    SELECT SINGLE *
+      FROM trdir
+      WHERE name = @sy-repid
+    INTO @DATA(ls_dir).
 
     DATA: lv_message TYPE string.
 
     SYNTAX-CHECK FOR lt_code MESSAGE lv_message
                                 LINE lv_line
                                 WORD lv_word
-                                DIRECTORY ENTRY dir.
+                                DIRECTORY ENTRY ls_dir.
 
     IF lv_message IS NOT INITIAL AND sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_dbbr_formula_exception
         EXPORTING
-*          invalid_row    = lv_line - lv_starting_line
+*         invalid_row    = lv_line - lv_starting_line
           syntax_message = lv_message.
     ENDIF.
 
@@ -86,7 +87,7 @@ CLASS zcl_dbbr_fe_validator IMPLEMENTATION.
 
   METHOD constructor.
     mv_formula_string = iv_formula.
-    mr_tabfields = ir_tabfields.
+    mo_tabfields = io_tabfields.
   ENDMETHOD.
 
 
@@ -149,31 +150,31 @@ CLASS zcl_dbbr_fe_validator IMPLEMENTATION.
 
           " Extract possible formula field (custom editor functions will be excluded)
           IF <ls_stmnt>-is_function_call = abap_false.
-            DATA(lr_field_extractor) = zcl_dbbr_fe_field_extractor=>get_extractor( <ls_stmnt>-first_token_str ).
-            IF lr_field_extractor IS BOUND.
-              mr_formula->add_field( lr_field_extractor->extract_field( <ls_stmnt> ) ).
+            DATA(lo_field_extractor) = zcl_dbbr_fe_field_extractor=>get_extractor( <ls_stmnt>-first_token_str ).
+            IF lo_field_extractor IS BOUND.
+              mo_formula->add_field( lo_field_extractor->extract_field( <ls_stmnt> ) ).
             ENDIF.
           ELSE.
             IF <ls_stmnt>-first_token_str = zif_dbbr_c_fe_keywords=>set_cell_color OR
                <ls_stmnt>-first_token_str = zif_dbbr_c_fe_keywords=>set_row_color.
-              mr_formula->set_color_column_needed( EXPORTING value = abap_true ).
+              mo_formula->set_color_column_needed( EXPORTING value = abap_true ).
             ENDIF.
           ENDIF.
 
         WHEN 'C' OR " Compute statements
              'K'.   " ABAP Keyword
-          NEW zcl_dbbr_fe_general_sv( mr_formula )->zif_dbbr_statement_validator~validate( CHANGING cs_statement = <ls_stmnt> ).
+          NEW zcl_dbbr_fe_general_sv( mo_formula )->zif_dbbr_statement_validator~validate( CHANGING cs_statement = <ls_stmnt> ).
       ENDCASE.
 
       " build the stringform of the statement
-      DATA(lr_string_builder) = zcl_dbbr_fe_stmnt_str_builder=>get_string_builder( <ls_stmnt> ).
-      lr_string_builder->build_string( CHANGING cs_statement = <ls_stmnt> ).
+      DATA(lo_string_builder) = zcl_dbbr_fe_stmnt_str_builder=>get_string_builder( <ls_stmnt> ).
+      lo_string_builder->build_string( CHANGING cs_statement = <ls_stmnt> ).
 
-      mr_formula->add_stmnt( <ls_stmnt> ).
+      mo_formula->add_stmnt( <ls_stmnt> ).
     ENDLOOP.
 
     " check if there is at least one formula field
-    IF NOT mr_formula->has_executable_code( ).
+    IF NOT mo_formula->has_executable_code( ).
       RAISE EXCEPTION TYPE zcx_dbbr_formula_exception
         EXPORTING
           textid = zcx_dbbr_formula_exception=>no_executable_lines.
@@ -198,15 +199,15 @@ CLASS zcl_dbbr_fe_validator IMPLEMENTATION.
         CLEAR: mt_formula_lines,
                mt_formula_stmnt.
 
-        mr_formula = NEW #( iv_formula   = mv_formula_string ).
+        mo_formula = NEW #( iv_formula   = mv_formula_string ).
 
         tokenize_formula( ).
         process_statements( ).
         check_abap_syntax( ).
-        rr_formula = mr_formula.
-      CATCH zcx_dbbr_formula_exception INTO DATA(lr_appl_exc).
-        CLEAR mr_formula.
-        RAISE EXCEPTION lr_appl_exc.
+        ro_formula = mo_formula.
+      CATCH zcx_dbbr_formula_exception INTO DATA(lo_appl_exc).
+        CLEAR mo_formula.
+        RAISE EXCEPTION lo_appl_exc.
     ENDTRY.
   ENDMETHOD.
 ENDCLASS.

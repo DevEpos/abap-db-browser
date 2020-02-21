@@ -133,7 +133,7 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
       TRY.
           mo_formula = NEW zcl_dbbr_fe_validator(
               iv_formula   = ms_query-formula
-              ir_tabfields = mo_tabfield_list
+              io_tabfields = mo_tabfield_list
           )->validate( ).
 
           zcl_dbbr_formula_helper=>update_tabflds_from_formula(

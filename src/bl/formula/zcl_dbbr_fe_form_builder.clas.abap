@@ -6,8 +6,8 @@ CLASS ZCL_DBBR_fe_form_builder DEFINITION
   PUBLIC SECTION.
     CLASS-METHODS get_builder_for_check
       IMPORTING
-        ir_formula        TYPE REF TO ZCL_DBBR_formula
-        ir_tabfields      type ref to ZCL_DBBR_tabfield_list
+        io_formula        TYPE REF TO ZCL_DBBR_formula
+        io_tabfields      type ref to ZCL_DBBR_tabfield_list
       RETURNING
         VALUE(rr_builder) TYPE REF TO ZIF_DBBR_fe_formula_builder.
     CLASS-METHODS get_builder_for_subroutine_gen
@@ -28,8 +28,8 @@ CLASS ZCL_DBBR_fe_form_builder IMPLEMENTATION.
 
   METHOD get_builder_for_check.
     rr_builder = new ZCL_DBBR_fe_bldr_for_checks(
-        ir_formula   = ir_formula
-        ir_tabfields = ir_tabfields
+        ir_formula   = io_formula
+        ir_tabfields = io_tabfields
     ).
   ENDMETHOD.
 

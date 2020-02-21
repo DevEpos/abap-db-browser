@@ -1,24 +1,24 @@
-class ZCL_DBBR_FE_FIELD_DESCR_EXTR definition
-  public
-  create public .
+"! <p class="shorttext synchronized" lang="en">Extracts description of formula field</p>
+CLASS zcl_dbbr_fe_field_descr_extr DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_DBBR_FE_FIELD_EXTRACTOR .
-protected section.
-private section.
+    INTERFACES zif_dbbr_fe_field_extractor .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_FE_FIELD_DESCR_EXTR IMPLEMENTATION.
+CLASS zcl_dbbr_fe_field_descr_extr IMPLEMENTATION.
 
-
-  method ZIF_DBBR_FE_FIELD_EXTRACTOR~EXTRACT_FIELD.
+  METHOD zif_dbbr_fe_field_extractor~extract_field.
 
     ASSIGN is_statement-tokens TO FIELD-SYMBOL(<lt_tokens>).
 
-    rs_field = VALUE ZIF_DBBR_fe_types=>ty_form_field(
+    rs_field = VALUE zif_dbbr_fe_types=>ty_form_field(
         field             = <lt_tokens>[ 2 ]-str
         is_description    = abap_true
         short_description = replace( val   = <lt_tokens>[ 3 ]-str
@@ -30,5 +30,6 @@ CLASS ZCL_DBBR_FE_FIELD_DESCR_EXTR IMPLEMENTATION.
                                                with  ='$1' ) )
     ).
 
-  endmethod.
+  ENDMETHOD.
+
 ENDCLASS.

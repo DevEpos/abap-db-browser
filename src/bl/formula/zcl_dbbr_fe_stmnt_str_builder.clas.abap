@@ -32,8 +32,11 @@ CLASS zcl_dbbr_fe_stmnt_str_builder IMPLEMENTATION.
         WHEN zif_dbbr_c_fe_keywords=>define_icon_quick.
           rr_builder = NEW zcl_dbbr_fe_icon_tt_stb( ).
 
+        WHEN zif_dbbr_c_fe_keywords=>define_unit.
+          rr_builder = NEW zcl_dbbr_fe_unit_stb( ).
+
           " will be included in existing formula field definition
-        WHEN zif_dbbr_c_fe_keywords=>define_description.
+        WHEN OTHERS.
           rr_builder = NEW zcl_dbbr_fe_dummy_stb( ).
       ENDCASE.
 

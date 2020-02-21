@@ -33,6 +33,12 @@ CLASS zcl_dbbr_fe_custom_sv IMPLEMENTATION.
           lf_error = abap_true.
         ENDIF.
 
+      WHEN zif_dbbr_c_fe_keywords=>define_unit.
+        IF is_statement-token_count <> 3.
+          lv_template = zcl_dbbr_fe_templates=>gv_form_unit_tmplt.
+          lf_error = abap_true.
+        ENDIF.
+
       WHEN zif_dbbr_c_fe_keywords=>define_icon.
         IF is_statement-token_count <> 2.
           lv_template = zcl_dbbr_fe_templates=>gv_icon_field_tmplt.

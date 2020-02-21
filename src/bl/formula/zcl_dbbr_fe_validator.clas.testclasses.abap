@@ -36,7 +36,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
         iv_formula             = `$def my_form TYPE coep-wtgbtr.` && cl_abap_char_utilities=>cr_lf &&
                                  `$text my_form 'propKost'.`  && cl_abap_char_utilities=>cr_lf &&
                                  `my_form = row-wtgbtr + row-wogbtr.`
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -60,7 +60,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `$def my_form TYPE coep-wtgbtr.` && cl_abap_char_utilities=>cr_lf &&
                                  `my_form2 = row-wtgbtr + row-wogbtr + row-wkgbtr + row-wkfbtr.`
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -83,7 +83,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `DATA: lv_form TYPE WTGXXX.` && cl_abap_char_utilities=>cr_lf &&
                                  `SELECT SINGLE matnr into @data(lv_matnr).`
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -102,7 +102,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `$defs my_form TYPE WTGXXX.` && cl_abap_char_utilities=>cr_lf &&
                                  `my_form = row-wtgbtr + row-wogbtr + row-wkgbtr + row-wkfbtr.`
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -122,7 +122,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `* My formula, all correct but no executable code` && cl_abap_char_utilities=>cr_lf &&
                                  `DATA: lv_var1 type char1.` && cl_abap_char_utilities=>cr_lf
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -170,7 +170,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
                                  `  $set_cell_color row-perio  'C500'.` && cl_abap_char_utilities=>cr_lf &&
                                  `endif.` && cl_abap_char_utilities=>cr_lf
 
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -192,7 +192,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
                                  `lv_var1 = row-wtgbtr + row-wogbtr.` && cl_abap_char_utilities=>cr_lf &&
                                  `IF 1 = 2.` && cl_abap_char_utilities=>cr_lf &&
                                  `ENDIF.` && cl_abap_char_utilities=>cr_lf
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -211,7 +211,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
 
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `$DEF prop_cost_sum.` && cl_abap_char_utilities=>cr_lf
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -229,7 +229,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
     DATA(lr_tabfields) = create_test_tabfields( ).
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `$TEXT prop_cost_sum 'Kurz.Text' 'Langtext' 'Text zu viel'.` && cl_abap_char_utilities=>cr_lf
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -248,7 +248,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
 
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `$ICON ffIcon icon_plant.` && cl_abap_char_utilities=>cr_lf
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -267,7 +267,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
 
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `$ICON_TT field_name '500'.` && cl_abap_char_utilities=>cr_lf
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -285,7 +285,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
     DATA(lr_tabfields) = create_test_tabfields( ).
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `$SET_ICON_TT icon_field 'Tooltip'.` && cl_abap_char_utilities=>cr_lf
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -303,7 +303,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
     DATA(lr_tabfields) = create_test_tabfields( ).
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `$SET_ROW_COLOR row-wogbtr 'C500'.` && cl_abap_char_utilities=>cr_lf
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.
@@ -322,7 +322,7 @@ CLASS ltcl_fe_validator IMPLEMENTATION.
 
     DATA(lr_validator) = NEW ZCL_DBBR_fe_validator(
         iv_formula             = `$SET_CELL_COLOR 'C500'.` && cl_abap_char_utilities=>cr_lf
-        ir_tabfields           = lr_tabfields
+        io_tabfields           = lr_tabfields
     ).
 
     TRY.

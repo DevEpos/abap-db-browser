@@ -5,6 +5,7 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+    INTERFACES zif_uitb_gui_composite_view.
     METHODS zif_uitb_gui_command_handler~execute_command
         REDEFINITION.
 
@@ -62,6 +63,8 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
     DATA mf_no_edit_allowed TYPE abap_bool.
     DATA mf_modified TYPE abap_bool.
     DATA mv_last_saved_query TYPE zsat_query_name.
+    DATA: mo_splitter TYPE REF TO zcl_uitb_gui_splitter_cont,
+          mo_entity_browser TYPE REF TO zcl_dbbr_sqle_entity_browser.
 ENDCLASS.
 
 
@@ -89,28 +92,32 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_content.
-    create_control_toolbar(
-      EXPORTING
+    mo_splitter = NEW zcl_uitb_gui_splitter_cont(
+        iv_elements  = 2
         io_parent    = io_container
-        it_button    = VALUE #(
-          ( function  = c_functions-check
-            icon      = icon_check
-            quickinfo = |{ 'Check Syntax'(001) }| )
-          ( function = c_functions-format_source
-            text     = |{ 'Pretty Printer'(003) }| )
-          ( butn_type = cntb_btype_sep )
-          ( function  = c_functions-test_query
-            icon      = icon_test
-            quickinfo = |{ 'Test Query'(002) }| )
-          ( butn_type = cntb_btype_sep )
-          ( function  = c_functions-show_code_completion
-            icon      = icon_abap
-            text      = |{ 'Code Completion'(004) }|
-            quickinfo = |{ 'Show Code completion results'(005) }| )
-        )
-      IMPORTING
-        eo_toolbar   = mo_toolbar
-        eo_client    = DATA(lo_container)
+        iv_size      = '20:80'
+    ).
+    mo_splitter->set_element_visibility( iv_element = 1 if_visible = abap_false ).
+    create_control_toolbar(
+      EXPORTING io_parent    = mo_splitter->get_container( 2 )
+                it_button    = VALUE #(
+                  ( function  = c_functions-check
+                    icon      = icon_check
+                    quickinfo = |{ 'Check Syntax'(001) }| )
+                  ( function = c_functions-format_source
+                    text     = |{ 'Pretty Printer'(003) }| )
+                  ( butn_type = cntb_btype_sep )
+                  ( function  = c_functions-test_query
+                    icon      = icon_test
+                    quickinfo = |{ 'Test Query'(002) }| )
+                  ( butn_type = cntb_btype_sep )
+                  ( function  = c_functions-show_code_completion
+                    icon      = icon_abap
+                    text      = |{ 'Code Completion'(004) }|
+                    quickinfo = |{ 'Show Code completion results'(005) }| )
+                )
+      IMPORTING eo_toolbar   = mo_toolbar
+                eo_client    = DATA(lo_container)
     ).
 
     DATA(lr_f_use_text_based_editor) = CAST abap_bool(
@@ -129,6 +136,15 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
       mo_editor->set_editable( abap_false ).
     ENDIF.
 
+    mo_entity_browser = NEW zcl_dbbr_sqle_entity_browser(
+      io_parent_container = mo_splitter->get_container( 1 )
+      io_parent_view      = me
+    ).
+
+  ENDMETHOD.
+
+  METHOD zif_uitb_gui_composite_view~set_child_visibility.
+*.. Let's see if we really need it here
   ENDMETHOD.
 
   METHOD zif_uitb_gui_command_handler~execute_command.

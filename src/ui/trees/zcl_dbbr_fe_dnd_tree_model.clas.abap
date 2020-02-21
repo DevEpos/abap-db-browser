@@ -176,7 +176,7 @@ CLASS zcl_dbbr_fe_dnd_tree_model IMPLEMENTATION.
   METHOD create_available_stmtns_nodes.
     mv_availbl_stmnts_top_node = create_simple_folder_node( iv_parent_node = mv_top_node
                                                             iv_description = 'Available Commands'  ).
-    LOOP AT zcl_dbbr_fe_templates=>st_valid_keywords_range ASSIGNING FIELD-SYMBOL(<ls_valid_keyword>).
+    LOOP AT zcl_dbbr_fe_templates=>gt_valid_keywords_range ASSIGNING FIELD-SYMBOL(<ls_valid_keyword>).
       create_text_node( iv_parent = mv_availbl_stmnts_top_node iv_text = CONV #( <ls_valid_keyword>-low ) ).
     ENDLOOP.
   ENDMETHOD.
