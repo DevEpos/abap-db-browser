@@ -5,7 +5,9 @@ CLASS zcl_dbbr_sql_console DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-  methods constructor.
+    METHODS constructor
+      IMPORTING
+        iv_query TYPE string OPTIONAL.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -15,9 +17,10 @@ ENDCLASS.
 CLASS zcl_dbbr_sql_console IMPLEMENTATION.
   METHOD constructor.
 
-    super->constructor(  ).
+    super->constructor( iv_query = iv_query ).
     mf_standalone_mode = abap_true.
     mf_title = |{ 'DB Browser - SQL Console'(001) }|.
+
   ENDMETHOD.
 
 ENDCLASS.

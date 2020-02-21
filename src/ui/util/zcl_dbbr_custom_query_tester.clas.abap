@@ -26,6 +26,7 @@ CLASS zcl_dbbr_custom_query_tester IMPLEMENTATION.
          exclude_function   = VALUE #(
            ( zif_dbbr_c_selection_functions=>leave_screen_with_layout )
            ( zif_dbbr_c_selection_functions=>transfer_filter_values   )
+           ( zif_dbbr_c_selection_functions=>open_in_sql_console   )
          )
        )
     ).

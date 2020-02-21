@@ -16,7 +16,6 @@ CLASS zcl_dbbr_start DEFINITION
     METHODS start_search .
     "! <p class="shorttext synchronized" lang="en">Starts the SQL Query Console</p>
     METHODS start_sql_console.
-
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -64,7 +63,12 @@ CLASS zcl_dbbr_start IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD start_sql_console.
-    NEW zcl_dbbr_sql_console( )->show( ).
+    DATA: lv_query TYPE string.
+    IMPORT
+      query = lv_query
+    FROM MEMORY ID 'SQLQUERY_EXPORT'.
+
+    NEW zcl_dbbr_sql_console( iv_query = lv_query )->show( ).
   ENDMETHOD.
 
 ENDCLASS.

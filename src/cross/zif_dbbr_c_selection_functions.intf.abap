@@ -75,4 +75,5 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS copy_as_val_stmnt_compact TYPE sy-ucomm VALUE 'CPYVALSTMNT_COMPACT' ##NO_TEXT.
   CONSTANTS disable_checkbox_col_style TYPE sy-ucomm VALUE 'DISCHKBOX_STYLE' ##NO_TEXT.
   CONSTANTS disable_chkbox_col_style_all TYPE sy-ucomm VALUE 'DISCHKBOX_STYLE_ALL' ##NO_TEXT.
+  CONSTANTS open_in_sql_console TYPE sy-ucomm VALUE 'SQLCONSOLE' ##NO_TEXT.
 ENDINTERFACE.

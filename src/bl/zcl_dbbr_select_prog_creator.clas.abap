@@ -177,6 +177,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
           FROM (mt_from)
           WHERE (mt_where)
           GROUP BY (mt_group_by)
+          HAVING (mt_having)
           ORDER BY (mt_order_by)
         INTO CORRESPONDING FIELDS OF TABLE @<lt_data>.
 

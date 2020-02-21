@@ -148,7 +148,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA ms_association_target TYPE zsat_cds_association .
     DATA mr_t_for_all_data TYPE REF TO data .
     "! <p class="shorttext synchronized" lang="en">Creates subroutine pool program for selection data from db</p>
-    DATA mr_select_program TYPE REF TO zcl_dbbr_select_prog_creator .
+    DATA mo_select_program TYPE REF TO zcl_dbbr_select_prog_creator .
     DATA mr_t_data TYPE REF TO data .
     DATA mr_t_temp_data TYPE REF TO data .
     DATA mf_join_is_active TYPE abap_bool .
@@ -336,6 +336,9 @@ CLASS zcl_dbbr_selection_util DEFINITION
     METHODS get_text_field_util
       RETURNING
         VALUE(ro_text_field_util) TYPE REF TO zcl_dbbr_text_field_ui_util.
+    "! <p class="shorttext synchronized" lang="en">Opens current query in SQL console</p>
+    "!
+    METHODS open_in_sql_console.
   PRIVATE SECTION.
     DATA mo_text_field_util TYPE REF TO zcl_dbbr_text_field_ui_util.
 ENDCLASS.
@@ -1080,14 +1083,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD create_select_clause.
     CLEAR mt_select.
 
-    IF mf_group_by = abap_false AND
-       mf_aggregation = abap_false AND
-       mf_join_is_active = abap_false.
-
-      mt_select = VALUE #( ( `*` ) ).
-      RETURN.
-    ENDIF.
-
     mo_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
 
     mo_tabfields->initialize_iterator( ).
@@ -1486,7 +1481,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 *...... generate the program to perform the data selection
         IF ms_technical_info-activate_alv_live_filter = abap_true OR
            if_refresh_only = abap_false.
-          mr_select_program = zcl_dbbr_select_prog_creator=>create_program(
+          mo_select_program = zcl_dbbr_select_prog_creator=>create_program(
               if_only_create_count_logic = if_count_lines
               if_create_for_all          = mf_do_for_all_select
               is_association_target      = ms_association_target
@@ -1499,7 +1494,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
               iv_max_size                = ms_technical_info-max_lines
           ).
         ELSE.
-          mr_select_program->set_max_rows( ms_technical_info-max_lines ).
+          mo_select_program->set_max_rows( ms_technical_info-max_lines ).
         ENDIF.
 
 *...... either select the data or, only count the lines for the where clause
@@ -1508,7 +1503,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
           zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-001 }| iv_progress = 1 ).
 
-          mr_select_program->select_data(
+          mo_select_program->select_data(
             EXPORTING ir_t_for_all = mr_t_for_all_data
             IMPORTING et_data      = <lt_table>
           ).
@@ -1521,9 +1516,9 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
             zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 
             IF mf_group_by = abap_true OR mf_aggregation = abap_true.
-              mv_max_lines_existing = mr_select_program->determine_size_for_group_by( mr_t_temp_data ).
+              mv_max_lines_existing = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
             ELSE.
-              mv_max_lines_existing = mr_select_program->determine_size( mr_t_for_all_data ).
+              mv_max_lines_existing = mo_select_program->determine_size( mr_t_for_all_data ).
             ENDIF.
           ELSE.
             mv_max_lines_existing = ms_control_info-number.
@@ -1533,9 +1528,9 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
           zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 
           IF mf_group_by = abap_true OR mf_aggregation = abap_true.
-            ms_control_info-number = mr_select_program->determine_size_for_group_by( mr_t_temp_data ).
+            ms_control_info-number = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
           ELSE.
-            ms_control_info-number = mr_select_program->determine_size( ).
+            ms_control_info-number = mo_select_program->determine_size( ).
           ENDIF.
         ENDIF.
 
@@ -1748,6 +1743,16 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ro_text_field_util = mo_text_field_util.
   ENDMETHOD.
 
+  METHOD open_in_sql_console.
+    DATA(lv_query) = mo_select_program->get_select_sql( ).
+
+    EXPORT
+      query = lv_query
+    TO MEMORY ID 'SQLQUERY_EXPORT'.
+
+    CALL TRANSACTION 'ZDBBR_SQLCONSOLE'.
+  ENDMETHOD.
+
 
   METHOD show_no_data_message.
     IF mt_where IS NOT INITIAL OR mt_param_values IS NOT INITIAL.
@@ -1820,8 +1825,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       WHEN zif_dbbr_c_selection_functions=>show_sql_of_select.
         CLEAR cv_function.
 
-        IF mr_select_program IS BOUND.
-          DATA(lv_sql) = mr_select_program->get_select_sql( ).
+        IF mo_select_program IS BOUND.
+          DATA(lv_sql) = mo_select_program->get_select_sql( ).
           IF lv_sql IS NOT INITIAL.
             zcl_uitb_abap_code_viewer=>show_code(
                 iv_title  = 'SQL for Current Select'
@@ -1842,6 +1847,10 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
                     iv_start_tab    = zcl_dbbr_user_settings_sc=>c_tab_ids-output_tab
           CHANGING  cs_settings     = ms_technical_info-settings
         ).
+
+      WHEN zif_dbbr_c_selection_functions=>open_in_sql_console.
+        CLEAR cv_function.
+        open_in_sql_console( ).
     ENDCASE.
   ENDMETHOD.
 

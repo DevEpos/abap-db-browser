@@ -12,7 +12,8 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
-        iv_query_name TYPE zsat_query_name OPTIONAL.
+        iv_query_name TYPE zsat_query_name OPTIONAL
+        iv_query      TYPE string OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Returns the last saved query</p>
     "!
     METHODS get_last_saved_query
@@ -63,7 +64,7 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
     DATA mf_no_edit_allowed TYPE abap_bool.
     DATA mf_modified TYPE abap_bool.
     DATA mv_last_saved_query TYPE zsat_query_name.
-    DATA: mo_splitter TYPE REF TO zcl_uitb_gui_splitter_cont,
+    DATA: mo_splitter       TYPE REF TO zcl_uitb_gui_splitter_cont,
           mo_entity_browser TYPE REF TO zcl_dbbr_sqle_entity_browser.
 ENDCLASS.
 
@@ -86,6 +87,8 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
       IF mf_no_edit_allowed = abap_true.
         MESSAGE s069(zdbbr_exception) WITH ms_current_query-query_name DISPLAY LIKE 'E'.
       ENDIF.
+    ELSEIF iv_query IS NOT INITIAL.
+      ms_current_query-source = iv_query.
     ENDIF.
 
     mv_last_saved_content = ms_current_query-source.

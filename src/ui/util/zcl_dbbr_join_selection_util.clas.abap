@@ -314,7 +314,7 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
     IF lf_trigger_select = abap_true.
       CLEAR mt_from.
       create_from_clause( ).
-      mr_select_program->update_from( mt_from ).
+      mo_select_program->update_from( mt_from ).
       refresh_selection( ).
     ENDIF.
   ENDMETHOD.
