@@ -20,7 +20,7 @@ CLASS zcl_dbbr_variant_starter DEFINITION
     DATA mt_selfields TYPE zdbbr_selfield_itab .
     DATA mt_selfields_multi TYPE zdbbr_selfield_itab .
     DATA mt_selfields_or TYPE zdbbr_or_seltab_itab .
-    DATA mt_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB .
+    DATA mt_table_to_alias_map TYPE zsat_table_to_alias_map_itab .
     DATA ms_variant TYPE zdbbr_variant_data .
     "! Factory for alternative column texts
     DATA mo_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory .
@@ -155,7 +155,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
 
   METHOD create_cds_fields.
     TRY.
-        DATA(lo_cds_view) = ZCL_SAT_CDS_VIEW_FACTORY=>read_cds_view( iv_cds_view = is_entity_info-tabname ).
+        DATA(lo_cds_view) = zcl_sat_cds_view_factory=>read_cds_view( iv_cds_view = is_entity_info-tabname ).
 
 *...... create parameters
         zcl_dbbr_cds_tabfield_util=>add_parameters(
@@ -174,7 +174,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
             iv_description   = ls_header-description
             if_is_primary    = is_entity_info-is_primary
         ).
-      CATCH ZCX_SAT_DATA_READ_ERROR.
+      CATCH zcx_sat_data_read_error.
         "handle exception
     ENDTRY.
   ENDMETHOD.
@@ -380,7 +380,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
             IF lf_first_selvalue = abap_true.
 
               IF <ls_vardata_group_entry>-system_value_type IS NOT INITIAL.
-                ZCL_SAT_SYSTEM_HELPER=>get_system_value( EXPORTING iv_system_value_type = <ls_vardata_group_entry>-system_value_type
+                zcl_sat_system_helper=>get_system_value( EXPORTING iv_system_value_type = <ls_vardata_group_entry>-system_value_type
                                                            IMPORTING ev_system_value      = <ls_selfield>-low ).
                 <ls_selfield>-system_value_type = <ls_vardata_group_entry>-system_value_type.
                 <ls_selfield>-sign  = <ls_vardata_group_entry>-sign_val.

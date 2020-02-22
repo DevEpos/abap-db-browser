@@ -216,7 +216,6 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "!
     METHODS create_tree
       RAISING
-        zcx_uitb_gui_exception
         zcx_uitb_tree_error .
     "! <p class="shorttext synchronized" lang="en">Expand a single CDS View</p>
     "!
@@ -293,51 +292,51 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Handler for DISPLAY_OBJECT_LIST event</p>
     "!
     METHODS on_display_object_list
-          FOR EVENT display_object_list OF zcl_dbbr_selscr_nav_events
+        FOR EVENT display_object_list OF zcl_dbbr_selscr_nav_events
       IMPORTING
-          !ev_entity_id
-          !ev_entity_type .
+        !ev_entity_id
+        !ev_entity_type .
     "! <p class="shorttext synchronized" lang="en">Handler for when children are to be loaded lazily</p>
     "!
     METHODS on_expand_no_children
-          FOR EVENT expand_no_children OF zif_uitb_tree_model_events
+        FOR EVENT expand_no_children OF zif_uitb_tree_model_events
       IMPORTING
-          !ev_node_key .
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for External object search request</p>
     "!
     METHODS on_external_object_search_req
-          FOR EVENT object_search OF zcl_dbbr_selscr_nav_events
+        FOR EVENT object_search OF zcl_dbbr_selscr_nav_events
       IMPORTING
-          ev_object_type
-          ev_search_query
-          ef_close_popup.
+        ev_object_type
+        ev_search_query
+        ef_close_popup.
     "! <p class="shorttext synchronized" lang="en">Handler for requesting a context menu for a node</p>
     "!
     METHODS on_node_context_menu_request
-          FOR EVENT node_context_menu_request OF zif_uitb_tree_model_events
+        FOR EVENT node_context_menu_request OF zif_uitb_tree_model_events
       IMPORTING
-          !er_menu
-          !ev_node_key .
+        !er_menu
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for when the context menu entry was chosen</p>
     "!
     METHODS on_node_context_menu_select
-          FOR EVENT node_context_menu_select OF zif_uitb_tree_model_events
+        FOR EVENT node_context_menu_select OF zif_uitb_tree_model_events
       IMPORTING
-          !ev_fcode
-          !ev_node_key .
+        !ev_fcode
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for double click on node</p>
     "!
     METHODS on_node_double_click
-          FOR EVENT node_double_click OF zif_uitb_tree_model_events
+        FOR EVENT node_double_click OF zif_uitb_tree_model_events
       IMPORTING
-          !ev_node_key .
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for ENTER key press on node</p>
     "!
     METHODS on_node_enter_key
-          FOR EVENT node_keypress OF zif_uitb_tree_model_events
+        FOR EVENT node_keypress OF zif_uitb_tree_model_events
       IMPORTING
-          !ev_key
-          !ev_node_key .
+        !ev_key
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for performing the search</p>
     "!
     METHODS on_perform_search
@@ -353,9 +352,9 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Handler for pressed toolbar button</p>
     "!
     METHODS on_toolbar_button
-          FOR EVENT function_selected OF cl_gui_toolbar
+        FOR EVENT function_selected OF cl_gui_toolbar
       IMPORTING
-          fcode.
+        fcode.
     "! <p class="shorttext synchronized" lang="en">Show superordinate tree of current object</p>
     "!
     METHODS show_superordinate_tree .
@@ -500,10 +499,6 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     TRY.
         create_tree( ).
-      CATCH zcx_uitb_gui_exception INTO DATA(lx_gui_error).
-        lx_gui_error->zif_uitb_exception_message~print(
-            iv_msg_type = 'X'
-        ).
       CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
         lx_tree_error->zif_uitb_exception_message~print(
             iv_msg_type = 'X'
@@ -1004,21 +999,16 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 
   METHOD create_splitter.
-    TRY.
-        mo_splitter = NEW zcl_uitb_gui_splitter_cont(
-          iv_elements = 2
-          iv_size     = '50:*'
-          io_parent   = mo_parent
-        ).
-        mo_splitter->set_sash_properties(
-            iv_index   = 1
-            if_visible = abap_false
-            if_movable = abap_false
-        ).
-      CATCH zcx_uitb_gui_exception.
-        "handle exception
-    ENDTRY.
-
+    mo_splitter = NEW zcl_uitb_gui_splitter_cont(
+      iv_elements = 2
+      iv_size     = '50:*'
+      io_parent   = mo_parent
+    ).
+    mo_splitter->set_sash_properties(
+        iv_index   = 1
+        if_visible = abap_false
+        if_movable = abap_false
+    ).
   ENDMETHOD.
 
 
@@ -2227,7 +2217,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   METHOD on_search_input_enter.
     CHECK mo_search_input->value IS NOT INITIAL.
 
-    data(lv_current_search_type) = map_to_sat_query_type( |{ mo_search_type_select->value }| ).
+    DATA(lv_current_search_type) = map_to_sat_query_type( |{ mo_search_type_select->value }| ).
 
     IF mo_search_query IS INITIAL OR
        mo_search_query->mv_query <> mo_search_input->value OR
@@ -2822,7 +2812,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD parse_query.
-    data(lv_search_type) = map_to_sat_query_type( iv_browser_mode ).
+    DATA(lv_search_type) = map_to_sat_query_type( iv_browser_mode ).
     DATA(lo_search_engine) = CAST zif_sat_search_engine( zcl_sat_ioc_lookup=>get_instance(
                                                            iv_contract = 'zif_sat_search_engine' ) ).
     ro_query = lo_search_engine->parse_query(

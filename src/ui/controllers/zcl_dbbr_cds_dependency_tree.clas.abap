@@ -74,9 +74,7 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Create tree model</p>
     METHODS create_tree
       IMPORTING
-        io_container TYPE REF TO cl_gui_container
-      RAISING
-        zcx_uitb_gui_exception.
+        io_container TYPE REF TO cl_gui_container.
     "! <p class="shorttext synchronized" lang="en">Fetches CDS dependencies</p>
     METHODS fetch_dependencies
       RETURNING
@@ -141,9 +139,7 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Creates code viewer control</p>
     METHODS create_code_viewer
       IMPORTING
-        io_container TYPE REF TO cl_gui_container
-      RAISING
-        zcx_uitb_gui_exception.
+        io_container TYPE REF TO cl_gui_container.
     METHODS load_cds_source_into_view
       IMPORTING
         iv_code TYPE string.
