@@ -35,7 +35,7 @@ CLASS zcl_dbbr_addtext_bl DEFINITION
     "!
     METHODS determine_t_flds_for_cds_field
       IMPORTING
-        iv_cds_view      TYPE ZSAT_CDS_VIEW_NAME
+        iv_cds_view      TYPE zsat_cds_view_name
         iv_cds_field     TYPE fieldname
         is_tabfield_info TYPE dfies .
     "! <p class="shorttext synchronized" lang="en">Determine text fields for table</p>
@@ -43,6 +43,10 @@ CLASS zcl_dbbr_addtext_bl DEFINITION
     METHODS determine_t_fields_for_tab
       IMPORTING
         is_tabfield_info TYPE dfies OPTIONAL.
+    "! <p class="shorttext synchronized" lang="en">Determines manually created text fields for table</p>
+    METHODS determine_manual_text_fields
+      IMPORTING
+        iv_entity TYPE tabname.
   PROTECTED SECTION.
   PRIVATE SECTION.
     TYPES: BEGIN OF ty_text_tab_map,
@@ -75,9 +79,7 @@ CLASS zcl_dbbr_addtext_bl DEFINITION
     "! <p class="shorttext synchronized" lang="en">Determine text fields via text table</p>
     "!
     METHODS determine_textfield_via_txttab.
-    "! <p class="shorttext synchronized" lang="en">Add manual text field entries</p>
-    "!
-    METHODS add_manual_text_field_entries.
+
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     "!
     METHODS constructor.
@@ -92,16 +94,6 @@ ENDCLASS.
 
 
 CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
-
-
-  METHOD add_manual_text_field_entries.
-    LOOP AT mr_addtext_factory->get_add_texts( iv_id_table = CONV #( ms_dtel_info-tabname )
-                                               iv_id_field = ms_dtel_info-fieldname )        ASSIGNING FIELD-SYMBOL(<ls_addtext_db>).
-      APPEND CORRESPONDING #( <ls_addtext_db> ) TO mt_addtext_info ASSIGNING FIELD-SYMBOL(<ls_addtext_info>).
-      <ls_addtext_info>-selection_type = zif_dbbr_c_text_selection_type=>text_table.
-    ENDLOOP.
-  ENDMETHOD.
-
 
   METHOD add_text_fields_to_list.
 
@@ -221,13 +213,11 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
   METHOD determine_textfield_via_txttab.
     DATA: lv_checktable TYPE tabname.
 
-    " 1) check if checktable is filled
-    IF ms_dtel_info-checktable IS NOT INITIAL.
-      lv_checktable = ms_dtel_info-checktable.
-    ELSE.
+    lv_checktable = ms_dtel_info-checktable.
+
+    IF lv_checktable = '*'.
       " retrieve possible checktable from data element
-      DATA(ls_dtel_info) = zcl_sat_ddic_repo_access=>get_data_element( ms_dtel_info-rollname ).
-      lv_checktable = ls_dtel_info-entitytab.
+      SELECT SINGLE entitytab FROM dd04l INTO @lv_checktable WHERE rollname = @ms_dtel_info-rollname.
     ENDIF.
 
     IF lv_checktable IS INITIAL.
@@ -395,8 +385,20 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
       determine_textfield_via_txttab( ).
     ENDIF.
 
-    add_manual_text_field_entries( ).
+  ENDMETHOD.
 
+
+  METHOD determine_manual_text_fields.
+    DELETE mt_addtext_info WHERE addtext_id IS NOT INITIAL
+                             AND id_table = iv_entity.
+
+    NEW zcl_dbbr_addtext_factory( )->find_add_texts( EXPORTING iv_id_table  = iv_entity
+                                                     IMPORTING et_add_texts = DATA(lt_addtext) ).
+
+    LOOP AT lt_addtext ASSIGNING FIELD-SYMBOL(<ls_addtext_db>).
+      APPEND CORRESPONDING #( <ls_addtext_db> ) TO mt_addtext_info ASSIGNING FIELD-SYMBOL(<ls_addtext_info>).
+      <ls_addtext_info>-selection_type = zif_dbbr_c_text_selection_type=>text_table.
+    ENDLOOP.
   ENDMETHOD.
 
 ENDCLASS.

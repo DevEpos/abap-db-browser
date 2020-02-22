@@ -67,13 +67,13 @@ CLASS zcl_dbbr_custom_f4_factory DEFINITION
         if_apply_to_same_data TYPE abap_bool OPTIONAL
         is_built_in_type      TYPE zdbbr_built_in_data_type OPTIONAL
       EXPORTING
-        et_f4                 TYPE zdbbr_f4_data_itab.        .
+        et_f4                 TYPE zdbbr_f4_data_itab.
     CLASS-METHODS delete_f4_by_id
       IMPORTING
         iv_f4_id TYPE zdbbr_f4_id.
     CLASS-METHODS delete_multiple_by_id
       IMPORTING
-        it_f4_id TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt.
+        it_f4_id TYPE zif_sat_ty_global=>ty_t_selopt.
     CLASS-METHODS update_f4_assignments
       IMPORTING
         it_f4_assignments    TYPE zdbbr_f4_assignment_itab OPTIONAL
@@ -148,7 +148,7 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
     ENDIF.
 
     " collect joins to delete
-    DATA(lt_join_id) = VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt(
+    DATA(lt_join_id) = VALUE zif_sat_ty_global=>ty_t_selopt(
        FOR f4 IN lt_f4
        WHERE ( ref_join_id IS NOT INITIAL )
        ( sign   = 'I'
@@ -205,6 +205,8 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
 
 
   METHOD fill_corresponding_data.
+    DATA: lt_f4_fields TYPE SORTED TABLE OF zdbbr_f4f WITH NON-UNIQUE KEY ref_f4_id.
+    FIELD-SYMBOLS: <ls_search_field> TYPE zdbbr_f4_field.
 
     DATA(lr_join_factory) = NEW zcl_dbbr_join_factory( ).
 
@@ -221,7 +223,20 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
       SELECT * FROM zdbbr_f4f INTO CORRESPONDING FIELDS OF TABLE cs_f4_data-fields
         WHERE ref_f4_id = cs_f4_data-f4_id.
 
+      ASSIGN cs_f4_data-fields[ is_search_key = abap_true ] TO <ls_search_field>.
+      IF sy-subrc = 0.
+        cs_f4_data-rollname = <ls_search_field>-rollname.
+        cs_f4_data-datatype = <ls_search_field>-datatype.
+        cs_f4_data-length = <ls_search_field>-leng.
+      ENDIF.
+
     ELSEIF ct_f4_data IS SUPPLIED.
+
+      SELECT *
+        FROM zdbbr_f4f
+        FOR ALL ENTRIES IN @ct_f4_data
+        WHERE ref_f4_id = @ct_f4_data-f4_id
+      INTO CORRESPONDING FIELDS OF TABLE @lt_f4_fields.
 
       LOOP AT ct_f4_data ASSIGNING FIELD-SYMBOL(<ls_f4>).
         IF <ls_f4>-ref_join_id IS NOT INITIAL.
@@ -230,9 +245,13 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
           ).
         ENDIF.
 
-        " select fields for f4 help
-        SELECT * FROM zdbbr_f4f INTO CORRESPONDING FIELDS OF TABLE <ls_f4>-fields
-          WHERE ref_f4_id = <ls_f4>-f4_id.
+        <ls_f4>-fields = FILTER #( lt_f4_fields WHERE ref_f4_id = <ls_f4>-f4_id ).
+        ASSIGN <ls_f4>-fields[ is_search_key = abap_true ] TO <ls_search_field>.
+        IF sy-subrc = 0.
+          <ls_f4>-rollname = <ls_search_field>-rollname.
+          <ls_f4>-datatype = <ls_search_field>-datatype.
+          <ls_f4>-length = <ls_search_field>-leng.
+        ENDIF.
       ENDLOOP.
 
     ENDIF.
@@ -278,17 +297,21 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
         WHERE f4_head~apply_to_same_type IN @lt_apply_to_same
           AND f4_field~datatype = @is_built_in_type-datatype
           AND f4_field~leng     = @is_built_in_type-leng
-      APPENDING CORRESPONDING FIELDS OF TABLE @et_f4.
+      INTO CORRESPONDING FIELDS OF TABLE @et_f4.
     ELSEIF is_built_in_type-datatype IS NOT INITIAL.
       SELECT DISTINCT (lt_select)
         FROM (lt_from)
         WHERE f4_head~apply_to_same_type IN @lt_apply_to_same
           AND f4_field~datatype = @is_built_in_type-datatype
-      APPENDING CORRESPONDING FIELDS OF TABLE @et_f4.
+      INTO CORRESPONDING FIELDS OF TABLE @et_f4.
+    ELSE.
+*.... retrieve all Value helps
+      SELECT DISTINCT (lt_select)
+        FROM (lt_from)
+        WHERE f4_head~apply_to_same_type IN @lt_apply_to_same
+      INTO CORRESPONDING FIELDS OF TABLE @et_f4.
     ENDIF.
 
-    SORT et_f4 BY f4_id.
-    DELETE ADJACENT DUPLICATES FROM et_f4 COMPARING f4_id.
     CHECK et_f4 IS NOT INITIAL.
 
     fill_corresponding_data( CHANGING ct_f4_data = et_f4 ).
@@ -380,11 +403,11 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
       MODIFY zdbbr_f4f FROM TABLE lt_f4_fields.
       MODIFY zdbbr_f4h FROM ls_f4.
     ELSE.
-      ls_f4-f4_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
+      ls_f4-f4_id = zcl_sat_system_helper=>create_guid_22( ).
 
       " 1) save fields
       LOOP AT lt_f4_fields ASSIGNING FIELD-SYMBOL(<ls_f4_field>).
-        <ls_f4_field>-f4_field_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
+        <ls_f4_field>-f4_field_id = zcl_sat_system_helper=>create_guid_22( ).
         <ls_f4_field>-ref_f4_id = ls_f4-f4_id.
       ENDLOOP.
 

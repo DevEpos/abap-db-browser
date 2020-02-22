@@ -5,6 +5,8 @@ CLASS zcl_dbbr_sql_console DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+    CONSTANTS c_sqlquery_export_mem_id TYPE c LENGTH 15 VALUE 'SQLQUERY_EXPORT' ##NO_TEXT.
+
     METHODS constructor
       IMPORTING
         iv_query TYPE string OPTIONAL.

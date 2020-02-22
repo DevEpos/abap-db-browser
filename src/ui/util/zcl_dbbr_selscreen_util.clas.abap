@@ -630,6 +630,8 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         DATA(lo_cds_view) = zcl_sat_cds_view_factory=>read_cds_view( iv_cds_view = is_entity_info-tabname ).
 
         mo_data->mo_custom_f4_map->read_custom_f4_definitions( is_entity_info-tabname ).
+        mo_data->mo_custom_f4_map->read_same_type_custom_f4_defs( ).
+        zcl_dbbr_addtext_bl=>get_instance( )->determine_manual_text_fields( is_entity_info-tabname ).
 
 *...... create parameters
         zcl_dbbr_cds_tabfield_util=>add_parameters(
@@ -753,6 +755,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
 *... read custom f4 helps for join table definitions
     mo_data->mo_custom_f4_map->read_custom_f4_definitions( is_entity_info-tabname ).
+    mo_data->mo_custom_f4_map->read_same_type_custom_f4_defs( ).
 
     DATA(lv_join_table_text) = ls_table_info-ddtext.
 
@@ -760,6 +763,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
                                                        IMPORTING et_table_fields = DATA(lt_dfies) ).
 
     DATA(lr_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
+    lr_addtext_bl->determine_manual_text_fields( is_entity_info-tabname ).
 
     DATA(lf_first_non_key_field) = abap_false.
 

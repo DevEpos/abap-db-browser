@@ -48,6 +48,12 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Reads custom f4 definitions for the given table</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_CUSTOM_F4_MAP</CLSNAME>
+     <CMPNAME>READ_SAME_TYPE_CUSTOM_F4_DEFS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Read and cache custom f4 w/o necessary field assignment</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

@@ -268,6 +268,7 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
     check_edit_mode( ).
 
     mo_data->mo_custom_f4_map->read_custom_f4_definitions( mv_cds_view ).
+    mo_data->mo_custom_f4_map->read_same_type_custom_f4_defs( ).
 
 *... create parameters
     zcl_dbbr_cds_tabfield_util=>add_parameters(

@@ -18,6 +18,9 @@ CLASS zcl_dbbr_custom_f4_map DEFINITION
     METHODS read_custom_f4_definitions
       IMPORTING
         iv_tablename TYPE tabname.
+    "! <p class="shorttext synchronized" lang="en">Read and cache custom f4 w/o necessary field assignment</p>
+    "!
+    METHODS read_same_type_custom_f4_defs.
     "! <p class="shorttext synchronized" lang="en">Clears all buffered custom f4 definitions</p>
     METHODS clear.
     "! <p class="shorttext synchronized" lang="en">Clears all buffered F4 def. for the given table field</p>
@@ -117,31 +120,9 @@ CLASS zcl_dbbr_custom_f4_map IMPLEMENTATION.
 
     rf_exists = xsdbool( line_exists( mt_custom_f4_by_dt_map[ datatype = is_built_in_type-datatype
                                                               length   = is_built_in_type-leng     ] ) ).
-
-    CHECK rf_exists = abap_false.
-
-*.. Check if there are Value helps whoose search key field match the given data type
-    zcl_dbbr_custom_f4_factory=>find_f4_for_datatype(
-      EXPORTING iv_rollname           = iv_rollname
-                if_apply_to_same_data = abap_true
-                is_built_in_type      = is_built_in_type
-      IMPORTING et_f4                 = DATA(lt_f4_for_datatype)
-    ).
-    IF lt_f4_for_datatype IS NOT INITIAL.
-      INSERT VALUE #(
-         rollname       = iv_rollname
-         datatype       = COND #( WHEN iv_rollname IS INITIAL THEN is_built_in_type-datatype )
-         length         = COND #( WHEN iv_rollname IS INITIAL THEN is_built_in_type-leng )
-         f4_definitions = lt_f4_for_datatype
-      ) INTO TABLE mt_custom_f4_by_dt_map.
-      rf_exists = abap_true.
-    ENDIF.
   ENDMETHOD.
 
   METHOD read_custom_f4_definitions.
-*&---------------------------------------------------------------------*
-*& Description: Reads existing f4 help definitions definend in ZDBBROIN_F4
-*&---------------------------------------------------------------------*
 
     IF NOT line_exists( mt_custom_f4_map[ tabname = iv_tablename ] ).
 
@@ -164,6 +145,26 @@ CLASS zcl_dbbr_custom_f4_map IMPLEMENTATION.
 
     ENDIF.
 
+  ENDMETHOD.
+
+  METHOD read_same_type_custom_f4_defs.
+    zcl_dbbr_custom_f4_factory=>find_f4_for_datatype(
+        EXPORTING if_apply_to_same_data = abap_true
+        IMPORTING et_f4                 = DATA(lt_f4)
+    ).
+    LOOP AT lt_f4 ASSIGNING FIELD-SYMBOL(<ls_f4>)
+      GROUP BY ( rollname = <ls_f4>-rollname
+                 datatype = <ls_f4>-datatype
+                 length   = <ls_f4>-length )
+      ASSIGNING FIELD-SYMBOL(<ls_f4_group>).
+
+      INSERT VALUE #(
+        rollname       = <ls_f4_group>-rollname
+        datatype       = <ls_f4_group>-datatype
+        length         = <ls_f4_group>-length
+        f4_definitions = VALUE #( FOR f4 IN GROUP <ls_f4_group> ( f4 )  )
+      ) INTO TABLE mt_custom_f4_by_dt_map.
+    ENDLOOP.
   ENDMETHOD.
 
 ENDCLASS.

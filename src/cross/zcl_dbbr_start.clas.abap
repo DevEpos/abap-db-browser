@@ -66,7 +66,8 @@ CLASS zcl_dbbr_start IMPLEMENTATION.
     DATA: lv_query TYPE string.
     IMPORT
       query = lv_query
-    FROM MEMORY ID 'SQLQUERY_EXPORT'.
+    FROM MEMORY ID zcl_dbbr_sql_console=>c_sqlquery_export_mem_id.
+    FREE MEMORY ID zcl_dbbr_sql_console=>c_sqlquery_export_mem_id.
 
     NEW zcl_dbbr_sql_console( iv_query = lv_query )->show( ).
   ENDMETHOD.
