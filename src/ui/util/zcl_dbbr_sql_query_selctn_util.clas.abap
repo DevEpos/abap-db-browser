@@ -6,6 +6,9 @@ CLASS zcl_dbbr_sql_query_selctn_util DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+    METHODS constructor
+      IMPORTING
+        is_selection_data TYPE ty_s_selection_data.
     METHODS execute_selection
         REDEFINITION.
     METHODS get_entity_name
@@ -28,7 +31,10 @@ CLASS zcl_dbbr_sql_query_selctn_util DEFINITION
         REDEFINITION.
     METHODS select_data
         REDEFINITION.
+    METHODS get_sql_query
+        REDEFINITION.
   PRIVATE SECTION.
+    DATA mv_query_string TYPE string .
     DATA mo_query TYPE REF TO zcl_dbbr_sql_query.
     DATA mo_query_result_line_type TYPE REF TO cl_abap_structdescr.
     DATA mr_query_result TYPE REF TO data.
@@ -42,6 +48,12 @@ ENDCLASS.
 
 
 CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
+
+  METHOD constructor.
+    super->constructor( is_selection_data = is_selection_data ).
+    mv_query_string = is_selection_data-query_string.
+  ENDMETHOD.
+
   METHOD execute_selection.
     FIELD-SYMBOLS: <lt_data> TYPE table.
 
@@ -125,6 +137,8 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
   METHOD get_entity_name.
 
   ENDMETHOD.
+
+
 
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
     result = VALUE #(
@@ -313,6 +327,17 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
         ( ls_field )
       ).
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD get_sql_query.
+    CHECK mo_query IS BOUND.
+
+    rv_query = COND #(
+        WHEN if_for_console = abap_true THEN
+           mo_query->ms_data-source
+        ELSE
+           mo_query->ms_data-select_source
+    ).
   ENDMETHOD.
 
   METHOD is_f4_saving_allowed.

@@ -154,7 +154,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mf_join_is_active TYPE abap_bool .
     "! <p class="shorttext synchronized" lang="en">Field Catalog for List Viewer Control</p>
     DATA mt_fieldcat TYPE lvc_t_fcat .
-    DATA mt_temp_fieldcat TYPE lvc_t_fcat.
+    DATA mt_temp_fieldcat TYPE lvc_t_fcat .
     DATA mt_jumpdest TYPE zdbbr_jumpdest_data_ui_itab .
     DATA mt_selection_fields TYPE zdbbr_selfield_itab .
     DATA mt_param_values TYPE zdbbr_selfield_itab .
@@ -175,7 +175,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">List of ORDER BY clauses</p>
     DATA mt_order_by TYPE string_table .
     "! <p class="shorttext synchronized" lang="en">List of HAVING clauses</p>
-    DATA mt_having TYPE string_table.
+    DATA mt_having TYPE string_table .
     DATA mt_add_texts TYPE zdbbr_additional_text_itab .
     DATA mf_group_by TYPE boolean .
     DATA mt_or TYPE zif_sat_ty_global=>ty_t_or_seltab_sql .
@@ -220,18 +220,11 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mt_current_live_filter TYPE lvc_t_filt .
     "! <p class="shorttext synchronized" lang="en">Abstract ALV Filter for Output Grid</p>
     DATA mr_alv_util TYPE REF TO zcl_dbbr_output_alv_util .
-    DATA mv_query_string TYPE string .
 
     "! <p class="shorttext synchronized" lang="en">Adds column for hiding rows</p>
     METHODS add_hide_flag_column .
     "! <p class="shorttext synchronized" lang="en">Adds Column for a line index / group count</p>
     METHODS add_line_index_column .
-    "! <p class="shorttext synchronized" lang="en">Creates field catalog entry for a text field</p>
-    METHODS create_text_fieldcat_entry
-      IMPORTING
-        !ir_selfield       TYPE REF TO zdbbr_tabfield_info_ui
-      RETURNING
-        VALUE(rs_fieldcat) TYPE lvc_s_fcat.
     "! <p class="shorttext synchronized" lang="en">Build full field names for selection and output (i.e. alias)</p>
     METHODS build_full_fieldnames .
     "! <p class="shorttext synchronized" lang="en">Clears all aggregation info from fields</p>
@@ -262,6 +255,12 @@ CLASS zcl_dbbr_selection_util DEFINITION
     METHODS create_order_by_clause .
     "! <p class="shorttext synchronized" lang="en">Creates the projection fields for the select</p>
     METHODS create_select_clause .
+    "! <p class="shorttext synchronized" lang="en">Creates field catalog entry for a text field</p>
+    METHODS create_text_fieldcat_entry
+      IMPORTING
+        !ir_selfield       TYPE REF TO zdbbr_tabfield_info_ui
+      RETURNING
+        VALUE(rs_fieldcat) TYPE lvc_s_fcat .
     "! <p class="shorttext synchronized" lang="en">Creates the where condition</p>
     METHODS create_where_clause .
     "! <p class="shorttext synchronized" lang="en">Determines if there is an aggregation field in the selection</p>
@@ -295,6 +294,16 @@ CLASS zcl_dbbr_selection_util DEFINITION
         !ev_scrtext_l       TYPE scrtext_l
         !ev_scrtext_m       TYPE scrtext_m
         !ev_scrtext_s       TYPE scrtext_s .
+    "! <p class="shorttext synchronized" lang="en">Retrieves SQL of current selection</p>
+    "!
+    METHODS get_sql_query
+      IMPORTING
+        if_for_console  TYPE abap_bool OPTIONAL
+      RETURNING
+        VALUE(rv_query) TYPE string .
+    METHODS get_text_field_util
+      RETURNING
+        VALUE(ro_text_field_util) TYPE REF TO zcl_dbbr_text_field_ui_util .
     "! <p class="shorttext synchronized" lang="en">Handles a possible Jump Field</p>
     METHODS handle_possible_jumpfield
       IMPORTING
@@ -302,7 +311,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
       CHANGING
         !cs_field         TYPE lvc_s_fcat .
     "! <p class="shorttext synchronized" lang="en">Handles reduced memory setting</p>
-    METHODS handle_reduced_memory.
+    METHODS handle_reduced_memory .
     "! <p class="shorttext synchronized" lang="en">Initialize the navigation breadcrumbs</p>
     METHODS init_navigation_breadcrumbs
       IMPORTING
@@ -311,6 +320,9 @@ CLASS zcl_dbbr_selection_util DEFINITION
     METHODS is_f4_saving_allowed
       RETURNING
         VALUE(rf_allowed) TYPE abap_bool .
+    "! <p class="shorttext synchronized" lang="en">Opens current query in SQL console</p>
+    "!
+    METHODS open_in_sql_console .
     "! <p class="shorttext synchronized" lang="en">Raise NO_DATA event</p>
     METHODS raise_no_data_event .
     "! <p class="shorttext synchronized" lang="en">Read information about all entities in the selection</p>
@@ -333,12 +345,6 @@ CLASS zcl_dbbr_selection_util DEFINITION
     METHODS set_where_as_alv_filter .
     "! <p class="shorttext synchronized" lang="en">Raise</p>
     METHODS show_no_data_message .
-    METHODS get_text_field_util
-      RETURNING
-        VALUE(ro_text_field_util) TYPE REF TO zcl_dbbr_text_field_ui_util.
-    "! <p class="shorttext synchronized" lang="en">Opens current query in SQL console</p>
-    "!
-    METHODS open_in_sql_console.
   PRIVATE SECTION.
     DATA mo_text_field_util TYPE REF TO zcl_dbbr_text_field_ui_util.
 ENDCLASS.
@@ -346,6 +352,7 @@ ENDCLASS.
 
 
 CLASS zcl_dbbr_selection_util IMPLEMENTATION.
+
 
   METHOD add_hide_flag_column.
     DATA(ls_field) = VALUE lvc_s_fcat(
@@ -365,6 +372,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     APPEND ls_field TO mt_fieldcat.
   ENDMETHOD.
+
 
   METHOD add_line_index_column.
 
@@ -403,61 +411,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD create_text_fieldcat_entry.
-    TYPES: BEGIN OF ty_text_field,
-             selection_type TYPE char16,
-             table          TYPE tabname,
-             field          TYPE fieldname,
-           END OF ty_text_field.
-
-    DATA: lv_ref_field   TYPE fieldname,
-          lv_ref_table   TYPE tabname,
-          lt_text_fields TYPE SORTED TABLE OF ty_text_field WITH NON-UNIQUE KEY selection_type table field.
-
-    " get all text field definitions to get the corresponding text field
-    lt_text_fields = VALUE #(
-       FOR <ls_field> IN mt_add_texts
-       WHERE ( id_table = ir_selfield->tabname AND
-               id_field = ir_selfield->fieldname )
-       ( selection_type = <ls_field>-selection_type
-         table          = <ls_field>-text_table
-         field          = <ls_field>-text_field )
-    ).
-
-    IF lt_text_fields IS INITIAL.
-      RETURN.
-    ENDIF.
-
-    DATA(ls_text_field) = lt_text_fields[ 1 ].
-
-    IF ls_text_field-selection_type = zif_dbbr_c_text_selection_type=>domain_value OR
-       lines( lt_text_fields ) > 1.
-      lv_ref_field = 'DDTEXT'.
-      lv_ref_table = 'DD07T'.
-    ELSE.
-      lv_ref_field = ls_text_field-field.
-      lv_ref_table = ls_text_field-table.
-    ENDIF.
-
-    DATA(ls_add_text_field) = VALUE lvc_s_fcat(
-        fieldname      = ir_selfield->alv_fieldname
-        emphasize      = COND #( WHEN ms_technical_info-emphasize_text_fields = abap_true THEN
-                                   zif_dbbr_global_consts=>gc_alv_emphasize-text_field_color  )
-        lowercase      = abap_true
-        ref_field      = lv_ref_field
-        ref_table      = lv_ref_table
-    ).
-
-    ls_add_text_field-sp_group = VALUE #( mt_group_tab_map[ tabname = ir_selfield->tabname ]-sp_group OPTIONAL ).
-    ls_add_text_field-parameter2 = 'T'.
-
-    set_fieldcat_coltexts(
-      EXPORTING ir_field    = ir_selfield
-      CHANGING  cs_fieldcat = ls_add_text_field
-    ).
-
-    rs_fieldcat = ls_add_text_field.
-  ENDMETHOD.
 
   METHOD build_full_fieldnames.
     IF mf_aggregation = abap_true OR
@@ -469,6 +422,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     mo_tabfields_all->build_complete_fieldnames( ).
     mo_tabfields_all_original->build_complete_fieldnames( ).
   ENDMETHOD.
+
 
   METHOD build_simple_alv_title.
     DATA: lv_title TYPE lvc_title.
@@ -499,6 +453,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+
   METHOD clear_aggregation_fields.
     LOOP AT ct_selection_fields ASSIGNING FIELD-SYMBOL(<ls_selection_field>).
       CLEAR: <ls_selection_field>-group_by,
@@ -506,6 +461,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
              <ls_selection_field>-totals.
     ENDLOOP.
   ENDMETHOD.
+
 
   METHOD constructor.
     " set control data
@@ -520,7 +476,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     mv_navigation_count = is_selection_data-navigation_count.
 
     mo_formula            = is_selection_data-formula.
-    mv_query_string       = is_selection_data-query_string.
     ms_join_def           = is_selection_data-join_def.
     mv_entity_id          = is_selection_data-entity_id.
     mv_entity_type        = is_selection_data-entity_type.
@@ -563,6 +518,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+
   METHOD count_lines.
     determine_group_by_state( ).
     determine_aggregation_state( ).
@@ -574,6 +530,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       count_lines_simple( ).
     ENDIF.
   ENDMETHOD.
+
 
   METHOD count_lines_simple.
     create_where_clause( ).
@@ -590,6 +547,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       MESSAGE i024(zdbbr_info) WITH lv_number_of_lines.
     ENDIF.
   ENDMETHOD.
+
 
   METHOD count_lines_with_aggregation.
     create_select_clause( ).
@@ -765,6 +723,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   ENDMETHOD.
 
+
   METHOD create_dynamic_table.
     FIELD-SYMBOLS: <lt_table>      TYPE STANDARD TABLE,
                    <lt_table_temp> TYPE STANDARD TABLE.
@@ -810,6 +769,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         MESSAGE lr_table_creation_exc TYPE 'E'.
     ENDTRY.
   ENDMETHOD.
+
 
   METHOD create_field_catalog.
     DATA: lf_create_fieldcat_entry TYPE abap_bool,
@@ -973,6 +933,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   ENDMETHOD.
 
+
   METHOD create_for_all_where_clause.
     CONSTANTS: c_dyn_for_all_table TYPE string VALUE zif_dbbr_global_consts=>c_for_all_entries_select_table.
 
@@ -985,6 +946,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       ).
     ENDLOOP.
   ENDMETHOD.
+
 
   METHOD create_from_clause.
     mt_from = VALUE #( ( |{ ms_control_info-primary_table }| ) ).
@@ -1038,6 +1000,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+
   METHOD create_order_by_clause.
     """ create fieldcatalog / `order by`-part from output fields
     " 1) update mode of tabfield list to `sort`.
@@ -1079,6 +1042,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ENDIF.
 
   ENDMETHOD.
+
 
   METHOD create_select_clause.
     CLEAR mt_select.
@@ -1135,6 +1099,64 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+
+  METHOD create_text_fieldcat_entry.
+    TYPES: BEGIN OF ty_text_field,
+             selection_type TYPE char16,
+             table          TYPE tabname,
+             field          TYPE fieldname,
+           END OF ty_text_field.
+
+    DATA: lv_ref_field   TYPE fieldname,
+          lv_ref_table   TYPE tabname,
+          lt_text_fields TYPE SORTED TABLE OF ty_text_field WITH NON-UNIQUE KEY selection_type table field.
+
+    " get all text field definitions to get the corresponding text field
+    lt_text_fields = VALUE #(
+       FOR <ls_field> IN mt_add_texts
+       WHERE ( id_table = ir_selfield->tabname AND
+               id_field = ir_selfield->fieldname )
+       ( selection_type = <ls_field>-selection_type
+         table          = <ls_field>-text_table
+         field          = <ls_field>-text_field )
+    ).
+
+    IF lt_text_fields IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DATA(ls_text_field) = lt_text_fields[ 1 ].
+
+    IF ls_text_field-selection_type = zif_dbbr_c_text_selection_type=>domain_value OR
+       lines( lt_text_fields ) > 1.
+      lv_ref_field = 'DDTEXT'.
+      lv_ref_table = 'DD07T'.
+    ELSE.
+      lv_ref_field = ls_text_field-field.
+      lv_ref_table = ls_text_field-table.
+    ENDIF.
+
+    DATA(ls_add_text_field) = VALUE lvc_s_fcat(
+        fieldname      = ir_selfield->alv_fieldname
+        emphasize      = COND #( WHEN ms_technical_info-emphasize_text_fields = abap_true THEN
+                                   zif_dbbr_global_consts=>gc_alv_emphasize-text_field_color  )
+        lowercase      = abap_true
+        ref_field      = lv_ref_field
+        ref_table      = lv_ref_table
+    ).
+
+    ls_add_text_field-sp_group = VALUE #( mt_group_tab_map[ tabname = ir_selfield->tabname ]-sp_group OPTIONAL ).
+    ls_add_text_field-parameter2 = 'T'.
+
+    set_fieldcat_coltexts(
+      EXPORTING ir_field    = ir_selfield
+      CHANGING  cs_fieldcat = ls_add_text_field
+    ).
+
+    rs_fieldcat = ls_add_text_field.
+  ENDMETHOD.
+
+
   METHOD create_util.
     DATA: lv_typename  TYPE seoclsname,
           lf_sql_query TYPE abap_bool.
@@ -1183,6 +1205,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+
   METHOD create_where_clause.
     IF mf_do_for_all_select = abap_true.
       create_for_all_where_clause( ).
@@ -1190,6 +1213,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       create_default_where_clause( ).
     ENDIF.
   ENDMETHOD.
+
 
   METHOD determine_aggregation_state.
     " determine if single aggregation is active
@@ -1199,6 +1223,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       EXIT.
     ENDLOOP.
   ENDMETHOD.
+
 
   METHOD determine_checkbox_output.
     CHECK: ir_field->is_numeric = abap_false,
@@ -1221,9 +1246,11 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+
   METHOD determine_group_by_state.
     mf_group_by = xsdbool( line_exists( mt_selection_fields[ group_by = abap_true ] ) ).
   ENDMETHOD.
+
 
   METHOD execute_formula_for_lines.
     FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
@@ -1241,6 +1268,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     ENDLOOP.
   ENDMETHOD.
+
 
   METHOD fill_fcat_quan_curr_field.
     CHECK: ir_tabfield->is_text_field = abap_false,
@@ -1268,6 +1296,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       CATCH cx_sy_itab_line_not_found.
     ENDTRY.
   ENDMETHOD.
+
 
   METHOD fill_header.
     cr_dd_doc->add_table(
@@ -1332,6 +1361,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+
   METHOD get_alv_filter_from_criteria.
     CHECK ms_technical_info-activate_alv_live_filter = abap_true.
 
@@ -1341,6 +1371,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ).
 
   ENDMETHOD.
+
 
   METHOD get_alv_util.
     IF mr_alv_util IS INITIAL.
@@ -1381,8 +1412,24 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD get_sql_query.
+    CHECK mo_select_program IS BOUND.
+
+    rv_query = mo_select_program->get_select_sql( ).
+  ENDMETHOD.
+
+
+  METHOD get_text_field_util.
+    IF mo_text_field_util IS INITIAL.
+      mo_text_field_util = NEW #( me ).
+    ENDIF.
+    ro_text_field_util = mo_text_field_util.
+  ENDMETHOD.
+
+
   METHOD handle_alv_ctx_menu_request.
   ENDMETHOD.
+
 
   METHOD handle_possible_jumpfield.
     TRY .
@@ -1394,6 +1441,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         RETURN.
     ENDTRY.
   ENDMETHOD.
+
 
   METHOD handle_reduced_memory.
     DATA: lt_has_text_field TYPE RANGE OF fieldname.
@@ -1452,13 +1500,28 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     mr_breadcrumbs_dd->display_document( parent = ir_container reuse_control = abap_true ).
   ENDMETHOD.
 
+
   METHOD is_f4_saving_allowed.
     rf_allowed =  xsdbool( NOT mo_tabfields_all->has_table( zif_dbbr_global_consts=>c_parameter_dummy_table ) ).
   ENDMETHOD.
 
+
   METHOD is_join_active.
     result = mf_join_is_active.
   ENDMETHOD.
+
+
+  METHOD open_in_sql_console.
+
+    DATA(lv_query) = get_sql_query( if_for_console = abap_true ).
+
+    EXPORT
+      query = lv_query
+    TO MEMORY ID zcl_dbbr_sql_console=>c_sqlquery_export_mem_id.
+
+    CALL TRANSACTION 'ZDBBR_SQLCONSOLE'.
+  ENDMETHOD.
+
 
   METHOD raise_no_data_event.
     RAISE EVENT no_data
@@ -1470,6 +1533,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD read_entity_infos.
     RETURN.
   ENDMETHOD.
+
 
   METHOD select_data.
     FIELD-SYMBOLS: <lt_table>     TYPE table,
@@ -1544,6 +1608,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   ENDMETHOD.
 
+
   METHOD set_fieldcat_coltexts.
     get_short_texts( EXPORTING ir_tabfield        = ir_field
                      IMPORTING ev_reptext         = DATA(lv_reptext)
@@ -1592,6 +1657,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+
   METHOD set_line_index_column_texts.
     IF ms_technical_info-tech_names = abap_true.
       cs_field-reptext   =
@@ -1614,6 +1680,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       cs_field-tooltip = ms_line_index-fieldtext.
     ENDIF.
   ENDMETHOD.
+
 
   METHOD set_miscinfo_for_selected_data.
     DATA: lt_where  TYPE TABLE OF string,
@@ -1736,23 +1803,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD set_where_as_alv_filter.
   ENDMETHOD.
 
-  METHOD get_text_field_util.
-    IF mo_text_field_util IS INITIAL.
-      mo_text_field_util = NEW #( me ).
-    ENDIF.
-    ro_text_field_util = mo_text_field_util.
-  ENDMETHOD.
-
-  METHOD open_in_sql_console.
-    DATA(lv_query) = mo_select_program->get_select_sql( ).
-
-    EXPORT
-      query = lv_query
-    TO MEMORY ID 'SQLQUERY_EXPORT'.
-
-    CALL TRANSACTION 'ZDBBR_SQLCONSOLE'.
-  ENDMETHOD.
-
 
   METHOD show_no_data_message.
     IF mt_where IS NOT INITIAL OR mt_param_values IS NOT INITIAL.
@@ -1825,17 +1875,15 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       WHEN zif_dbbr_c_selection_functions=>show_sql_of_select.
         CLEAR cv_function.
 
-        IF mo_select_program IS BOUND.
-          DATA(lv_sql) = mo_select_program->get_select_sql( ).
-          IF lv_sql IS NOT INITIAL.
-            zcl_uitb_abap_code_viewer=>show_code(
-                iv_title  = 'SQL for Current Select'
-                iv_code   = lv_sql
-                iv_width  = 900
-                iv_height = 500
-                iv_theme  = ms_technical_info-code_viewer_theme
-            ).
-          ENDIF.
+        DATA(lv_sql) = get_sql_query( ).
+        IF lv_sql IS NOT INITIAL.
+          zcl_uitb_abap_code_viewer=>show_code(
+              iv_title  = 'SQL for Current Select'
+              iv_code   = lv_sql
+              iv_width  = 900
+              iv_height = 500
+              iv_theme  = ms_technical_info-code_viewer_theme
+          ).
         ENDIF.
 
       WHEN zif_dbbr_c_selection_functions=>show_users_settings.
