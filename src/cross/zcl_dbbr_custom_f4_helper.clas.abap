@@ -186,7 +186,7 @@ CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
 
             IF  ls_f4_definition-perform_alpha_conversion = abap_true OR
                 ls_f4_definition-perform_alpha_conv_assgmt = abap_true.
-              ZCL_SAT_DATA_CONVERTER=>perform_alpha_conversion_input(
+              zcl_sat_data_converter=>perform_alpha_conversion_input(
                 EXPORTING
                   iv_tabname   = ls_f4_definition-fields[ is_search_key = abap_true ]-search_table
                   iv_fieldname = ls_f4_definition-fields[ is_search_key = abap_true ]-search_field
@@ -201,7 +201,7 @@ CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
                 TRANSLATE cs_selfield-low TO UPPER CASE. "#EC TRANSLANG
               ENDIF.
 
-              ZCL_SAT_DATA_CONVERTER=>convert_selopt_to_int_format(
+              zcl_sat_data_converter=>convert_selopt_to_int_format(
                 EXPORTING iv_tabname   = cs_selfield-tabname
                           iv_fieldname = cs_selfield-fieldname
                 CHANGING  cv_value1    = <lv_selvalue>
@@ -220,7 +220,7 @@ CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
           DATA(lv_returnval) = lt_return[ 1 ]-fieldval.
           IF  ls_f4_definition-perform_alpha_conversion = abap_true OR
               ls_f4_definition-perform_alpha_conv_assgmt = abap_true.
-            ZCL_SAT_DATA_CONVERTER=>perform_alpha_conversion_input(
+            zcl_sat_data_converter=>perform_alpha_conversion_input(
               EXPORTING
                 iv_tabname   = ls_f4_definition-fields[ is_search_key = abap_true ]-search_table
                 iv_fieldname = ls_f4_definition-fields[ is_search_key = abap_true ]-search_field
@@ -267,8 +267,8 @@ CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
     DATA(lf_joins_needed) = xsdbool( is_custom_f4_definition-join_def-tables IS NOT INITIAL ).
 
     IF lf_joins_needed = abap_true.
-      lt_from_clause = ZCL_SAT_JOIN_HELPER=>build_from_clause_for_join_def(
-        is_join_def        = CORRESPONDING #( deep is_custom_f4_definition-join_def )
+      lt_from_clause = zcl_sat_join_helper=>build_from_clause_for_join_def(
+        is_join_def        = CORRESPONDING #( DEEP is_custom_f4_definition-join_def )
       ).
       build_table_alias_map( is_custom_f4_definition-join_def ).
       ev_key_field = mt_table_alias_map[ tabname = ls_search_field-search_table ]-alv_alias && '_' && ls_search_field-search_field.
@@ -292,7 +292,7 @@ CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
     ELSE.
       " build where clause for entered key field value
       IF iv_entered_value IS NOT INITIAL.
-        DATA(lt_entered_value_selopt) = VALUE ZIF_SAT_TY_GLOBAL=>ty_t_selopt(
+        DATA(lt_entered_value_selopt) = VALUE zif_sat_ty_global=>ty_t_selopt(
           ( low    = iv_entered_value
             option = COND option( WHEN contains( val = iv_entered_value sub = '*' ) THEN 'CP' ELSE 'EQ' )
             sign   = 'I' )

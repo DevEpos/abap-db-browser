@@ -17,7 +17,6 @@ CLASS zcl_dbbr_custom_f4_selector DEFINITION
   PROTECTED SECTION.
     METHODS: get_output_table REDEFINITION,
       matches_filter REDEFINITION,
-      set_selected_element REDEFINITION,
       adjust_column REDEFINITION,
       has_selections REDEFINITION,
       get_mark_field_description REDEFINITION.
@@ -194,11 +193,6 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
 
   METHOD get_output_table.
     rr_table = REF #( mt_custom_f4 ).
-  ENDMETHOD.
-
-  METHOD set_selected_element.
-    DATA(lr_s_row) = REF #( mt_custom_f4[ iv_row ] ).
-    zcl_uitb_appl_util=>toggle( CHANGING value = lr_s_row->mark ).
   ENDMETHOD.
 
   METHOD has_selections.

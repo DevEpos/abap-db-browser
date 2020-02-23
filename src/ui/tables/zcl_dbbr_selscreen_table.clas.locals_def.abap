@@ -35,8 +35,7 @@
           get_output_table REDEFINITION,
           matches_filter REDEFINITION,
           set_selected_element REDEFINITION,
-          adjust_column REDEFINITION,
-          create_content REDEFINITION.
+          adjust_column REDEFINITION.
       PRIVATE SECTION.
         DATA mt_col_filtered TYPE lty_t_col_selection.
         DATA mt_col TYPE lty_t_col_selection.

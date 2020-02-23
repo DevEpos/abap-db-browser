@@ -6,9 +6,10 @@ CLASS lcl_find_table_field_view IMPLEMENTATION.
 
   METHOD constructor.
     super->constructor(
-        iv_title         = 'Find Field'
-        iv_filter_prompt = 'Filter Field'
+        iv_title          = 'Find Field'
+        iv_filter_prompt  = 'Filter Field'
         if_use_alv_filter = abap_true
+        iv_initial_focus  = c_focus_on_filter
     ).
 
     mf_hide_tabname_field = if_hide_tabname_field.
@@ -30,12 +31,6 @@ CLASS lcl_find_table_field_view IMPLEMENTATION.
     CLEAR mo_alv.
 
     rv_col_index = mv_chosen_index.
-  ENDMETHOD.
-
-  METHOD create_content.
-    super->create_content( io_container ).
-
-    cl_gui_control=>set_focus( mo_filter_input ).
   ENDMETHOD.
 
   METHOD matches_filter.

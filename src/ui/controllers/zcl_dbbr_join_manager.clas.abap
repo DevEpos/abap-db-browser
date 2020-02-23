@@ -6,15 +6,15 @@ CLASS zcl_dbbr_join_manager DEFINITION
 
   PUBLIC SECTION.
 
-    INTERFACES ZIF_SAT_C_SELECTION_CONDITION .
+    INTERFACES zif_sat_c_selection_condition .
 
     "! <p class="shorttext synchronized" lang="en">CLASS_CONSTRUCTOR</p>
     CLASS-METHODS class_constructor .
     METHODS constructor
       IMPORTING
-        iv_primary_entity     TYPE ZSAT_ENTITY_ID
-        iv_primary_entity_raw TYPE ZSAT_ENTITY_ID_raw
-        iv_entity_type        TYPE ZSAT_ENTITY_TYPE DEFAULT ZIF_SAT_C_ENTITY_TYPE=>table
+        iv_primary_entity     TYPE zsat_entity_id
+        iv_primary_entity_raw TYPE zsat_entity_id_raw
+        iv_entity_type        TYPE zsat_entity_type DEFAULT zif_sat_c_entity_type=>table
         !ir_join_ref          TYPE REF TO zdbbr_join_def .
     "! <p class="shorttext synchronized" lang="en">Signals to the caller if the join was updated</p>
     METHODS was_updated
@@ -32,9 +32,9 @@ CLASS zcl_dbbr_join_manager DEFINITION
   PRIVATE SECTION.
 
     ALIASES and
-      FOR ZIF_SAT_C_SELECTION_CONDITION~and .
+      FOR zif_sat_c_selection_condition~and .
     ALIASES or
-      FOR ZIF_SAT_C_SELECTION_CONDITION~or .
+      FOR zif_sat_c_selection_condition~or .
 
     DATA mo_join TYPE REF TO lcl_join .
     "! <p class="shorttext synchronized" lang="en">Tree for storing join definition</p>
@@ -134,8 +134,6 @@ CLASS zcl_dbbr_join_manager DEFINITION
       RETURNING
         VALUE(rv_node_key) TYPE tm_nodekey .
 
-
-
     "! <p class="shorttext synchronized" lang="en">Create Tree to hold tables/conditions</p>
     METHODS create_tree
       IMPORTING
@@ -201,48 +199,48 @@ CLASS zcl_dbbr_join_manager DEFINITION
 
     "! <p class="shorttext synchronized" lang="en">Handler for when join field condition was created</p>
     METHODS on_created_field_condition
-          FOR EVENT created_field_condition OF zcl_dbbr_edit_join_cond_view
+        FOR EVENT created_field_condition OF zcl_dbbr_edit_join_cond_view
       IMPORTING
-          !es_field .
+        !es_field .
     "! <p class="shorttext synchronized" lang="en">Handler for when join filter condition was created</p>
     METHODS on_created_filter_condition
-          FOR EVENT created_filter_condition OF zcl_dbbr_edit_join_cond_view
+        FOR EVENT created_filter_condition OF zcl_dbbr_edit_join_cond_view
       IMPORTING
-          !es_filter .
+        !es_filter .
     "! <p class="shorttext synchronized" lang="en">Handler for when join table was created</p>
     METHODS on_created_join_table
-          FOR EVENT created OF zcl_dbbr_edit_join_table_ctrl
+        FOR EVENT created OF zcl_dbbr_edit_join_table_ctrl
       IMPORTING
-          !es_join_table .
+        !es_join_table .
     "! <p class="shorttext synchronized" lang="en">Handler for when join requests node deletion</p>
     METHODS on_delete_request_from_join
-          FOR EVENT request_deletion OF lif_tree_node_events
+        FOR EVENT request_deletion OF lif_tree_node_events
       IMPORTING
-          !ev_node_key .
+        !ev_node_key .
 
     "! <p class="shorttext synchronized" lang="en">Handler for node context menu request</p>
     METHODS on_node_ctx_menu_request
-          FOR EVENT node_context_menu_request OF zcl_uitb_ctm_events
+        FOR EVENT node_context_menu_request OF zcl_uitb_ctm_events
       IMPORTING
-          !ev_node_key
-          !er_menu .
+        !ev_node_key
+        !er_menu .
     "! <p class="shorttext synchronized" lang="en">Handler for menu node selection</p>
     METHODS on_node_ctx_menu_select
-          FOR EVENT node_context_menu_select OF zcl_uitb_ctm_events
+        FOR EVENT node_context_menu_select OF zcl_uitb_ctm_events
       IMPORTING
-          !ev_node_key
-          !ev_fcode .
+        !ev_node_key
+        !ev_fcode .
     "! <p class="shorttext synchronized" lang="en">Handler for tree node double click</p>
     METHODS on_node_double_click
-          FOR EVENT node_double_click OF zcl_uitb_ctm_events
+        FOR EVENT node_double_click OF zcl_uitb_ctm_events
       IMPORTING
-          !ev_node_key .
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for key press on node</p>
     METHODS on_node_keypress
-          FOR EVENT node_keypress OF zcl_uitb_ctm_events
+        FOR EVENT node_keypress OF zcl_uitb_ctm_events
       IMPORTING
-          !ev_node_key
-          !ev_key .
+        !ev_node_key
+        !ev_key .
 
 
     "! <p class="shorttext synchronized" lang="en">Test the join definition</p>
@@ -281,10 +279,354 @@ ENDCLASS.
 
 
 
-CLASS zcl_dbbr_join_manager IMPLEMENTATION.
+CLASS ZCL_DBBR_JOIN_MANAGER IMPLEMENTATION.
+
+
+  METHOD add_and_condition.
+    DATA: lv_condition_view_mode TYPE i,
+          lv_source_table        TYPE tabname.
+
+*.. Get selected node
+    DATA(lt_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
+    CHECK lines( lt_nodes ) = 1.
+    DATA(lo_selected_node) = lt_nodes[ 1 ].
+
+*.. Retrieve information about node from map
+    ASSIGN mt_node_map[ node_key = lo_selected_node->mv_node_key ] TO FIELD-SYMBOL(<ls_node>).
+    CHECK sy-subrc = 0.
+
+    CASE <ls_node>-node_type.
+
+      WHEN c_node_type-table_field OR
+           c_node_type-table_fields.
+        lv_condition_view_mode = zcl_dbbr_edit_join_cond_view=>c_field_mode.
+*...... get join table reference to determine possible virtual join mode for condition view
+        DATA(lo_join_table) = mo_join->get_entity( <ls_node>-alias ).
+        lv_source_table = <ls_node>-tabname.
+        DATA(lf_virtual_join) = lo_join_table->get_tab_info( )-is_virtual.
+*...... do not allow the current join table as a possible target table in the first release
+        DATA(lf_exclude_current_table) = abap_true.
+
+      WHEN c_node_type-table_filters OR
+           c_node_type-table_filter OR
+           c_node_type-or_filter_group.
+        lv_condition_view_mode = zcl_dbbr_edit_join_cond_view=>c_value_mode.
+
+      WHEN OTHERS.
+        RETURN.
+    ENDCASE.
+
+*.. check node type again for determining the correct node relationship to the
+*.. currently selected node
+    CASE <ls_node>-node_type.
+      WHEN c_node_type-table_field OR
+           c_node_type-table_filter OR
+           c_node_type-or_filter_group.
+        mv_new_cond_relationship = cl_tree_model=>relat_next_sibling.
+
+      WHEN OTHERS.
+        mv_new_cond_relationship = cl_tree_model=>relat_last_child.
+    ENDCASE.
+
+*.. Get target tables for condition view
+    DATA(lt_entities) = mo_join->get_possible_entities_for_f4( iv_entity_alias = <ls_node>-alias ).
+    IF lf_exclude_current_table = abap_true.
+      DELETE lt_entities WHERE entity_alias = <ls_node>-alias.
+    ENDIF.
+
+    ms_new_cond_relat_nodemap = <ls_node>.
+    mo_relat_node = mo_join_tree->get_nodes( )->get_node( <ls_node>-node_key ).
+
+*.. Create new AND condition
+    DATA(lo_edit_join_cond_view) = NEW zcl_dbbr_edit_join_cond_view(
+      iv_mode               = lv_condition_view_mode
+      is_source_entity      = mo_join->get_entity( iv_alias = <ls_node>-alias )->get_tab_info( )
+      it_target_entity_list = lt_entities
+      iv_source_table       = lv_source_table
+      if_allow_offset       = lf_virtual_join
+    ).
+
+*.. Set the node type to 'AND' for successive create calls from view
+    mv_evt_filt_mode_node_type = c_node_type-table_filter.
+
+    SET HANDLER:
+       on_created_filter_condition FOR lo_edit_join_cond_view,
+       on_created_field_condition FOR lo_edit_join_cond_view.
+
+    lo_edit_join_cond_view->show( ).
+
+    CHECK lo_edit_join_cond_view->was_not_cancelled( ).
+
+*.. Retrieve the updated information from the view
+    lo_edit_join_cond_view->get_updated_condition(
+      IMPORTING
+        es_field_condition  = DATA(ls_field_cond)
+        es_filter_condition = DATA(ls_filter_cond)
+    ).
+
+*.. create the appropriate node
+    IF lv_condition_view_mode = zcl_dbbr_edit_join_cond_view=>c_field_mode.
+      create_field_condition_node(
+          is_field_cond     = ls_field_cond
+      ).
+    ELSE.
+      create_filter_condition_node(
+          is_filter_condition = ls_filter_cond
+      ).
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD add_new_join_table.
+    DATA(lo_edit_join_table_controller) = NEW zcl_dbbr_edit_join_table_ctrl( ).
+
+    SET HANDLER: on_created_join_table FOR lo_edit_join_table_controller.
+    lo_edit_join_table_controller->zif_uitb_screen_controller~call_screen( ).
+
+    CHECK lo_edit_join_table_controller->zif_uitb_screen_controller~was_not_cancelled( ).
+
+    create_join_table_node( lo_edit_join_table_controller->get_updated_join_table( ) ).
+  ENDMETHOD.
+
+
+  METHOD add_or_condition.
+*.. Get selected node
+    DATA(lt_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
+    CHECK lines( lt_nodes ) = 1.
+    DATA(lo_selected_node) = lt_nodes[ 1 ].
+
+*.. Retrieve information about node from map
+    ASSIGN mt_node_map[ node_key = lo_selected_node->mv_node_key ] TO FIELD-SYMBOL(<ls_node>).
+    CHECK sy-subrc = 0.
+
+*.. Check if adding or OR condition is allowed and determine some stuff
+*.. for the new node
+    CASE <ls_node>-node_type.
+
+      WHEN c_node_type-or_filter_group.
+        mv_new_cond_relationship = cl_tree_model=>relat_last_child.
+
+      WHEN c_node_type-table_filter OR
+           c_node_type-table_filter_or.
+        mv_new_cond_relationship = cl_tree_model=>relat_next_sibling.
+
+      WHEN OTHERS.
+        RETURN.
+    ENDCASE.
+
+    ms_new_cond_relat_nodemap = <ls_node>.
+    mo_relat_node = lo_selected_node.
+
+*.. Create new OR condition
+    DATA(lo_edit_join_cond_view) = NEW zcl_dbbr_edit_join_cond_view(
+      iv_mode               = zcl_dbbr_edit_join_cond_view=>c_value_mode
+      it_target_entity_list = mo_join->get_possible_entities_for_f4( <ls_node>-alias )
+    ).
+
+    SET HANDLER:
+       on_created_filter_condition FOR lo_edit_join_cond_view.
+
+*.. Set the node type to 'OR' for successive create calls from view
+    mv_evt_filt_mode_node_type = c_node_type-table_filter_or.
+
+    lo_edit_join_cond_view->show( ).
+
+    CHECK lo_edit_join_cond_view->was_not_cancelled( ).
+
+*.. Retrieve the updated information from the view
+    lo_edit_join_cond_view->get_updated_condition(
+      IMPORTING
+        es_filter_condition = DATA(ls_filter_cond)
+    ).
+
+*.. Create the OR Group node if the target is and AND Filter Node
+    IF <ls_node>-node_type = c_node_type-table_filter.
+      create_or_group_node( ).
+    ENDIF.
+
+*.. Now create the OR filter condition
+    create_filter_condition_node(
+        is_filter_condition = ls_filter_cond
+        iv_node_type        = c_node_type-table_filter_or
+    ).
+  ENDMETHOD.
+
+
+  METHOD change_field_condition.
+*.. fetch the node to get the information about the join field condition
+    DATA(lo_node) = mo_join_tree->get_nodes( )->get_node( iv_node_key ).
+    DATA(lo_join_field) = CAST lcl_join_field( lo_node->get_user_object( ) ).
+    DATA(ls_join_field) = lo_join_field->get_field( ).
+
+*.. get join table as well, to get virtual join information
+    DATA(lo_join_table) = mo_join->get_entity( lo_join_field->mv_table_alias ).
+
+*.. build target table list
+    DATA(lt_entities) = mo_join->get_possible_entities_for_f4( lo_join_field->mv_table_alias ).
+    DELETE lt_entities WHERE entity_alias = lo_join_field->mv_table_alias.
+
+*.. change the join field information
+    DATA(lo_edit_join_cond) = NEW zcl_dbbr_edit_join_cond_view(
+        if_is_new             = abap_false
+        if_allow_offset       = lo_join_table->get_tab_info( )-is_virtual
+        is_source_entity      = lo_join_table->get_tab_info( )
+        is_field_condition    = ls_join_field
+        it_target_entity_list = lt_entities
+    ).
+    lo_edit_join_cond->show( ).
+
+    CHECK lo_edit_join_cond->was_not_cancelled( ).
+    lo_edit_join_cond->get_updated_condition( IMPORTING es_field_condition  = ls_join_field ).
+
+
+*.. update the join field information
+    lo_node->get_item( c_columns-field )->set_text( |{ ls_join_field-field }| ).
+    lo_node->get_item( c_columns-comparator1 )->set_text( |{ ls_join_field-operator }| ).
+    lo_node->get_item( c_columns-value )->set_text( |{ ls_join_field-ref_table_alias }-{ ls_join_field-ref_field }| ).
+
+    CHECK lo_join_field->update_field( ls_join_field ).
+    MESSAGE s088(zdbbr_info).
+  ENDMETHOD.
+
+
+  METHOD change_filter_condition.
+*.. fetch the node to get the information about the join filter condition
+    DATA(lo_node) = mo_join_tree->get_nodes( )->get_node( iv_node_key ).
+    DATA(lo_join_filter) = CAST lcl_join_filter( lo_node->get_user_object( ) ).
+    DATA(ls_join_filter) = lo_join_filter->get_filter( ).
+
+*.. build target table list
+    DATA(lt_entities) = mo_join->get_possible_entities_for_f4( lo_join_filter->mv_table_alias ).
+
+*.. change the join field information
+    DATA(lo_edit_join_cond) = NEW zcl_dbbr_edit_join_cond_view(
+        if_is_new             = abap_false
+        iv_mode               = zcl_dbbr_edit_join_cond_view=>c_value_mode
+        is_filter_condition   = ls_join_filter
+        it_target_entity_list = lt_entities
+    ).
+    lo_edit_join_cond->show( ).
+
+    CHECK lo_edit_join_cond->was_not_cancelled( ).
+    lo_edit_join_cond->get_updated_condition( IMPORTING es_filter_condition = ls_join_filter ).
+
+    CHECK lo_join_filter->update_filter( ls_join_filter ).
+    fill_value_item_content(
+      io_node             = lo_node
+      io_filter_condition = lo_join_filter
+    ).
+
+*.. update the join field information
+    lo_node->get_item( c_columns-field )->set_text( |{ ls_join_filter-tabname_alias }-{ ls_join_filter-fieldname }| ).
+    lo_node->get_item( c_columns-comparator1 )->set_text( |{ ls_join_filter-operator }| ).
+
+    MESSAGE |Filter Condition was updated| TYPE 'S'.
+  ENDMETHOD.
+
+
+  METHOD change_join_table.
+*.. 1) fetch the node to get the information about the join table
+    DATA(lo_node) = mo_join_tree->get_nodes( )->get_node( iv_node_key ).
+    DATA(lo_join_table) = CAST lcl_join_table( lo_node->get_user_object( ) ).
+
+*.. 2) change the join table
+    DATA(ls_current_tab_info) = lo_join_table->get_tab_info( ).
+    DATA(lo_edit_join_table_ctrl) = NEW zcl_dbbr_edit_join_table_ctrl(
+        is_join_table = ls_current_tab_info
+        if_is_new     = abap_false
+    ).
+    lo_edit_join_table_ctrl->zif_uitb_screen_controller~call_screen( ).
+
+    CHECK lo_edit_join_table_ctrl->zif_uitb_screen_controller~was_not_cancelled( ).
+    DATA(ls_updated_tab_info) = lo_edit_join_table_ctrl->get_updated_join_table( ).
+
+    CHECK lo_join_table->set_tab_info( CORRESPONDING #( ls_updated_tab_info ) ).
+
+    IF ls_updated_tab_info-add_table_alias <> ls_current_tab_info-add_table_alias.
+      update_table_alias( EXPORTING iv_old_alias = ls_current_tab_info-add_table_alias
+                                    iv_new_alias = ls_updated_tab_info-add_table_alias ).
+    ENDIF.
+
+*.. Update field conditions if virtual join was activated
+    IF ls_updated_tab_info-is_virtual = abap_false AND
+       ls_current_tab_info-is_virtual = abap_true.
+*.... clear all offset information from associated field conditions
+      lo_join_table->clear_offset_from_fields( ).
+    ENDIF.
+
+*.. update the join type
+    lo_node->get_item( c_columns-value )->set_text(
+      COND #( WHEN ls_updated_tab_info-is_virtual = abap_true THEN
+                |{ 'Virtual'(018) } |
+              ELSE
+                || ) &&
+      st_join_type_fixvals[ low = ls_updated_tab_info-join_type ]-ddtext
+    ).
+    lo_node->get_item( c_columns-hier2 )->set_text( |({ to_lower( ls_updated_tab_info-add_table_alias ) })| ).
+
+    MESSAGE |Join Table { ls_updated_tab_info-add_table } was updated| TYPE 'S'.
+  ENDMETHOD.
+
+
+  METHOD change_node.
+
+    DATA(lt_selected_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
+    CHECK lines( lt_selected_nodes ) = 1.
+    DATA(lo_selected_node) = lt_selected_nodes[ 1 ].
+
+*.. retrieve information about node from map
+    ASSIGN mt_node_map[ node_key = lo_selected_node->mv_node_key ] TO FIELD-SYMBOL(<ls_node>).
+    CHECK sy-subrc = 0.
+
+*.. perform appropriate edit action according to node type
+    CASE <ls_node>-node_type.
+
+      WHEN c_node_type-table_filter OR
+           c_node_type-table_filter_or.
+        change_filter_condition( iv_node_key =  <ls_node>-node_key ).
+
+      WHEN c_node_type-table_field.
+        change_field_condition( iv_node_key =  <ls_node>-node_key ).
+
+      WHEN c_node_type-table.
+        change_join_table( iv_node_key = <ls_node>-node_key ).
+
+    ENDCASE.
+  ENDMETHOD.
+
+
+  METHOD change_primary_table_alias.
+    DATA(lv_new_alias) = zcl_dbbr_appl_util=>popup_get_value(
+        is_field = VALUE #( tabname = 'ZDBBR_JOINT' fieldname = 'ADD_TABLE_ALIAS' fieldtext = |{ 'Alias' }| field_obl = abap_true value = mo_join->mv_primary_entity_alias )
+        iv_title = |{ 'Change Alias of Primary Table'(023) }|
+    ).
+
+    IF lv_new_alias IS NOT INITIAL AND
+       mo_join->mv_primary_entity_alias <> lv_new_alias.
+
+*.... Check if this alias is free to use
+      IF NOT zcl_dbbr_entity_alias_util=>add_entity_alias( |{ lv_new_alias }| ).
+        MESSAGE |Alias { lv_new_alias } is already in use!| TYPE 'S' DISPLAY LIKE 'E'.
+        RETURN.
+      ELSE.
+        zcl_dbbr_entity_alias_util=>unregister_alias( |{ mo_join->mv_primary_entity_alias }| ).
+      ENDIF.
+
+      DATA(lt_nodes_to_update) = mo_join->update_alias( |{ lv_new_alias }| ).
+
+      update_node_values( lt_nodes_to_update ).
+
+      MESSAGE s089(zdbbr_info).
+
+      cl_gui_cfw=>set_new_ok_code( space ).
+    ENDIF.
+  ENDMETHOD.
+
+
   METHOD class_constructor.
     DATA(lo_join_type_descr) = CAST cl_abap_elemdescr(
-      cl_abap_typedescr=>describe_by_data( VALUE ZSAT_JOINTYPE( ) )
+      cl_abap_typedescr=>describe_by_data( VALUE zsat_jointype( ) )
     ).
 
     st_join_type_fixvals = lo_join_type_descr->get_ddic_fixed_values(
@@ -312,64 +654,39 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
     ).
   ENDMETHOD.
 
-  METHOD was_updated.
-    result = mf_was_updated.
+
+  METHOD create_columns.
+    DATA(lo_cols) = mo_join_tree->get_columns( ).
+    lo_cols->add_hierarchy_column( iv_colname = c_columns-hier2 ).
+    lo_cols->add_column(
+        iv_colname           = c_columns-field
+        iv_width             = 40
+        iv_header_text       = 'Field / Description'(002)
+    ).
+    lo_cols->add_column(
+        iv_colname           = c_columns-comparator1
+        iv_width             = 15
+        iv_alignment         = cl_item_tree_model=>align_center
+        iv_header_text       = 'Comparator'(003)
+    ).
+    lo_cols->add_column(
+        iv_colname           = c_columns-value
+        iv_width             = 40
+        iv_header_text       = 'Field2 / Value / Join Type'(004)
+    ).
+    lo_cols->add_column(
+        iv_colname           = c_columns-comparator2
+        iv_width             = 20
+        iv_alignment         = cl_item_tree_model=>align_center
+        iv_header_text       = 'Comparator 2'(005)
+    ).
+    lo_cols->add_column(
+        iv_colname           = c_columns-value2
+        iv_width             = 40
+        iv_header_text       = 'Value2'(006)
+    ).
   ENDMETHOD.
 
-  METHOD zif_uitb_gui_command_handler~execute_command.
-    TRY.
-        CASE io_command->mv_function.
-
-          WHEN c_functions-change_prim_tab_alias.
-            change_primary_table_alias( ).
-
-          WHEN c_functions-transfer_data.
-            validate_join( ).
-            transfer_join( ).
-            leave_screen( ).
-
-          WHEN c_functions-show_sql.
-            test_join( ).
-
-          WHEN c_functions-show_help.
-            zcl_dbbr_help_repository=>show_help( zcl_dbbr_help_repository=>c_help_id-join_manager ).
-
-          WHEN c_functions-add_table.
-            add_new_join_table( ).
-
-          WHEN c_functions-delete_table.
-            delete_table( ).
-
-          WHEN c_functions-delete_all_tables.
-            delete_table( if_all = abap_true ).
-
-          WHEN c_functions-expand_all_nodes.
-            mo_join_tree->get_nodes( )->expand_root_nodes( ).
-
-          WHEN c_functions-collapse_all_nodes.
-            mo_join_tree->get_nodes( )->collapse_all_nodes( ).
-
-          WHEN c_functions-add_and_condition.
-            add_and_condition( ).
-
-          WHEN c_functions-add_or_condition.
-            add_or_condition( ).
-
-          WHEN c_functions-edit_condition.
-            change_node( ).
-
-          WHEN c_functions-delete_condition.
-            delete_condition( ).
-
-          WHEN c_functions-focus_on_tree.
-            mo_join_tree->zif_uitb_gui_control~focus( ).
-        ENDCASE.
-      CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lx_validation_error).
-        lx_validation_error->print_message(
-            iv_msg_type  = 'I'
-        ).
-    ENDTRY.
-  ENDMETHOD.
 
   METHOD create_content.
     create_control_toolbar(
@@ -454,423 +771,6 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
     mo_join_tree->zif_uitb_gui_control~focus( ).
   ENDMETHOD.
 
-  METHOD do_before_dynpro_output.
-    io_callback->set_title( |{ 'DB Browser - Joins for'(020) } { mo_join->mv_primary_entity } ({ to_lower( mo_join->mv_primary_entity_alias ) })| ).
-    io_callback->deactivate_function( zif_uitb_c_gui_screen=>c_functions-save ).
-    io_callback->map_fkey_functions( VALUE #(
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f1
-        text            = |{ 'Focus on Tree' }|
-        mapped_function = c_functions-focus_on_tree )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f8
-        mapped_function = c_functions-transfer_data
-        text            = |{ 'Update Join Definition'(009) }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f8
-        mapped_function = c_functions-show_sql
-        text            = |{ 'Show SQL FROM'(017) }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f9
-        mapped_function = c_functions-show_help
-        text            = |{ 'Help'(027) }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f5
-        mapped_function = c_functions-add_table
-        text            = |{ 'New Join Table'(028) }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f6
-        mapped_function = c_functions-add_and_condition
-        text            = |{ 'New AND Condition'(029) }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f7
-        mapped_function = c_functions-add_or_condition
-        text            = |{ 'New OR Condition'(030) }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f5
-        mapped_function = c_functions-change_prim_tab_alias
-        text            = |{ 'Change Alias of Primary Table'(023) }| ) )
-    ).
-  ENDMETHOD.
-
-  METHOD handle_exit_request.
-*... 1) check if there are changes in the join definition
-    IF mo_join->has_changes( ).
-*.... query user if he really wants to leave screen regardless of possible
-*.... data loss
-      IF zcl_dbbr_appl_util=>popup_to_confirm(
-              iv_title                 = 'Leave'
-              iv_query                 = |There are unsaved changes in the Join definion. | &&
-                                         |Are you sure you want to leave the Screen?|
-              iv_icon_type             = 'ICON_MESSAGE_QUESTION'
-          ) <> '1'.
-        io_callback->cancel_exit( ).
-      ELSE.
-      ENDIF.
-    ENDIF.
-  ENDMETHOD.
-
-  METHOD add_and_condition.
-    DATA: lv_condition_view_mode TYPE i,
-          lv_source_table        TYPE tabname.
-
-    TRY .
-*...... Get selected node
-        DATA(lt_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
-        CHECK lines( lt_nodes ) = 1.
-        DATA(lo_selected_node) = lt_nodes[ 1 ].
-
-*...... Retrieve information about node from map
-        ASSIGN mt_node_map[ node_key = lo_selected_node->mv_node_key ] TO FIELD-SYMBOL(<ls_node>).
-        CHECK sy-subrc = 0.
-
-        CASE <ls_node>-node_type.
-
-          WHEN c_node_type-table_field OR
-               c_node_type-table_fields.
-            lv_condition_view_mode = zcl_dbbr_edit_join_cond_view=>c_field_mode.
-*.......... get join table reference to determine possible virtual join mode for condition view
-            DATA(lo_join_table) = mo_join->get_entity( <ls_node>-alias ).
-            lv_source_table = <ls_node>-tabname.
-            DATA(lf_virtual_join) = lo_join_table->get_tab_info( )-is_virtual.
-*.......... do not allow the current join table as a possible target table in the first release
-            DATA(lf_exclude_current_table) = abap_true.
-
-          WHEN c_node_type-table_filters OR
-               c_node_type-table_filter OR
-               c_node_type-or_filter_group.
-            lv_condition_view_mode = zcl_dbbr_edit_join_cond_view=>c_value_mode.
-
-          WHEN OTHERS.
-            RETURN.
-        ENDCASE.
-
-*...... check node type again for determining the correct node relationship to the
-*...... currently selected node
-        CASE <ls_node>-node_type.
-          WHEN c_node_type-table_field OR
-               c_node_type-table_filter OR
-               c_node_type-or_filter_group.
-            mv_new_cond_relationship = cl_tree_model=>relat_next_sibling.
-
-          WHEN OTHERS.
-            mv_new_cond_relationship = cl_tree_model=>relat_last_child.
-        ENDCASE.
-
-*...... Get target tables for condition view
-        DATA(lt_entities) = mo_join->get_possible_entities_for_f4( iv_entity_alias = <ls_node>-alias ).
-        IF lf_exclude_current_table = abap_true.
-          DELETE lt_entities WHERE entity_alias = <ls_node>-alias.
-        ENDIF.
-
-        ms_new_cond_relat_nodemap = <ls_node>.
-        mo_relat_node = mo_join_tree->get_nodes( )->get_node( <ls_node>-node_key ).
-
-*...... Create new AND condition
-        DATA(lo_edit_join_cond_view) = NEW zcl_dbbr_edit_join_cond_view(
-          iv_mode               = lv_condition_view_mode
-          is_source_entity      = mo_join->get_entity( iv_alias = <ls_node>-alias )->get_tab_info( )
-          it_target_entity_list = lt_entities
-          iv_source_table       = lv_source_table
-          if_allow_offset       = lf_virtual_join
-        ).
-
-*...... Set the node type to 'AND' for successive create calls from view
-        mv_evt_filt_mode_node_type = c_node_type-table_filter.
-
-        SET HANDLER:
-           on_created_filter_condition FOR lo_edit_join_cond_view,
-           on_created_field_condition FOR lo_edit_join_cond_view.
-
-        lo_edit_join_cond_view->show( ).
-
-        CHECK lo_edit_join_cond_view->was_not_cancelled( ).
-
-*...... Retrieve the updated information from the view
-        lo_edit_join_cond_view->get_updated_condition(
-          IMPORTING
-            es_field_condition  = DATA(ls_field_cond)
-            es_filter_condition = DATA(ls_filter_cond)
-        ).
-
-*...... create the appropriate node
-        IF lv_condition_view_mode = zcl_dbbr_edit_join_cond_view=>c_field_mode.
-          create_field_condition_node(
-              is_field_cond     = ls_field_cond
-          ).
-        ELSE.
-          create_filter_condition_node(
-              is_filter_condition = ls_filter_cond
-          ).
-        ENDIF.
-      CATCH zcx_uitb_tree_error.
-
-    ENDTRY.
-
-  ENDMETHOD.
-
-
-  METHOD add_new_join_table.
-    DATA(lo_edit_join_table_controller) = NEW zcl_dbbr_edit_join_table_ctrl( ).
-
-    SET HANDLER: on_created_join_table FOR lo_edit_join_table_controller.
-    lo_edit_join_table_controller->zif_uitb_screen_controller~call_screen( ).
-
-    CHECK lo_edit_join_table_controller->zif_uitb_screen_controller~was_not_cancelled( ).
-
-    create_join_table_node( lo_edit_join_table_controller->get_updated_join_table( ) ).
-  ENDMETHOD.
-
-
-  METHOD add_or_condition.
-    TRY .
-*...... Get selected node
-        DATA(lt_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
-        CHECK lines( lt_nodes ) = 1.
-        DATA(lo_selected_node) = lt_nodes[ 1 ].
-
-*...... Retrieve information about node from map
-        ASSIGN mt_node_map[ node_key = lo_selected_node->mv_node_key ] TO FIELD-SYMBOL(<ls_node>).
-        CHECK sy-subrc = 0.
-
-*...... Check if adding or OR condition is allowed and determine some stuff
-*...... for the new node
-        CASE <ls_node>-node_type.
-
-          WHEN c_node_type-or_filter_group.
-            mv_new_cond_relationship = cl_tree_model=>relat_last_child.
-
-          WHEN c_node_type-table_filter OR
-               c_node_type-table_filter_or.
-            mv_new_cond_relationship = cl_tree_model=>relat_next_sibling.
-
-          WHEN OTHERS.
-            RETURN.
-        ENDCASE.
-
-        ms_new_cond_relat_nodemap = <ls_node>.
-        mo_relat_node = lo_selected_node.
-
-*...... Create new OR condition
-        DATA(lo_edit_join_cond_view) = NEW zcl_dbbr_edit_join_cond_view(
-          iv_mode               = zcl_dbbr_edit_join_cond_view=>c_value_mode
-          it_target_entity_list = mo_join->get_possible_entities_for_f4( <ls_node>-alias )
-        ).
-
-        SET HANDLER:
-           on_created_filter_condition FOR lo_edit_join_cond_view.
-
-*...... Set the node type to 'OR' for successive create calls from view
-        mv_evt_filt_mode_node_type = c_node_type-table_filter_or.
-
-        lo_edit_join_cond_view->show( ).
-
-        CHECK lo_edit_join_cond_view->was_not_cancelled( ).
-
-*...... Retrieve the updated information from the view
-        lo_edit_join_cond_view->get_updated_condition(
-          IMPORTING
-            es_filter_condition = DATA(ls_filter_cond)
-        ).
-
-*...... Create the OR Group node if the target is and AND Filter Node
-        IF <ls_node>-node_type = c_node_type-table_filter.
-          create_or_group_node( ).
-        ENDIF.
-
-*...... Now create the OR filter condition
-        create_filter_condition_node(
-            is_filter_condition = ls_filter_cond
-            iv_node_type        = c_node_type-table_filter_or
-        ).
-      CATCH zcx_uitb_tree_error.
-    ENDTRY.
-  ENDMETHOD.
-
-
-  METHOD change_field_condition.
-    TRY.
-*...... fetch the node to get the information about the join field condition
-        DATA(lo_node) = mo_join_tree->get_nodes( )->get_node( iv_node_key ).
-        DATA(lo_join_field) = CAST lcl_join_field( lo_node->get_user_object( ) ).
-        DATA(ls_join_field) = lo_join_field->get_field( ).
-
-*...... get join table as well, to get virtual join information
-        DATA(lo_join_table) = mo_join->get_entity( lo_join_field->mv_table_alias ).
-
-*...... build target table list
-        DATA(lt_entities) = mo_join->get_possible_entities_for_f4( lo_join_field->mv_table_alias ).
-        DELETE lt_entities WHERE entity_alias = lo_join_field->mv_table_alias.
-
-*...... change the join field information
-        DATA(lo_edit_join_cond) = NEW zcl_dbbr_edit_join_cond_view(
-            if_is_new             = abap_false
-            if_allow_offset       = lo_join_table->get_tab_info( )-is_virtual
-            is_source_entity      = lo_join_table->get_tab_info( )
-            is_field_condition    = ls_join_field
-            it_target_entity_list = lt_entities
-        ).
-        lo_edit_join_cond->show( ).
-
-        CHECK lo_edit_join_cond->was_not_cancelled( ).
-        lo_edit_join_cond->get_updated_condition( IMPORTING es_field_condition  = ls_join_field ).
-
-
-*...... update the join field information
-        lo_node->get_item( c_columns-field )->set_text( |{ ls_join_field-field }| ).
-        lo_node->get_item( c_columns-comparator1 )->set_text( |{ ls_join_field-operator }| ).
-        lo_node->get_item( c_columns-value )->set_text( |{ ls_join_field-ref_table_alias }-{ ls_join_field-ref_field }| ).
-
-        CHECK lo_join_field->update_field( ls_join_field ).
-        MESSAGE s088(zdbbr_info).
-      CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
-        lx_tree_error->print_message( iv_msg_type = 'I' ).
-    ENDTRY.
-  ENDMETHOD.
-
-
-  METHOD change_filter_condition.
-    TRY.
-*...... fetch the node to get the information about the join filter condition
-        DATA(lo_node) = mo_join_tree->get_nodes( )->get_node( iv_node_key ).
-        DATA(lo_join_filter) = CAST lcl_join_filter( lo_node->get_user_object( ) ).
-        DATA(ls_join_filter) = lo_join_filter->get_filter( ).
-
-*...... build target table list
-        DATA(lt_entities) = mo_join->get_possible_entities_for_f4( lo_join_filter->mv_table_alias ).
-
-*...... change the join field information
-        DATA(lo_edit_join_cond) = NEW zcl_dbbr_edit_join_cond_view(
-            if_is_new             = abap_false
-            iv_mode               = zcl_dbbr_edit_join_cond_view=>c_value_mode
-            is_filter_condition   = ls_join_filter
-            it_target_entity_list = lt_entities
-        ).
-        lo_edit_join_cond->show( ).
-
-        CHECK lo_edit_join_cond->was_not_cancelled( ).
-        lo_edit_join_cond->get_updated_condition( IMPORTING es_filter_condition = ls_join_filter ).
-
-        CHECK lo_join_filter->update_filter( ls_join_filter ).
-        fill_value_item_content(
-          io_node             = lo_node
-          io_filter_condition = lo_join_filter
-        ).
-
-*...... update the join field information
-        lo_node->get_item( c_columns-field )->set_text( |{ ls_join_filter-tabname_alias }-{ ls_join_filter-fieldname }| ).
-        lo_node->get_item( c_columns-comparator1 )->set_text( |{ ls_join_filter-operator }| ).
-
-        MESSAGE |Filter Condition was updated| TYPE 'S'.
-      CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
-        lx_tree_error->print_message( iv_msg_type = 'I' ).
-    ENDTRY.
-  ENDMETHOD.
-
-
-  METHOD change_join_table.
-    TRY.
-*...... 1) fetch the node to get the information about the join table
-        DATA(lo_node) = mo_join_tree->get_nodes( )->get_node( iv_node_key ).
-        DATA(lo_join_table) = CAST lcl_join_table( lo_node->get_user_object( ) ).
-
-*...... 2) change the join table
-        DATA(ls_current_tab_info) = lo_join_table->get_tab_info( ).
-        DATA(lo_edit_join_table_ctrl) = NEW zcl_dbbr_edit_join_table_ctrl(
-            is_join_table = ls_current_tab_info
-            if_is_new     = abap_false
-        ).
-        lo_edit_join_table_ctrl->zif_uitb_screen_controller~call_screen( ).
-
-        CHECK lo_edit_join_table_ctrl->zif_uitb_screen_controller~was_not_cancelled( ).
-        DATA(ls_updated_tab_info) = lo_edit_join_table_ctrl->get_updated_join_table( ).
-
-        CHECK lo_join_table->set_tab_info( CORRESPONDING #( ls_updated_tab_info ) ).
-
-        IF ls_updated_tab_info-add_table_alias <> ls_current_tab_info-add_table_alias.
-          update_table_alias( EXPORTING iv_old_alias = ls_current_tab_info-add_table_alias
-                                        iv_new_alias = ls_updated_tab_info-add_table_alias ).
-        ENDIF.
-
-*...... Update field conditions if virtual join was activated
-        IF ls_updated_tab_info-is_virtual = abap_false AND
-           ls_current_tab_info-is_virtual = abap_true.
-*........ clear all offset information from associated field conditions
-          lo_join_table->clear_offset_from_fields( ).
-        ENDIF.
-
-*...... update the join type
-        lo_node->get_item( c_columns-value )->set_text(
-          COND #( WHEN ls_updated_tab_info-is_virtual = abap_true THEN
-                    |{ 'Virtual'(018) } |
-                  ELSE
-                    || ) &&
-          st_join_type_fixvals[ low = ls_updated_tab_info-join_type ]-ddtext
-        ).
-        lo_node->get_item( c_columns-hier2 )->set_text( |({ to_lower( ls_updated_tab_info-add_table_alias ) })| ).
-
-        MESSAGE |Join Table { ls_updated_tab_info-add_table } was updated| TYPE 'S'.
-      CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
-        lx_tree_error->print_message( iv_msg_type = 'I' ).
-    ENDTRY.
-  ENDMETHOD.
-
-
-  METHOD change_node.
-    TRY.
-
-        DATA(lt_selected_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
-        CHECK lines( lt_selected_nodes ) = 1.
-        DATA(lo_selected_node) = lt_selected_nodes[ 1 ].
-
-*...... retrieve information about node from map
-        ASSIGN mt_node_map[ node_key = lo_selected_node->mv_node_key ] TO FIELD-SYMBOL(<ls_node>).
-        CHECK sy-subrc = 0.
-
-*...... perform appropriate edit action according to node type
-        CASE <ls_node>-node_type.
-
-          WHEN c_node_type-table_filter OR
-               c_node_type-table_filter_or.
-            change_filter_condition( iv_node_key =  <ls_node>-node_key ).
-
-          WHEN c_node_type-table_field.
-            change_field_condition( iv_node_key =  <ls_node>-node_key ).
-
-          WHEN c_node_type-table.
-            change_join_table( iv_node_key = <ls_node>-node_key ).
-
-        ENDCASE.
-
-      CATCH zcx_uitb_tree_error.
-    ENDTRY.
-  ENDMETHOD.
-
-
-  METHOD create_columns.
-    DATA(lo_cols) = mo_join_tree->get_columns( ).
-    lo_cols->add_hierarchy_column( iv_colname = c_columns-hier2 ).
-    lo_cols->add_column(
-        iv_colname           = c_columns-field
-        iv_width             = 40
-        iv_header_text       = 'Field / Description'(002)
-    ).
-    lo_cols->add_column(
-        iv_colname           = c_columns-comparator1
-        iv_width             = 15
-        iv_alignment         = cl_item_tree_model=>align_center
-        iv_header_text       = 'Comparator'(003)
-    ).
-    lo_cols->add_column(
-        iv_colname           = c_columns-value
-        iv_width             = 40
-        iv_header_text       = 'Field2 / Value / Join Type'(004)
-    ).
-    lo_cols->add_column(
-        iv_colname           = c_columns-comparator2
-        iv_width             = 20
-        iv_alignment         = cl_item_tree_model=>align_center
-        iv_header_text       = 'Comparator 2'(005)
-    ).
-    lo_cols->add_column(
-        iv_colname           = c_columns-value2
-        iv_width             = 40
-        iv_header_text       = 'Value2'(006)
-    ).
-  ENDMETHOD.
-
 
   METHOD create_field_condition_node.
     DATA(lo_new_field_cond) = NEW lcl_join_field(
@@ -888,77 +788,74 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
-    TRY.
-        DATA(lo_new_field_cond_node) = mo_join_tree->get_nodes( )->add_node(
-            iv_node_key          = lo_new_field_cond->mv_node_key
-            iv_relationship      = mv_new_cond_relationship
-            iv_relative_node_key = ms_new_cond_relat_nodemap-node_key
-            if_folder            = abap_false
-            ir_user_object       = lo_new_field_cond
-            iv_image             = |{ icon_io_predefined_value }|
-            it_item_table        = VALUE #(
-              ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
-                class     = cl_column_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = lv_and_text )
-              ( item_name = c_columns-field
-                class     = cl_column_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = is_field_cond-field )
-              ( item_name = c_columns-comparator1
-                class     = cl_column_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = is_field_cond-operator )
-              ( item_name = c_columns-value
-                class     = cl_column_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = |{ is_field_cond-ref_table_alias }-{ is_field_cond-ref_field }| )
-            )
-        ).
+    DATA(lo_new_field_cond_node) = mo_join_tree->get_nodes( )->add_node(
+        iv_node_key          = lo_new_field_cond->mv_node_key
+        iv_relationship      = mv_new_cond_relationship
+        iv_relative_node_key = ms_new_cond_relat_nodemap-node_key
+        if_folder            = abap_false
+        ir_user_object       = lo_new_field_cond
+        iv_image             = |{ icon_io_predefined_value }|
+        it_item_table        = VALUE #(
+          ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
+            class     = cl_column_tree_model=>item_class_text
+            font      = cl_item_tree_model=>item_font_prop
+            text      = lv_and_text )
+          ( item_name = c_columns-field
+            class     = cl_column_tree_model=>item_class_text
+            font      = cl_item_tree_model=>item_font_prop
+            text      = is_field_cond-field )
+          ( item_name = c_columns-comparator1
+            class     = cl_column_tree_model=>item_class_text
+            font      = cl_item_tree_model=>item_font_prop
+            text      = is_field_cond-operator )
+          ( item_name = c_columns-value
+            class     = cl_column_tree_model=>item_class_text
+            font      = cl_item_tree_model=>item_font_prop
+            text      = |{ is_field_cond-ref_table_alias }-{ is_field_cond-ref_field }| )
+        )
+    ).
 
-*...... Build the node map entry for the new table
-        DATA(ls_field_node_map) = VALUE lty_s_node_map(
-          node_key  = lo_new_field_cond->mv_node_key
-          tabname   = ms_new_cond_relat_nodemap-tabname
-          alias     = ms_new_cond_relat_nodemap-alias
-          node_type = c_node_type-table_field
-        ).
-        mt_node_map = VALUE #( BASE mt_node_map ( ls_field_node_map ) ).
+*.. Build the node map entry for the new table
+    DATA(ls_field_node_map) = VALUE lty_s_node_map(
+      node_key  = lo_new_field_cond->mv_node_key
+      tabname   = ms_new_cond_relat_nodemap-tabname
+      alias     = ms_new_cond_relat_nodemap-alias
+      node_type = c_node_type-table_field
+    ).
+    mt_node_map = VALUE #( BASE mt_node_map ( ls_field_node_map ) ).
 
-*...... expand all nodes of new table node
-        IF mv_new_cond_relationship = cl_tree_model=>relat_last_child.
-          mo_join_tree->get_nodes( )->expand_node(
-              iv_node_key            = ms_new_cond_relat_nodemap-node_key
-              if_expand_subtree      = abap_true
-          ).
-        ENDIF.
+*.. expand all nodes of new table node
+    IF mv_new_cond_relationship = cl_tree_model=>relat_last_child.
+      mo_join_tree->get_nodes( )->expand_node(
+          iv_node_key            = ms_new_cond_relat_nodemap-node_key
+          if_expand_subtree      = abap_true
+      ).
+    ENDIF.
 
-*...... add the new condition to the join table
-        DATA(lo_join_table) = mo_join->get_entity( ms_new_cond_relat_nodemap-alias ).
-        lo_join_table->add_field(
-            io_field          = lo_new_field_cond
-            io_field_node     = lo_new_field_cond_node
-        ).
+*.. add the new condition to the join table
+    DATA(lo_join_table) = mo_join->get_entity( ms_new_cond_relat_nodemap-alias ).
+    lo_join_table->add_field(
+        io_field          = lo_new_field_cond
+        io_field_node     = lo_new_field_cond_node
+    ).
 
-*...... update node map entry and relation ship for next new entry
-        IF if_from_event = abap_true.
-          ms_new_cond_relat_nodemap = ls_field_node_map.
-          mv_new_cond_relationship = cl_tree_model=>relat_next_sibling.
-          mo_relat_node = lo_new_field_cond_node.
-        ELSE.
-          CLEAR: mv_new_cond_relationship,
-                 mo_relat_node,
-                 ms_new_cond_relat_nodemap.
-        ENDIF.
+*.. update node map entry and relation ship for next new entry
+    IF if_from_event = abap_true.
+      ms_new_cond_relat_nodemap = ls_field_node_map.
+      mv_new_cond_relationship = cl_tree_model=>relat_next_sibling.
+      mo_relat_node = lo_new_field_cond_node.
+    ELSE.
+      CLEAR: mv_new_cond_relationship,
+             mo_relat_node,
+             ms_new_cond_relat_nodemap.
+    ENDIF.
 
-        rv_node_key = lo_new_field_cond->mv_node_key.
+    rv_node_key = lo_new_field_cond->mv_node_key.
 
-        IF mf_init_mode = abap_false.
-          MESSAGE |Field Condition was created| TYPE 'S'.
-          mo_join_tree->get_selections( )->select_nodes( VALUE #( ( rv_node_key ) ) ).
-        ENDIF.
-      CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
-    ENDTRY.
+    IF mf_init_mode = abap_false.
+      MESSAGE |Field Condition was created| TYPE 'S'.
+      mo_join_tree->get_selections( )->select_nodes( VALUE #( ( rv_node_key ) ) ).
+    ENDIF.
   ENDMETHOD.
 
 
@@ -981,95 +878,93 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
       CLEAR lv_and_or.
     ENDIF.
 
-    TRY.
-        DATA(lo_new_filter_cond_node) = mo_join_tree->get_nodes( )->add_node(
-            iv_node_key          = lo_new_filter_cond->mv_node_key
-            iv_relationship      = mv_new_cond_relationship
-            iv_relative_node_key = ms_new_cond_relat_nodemap-node_key
-            if_folder            = abap_false
-            ir_user_object       = lo_new_filter_cond
-            iv_image             = |{ icon_io_predefined_value }|
-            it_item_table        = VALUE treemcitab(
-               ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
-                 class     = cl_column_tree_model=>item_class_text
-                 font      = cl_item_tree_model=>item_font_prop
-                 text      = lv_and_or )
-               ( item_name = c_columns-field
-                 class     = cl_column_tree_model=>item_class_text
-                 font      = cl_item_tree_model=>item_font_prop
-                 text      = |{ is_filter_condition-tabname_alias }-{ is_filter_condition-fieldname }| )
-               ( item_name = c_columns-comparator1
-                 class     = cl_column_tree_model=>item_class_text
-                 font      = cl_item_tree_model=>item_font_prop
-                 text      = is_filter_condition-operator )
-               ( item_name = c_columns-value
-                 class     = cl_column_tree_model=>item_class_text
-                 font      = cl_item_tree_model=>item_font_prop
-                 text      = '' )
-               ( item_name = c_columns-comparator2
-                 class     = cl_column_tree_model=>item_class_text
-                 font      = cl_item_tree_model=>item_font_prop
-                 text      = ''  )
-               ( item_name = c_columns-value2
-                 class     = cl_column_tree_model=>item_class_text
-                 font      = cl_item_tree_model=>item_font_prop
-                 text      = '' )
-            )
-        ).
+    DATA(lo_new_filter_cond_node) = mo_join_tree->get_nodes( )->add_node(
+        iv_node_key          = lo_new_filter_cond->mv_node_key
+        iv_relationship      = mv_new_cond_relationship
+        iv_relative_node_key = ms_new_cond_relat_nodemap-node_key
+        if_folder            = abap_false
+        ir_user_object       = lo_new_filter_cond
+        iv_image             = |{ icon_io_predefined_value }|
+        it_item_table        = VALUE treemcitab(
+           ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
+             class     = cl_column_tree_model=>item_class_text
+             font      = cl_item_tree_model=>item_font_prop
+             text      = lv_and_or )
+           ( item_name = c_columns-field
+             class     = cl_column_tree_model=>item_class_text
+             font      = cl_item_tree_model=>item_font_prop
+             text      = |{ is_filter_condition-tabname_alias }-{ is_filter_condition-fieldname }| )
+           ( item_name = c_columns-comparator1
+             class     = cl_column_tree_model=>item_class_text
+             font      = cl_item_tree_model=>item_font_prop
+             text      = is_filter_condition-operator )
+           ( item_name = c_columns-value
+             class     = cl_column_tree_model=>item_class_text
+             font      = cl_item_tree_model=>item_font_prop
+             text      = '' )
+           ( item_name = c_columns-comparator2
+             class     = cl_column_tree_model=>item_class_text
+             font      = cl_item_tree_model=>item_font_prop
+             text      = ''  )
+           ( item_name = c_columns-value2
+             class     = cl_column_tree_model=>item_class_text
+             font      = cl_item_tree_model=>item_font_prop
+             text      = '' )
+        )
+    ).
 
-*...... update or group for filter ( if necessary )
-        update_or_group_of_filter(
-          io_filter_node = lo_new_filter_cond_node
-          iv_node_type   = iv_node_type
-        ).
-        fill_value_item_content( io_node             = lo_new_filter_cond_node
-                                 io_filter_condition = lo_new_filter_cond      ).
+*.. update or group for filter ( if necessary )
+    update_or_group_of_filter(
+      io_filter_node = lo_new_filter_cond_node
+      iv_node_type   = iv_node_type
+    ).
+    fill_value_item_content( io_node             = lo_new_filter_cond_node
+                             io_filter_condition = lo_new_filter_cond      ).
 
-*...... Build the node map entry for the new filter condition
-        DATA(ls_field_node_map) = VALUE lty_s_node_map(
-          node_key  = lo_new_filter_cond->mv_node_key
-          tabname   = ms_new_cond_relat_nodemap-tabname
-          alias     = ms_new_cond_relat_nodemap-alias
-          node_type = iv_node_type
-        ).
-        mt_node_map = VALUE #( BASE mt_node_map ( ls_field_node_map ) ).
+*.. Build the node map entry for the new filter condition
+    DATA(ls_field_node_map) = VALUE lty_s_node_map(
+      node_key  = lo_new_filter_cond->mv_node_key
+      tabname   = ms_new_cond_relat_nodemap-tabname
+      alias     = ms_new_cond_relat_nodemap-alias
+      node_type = iv_node_type
+    ).
+    mt_node_map = VALUE #( BASE mt_node_map ( ls_field_node_map ) ).
 
-*...... expand relative node where this filter condition node will be added to
-        IF mv_new_cond_relationship = cl_tree_model=>relat_last_child.
-          mo_join_tree->get_nodes( )->expand_node(
-              iv_node_key            = ms_new_cond_relat_nodemap-node_key
-              if_expand_subtree      = abap_true
-          ).
-        ENDIF.
+*.. expand relative node where this filter condition node will be added to
+    IF mv_new_cond_relationship = cl_tree_model=>relat_last_child.
+      mo_join_tree->get_nodes( )->expand_node(
+          iv_node_key            = ms_new_cond_relat_nodemap-node_key
+          if_expand_subtree      = abap_true
+      ).
+    ENDIF.
 
-*...... add the new condition to the join table
-        DATA(lo_join_table) = mo_join->get_entity( ms_new_cond_relat_nodemap-alias ).
-*        determine_predecessor_
-        lo_join_table->add_filter(
-            io_filter         = lo_new_filter_cond
-            io_filter_node    = lo_new_filter_cond_node
-        ).
+*.. add the new condition to the join table
+    DATA(lo_join_table) = mo_join->get_entity( ms_new_cond_relat_nodemap-alias ).
+*.. determine_predecessor_
+    lo_join_table->add_filter(
+        io_filter         = lo_new_filter_cond
+        io_filter_node    = lo_new_filter_cond_node
+    ).
 
-*...... update node map entry and relation ship for next new entry
-        IF if_from_event = abap_true.
-          ms_new_cond_relat_nodemap = ls_field_node_map.
-          mv_new_cond_relationship = cl_tree_model=>relat_next_sibling.
-          mo_relat_node = lo_new_filter_cond_node.
-        ELSE.
-          CLEAR: mv_new_cond_relationship,
-                 mo_relat_node,
-                 ms_new_cond_relat_nodemap.
-        ENDIF.
+*.. update node map entry and relation ship for next new entry
+    IF if_from_event = abap_true.
+      ms_new_cond_relat_nodemap = ls_field_node_map.
+      mv_new_cond_relationship = cl_tree_model=>relat_next_sibling.
+      mo_relat_node = lo_new_filter_cond_node.
+    ELSE.
+      CLEAR: mv_new_cond_relationship,
+             mo_relat_node,
+             ms_new_cond_relat_nodemap.
+    ENDIF.
 
-        rv_node_key = lo_new_filter_cond->mv_node_key.
+    rv_node_key = lo_new_filter_cond->mv_node_key.
 
-        IF mf_init_mode = abap_false.
-          MESSAGE |Filter Condition was created| TYPE 'S'.
-          mo_join_tree->get_selections( )->select_nodes( VALUE #( ( rv_node_key ) ) ).
-        ENDIF.
-      CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
-    ENDTRY.
+    IF mf_init_mode = abap_false.
+      MESSAGE |Filter Condition was created| TYPE 'S'.
+      mo_join_tree->get_selections( )->select_nodes( VALUE #( ( rv_node_key ) ) ).
+    ENDIF.
   ENDMETHOD.
+
 
   METHOD create_join_table_node.
     DATA: lv_node_key TYPE tm_nodekey.
@@ -1084,171 +979,165 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
 
     mo_join->add_table( lo_new_join_table ).
 
-    TRY.
-        mo_join_tree->get_nodes( )->add_node(
-            iv_node_key          = lo_new_join_table->mv_node_key
-            if_folder            = abap_true
-            ir_user_object       = lo_new_join_table
-            iv_image             = zcl_dbbr_tree_helper=>get_tree_node_icon( lo_new_join_table->mv_type )
-            iv_expanded_image    = zcl_dbbr_tree_helper=>get_tree_node_icon( lo_new_join_table->mv_type )
-            it_item_table        = VALUE #(
-              ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
-                class     = cl_column_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = |{ is_join_table-add_table_raw }| )
-              ( item_name = c_columns-hier2
-                class     = cl_column_tree_model=>item_class_text
-                text      = |({ to_lower( is_join_table-add_table_alias ) })|
-                style     = zif_uitb_c_ctm_style=>inverted_blue
-                font      = cl_item_tree_model=>item_font_prop )
-              ( item_name = c_columns-field
-                class     = cl_column_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = is_join_table-table_name )
-              ( item_name = c_columns-value
-                class     = cl_column_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = COND #( WHEN is_join_table-is_virtual = abap_true THEN
-                                      |{ 'Virtual'(018) } |
-                                    ELSE
-                                      || ) &&
-                            st_join_type_fixvals[ low = is_join_table-join_type ]-ddtext
-              )
-            )
-        ).
-*...... Build the node map entry for the new table
-        mt_node_map = VALUE #( BASE mt_node_map
-          ( node_key  = lo_new_join_table->mv_node_key
-            tabname   = is_join_table-add_table
-            alias     = is_join_table-add_table_alias
-            node_type = c_node_type-table            )
-        ).
-*...... Add sub nodes for field conditions
-        lv_node_key = get_next_key( ).
-        mo_join_tree->get_nodes( )->add_node(
-            iv_node_key          = lv_node_key
-            iv_relative_node_key = lo_new_join_table->mv_node_key
-            if_folder            = abap_true
-            iv_image             = |{ icon_ps_relationship }|
-            iv_expanded_image    = |{ icon_ps_relationship }|
-            it_item_table        = VALUE #(
-              ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
-                class     = cl_column_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = |{ 'Field Conditions'(011) }| )
-            )
-        ).
-*...... Build the node map entry for the field conditions node of the table
-        mt_node_map = VALUE #( BASE mt_node_map
-          ( node_key  = lv_node_key
-            tabname   = is_join_table-add_table
-            alias     = is_join_table-add_table_alias
-            node_type = c_node_type-table_fields       )
-        ).
-*...... Add sub node for filter conditions of table
-        lv_node_key = get_next_key( ).
-        mo_join_tree->get_nodes( )->add_node(
-            iv_node_key          = lv_node_key
-            iv_relative_node_key = lo_new_join_table->mv_node_key
-            if_folder            = abap_true
-            iv_image             = |{ icon_select_with_condition }|
-            iv_expanded_image    = |{ icon_select_with_condition }|
-            it_item_table        = VALUE #(
-              ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
-                class     = cl_column_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = |{ 'Filter Conditions'(012) }| )
-            )
-        ).
-*...... Build the node map entry for the field conditions node of the table
-        mt_node_map = VALUE #( BASE mt_node_map
-          ( node_key  = lv_node_key
-            tabname   = is_join_table-add_table
-            alias     = is_join_table-add_table_alias
-            node_type = c_node_type-table_filters  )
-        ).
-*...... expand all nodes of new table node
-        mo_join_tree->get_nodes( )->expand_node(
-            iv_node_key            = lo_new_join_table->mv_node_key
-            if_expand_subtree      = abap_true
-        ).
+    mo_join_tree->get_nodes( )->add_node(
+        iv_node_key          = lo_new_join_table->mv_node_key
+        if_folder            = abap_true
+        ir_user_object       = lo_new_join_table
+        iv_image             = zcl_dbbr_tree_helper=>get_tree_node_icon( lo_new_join_table->mv_type )
+        iv_expanded_image    = zcl_dbbr_tree_helper=>get_tree_node_icon( lo_new_join_table->mv_type )
+        it_item_table        = VALUE #(
+          ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
+            class     = cl_column_tree_model=>item_class_text
+            font      = cl_item_tree_model=>item_font_prop
+            text      = |{ is_join_table-add_table_raw }| )
+          ( item_name = c_columns-hier2
+            class     = cl_column_tree_model=>item_class_text
+            text      = |({ to_lower( is_join_table-add_table_alias ) })|
+            style     = zif_uitb_c_ctm_style=>inverted_blue
+            font      = cl_item_tree_model=>item_font_prop )
+          ( item_name = c_columns-field
+            class     = cl_column_tree_model=>item_class_text
+            font      = cl_item_tree_model=>item_font_prop
+            text      = is_join_table-table_name )
+          ( item_name = c_columns-value
+            class     = cl_column_tree_model=>item_class_text
+            font      = cl_item_tree_model=>item_font_prop
+            text      = COND #( WHEN is_join_table-is_virtual = abap_true THEN
+                                  |{ 'Virtual'(018) } |
+                                ELSE
+                                  || ) &&
+                        st_join_type_fixvals[ low = is_join_table-join_type ]-ddtext
+          )
+        )
+    ).
+*.. Build the node map entry for the new table
+    mt_node_map = VALUE #( BASE mt_node_map
+      ( node_key  = lo_new_join_table->mv_node_key
+        tabname   = is_join_table-add_table
+        alias     = is_join_table-add_table_alias
+        node_type = c_node_type-table            )
+    ).
+*.. Add sub nodes for field conditions
+    lv_node_key = get_next_key( ).
+    mo_join_tree->get_nodes( )->add_node(
+        iv_node_key          = lv_node_key
+        iv_relative_node_key = lo_new_join_table->mv_node_key
+        if_folder            = abap_true
+        iv_image             = |{ icon_ps_relationship }|
+        iv_expanded_image    = |{ icon_ps_relationship }|
+        it_item_table        = VALUE #(
+          ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
+            class     = cl_column_tree_model=>item_class_text
+            font      = cl_item_tree_model=>item_font_prop
+            text      = |{ 'Field Conditions'(011) }| )
+        )
+    ).
+*.. Build the node map entry for the field conditions node of the table
+    mt_node_map = VALUE #( BASE mt_node_map
+      ( node_key  = lv_node_key
+        tabname   = is_join_table-add_table
+        alias     = is_join_table-add_table_alias
+        node_type = c_node_type-table_fields       )
+    ).
+*.. Add sub node for filter conditions of table
+    lv_node_key = get_next_key( ).
+    mo_join_tree->get_nodes( )->add_node(
+        iv_node_key          = lv_node_key
+        iv_relative_node_key = lo_new_join_table->mv_node_key
+        if_folder            = abap_true
+        iv_image             = |{ icon_select_with_condition }|
+        iv_expanded_image    = |{ icon_select_with_condition }|
+        it_item_table        = VALUE #(
+          ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
+            class     = cl_column_tree_model=>item_class_text
+            font      = cl_item_tree_model=>item_font_prop
+            text      = |{ 'Filter Conditions'(012) }| )
+        )
+    ).
+*.. Build the node map entry for the field conditions node of the table
+    mt_node_map = VALUE #( BASE mt_node_map
+      ( node_key  = lv_node_key
+        tabname   = is_join_table-add_table
+        alias     = is_join_table-add_table_alias
+        node_type = c_node_type-table_filters  )
+    ).
+*.. expand all nodes of new table node
+    mo_join_tree->get_nodes( )->expand_node(
+        iv_node_key            = lo_new_join_table->mv_node_key
+        if_expand_subtree      = abap_true
+    ).
 
-        rv_node_key = lo_new_join_table->mv_node_key.
+    rv_node_key = lo_new_join_table->mv_node_key.
 
-        IF mf_init_mode = abap_false.
-          MESSAGE |Join Table { is_join_table-add_table } was created| TYPE 'S'.
-          mo_join_tree->get_selections( )->select_nodes( VALUE #( ( rv_node_key ) ) ).
-        ENDIF.
-      CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
-    ENDTRY.
+    IF mf_init_mode = abap_false.
+      MESSAGE |Join Table { is_join_table-add_table } was created| TYPE 'S'.
+      mo_join_tree->get_selections( )->select_nodes( VALUE #( ( rv_node_key ) ) ).
+    ENDIF.
   ENDMETHOD.
 
 
   METHOD create_or_group_node.
     DATA(lv_and_text) = and.
-    TRY .
-        DATA(lf_first_child) = mo_relat_node->is_first_child( ).
-*...... if relative node is first child of it's parent then the AND text is
-*...... unecessary as the OR Group node will become the first child
-        IF mv_new_cond_relationship = cl_tree_model=>relat_next_sibling AND
-           lf_first_child = abap_true.
-          CLEAR lv_and_text.
-        ENDIF.
+    DATA(lf_first_child) = mo_relat_node->is_first_child( ).
+*.. if relative node is first child of it's parent then the AND text is
+*.. unecessary as the OR Group node will become the first child
+    IF mv_new_cond_relationship = cl_tree_model=>relat_next_sibling AND
+       lf_first_child = abap_true.
+      CLEAR lv_and_text.
+    ENDIF.
 
-        rv_node_key = get_next_key( ).
-        DATA(lo_or_group_node) = mo_join_tree->get_nodes( )->add_node(
-            iv_node_key          = rv_node_key
-            iv_relationship      = mv_new_cond_relationship
-            iv_relative_node_key = ms_new_cond_relat_nodemap-node_key
-            if_folder            = abap_true
-            iv_image             = |{ icon_tree }|
-            iv_expanded_image    = |{ icon_tree }|
-            it_item_table        = VALUE #(
-              ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
-                class     = cl_column_tree_model=>item_class_text
-                font      = cl_item_tree_model=>item_font_prop
-                text      = lv_and_text )
-            )
-        ).
-*...... Create node map entry for this node
-        DATA(ls_or_group_nm) = VALUE lty_s_node_map(
-          node_key  = rv_node_key
-          node_type = c_node_type-or_filter_group
-          tabname   = ms_new_cond_relat_nodemap-tabname
-          alias     = ms_new_cond_relat_nodemap-alias
-        ).
-        mt_node_map = VALUE #( BASE mt_node_map ( ls_or_group_nm ) ).
+    rv_node_key = get_next_key( ).
+    DATA(lo_or_group_node) = mo_join_tree->get_nodes( )->add_node(
+        iv_node_key          = rv_node_key
+        iv_relationship      = mv_new_cond_relationship
+        iv_relative_node_key = ms_new_cond_relat_nodemap-node_key
+        if_folder            = abap_true
+        iv_image             = |{ icon_tree }|
+        iv_expanded_image    = |{ icon_tree }|
+        it_item_table        = VALUE #(
+          ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
+            class     = cl_column_tree_model=>item_class_text
+            font      = cl_item_tree_model=>item_font_prop
+            text      = lv_and_text )
+        )
+    ).
+*.. Create node map entry for this node
+    DATA(ls_or_group_nm) = VALUE lty_s_node_map(
+      node_key  = rv_node_key
+      node_type = c_node_type-or_filter_group
+      tabname   = ms_new_cond_relat_nodemap-tabname
+      alias     = ms_new_cond_relat_nodemap-alias
+    ).
+    mt_node_map = VALUE #( BASE mt_node_map ( ls_or_group_nm ) ).
 
-*...... check if OR Group was created on top of Table filter, then
-*...... the table filter has to be moved under the new or group
-        IF ms_new_cond_relat_nodemap-node_type = c_node_type-table_filter.
-          IF lf_first_child = abap_false.
-            mo_relat_node->get_item( mo_join_tree->c_hierarchy_column )->set_text( '' ).
-          ENDIF.
+*.. check if OR Group was created on top of Table filter, then
+*.. the table filter has to be moved under the new or group
+    IF ms_new_cond_relat_nodemap-node_type = c_node_type-table_filter.
+      IF lf_first_child = abap_false.
+        mo_relat_node->get_item( mo_join_tree->c_hierarchy_column )->set_text( '' ).
+      ENDIF.
 
-          mo_relat_node->move_node_to(
-            iv_relative_node = rv_node_key
-            iv_relationship  = cl_tree_model=>relat_first_child
-          ).
-          update_or_group_of_filter(
-              io_filter_node      = mo_relat_node
-              iv_or_group_node    = rv_node_key
-              iv_node_type        = c_node_type-table_filter_or
-          ).
-*........ Now the former AND filter was transfered to an OR Filter, this has to be
-*........ changed in the user object and the node map entry
-          ASSIGN mt_node_map[ node_key = mo_relat_node->mv_node_key ] TO FIELD-SYMBOL(<ls_and_filter>).
-          <ls_and_filter>-node_type = c_node_type-table_filter_or.
-          CAST lcl_join_filter( mo_relat_node->get_user_object( ) )->set_and_or( or ).
-          mo_relat_node->get_item( mo_join_tree->c_hierarchy_column )->set_text( '' ).
-        ENDIF.
+      mo_relat_node->move_node_to(
+        iv_relative_node = rv_node_key
+        iv_relationship  = cl_tree_model=>relat_first_child
+      ).
+      update_or_group_of_filter(
+          io_filter_node      = mo_relat_node
+          iv_or_group_node    = rv_node_key
+          iv_node_type        = c_node_type-table_filter_or
+      ).
+*.... Now the former AND filter was transfered to an OR Filter, this has to be
+*.... changed in the user object and the node map entry
+      ASSIGN mt_node_map[ node_key = mo_relat_node->mv_node_key ] TO FIELD-SYMBOL(<ls_and_filter>).
+      <ls_and_filter>-node_type = c_node_type-table_filter_or.
+      CAST lcl_join_filter( mo_relat_node->get_user_object( ) )->set_and_or( or ).
+      mo_relat_node->get_item( mo_join_tree->c_hierarchy_column )->set_text( '' ).
+    ENDIF.
 
-*........ Update relative node information
-        ms_new_cond_relat_nodemap = ls_or_group_nm.
-        mv_new_cond_relationship = cl_tree_model=>relat_last_child.
-        mo_relat_node = lo_or_group_node.
-      CATCH zcx_uitb_tree_error.
-    ENDTRY.
+*.. Update relative node information
+    ms_new_cond_relat_nodemap = ls_or_group_nm.
+    mv_new_cond_relationship = cl_tree_model=>relat_last_child.
+    mo_relat_node = lo_or_group_node.
   ENDMETHOD.
 
 
@@ -1270,17 +1159,12 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
       on_node_ctx_menu_request  FOR lo_events,
       on_node_ctx_menu_select   FOR lo_events.
 
-    TRY.
-        create_columns( ).
+    create_columns( ).
 
-        lo_events->add_key_for_keypress( iv_key =  cl_tree_model=>key_delete ).
+    lo_events->add_key_for_keypress( iv_key =  cl_tree_model=>key_delete ).
 
-        mo_join_tree->create_tree_control( ).
-        mo_join_tree->update_view( ).
-      CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
-        lx_tree_error->print_message( ).
-        RETURN.
-    ENDTRY.
+    mo_join_tree->create_tree_control( ).
+    mo_join_tree->update_view( ).
   ENDMETHOD.
 
 
@@ -1338,57 +1222,54 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
   METHOD delete_condition.
     DATA: lv_condition_view_mode TYPE i.
 
-    TRY .
-*...... Get selected node
-        DATA(lt_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
-        CHECK lines( lt_nodes ) = 1.
-        DATA(lo_selected_node) = lt_nodes[ 1 ].
+*.. Get selected node
+    DATA(lt_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
+    CHECK lines( lt_nodes ) = 1.
+    DATA(lo_selected_node) = lt_nodes[ 1 ].
 
-*...... Retrieve information about node from map
-        ASSIGN mt_node_map[ node_key = lo_selected_node->mv_node_key ] TO FIELD-SYMBOL(<ls_node>).
-        CHECK sy-subrc = 0.
+*.. Retrieve information about node from map
+    ASSIGN mt_node_map[ node_key = lo_selected_node->mv_node_key ] TO FIELD-SYMBOL(<ls_node>).
+    CHECK sy-subrc = 0.
 
-*........ Get current owner join table for condition
-        DATA(lo_join_table) = mo_join->get_entity( <ls_node>-alias ).
+*.. Get current owner join table for condition
+    DATA(lo_join_table) = mo_join->get_entity( <ls_node>-alias ).
 
-*...... popup to confirm deletion ???
-*...... Delete the condition
-        CASE <ls_node>-node_type.
+*.. popup to confirm deletion ???
+*.. Delete the condition
+    CASE <ls_node>-node_type.
 
-          WHEN c_node_type-table_filter OR
-               c_node_type-table_filter_or.
-            lo_join_table->delete_filter( <ls_node>-node_key ).
-            delete_filter_condition(
-                io_node       = lo_selected_node
-                io_join_table = lo_join_table
-                is_node_map   = <ls_node>
-            ).
+      WHEN c_node_type-table_filter OR
+           c_node_type-table_filter_or.
+        lo_join_table->delete_filter( <ls_node>-node_key ).
+        delete_filter_condition(
+            io_node       = lo_selected_node
+            io_join_table = lo_join_table
+            is_node_map   = <ls_node>
+        ).
 
-          WHEN c_node_type-table_field.
-            delete_field_condition(
-                io_node       = lo_selected_node
-                io_join_table = lo_join_table
-                is_node_map   = <ls_node>
-            ).
+      WHEN c_node_type-table_field.
+        delete_field_condition(
+            io_node       = lo_selected_node
+            io_join_table = lo_join_table
+            is_node_map   = <ls_node>
+        ).
 
-          WHEN c_node_type-table_fields OR
-               c_node_type-table_filters.
-            delete_all_conditions(
-                io_node             = lo_selected_node
-                io_join_table       = lo_join_table
-                is_node_map         = <ls_node>
-            ).
+      WHEN c_node_type-table_fields OR
+           c_node_type-table_filters.
+        delete_all_conditions(
+            io_node             = lo_selected_node
+            io_join_table       = lo_join_table
+            is_node_map         = <ls_node>
+        ).
 
-          WHEN c_node_type-or_filter_group.
-            delete_or_group(
-              io_node       = lo_selected_node
-              io_join_table = lo_join_table
-            ).
+      WHEN c_node_type-or_filter_group.
+        delete_or_group(
+          io_node       = lo_selected_node
+          io_join_table = lo_join_table
+        ).
 
-          WHEN OTHERS.
-        ENDCASE.
-      CATCH zcx_uitb_tree_error.
-    ENDTRY.
+      WHEN OTHERS.
+    ENDCASE.
   ENDMETHOD.
 
 
@@ -1511,55 +1392,84 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
   METHOD delete_table.
     DATA: lv_condition_view_mode TYPE i.
 
-    TRY .
+    IF if_all = abap_true.
+      CHECK mt_node_map IS NOT INITIAL.
+      CHECK zcl_dbbr_appl_util=>popup_to_confirm(
+         if_suppress_query  = mf_no_query_on_deletion
+         iv_title           = |{ 'Delete all Join Tables?'(016) }|
+         iv_query           = |Are you sure you want to delete all Join tables and all their | &&
+                              | field and filter conditions?|
+         iv_icon_type       = 'ICON_MESSAGE_WARNING'
+      ) = '1'.
+      CLEAR: mt_node_map.
+      mo_join->delete_all_tables( ).
+      mo_join_tree->get_nodes( )->delete_all_nodes( ).
+    ELSE.
+*.... Get selected node
+      DATA(lt_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
+      CHECK lines( lt_nodes ) = 1.
+      DATA(lo_selected_node) = lt_nodes[ 1 ].
 
-        IF if_all = abap_true.
-          CHECK mt_node_map IS NOT INITIAL.
-          CHECK zcl_dbbr_appl_util=>popup_to_confirm(
-             if_suppress_query  = mf_no_query_on_deletion
-             iv_title           = |{ 'Delete all Join Tables?'(016) }|
-             iv_query           = |Are you sure you want to delete all Join tables and all their | &&
-                                  | field and filter conditions?|
-             iv_icon_type       = 'ICON_MESSAGE_WARNING'
-          ) = '1'.
-          CLEAR: mt_node_map.
-          mo_join->delete_all_tables( ).
-          mo_join_tree->get_nodes( )->delete_all_nodes( ).
-        ELSE.
-*........ Get selected node
-          DATA(lt_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
-          CHECK lines( lt_nodes ) = 1.
-          DATA(lo_selected_node) = lt_nodes[ 1 ].
+*.... Retrieve information about node from map
+      ASSIGN mt_node_map[ node_key = lo_selected_node->mv_node_key ] TO FIELD-SYMBOL(<ls_node>).
+      CHECK sy-subrc = 0.
 
-*........ Retrieve information about node from map
-          ASSIGN mt_node_map[ node_key = lo_selected_node->mv_node_key ] TO FIELD-SYMBOL(<ls_node>).
-          CHECK sy-subrc = 0.
+      CASE <ls_node>-node_type.
 
-          CASE <ls_node>-node_type.
-
-            WHEN c_node_type-table.
-            WHEN OTHERS.
-              RETURN.
-          ENDCASE.
-*........ popup to confirm deletion
-          CHECK zcl_dbbr_appl_util=>popup_to_confirm(
-             if_suppress_query = mf_no_query_on_deletion
-             iv_title          = |{ 'Delete Join Table?'(014) }|
-             iv_query          = |Should the Join Table { <ls_node>-tabname } really be deleted? | &&
-                                 |All dependent filter and field conditions used in other Join Tables | &&
-                                 |will be deleted as well!|
-             iv_icon_type      = 'ICON_MESSAGE_WARNING'
-          ) = '1'.
-*........ Delete the table
-          mo_join->delete_table( <ls_node>-tabname ).
-*........ delete the node
-          mo_join_tree->get_nodes( )->delete_node( <ls_node>-node_key ).
-*........ the node map entry also has to be deleted
-          DELETE mt_node_map WHERE node_key = <ls_node>-node_key.
-        ENDIF.
-      CATCH zcx_uitb_tree_error.
-    ENDTRY.
+        WHEN c_node_type-table.
+        WHEN OTHERS.
+          RETURN.
+      ENDCASE.
+*.... popup to confirm deletion
+      CHECK zcl_dbbr_appl_util=>popup_to_confirm(
+         if_suppress_query = mf_no_query_on_deletion
+         iv_title          = |{ 'Delete Join Table?'(014) }|
+         iv_query          = |Should the Join Table { <ls_node>-tabname } really be deleted? | &&
+                             |All dependent filter and field conditions used in other Join Tables | &&
+                             |will be deleted as well!|
+         iv_icon_type      = 'ICON_MESSAGE_WARNING'
+      ) = '1'.
+*.... Delete the table
+      mo_join->delete_table( <ls_node>-tabname ).
+*.... delete the node
+      mo_join_tree->get_nodes( )->delete_node( <ls_node>-node_key ).
+*.... the node map entry also has to be deleted
+      DELETE mt_node_map WHERE node_key = <ls_node>-node_key.
+    ENDIF.
   ENDMETHOD.
+
+
+  METHOD do_before_dynpro_output.
+    io_callback->set_title( |{ 'DB Browser - Joins for'(020) } { mo_join->mv_primary_entity } ({ to_lower( mo_join->mv_primary_entity_alias ) })| ).
+    io_callback->deactivate_function( zif_uitb_c_gui_screen=>c_functions-save ).
+    io_callback->map_fkey_functions( VALUE #(
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f1
+        text            = |{ 'Focus on Tree' }|
+        mapped_function = c_functions-focus_on_tree )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f8
+        mapped_function = c_functions-transfer_data
+        text            = |{ 'Update Join Definition'(009) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f8
+        mapped_function = c_functions-show_sql
+        text            = |{ 'Show SQL FROM'(017) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f9
+        mapped_function = c_functions-show_help
+        text            = |{ 'Help'(027) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f5
+        mapped_function = c_functions-add_table
+        text            = |{ 'New Join Table'(028) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f6
+        mapped_function = c_functions-add_and_condition
+        text            = |{ 'New AND Condition'(029) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f7
+        mapped_function = c_functions-add_or_condition
+        text            = |{ 'New OR Condition'(030) }| )
+      ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f5
+        mapped_function = c_functions-change_prim_tab_alias
+        text            = |{ 'Change Alias of Primary Table'(023) }| ) )
+    ).
+  ENDMETHOD.
+
 
   METHOD fill_tree_with_join.
     FIELD-SYMBOLS: <ls_join_def> TYPE zdbbr_join_def.
@@ -1677,73 +1587,85 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
 
 
   METHOD fill_value_item_content.
-    DATA: lv_value1 TYPE ZSAT_VALUE,
-          lv_value2 TYPE ZSAT_VALUE.
+    DATA: lv_value1 TYPE zsat_value,
+          lv_value2 TYPE zsat_value.
 
     DATA(ls_filter) = io_filter_condition->get_filter( ).
 
-    TRY.
+    DATA(lo_value1_item) = io_node->get_item( c_columns-value ).
+    lo_value1_item->set_style( zif_uitb_c_ctm_style=>default ).
 
-        DATA(lo_value1_item) = io_node->get_item( c_columns-value ).
-        lo_value1_item->set_style( zif_uitb_c_ctm_style=>default ).
+    DATA(lo_value2_item) = io_node->get_item( c_columns-value2 ).
+    lo_value2_item->set_style( zif_uitb_c_ctm_style=>default ).
 
-        DATA(lo_value2_item) = io_node->get_item( c_columns-value2 ).
-        lo_value2_item->set_style( zif_uitb_c_ctm_style=>default ).
+    DATA(lo_comparator2_item) = io_node->get_item( c_columns-comparator2 ).
 
-        DATA(lo_comparator2_item) = io_node->get_item( c_columns-comparator2 ).
+    IF ls_filter-operator = zif_sat_c_operator=>between.
+      lo_comparator2_item->set_text( 'and' ).
+    ELSE.
+      lo_comparator2_item->set_text( '' ).
+    ENDIF.
 
-        IF ls_filter-operator = ZIF_SAT_C_OPERATOR=>between.
-          lo_comparator2_item->set_text( 'and' ).
-        ELSE.
-          lo_comparator2_item->set_text( '' ).
+    CASE ls_filter-value_type.
+
+      WHEN zif_sat_c_join_cond_val_type=>typed_input.
+        lv_value1 = ls_filter-value.
+
+        IF ls_filter-operator = zif_sat_c_operator=>between.
+          lv_value2 = ls_filter-value2.
         ENDIF.
 
-        CASE ls_filter-value_type.
+*...... Convert into display format for better readability
+        zcl_sat_data_converter=>convert_selopt_to_disp_format(
+          EXPORTING
+            iv_tabname   = ls_filter-tabname
+            iv_fieldname = ls_filter-fieldname
+          CHANGING
+            cv_value1    = lv_value1
+            cv_value2    = lv_value2
+        ).
 
-          WHEN ZIF_SAT_C_JOIN_COND_VAL_TYPE=>typed_input.
-            lv_value1 = ls_filter-value.
+        lo_value1_item->set_text( |'{ lv_value1 }'| ).
+        IF ls_filter-operator = zif_sat_c_operator=>between.
+          lo_value2_item->set_text( |'{ lv_value2 }'| ).
+        ELSE.
+          lo_value2_item->set_text( || ).
+        ENDIF.
 
-            IF ls_filter-operator = ZIF_SAT_C_OPERATOR=>between.
-              lv_value2 = ls_filter-value2.
-            ENDIF.
+      WHEN zif_sat_c_join_cond_val_type=>system_value_input.
+        lo_value2_item->set_text( '' ).
+*...... Display the current system value
+        lo_value1_item->set_text(
+          |{ ls_filter-value } | &&
+          |({ zcl_sat_system_helper=>get_disp_val_for_system_va( |{ ls_filter-value }| ) })|
+        ).
+        lo_value1_item->set_style( zif_uitb_c_ctm_style=>light_yellow ).
 
-*.......... Convert into display format for better readability
-            ZCL_SAT_DATA_CONVERTER=>convert_selopt_to_disp_format(
-              EXPORTING
-                iv_tabname   = ls_filter-tabname
-                iv_fieldname = ls_filter-fieldname
-              CHANGING
-                cv_value1    = lv_value1
-                cv_value2    = lv_value2
-            ).
-
-            lo_value1_item->set_text( |'{ lv_value1 }'| ).
-            IF ls_filter-operator = ZIF_SAT_C_OPERATOR=>between.
-              lo_value2_item->set_text( |'{ lv_value2 }'| ).
-            ELSE.
-              lo_value2_item->set_text( || ).
-            ENDIF.
-
-          WHEN ZIF_SAT_C_JOIN_COND_VAL_TYPE=>system_value_input.
-            lo_value2_item->set_text( '' ).
-*.......... Display the current system value
-
-            lo_value1_item->set_text(
-              |{ ls_filter-value } | &&
-              |({ ZCL_SAT_SYSTEM_HELPER=>get_disp_val_for_system_va( |{ ls_filter-value }| ) })|
-            ).
-            lo_value1_item->set_style( zif_uitb_c_ctm_style=>light_yellow ).
-
-        ENDCASE.
-
-      CATCH zcx_uitb_tree_error.
-    ENDTRY.
+    ENDCASE.
   ENDMETHOD.
 
 
   METHOD get_next_key.
     ADD 1 TO mv_current_key_count.
     result = |{ mv_current_key_count }|.
+  ENDMETHOD.
+
+
+  METHOD handle_exit_request.
+*... 1) check if there are changes in the join definition
+    IF mo_join->has_changes( ).
+*.... query user if he really wants to leave screen regardless of possible
+*.... data loss
+      IF zcl_dbbr_appl_util=>popup_to_confirm(
+              iv_title                 = 'Leave'
+              iv_query                 = |There are unsaved changes in the Join definion. | &&
+                                         |Are you sure you want to leave the Screen?|
+              iv_icon_type             = 'ICON_MESSAGE_QUESTION'
+          ) <> '1'.
+        io_callback->cancel_exit( ).
+      ELSE.
+      ENDIF.
+    ENDIF.
   ENDMETHOD.
 
 
@@ -1778,13 +1700,7 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
   METHOD on_delete_request_from_join.
     CHECK ev_node_key IS NOT INITIAL.
 
-    TRY .
-        mo_join_tree->get_nodes( )->delete_node( ev_node_key ).
-      CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
-        lx_tree_error->print_message(
-            iv_msg_type        = 'I'
-        ).
-    ENDTRY.
+    mo_join_tree->get_nodes( )->delete_node( ev_node_key ).
   ENDMETHOD.
 
 
@@ -1908,11 +1824,8 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
            c_node_type-table_fields OR
            c_node_type-or_filter_group.
 
-        TRY.
-            DATA(lo_node) = mo_join_tree->get_nodes( )->get_node( <ls_node>-node_key ).
-            lo_node->toggle( ).
-          CATCH zcx_uitb_tree_error.
-        ENDTRY.
+        DATA(lo_node) = mo_join_tree->get_nodes( )->get_node( <ls_node>-node_key ).
+        lo_node->toggle( ).
 
     ENDCASE.
 
@@ -1947,8 +1860,8 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
   METHOD test_join.
     DATA(ls_join_def) = mo_join->to_structure( mo_join_tree ).
 
-    DATA(lt_from_clause) = ZCL_SAT_JOIN_HELPER=>build_from_clause_for_join_def(
-      is_join_def = CORRESPONDING #( deep ls_join_def )
+    DATA(lt_from_clause) = zcl_sat_join_helper=>build_from_clause_for_join_def(
+      is_join_def = CORRESPONDING #( DEEP ls_join_def )
     ).
 
     LOOP AT lt_from_clause ASSIGNING FIELD-SYMBOL(<lv_from>).
@@ -1977,6 +1890,15 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD update_node_values.
+    LOOP AT it_nodes_to_update ASSIGNING FIELD-SYMBOL(<ls_node_to_update>).
+      DATA(lo_node) = mo_join_tree->get_nodes( )->get_node( <ls_node_to_update>-node_key ).
+      DATA(lo_item) = lo_node->get_item( <ls_node_to_update>-item_key ).
+      lo_item->set_text( |{ <ls_node_to_update>-new_value }| ).
+    ENDLOOP.
+  ENDMETHOD.
+
+
   METHOD update_or_group_of_filter.
     CHECK iv_node_type = c_node_type-table_filter OR
           iv_node_type = c_node_type-table_filter_or.
@@ -1993,39 +1915,6 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
                 ELSE
                   io_filter_node->get_parent( )->mv_node_key )
       ).
-    ENDIF.
-  ENDMETHOD.
-
-
-  METHOD validate_join.
-    mo_join->validate( ).
-  ENDMETHOD.
-
-
-  METHOD change_primary_table_alias.
-    DATA(lv_new_alias) = zcl_dbbr_appl_util=>popup_get_value(
-        is_field = VALUE #( tabname = 'ZDBBR_JOINT' fieldname = 'ADD_TABLE_ALIAS' fieldtext = |{ 'Alias' }| field_obl = abap_true value = mo_join->mv_primary_entity_alias )
-        iv_title = |{ 'Change Alias of Primary Table'(023) }|
-    ).
-
-    IF lv_new_alias IS NOT INITIAL AND
-       mo_join->mv_primary_entity_alias <> lv_new_alias.
-
-*.... Check if this alias is free to use
-      IF NOT zcl_dbbr_entity_alias_util=>add_entity_alias( |{ lv_new_alias }| ).
-        MESSAGE |Alias { lv_new_alias } is already in use!| TYPE 'S' DISPLAY LIKE 'E'.
-        return.
-      ELSE.
-        zcl_dbbr_entity_alias_util=>unregister_alias( |{ mo_join->mv_primary_entity_alias }| ).
-      ENDIF.
-
-      DATA(lt_nodes_to_update) = mo_join->update_alias( |{ lv_new_alias }| ).
-
-      update_node_values( lt_nodes_to_update ).
-
-      MESSAGE s089(zdbbr_info).
-
-      cl_gui_cfw=>set_new_ok_code( space ).
     ENDIF.
   ENDMETHOD.
 
@@ -2048,16 +1937,69 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
     update_node_values( lt_nodes_to_update ).
   ENDMETHOD.
 
-  METHOD update_node_values.
-    LOOP AT it_nodes_to_update ASSIGNING FIELD-SYMBOL(<ls_node_to_update>).
-      TRY.
-          DATA(lo_node) = mo_join_tree->get_nodes( )->get_node( <ls_node_to_update>-node_key ).
-          DATA(lo_item) = lo_node->get_item( <ls_node_to_update>-item_key ).
-          lo_item->set_text( |{ <ls_node_to_update>-new_value }| ).
-        CATCH zcx_uitb_tree_error.
-          "handle exception
-      ENDTRY.
-    ENDLOOP.
+
+  METHOD validate_join.
+    mo_join->validate( ).
   ENDMETHOD.
 
+
+  METHOD was_updated.
+    result = mf_was_updated.
+  ENDMETHOD.
+
+
+  METHOD zif_uitb_gui_command_handler~execute_command.
+    TRY.
+        CASE io_command->mv_function.
+
+          WHEN c_functions-change_prim_tab_alias.
+            change_primary_table_alias( ).
+
+          WHEN c_functions-transfer_data.
+            validate_join( ).
+            transfer_join( ).
+            leave_screen( ).
+
+          WHEN c_functions-show_sql.
+            test_join( ).
+
+          WHEN c_functions-show_help.
+            zcl_dbbr_help_repository=>show_help( zcl_dbbr_help_repository=>c_help_id-join_manager ).
+
+          WHEN c_functions-add_table.
+            add_new_join_table( ).
+
+          WHEN c_functions-delete_table.
+            delete_table( ).
+
+          WHEN c_functions-delete_all_tables.
+            delete_table( if_all = abap_true ).
+
+          WHEN c_functions-expand_all_nodes.
+            mo_join_tree->get_nodes( )->expand_root_nodes( ).
+
+          WHEN c_functions-collapse_all_nodes.
+            mo_join_tree->get_nodes( )->collapse_all_nodes( ).
+
+          WHEN c_functions-add_and_condition.
+            add_and_condition( ).
+
+          WHEN c_functions-add_or_condition.
+            add_or_condition( ).
+
+          WHEN c_functions-edit_condition.
+            change_node( ).
+
+          WHEN c_functions-delete_condition.
+            delete_condition( ).
+
+          WHEN c_functions-focus_on_tree.
+            mo_join_tree->zif_uitb_gui_control~focus( ).
+        ENDCASE.
+      CATCH zcx_sat_validation_exception INTO DATA(lx_validation_error).
+        lx_validation_error->print_message(
+            iv_msg_type  = 'I'
+        ).
+    ENDTRY.
+  ENDMETHOD.
 ENDCLASS.

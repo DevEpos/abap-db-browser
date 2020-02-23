@@ -46,8 +46,6 @@ CLASS zcl_dbbr_formula_editor DEFINITION
       END OF c_functions.
     CLASS-DATA sv_dummy_form_text TYPE string.
 
-    DATA mr_template_program TYPE REF TO zif_uitb_template_prog.
-
     DATA mf_formula_deleted TYPE abap_bool.
     DATA mo_template_tm TYPE REF TO zcl_dbbr_fe_dnd_tree_model.
     DATA mv_display_mode TYPE zdbbr_display_mode.

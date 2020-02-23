@@ -107,6 +107,7 @@ CLASS zcl_dbbr_custom_f4_map IMPLEMENTATION.
                                                         fieldname = iv_fieldname ] ) ).
 
     CHECK rf_exists = abap_false.
+
     IF iv_rollname IS INITIAL AND is_built_in_type IS INITIAL.
       RETURN.
     ENDIF.
@@ -114,9 +115,10 @@ CLASS zcl_dbbr_custom_f4_map IMPLEMENTATION.
 *.. Check cache for already read F4 that match the passed data type
     IF iv_rollname IS NOT INITIAL.
       rf_exists = xsdbool( line_exists( mt_custom_f4_by_dt_map[ rollname = iv_rollname ] ) ).
+*.... If the requesting field has a data element no further checks against
+*.... the buffered value helps will be performed
+      RETURN.
     ENDIF.
-
-    CHECK rf_exists = abap_false.
 
     rf_exists = xsdbool( line_exists( mt_custom_f4_by_dt_map[ datatype = is_built_in_type-datatype
                                                               length   = is_built_in_type-leng     ] ) ).

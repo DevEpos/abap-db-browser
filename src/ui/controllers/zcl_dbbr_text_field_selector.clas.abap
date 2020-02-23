@@ -23,8 +23,7 @@ CLASS zcl_dbbr_text_field_selector DEFINITION
   PROTECTED SECTION.
     METHODS get_output_table
         REDEFINITION.
-    METHODS set_selected_element
-        REDEFINITION.
+
     METHODS adjust_column
         REDEFINITION.
     METHODS matches_filter
@@ -172,12 +171,6 @@ CLASS zcl_dbbr_text_field_selector IMPLEMENTATION.
        <ls_text_field>-fieldname CS iv_filter.
       rf_matches = abap_true.
     ENDIF.
-  ENDMETHOD.
-
-
-  METHOD set_selected_element.
-    DATA(lr_s_row) = REF #( mt_text_fields[ iv_row ] ).
-    zcl_uitb_appl_util=>toggle( CHANGING value = lr_s_row->mark ).
   ENDMETHOD.
 
   METHOD has_selections.
