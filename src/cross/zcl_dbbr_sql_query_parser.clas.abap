@@ -35,7 +35,7 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
       BEGIN OF c_keywords,
         select           TYPE string VALUE 'SELECT',
         count            TYPE string VALUE 'COUNT',
-        count_pattern    TYPE string VALUE 'COUNT*',
+        count_pattern    TYPE string VALUE 'COUNT(*',
         count_star       TYPE string VALUE 'COUNT(*)',
         data             TYPE string VALUE 'DATA',
         where            TYPE string VALUE 'WHERE',

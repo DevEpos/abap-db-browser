@@ -2,9 +2,10 @@ CLASS lcl_choose_col_view IMPLEMENTATION.
 
   METHOD constructor.
     super->constructor(
-        iv_title         = 'Select Column to scroll to'
-        iv_filter_prompt = 'Filter Column'
+        iv_title          = 'Select Column to scroll to'
+        iv_filter_prompt  = 'Filter Column'
         if_use_alv_filter = abap_true
+        iv_initial_focus  = c_focus_on_filter
     ).
 
     mt_col = it_col.
@@ -25,12 +26,6 @@ CLASS lcl_choose_col_view IMPLEMENTATION.
     CLEAR mo_alv.
 
     rv_col = mv_chosen_field.
-  ENDMETHOD.
-
-  METHOD create_content.
-    super->create_content( io_container ).
-
-    cl_gui_control=>set_focus( mo_filter_input ).
   ENDMETHOD.
 
   METHOD matches_filter.

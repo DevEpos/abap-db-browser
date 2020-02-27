@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_SQLE_SB_ENTITY_TREE</CLSNAME>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Entity Tree in SQL Editor Sidebar</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_SB_ENTITY_TREE</CLSNAME>
+     <CMPNAME>CREATE_NODE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Create tree node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_SB_ENTITY_TREE</CLSNAME>
+     <CMPNAME>CREATE_TREE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Creates the tree model and control</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_SB_ENTITY_TREE</CLSNAME>
+     <CMPNAME>ON_EXPAND_NO_CHILDREN</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when children are to be loaded lazily</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_SB_ENTITY_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_CONTEXT_MENU_REQUEST</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for requesting a context menu for a node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_SB_ENTITY_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_CONTEXT_MENU_SELECT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for when the context menu entry was chosen</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_SB_ENTITY_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_DOUBLE_CLICK</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for double click on node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_SB_ENTITY_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_ENTER_KEY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for ENTER key press on node</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_SB_ENTITY_TREE</CLSNAME>
+     <CMPNAME>ON_NODE_KEY_PRESS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for node key press</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_SB_ENTITY_TREE</CLSNAME>
+     <CMPNAME>ON_TOOLBAR_BUTTON</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Handler for pressed toolbar button</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

@@ -40,6 +40,7 @@ CLASS zcl_dbbr_sql_query_selctn_util DEFINITION
     DATA mr_query_result TYPE REF TO data.
     DATA mv_execution_time_str TYPE string.
     DATA mt_query_result_col TYPE zdbbr_dp_col_metadata_t.
+    DATA mv_query_history_id TYPE zdbbr_sql_query_history_id.
 
     "! <p class="shorttext synchronized" lang="en">Parse/Set parameters for query</p>
     METHODS set_parameters_in_query.
@@ -108,6 +109,13 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
         ev_execution_time = mv_execution_time_str
         er_data           = mr_query_result
     ).
+
+    IF mv_query_history_id IS NOT INITIAL.
+      zcl_dbbr_sql_query_factory=>update_execution_time(
+          iv_query_id  = mv_query_history_id
+          iv_exec_time = CONV #( replace( val = mv_execution_time_str sub = ' ms' with = '' ) )
+      ).
+    ENDIF.
 
     IF mr_query_result IS INITIAL.
       raise_no_data_event( ).
@@ -236,6 +244,12 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
     IF lv_message IS NOT INITIAL.
       MESSAGE |{ lv_message }| TYPE 'I' DISPLAY LIKE lv_message_type.
       CHECK lv_message_type <> 'E'.
+    ELSEIF mv_entity_id IS INITIAL.
+*.... Create history entry
+      mv_query_history_id = zcl_dbbr_sql_query_factory=>create_history_entry(
+        iv_query_string = mo_query->ms_data-source
+        iv_exec_time    = CONV #( replace( val = mv_execution_time_str sub = ' ms' with = '' ) )
+      ).
     ENDIF.
 
     rf_success = abap_true.

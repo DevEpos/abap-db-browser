@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_DBBR_SQLE_ENTITY_BROWSER</CLSNAME>
+    <CLSNAME>ZCL_DBBR_SQLE_SB_HISTORY</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Entity Browser for SQL Editor</DESCRIPT>
+    <DESCRIPT>Query history in SQL Query Editor</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
@@ -13,10 +13,10 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_SQLE_ENTITY_BROWSER</CLSNAME>
-     <CMPNAME>CONSTRUCTOR</CMPNAME>
+     <CLSNAME>ZCL_DBBR_SQLE_SB_HISTORY</CLSNAME>
+     <CMPNAME>REFRESH_HISTORY</CMPNAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Create new instance of alv field control</DESCRIPT>
+     <DESCRIPT>Refresh history entries</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

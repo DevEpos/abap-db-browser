@@ -48,10 +48,15 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
     "! <p class="shorttext synchronized" lang="en">Tests the current query string</p>
     METHODS test_query.
 
+    "! <p class="shorttext synchronized" lang="en">Protect the given lines</p>
+    METHODS protect_lines
+      IMPORTING
+        it_lines TYPE cl_gui_sourceedit=>linetabs OPTIONAL.
   PRIVATE SECTION.
     CONSTANTS:
       BEGIN OF c_functions,
         check                TYPE ui_func VALUE 'CHECK',
+        toggle_side_bar      TYPE ui_func VALUE 'TOGGLE_SIDE_BAR',
         focus_on_editor      TYPE ui_func VALUE 'FOCUS_ON_EDITOR',
         test_query           TYPE ui_func VALUE 'TEST',
         format_source        TYPE ui_func VALUE 'PRETTY_PRINTER',
@@ -64,8 +69,11 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
     DATA mf_no_edit_allowed TYPE abap_bool.
     DATA mf_modified TYPE abap_bool.
     DATA mv_last_saved_query TYPE zsat_query_name.
-    DATA: mo_splitter       TYPE REF TO zcl_uitb_gui_splitter_cont,
-          mo_entity_browser TYPE REF TO zcl_dbbr_sqle_entity_browser.
+    DATA mv_last_tested_query TYPE string.
+    DATA mo_splitter TYPE REF TO zcl_uitb_gui_splitter_cont.
+    DATA mo_side_bar TYPE REF TO zcl_dbbr_sqle_sidebar.
+    METHODS toggle_side_bar.
+    METHODS init_side_bar.
 ENDCLASS.
 
 
@@ -97,13 +105,18 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
   METHOD create_content.
     mo_splitter = NEW zcl_uitb_gui_splitter_cont(
         iv_elements  = 2
+        iv_mode      = zcl_uitb_gui_splitter_cont=>c_mode-cols
         io_parent    = io_container
-        iv_size      = '20:80'
+        iv_size      = '410:*'
     ).
     mo_splitter->set_element_visibility( iv_element = 1 if_visible = abap_false ).
     create_control_toolbar(
       EXPORTING io_parent    = mo_splitter->get_container( 2 )
                 it_button    = VALUE #(
+                  ( function  = c_functions-toggle_side_bar
+                    icon      = icon_toggle_display
+                    quickinfo = |{ 'Toggle Side Bar'(006) }| )
+                  ( butn_type = cntb_btype_sep )
                   ( function  = c_functions-check
                     icon      = icon_check
                     quickinfo = |{ 'Check Syntax'(001) }| )
@@ -133,21 +146,22 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
       iv_line_width  = 250
     ).
 
-    mo_editor->set_text( ms_current_query-source ).
+    mo_editor->set_text( iv_text = ms_current_query-source  ).
 
     IF mf_no_edit_allowed = abap_true.
       mo_editor->set_editable( abap_false ).
     ENDIF.
 
-    mo_entity_browser = NEW zcl_dbbr_sqle_entity_browser(
-      io_parent_container = mo_splitter->get_container( 1 )
-      io_parent_view      = me
-    ).
+    toggle_side_bar( ).
 
   ENDMETHOD.
 
   METHOD zif_uitb_gui_composite_view~set_child_visibility.
 *.. Let's see if we really need it here
+  ENDMETHOD.
+
+  METHOD zif_uitb_gui_composite_view~execute_command.
+    zif_uitb_gui_command_handler~execute_command( io_command ).
   ENDMETHOD.
 
   METHOD zif_uitb_gui_command_handler~execute_command.
@@ -181,6 +195,15 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
 
       WHEN c_functions-check.
         check_query( ).
+
+      WHEN c_functions-toggle_side_bar.
+        toggle_side_bar( ).
+
+      WHEN zcl_uitb_gui_code_editor=>c_command_ids-replace_content.
+        ASSIGN io_command->mr_params->* TO FIELD-SYMBOL(<lv_content>).
+        IF sy-subrc = 0.
+          mo_editor->set_text( if_new_content = abap_true iv_text =  <lv_content> ).
+        ENDIF.
     ENDCASE.
   ENDMETHOD.
 
@@ -192,6 +215,7 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
       ( fkey = zif_uitb_c_gui_screen=>c_functions-shift_f1 mapped_function = c_functions-format_source        text = |{ TEXT-003 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-f8       mapped_function = c_functions-test_query           text = |{ TEXT-002 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-f5       mapped_function = c_functions-show_code_completion text = |{ TEXT-004 }| )
+      ( fkey = zif_uitb_c_gui_screen=>c_functions-f9       mapped_function = c_functions-toggle_side_bar      text = |{ TEXT-006 }| )
     ) ).
 
     IF mf_no_edit_allowed = abap_true.
@@ -205,6 +229,8 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
 
   METHOD handle_exit_request.
     DATA: lv_prompt_query TYPE string.
+
+    CHECK mf_standalone_mode = abap_false.
 
 *... Check if content was modified
     IF mo_editor IS BOUND AND is_modified( ).
@@ -328,6 +354,9 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
     rv_query_name = mv_last_saved_query.
   ENDMETHOD.
 
+  METHOD protect_lines.
+    mo_editor->protect_lines( it_lines ).
+  ENDMETHOD.
 
   METHOD test_query.
     DATA(lv_query) = mo_editor->get_text( ).
@@ -336,7 +365,29 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
       RETURN.
     ENDIF.
     zcl_dbbr_custom_query_tester=>test_query( lv_query ).
+
+*.. Trigger history refresh
+    IF mo_side_bar IS BOUND.
+      mo_side_bar->zif_uitb_gui_composite_view~execute_command(
+          NEW zcl_uitb_gui_simple_command( iv_function = zif_dbbr_c_sql_query_editor=>fc_refresh_history )
+      ).
+    ENDIF.
+
+    mv_last_tested_query = lv_query.
   ENDMETHOD.
 
+
+  METHOD toggle_side_bar.
+    init_side_bar( ).
+    mo_splitter->toggle_visibility( 1 ).
+  ENDMETHOD.
+
+  METHOD init_side_bar.
+    CHECK mo_side_bar IS INITIAL.
+    mo_side_bar = NEW #(
+      io_parent_container = mo_splitter->get_container( 1 )
+      io_parent_view      = me
+    ).
+  ENDMETHOD.
 
 ENDCLASS.
