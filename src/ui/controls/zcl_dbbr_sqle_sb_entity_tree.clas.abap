@@ -606,7 +606,14 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
         ).
 
       WHEN c_node_type-cds_view.
-        DATA(lo_cds_view) = zcl_sat_cds_view_factory=>read_cds_view( iv_cds_view = |{ ir_user_data->entity_id }| ).
+        TRY.
+            DATA(lo_cds_view) = zcl_sat_cds_view_factory=>read_cds_view( iv_cds_view = to_upper( ir_user_data->entity_id ) ).
+          CATCH zcx_sat_data_read_error INTO DATA(lx_data_read).
+            lx_data_read->zif_sat_exception_message~print( ).
+*.......... Delete the entity if for some reason it no longer exists
+            mo_tree->get_nodes( )->delete_node( io_node->mv_node_key ).
+            RETURN.
+        ENDTRY.
         fill_cds_node(
           io_node        = io_node
           io_cds_view    = lo_cds_view
