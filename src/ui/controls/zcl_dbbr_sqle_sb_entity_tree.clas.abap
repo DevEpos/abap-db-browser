@@ -381,6 +381,9 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
             WHEN c_node_type-parameter.
               lv_clipboard_content = |{ <ls_user_data>-fieldname } = '{ <ls_user_data>-param_default_value }'{ lv_sep }|.
 
+            WHEN c_node_type-field.
+              lv_clipboard_content = |{ <ls_user_data>-fieldname }{ lv_sep }|.
+
             WHEN OTHERS.
               lv_clipboard_content = |{ lo_node->get_item( iv_item_name = zcl_uitb_column_tree_model=>c_hierarchy_column )->get_text( ) }{ lv_sep }|.
           ENDCASE.
@@ -770,8 +773,7 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
         is_user_data       = VALUE #(
            root_key    = lv_root_key
            entity_id   = io_cds_view->get_header( )-entityname
-           fieldname   = lv_field_prefix && <ls_column>-fieldname_raw &&
-                         COND #( WHEN lv_field_prefix IS NOT INITIAL THEN | AS { <ls_column>-fieldname_raw }| )
+           fieldname   = lv_field_prefix && <ls_column>-fieldname_raw
            description = <ls_field>-fieldtext
            node_type   = c_node_type-field
         )

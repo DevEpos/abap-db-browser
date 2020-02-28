@@ -54,6 +54,18 @@
      <ENTRY>Synchronize data sources</ENTRY>
      <LENGTH>48</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>008</KEY>
+     <ENTRY>Insert from Clipboard with indentation</ENTRY>
+     <LENGTH>76</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>009</KEY>
+     <ENTRY>Insert with indentations</ENTRY>
+     <LENGTH>48</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>

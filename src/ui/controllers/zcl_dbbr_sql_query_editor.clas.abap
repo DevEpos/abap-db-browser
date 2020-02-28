@@ -59,7 +59,9 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
         toggle_side_bar      TYPE ui_func VALUE 'TOGGLE_SIDE_BAR',
         load_entities        TYPE ui_func VALUE 'LOAD_ENTITIES',
         focus_on_editor      TYPE ui_func VALUE 'FOCUS_ON_EDITOR',
+        focus_on_sidebar     TYPE ui_func VALUE 'FOCUS_ON_SIDEBAR',
         test_query           TYPE ui_func VALUE 'TEST',
+        insert_with_indent   TYPE ui_func VALUE 'INSERT_WITH_INDENT',
         format_source        TYPE ui_func VALUE 'PRETTY_PRINTER',
         show_code_completion TYPE ui_func VALUE 'CODE_COMPLETION',
       END OF c_functions.
@@ -78,6 +80,7 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
     METHODS load_entities
       IMPORTING
         it_entities TYPE zdbbr_tabname_range_itab.
+    METHODS insert_from_clipboard.
 ENDCLASS.
 
 
@@ -130,6 +133,10 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
                     quickinfo = |{ 'Check Syntax'(001) }| )
                   ( function = c_functions-format_source
                     text     = |{ 'Pretty Printer'(003) }| )
+                  ( butn_type = cntb_btype_sep )
+                  ( function  = c_functions-insert_with_indent
+                    icon      = icon_system_paste
+                    quickinfo = |{ 'Insert with indentations'(009) }| )
                   ( butn_type = cntb_btype_sep )
                   ( function  = c_functions-test_query
                     icon      = icon_test
@@ -189,6 +196,9 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
       WHEN c_functions-focus_on_editor.
         mo_editor->focus( ).
 
+      WHEN c_functions-focus_on_sidebar.
+        mo_side_bar->show_view( zcl_dbbr_sqle_sidebar=>c_views-data_source_browser ).
+
       WHEN c_functions-format_source.
         mo_editor->get_sel_position(
           IMPORTING ev_line = DATA(lv_current_line)
@@ -218,6 +228,10 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
         IF lt_entities_in_query IS NOT INITIAL.
           load_entities( lt_entities_in_query ).
         ENDIF.
+
+      WHEN c_functions-insert_with_indent.
+        insert_from_clipboard( ).
+
     ENDCASE.
   ENDMETHOD.
 
@@ -225,11 +239,13 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
     io_callback->set_title( mf_title ).
     io_callback->map_fkey_functions( VALUE #(
       ( fkey = zif_uitb_c_gui_screen=>c_functions-ctrl_f1  mapped_function = c_functions-focus_on_editor      text = |{ 'Set focus to Editor' }| )
+      ( fkey = zif_uitb_c_gui_screen=>c_functions-shift_f9 mapped_function = c_functions-focus_on_sidebar     text = |{ 'Set focus to Sidebar' }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-ctrl_f2  mapped_function = c_functions-check                text = |{ TEXT-001 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-shift_f1 mapped_function = c_functions-format_source        text = |{ TEXT-003 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-f8       mapped_function = c_functions-test_query           text = |{ TEXT-002 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-ctrl_f5  mapped_function = c_functions-load_entities        text = |{ TEXT-007 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-f5       mapped_function = c_functions-show_code_completion text = |{ TEXT-004 }| )
+      ( fkey = zif_uitb_c_gui_screen=>c_functions-f6       mapped_function = c_functions-insert_with_indent   text = |{ TEXT-008 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-f9       mapped_function = c_functions-toggle_side_bar      text = |{ TEXT-006 }| )
     ) ).
 
@@ -420,6 +436,33 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
     IF NOT mo_splitter->is_element_visible( 1 ).
       mo_splitter->set_element_visibility( iv_element = 1 ).
     ENDIF.
+  ENDMETHOD.
+
+
+  METHOD insert_from_clipboard.
+    TYPES: lty_clipboard TYPE c LENGTH 1000.
+    DATA: lt_clipboard_data    TYPE TABLE OF lty_clipboard,
+          lv_spaces            TYPE string,
+          lv_clipboard_content TYPE string.
+
+    cl_gui_frontend_services=>clipboard_import( IMPORTING data = lt_clipboard_data ).
+
+    CHECK lt_clipboard_data IS NOT INITIAL.
+    mo_editor->get_sel_position(
+      IMPORTING ev_pos  = DATA(lv_pos)
+    ).
+
+    DO lv_pos - 1 TIMES.
+      lv_spaces = | { lv_spaces }|.
+    ENDDO.
+
+    LOOP AT lt_clipboard_data ASSIGNING FIELD-SYMBOL(<lv_clipboard>) FROM 2.
+      <lv_clipboard> = |{ lv_spaces }{ condense( <lv_clipboard> ) }|.
+    ENDLOOP.
+
+    CONCATENATE LINES OF lt_clipboard_data INTO lv_clipboard_content SEPARATED BY cl_abap_char_utilities=>newline.
+
+    mo_editor->set_selected_text( lv_clipboard_content ).
   ENDMETHOD.
 
 ENDCLASS.
