@@ -30,6 +30,12 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Handler for toolbar button click event</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQLE_SIDEBAR</CLSNAME>
+     <CMPNAME>SHOW_VIEW</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Shows the view with the given id</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

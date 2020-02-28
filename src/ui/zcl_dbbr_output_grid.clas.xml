@@ -336,6 +336,12 @@
      <ENTRY>Copy Rows as Value statement</ENTRY>
      <LENGTH>56</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>056</KEY>
+     <ENTRY>Open in SQL Console</ENTRY>
+     <LENGTH>29</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>

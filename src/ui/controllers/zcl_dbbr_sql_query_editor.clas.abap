@@ -57,6 +57,7 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
       BEGIN OF c_functions,
         check                TYPE ui_func VALUE 'CHECK',
         toggle_side_bar      TYPE ui_func VALUE 'TOGGLE_SIDE_BAR',
+        load_entities        TYPE ui_func VALUE 'LOAD_ENTITIES',
         focus_on_editor      TYPE ui_func VALUE 'FOCUS_ON_EDITOR',
         test_query           TYPE ui_func VALUE 'TEST',
         format_source        TYPE ui_func VALUE 'PRETTY_PRINTER',
@@ -74,6 +75,9 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
     DATA mo_side_bar TYPE REF TO zcl_dbbr_sqle_sidebar.
     METHODS toggle_side_bar.
     METHODS init_side_bar.
+    METHODS load_entities
+      IMPORTING
+        it_entities TYPE zdbbr_tabname_range_itab.
 ENDCLASS.
 
 
@@ -116,6 +120,10 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
                   ( function  = c_functions-toggle_side_bar
                     icon      = icon_toggle_display
                     quickinfo = |{ 'Toggle Side Bar'(006) }| )
+                  ( butn_type = cntb_btype_sep )
+                  ( function  = c_functions-load_entities
+                    icon      = icon_tree
+                    quickinfo = |{ 'Synchronize data sources'(007) }| )
                   ( butn_type = cntb_btype_sep )
                   ( function  = c_functions-check
                     icon      = icon_check
@@ -204,6 +212,12 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
         IF sy-subrc = 0.
           mo_editor->set_text( if_new_content = abap_true iv_text =  <lv_content> ).
         ENDIF.
+
+      WHEN c_functions-load_entities.
+        DATA(lt_entities_in_query) = zcl_dbbr_sql_query_parser=>get_entities_in_query( mo_editor->get_text( ) ).
+        IF lt_entities_in_query IS NOT INITIAL.
+          load_entities( lt_entities_in_query ).
+        ENDIF.
     ENDCASE.
   ENDMETHOD.
 
@@ -214,6 +228,7 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
       ( fkey = zif_uitb_c_gui_screen=>c_functions-ctrl_f2  mapped_function = c_functions-check                text = |{ TEXT-001 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-shift_f1 mapped_function = c_functions-format_source        text = |{ TEXT-003 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-f8       mapped_function = c_functions-test_query           text = |{ TEXT-002 }| )
+      ( fkey = zif_uitb_c_gui_screen=>c_functions-ctrl_f5  mapped_function = c_functions-load_entities        text = |{ TEXT-007 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-f5       mapped_function = c_functions-show_code_completion text = |{ TEXT-004 }| )
       ( fkey = zif_uitb_c_gui_screen=>c_functions-f9       mapped_function = c_functions-toggle_side_bar      text = |{ TEXT-006 }| )
     ) ).
@@ -295,6 +310,7 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
           lo_protocol->show_protocol( ).
         ENDIF.
         rf_ok = abap_true.
+
       CATCH zcx_dbbr_sql_query_error INTO DATA(lx_parse_error).
         IF lx_parse_error->line_number > 0.
           mo_editor->select_row( lx_parse_error->line_number ).
@@ -388,6 +404,22 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
       io_parent_container = mo_splitter->get_container( 1 )
       io_parent_view      = me
     ).
+  ENDMETHOD.
+
+
+  METHOD load_entities.
+    CHECK it_entities IS NOT INITIAL.
+    init_side_bar( ).
+    mo_side_bar->zif_uitb_gui_composite_view~execute_command(
+        NEW zcl_uitb_gui_simple_command(
+            iv_function = zif_dbbr_c_sql_query_editor=>fc_load_entity
+            ir_params   = NEW zdbbr_tabname_range_itab( it_entities )
+        )
+    ).
+    mo_side_bar->show_view( zcl_dbbr_sqle_sidebar=>c_views-data_source_browser ).
+    IF NOT mo_splitter->is_element_visible( 1 ).
+      mo_splitter->set_element_visibility( iv_element = 1 ).
+    ENDIF.
   ENDMETHOD.
 
 ENDCLASS.

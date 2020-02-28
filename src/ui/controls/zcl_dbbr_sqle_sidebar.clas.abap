@@ -8,19 +8,26 @@ CLASS zcl_dbbr_sqle_sidebar DEFINITION
     INTERFACES zif_uitb_gui_view.
     INTERFACES zif_uitb_gui_composite_view.
 
+    CONSTANTS:
+      BEGIN OF c_views,
+        history             TYPE ui_func VALUE 'HISTORY' ##NO_TEXT,
+        data_source_browser TYPE ui_func VALUE 'ENTITIES' ##NO_TEXT,
+      END OF c_views.
+
     "! <p class="shorttext synchronized" lang="en">Create new instance of alv field control</p>
     "!
     METHODS constructor
       IMPORTING
         io_parent_container TYPE REF TO cl_gui_container
         io_parent_view      TYPE REF TO zif_uitb_gui_composite_view.
+
+    "! <p class="shorttext synchronized" lang="en">Shows the view with the given id</p>
+    METHODS show_view
+      IMPORTING
+        iv_view_id TYPE ui_func.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    CONSTANTS:
-      BEGIN OF c_functions,
-        history             TYPE ui_func VALUE 'HISTORY' ##NO_TEXT,
-        data_source_browser TYPE ui_func VALUE 'ENTITIES' ##NO_TEXT,
-      END OF c_functions.
+
     TYPES:
       BEGIN OF ty_s_view_info,
         function  TYPE ui_func,
@@ -58,11 +65,11 @@ CLASS zcl_dbbr_sqle_sidebar IMPLEMENTATION.
     mo_container = io_parent_container.
     mo_parent = io_parent_view.
     mt_views = VALUE #(
-      ( function  = c_functions-history
+      ( function  = c_views-history
         butn_type = cntb_btype_check
         icon      = icon_history
         text      = |{ 'History' }| )
-      ( function  = c_functions-data_source_browser
+      ( function  = c_views-data_source_browser
         butn_type = cntb_btype_check
         icon      = icon_list
         text      = |{ 'Data Source Browser' }| )
@@ -70,6 +77,9 @@ CLASS zcl_dbbr_sqle_sidebar IMPLEMENTATION.
     init_layout( ).
   ENDMETHOD.
 
+  METHOD show_view.
+    toggle_control( iv_view_id ).
+  ENDMETHOD.
 
   METHOD zif_uitb_gui_composite_view~set_child_visibility.
     RETURN.
@@ -81,9 +91,16 @@ CLASS zcl_dbbr_sqle_sidebar IMPLEMENTATION.
     CASE io_command->mv_function.
 
       WHEN zif_dbbr_c_sql_query_editor=>fc_refresh_history.
-        ASSIGN mt_views[ function = c_functions-history ] TO <ls_view>.
+        ASSIGN mt_views[ function = c_views-history ] TO <ls_view>.
         IF sy-subrc = 0 AND <ls_view>-control IS BOUND.
           CAST zcl_dbbr_sqle_sb_history( <ls_view>-control )->refresh_history( ).
+        ENDIF.
+
+      WHEN zif_dbbr_c_sql_query_editor=>fc_load_entity.
+        ASSIGN mt_views[ function = c_views-data_source_browser ] TO <ls_view>.
+        IF sy-subrc = 0 AND <ls_view>-control IS BOUND.
+          ASSIGN io_command->mr_params->* TO FIELD-SYMBOL(<lt_db_entity_range>).
+          CAST zcl_dbbr_sqle_sb_entity_tree( <ls_view>-control )->load_entities( <lt_db_entity_range> ).
         ENDIF.
     ENDCASE.
   ENDMETHOD.
@@ -104,7 +121,7 @@ CLASS zcl_dbbr_sqle_sidebar IMPLEMENTATION.
     mo_switch = NEW #(
       io_parent = lo_client
     ).
-    toggle_control( iv_view = c_functions-data_source_browser ).
+    toggle_control( iv_view = c_views-data_source_browser ).
   ENDMETHOD.
 
   METHOD on_toolbar_button.
@@ -133,7 +150,7 @@ CLASS zcl_dbbr_sqle_sidebar IMPLEMENTATION.
 
     CASE iv_view.
 
-      WHEN c_functions-history.
+      WHEN c_views-history.
         IF <ls_active_view>-control IS INITIAL.
           <ls_active_view>-control = NEW zcl_dbbr_sqle_sb_history(
             io_container = lo_container
@@ -143,7 +160,7 @@ CLASS zcl_dbbr_sqle_sidebar IMPLEMENTATION.
 
         <ls_active_view>-control->focus( ).
 
-      WHEN c_functions-data_source_browser.
+      WHEN c_views-data_source_browser.
         IF <ls_active_view>-control IS INITIAL.
           <ls_active_view>-control = NEW zcl_dbbr_sqle_sb_entity_tree(
             io_container = lo_container

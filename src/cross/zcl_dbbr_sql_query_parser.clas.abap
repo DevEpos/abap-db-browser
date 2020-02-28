@@ -4,9 +4,10 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    TYPES: BEGIN OF ty_s_parameter.
+    TYPES:
+      BEGIN OF ty_s_parameter.
         INCLUDE TYPE zdbbr_queryp.
-    TYPES is_used       TYPE abap_bool.
+        TYPES is_used TYPE abap_bool.
     TYPES line_in_query TYPE i.
     TYPES: END OF ty_s_parameter.
     TYPES: ty_t_parameter TYPE STANDARD TABLE OF ty_s_parameter WITH KEY name.
@@ -30,6 +31,8 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
         tokens        TYPE ty_t_token,
       END OF ty_s_statement.
     TYPES: ty_t_statement TYPE STANDARD TABLE OF ty_s_statement WITH EMPTY KEY.
+
+    TYPES: ty_t_tabname_range TYPE RANGE OF tabname.
 
     CONSTANTS:
       BEGIN OF c_keywords,
@@ -74,6 +77,12 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
         iv_query                 TYPE string
         if_fill_log_for_messages TYPE abap_bool DEFAULT abap_true.
     CLASS-METHODS class_constructor.
+    "! <p class="shorttext synchronized" lang="en">Extracts entities from given query</p>
+    CLASS-METHODS get_entities_in_query
+      IMPORTING
+        iv_query           TYPE string
+      RETURNING
+        VALUE(rt_entities) TYPE ty_t_tabname_range.
     "! <p class="shorttext synchronized" lang="en">Parse the query</p>
     "!
     METHODS parse
@@ -95,6 +104,7 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
     DATA mt_parameter TYPE ty_t_parameter.
     DATA mf_union TYPE abap_bool.
     DATA mt_param_range TYPE RANGE OF string.
+    DATA mt_query_entities TYPE zdbbr_tabname_range_itab.
     DATA mv_select_stmnt_index TYPE i.
     DATA mt_stmnt_raw TYPE sstmnt_tab.
     DATA mt_token_raw TYPE stokesx_tab.
@@ -185,6 +195,20 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
     ).
   ENDMETHOD.
 
+  METHOD get_entities_in_query.
+    CHECK iv_query IS NOT INITIAL.
+    DATA(lo_parser) = NEW zcl_dbbr_sql_query_parser(
+      iv_query                 = iv_query
+      if_fill_log_for_messages = abap_false
+    ).
+    TRY.
+        lo_parser->tokenize( ).
+        rt_entities = lo_parser->mt_query_entities.
+      CATCH zcx_dbbr_sql_query_error.
+    ENDTRY.
+
+  ENDMETHOD.
+
   METHOD parse.
     CHECK mv_raw_query IS NOT INITIAL.
 
@@ -225,6 +249,7 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
         last_row_offset          = mv_select_query_end_offset
         main_select_stmnt_type   = mv_query_type
         is_single_result_query   = mf_single_result
+        db_entities              = mt_query_entities
       )
       it_parameters = VALUE #( FOR param IN mt_parameter WHERE ( is_used = abap_true ) ( CORRESPONDING #( param ) )  )
     ).
@@ -236,9 +261,10 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
 
   METHOD tokenize.
 
-    DATA: lv_message TYPE string,
-          lv_word    TYPE char80,
-          lv_line    TYPE i.
+    DATA: lv_message     TYPE string,
+          lv_word        TYPE char80,
+          lv_line        TYPE i,
+          lt_db_entities TYPE TABLE OF tabname.
 
     SCAN ABAP-SOURCE mt_query_lines TOKENS INTO     mt_token_raw
                                     STATEMENTS INTO mt_stmnt_raw
@@ -269,6 +295,23 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
           OTHERS         = 0.
 
     ENDLOOP.
+
+*.. extract db entities from query tokens
+    LOOP AT mt_token_raw ASSIGNING FIELD-SYMBOL(<ls_token>) WHERE type = sana_tok_type
+                                                              AND str IS NOT INITIAL.
+      CHECK <ls_token>-str(1) <> '+'.
+      DATA(lv_token) = <ls_token>-str.
+      REPLACE ALL OCCURRENCES OF '(' IN lv_token WITH space.
+      lt_db_entities = VALUE #( BASE lt_db_entities
+        ( CONV #( lv_token ) )
+      ).
+    ENDLOOP.
+
+    IF sy-subrc = 0.
+      SORT lt_db_entities.
+      DELETE ADJACENT DUPLICATES FROM lt_db_entities.
+      mt_query_entities = VALUE #( FOR entity IN lt_db_entities ( sign = 'I' option = 'EQ' low = entity ) ).
+    ENDIF.
 
   ENDMETHOD.
 

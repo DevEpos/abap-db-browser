@@ -11,6 +11,11 @@ CLASS zcl_dbbr_sqle_sb_entity_tree DEFINITION
       IMPORTING
         io_container TYPE REF TO cl_gui_container
         io_parent    TYPE REF TO zif_uitb_gui_composite_view.
+    "! <p class="shorttext synchronized" lang="en">Loads entities into tree</p>
+    "!
+    METHODS load_entities
+      IMPORTING
+        it_entities TYPE zdbbr_tabname_range_itab.
   PROTECTED SECTION.
   PRIVATE SECTION.
     CONSTANTS:
@@ -195,6 +200,32 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
     create_tree( ).
   ENDMETHOD.
 
+  METHOD load_entities.
+    DATA: lt_db_entities TYPE zcl_dbbr_db_entity_sel_dialog=>ty_t_db_entity.
+
+    CHECK it_entities IS NOT INITIAL.
+    DATA(lt_entities) = it_entities.
+
+    LOOP AT lt_entities ASSIGNING FIELD-SYMBOL(<ls_entity>).
+      CHECK line_exists( mt_entities[ table_line = <ls_entity>-low ] ).
+      DELETE lt_entities.
+    ENDLOOP.
+
+    CHECK lt_entities IS NOT INITIAL.
+
+    SELECT
+      FROM zsat_i_databaseentity
+      FIELDS entityraw AS entity_id,
+             description,
+             type
+      WHERE entity IN @lt_entities
+    INTO CORRESPONDING FIELDS OF TABLE @lt_db_entities.
+
+    IF sy-subrc = 0.
+      add_entities_to_tree( lt_db_entities ).
+    ENDIF.
+  ENDMETHOD.
+
 
   METHOD create_tree.
     zcl_uitb_gui_helper=>create_control_toolbar(
@@ -316,7 +347,8 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_node_context_menu_select.
-
+    LOOP AT mt_entities INTO DATA(lv_entity).
+    ENDLOOP.
   ENDMETHOD.
 
   METHOD on_node_key_press.
@@ -534,6 +566,8 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
 
 
   METHOD add_entities_to_tree.
+    DATA: lv_added_count TYPE i.
+
     CHECK it_entities IS NOT INITIAL.
 
     mo_replace_dnd_behavior->get_handle( IMPORTING handle = DATA(lv_handle) ).
@@ -557,7 +591,10 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
           )
           iv_handle          = lv_handle
       ).
+      ADD 1 TO lv_added_count.
     ENDLOOP.
+
+    MESSAGE |Loaded { lv_added_count } entities| TYPE 'S'.
   ENDMETHOD.
 
   METHOD get_node_image.

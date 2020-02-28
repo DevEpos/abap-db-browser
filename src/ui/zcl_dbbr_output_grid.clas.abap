@@ -231,6 +231,10 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         text      = |{ 'CDS Source' }|
         quickinfo = |{ 'Show CDS Source Code'(052) }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f10 )
+      ( function  = zif_dbbr_c_selection_functions=>open_in_sql_console
+        icon      = icon_edit_file
+        quickinfo = |{ 'Open in SQL Console'(056) }| )
+      ( butn_type = cntb_btype_sep )
       ( function  = 'COPY_MENU'
         icon      = icon_system_copy
         butn_type = cntb_btype_menu
