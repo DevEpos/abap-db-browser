@@ -7,6 +7,8 @@ CLASS zcl_dbbr_sqle_sb_entity_tree DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_uitb_gui_view.
     INTERFACES zif_uitb_gui_control.
+    INTERFACES zif_uitb_content_searcher.
+
     METHODS constructor
       IMPORTING
         io_container TYPE REF TO cl_gui_container
@@ -226,6 +228,25 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+  METHOD zif_uitb_gui_control~focus.
+    CHECK mo_tree IS BOUND.
+    mo_tree->zif_uitb_gui_control~focus( ).
+  ENDMETHOD.
+
+  METHOD zif_uitb_gui_control~has_focus.
+    CHECK mo_tree IS BOUND.
+    rf_has_focus = mo_tree->has_focus( ).
+  ENDMETHOD.
+
+  METHOD zif_uitb_content_searcher~search.
+    CHECK mo_tree IS BOUND.
+    mo_tree->get_search( )->find( ).
+  ENDMETHOD.
+
+  METHOD zif_uitb_content_searcher~search_next.
+    CHECK mo_tree IS BOUND.
+    mo_tree->get_search( )->find_next( ).
+  ENDMETHOD.
 
   METHOD create_tree.
     zcl_uitb_gui_helper=>create_control_toolbar(
@@ -299,16 +320,6 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
         droptarget      = abap_false
         effect          = cl_dragdrop=>copy
     ).
-  ENDMETHOD.
-
-  METHOD zif_uitb_gui_control~focus.
-    CHECK mo_tree IS BOUND.
-    mo_tree->zif_uitb_gui_control~focus( ).
-  ENDMETHOD.
-
-  METHOD zif_uitb_gui_control~has_focus.
-    CHECK mo_tree IS BOUND.
-    rf_has_focus = mo_tree->has_focus( ).
   ENDMETHOD.
 
   METHOD on_expand_no_children.

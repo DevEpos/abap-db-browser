@@ -232,6 +232,16 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
       WHEN c_functions-insert_with_indent.
         insert_from_clipboard( ).
 
+      WHEN zif_uitb_c_gui_screen=>c_functions-search.
+        IF mo_side_bar IS BOUND AND mo_side_bar->zif_uitb_gui_control~has_focus( ).
+          mo_side_bar->zif_uitb_content_searcher~search( ).
+        ENDIF.
+
+      WHEN zif_uitb_c_gui_screen=>c_functions-search_more.
+        IF mo_side_bar IS BOUND AND mo_side_bar->zif_uitb_gui_control~has_focus( ).
+          mo_side_bar->zif_uitb_content_searcher~search_next( ).
+        ENDIF.
+
     ENDCASE.
   ENDMETHOD.
 

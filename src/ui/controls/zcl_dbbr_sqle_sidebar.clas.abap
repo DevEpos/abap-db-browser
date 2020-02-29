@@ -7,6 +7,8 @@ CLASS zcl_dbbr_sqle_sidebar DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_uitb_gui_view.
     INTERFACES zif_uitb_gui_composite_view.
+    INTERFACES zif_uitb_gui_control .
+    INTERFACES zif_uitb_content_searcher .
 
     CONSTANTS:
       BEGIN OF c_views,
@@ -50,6 +52,12 @@ CLASS zcl_dbbr_sqle_sidebar DEFINITION
       IMPORTING
         iv_view TYPE ui_func.
 
+    METHODS get_active_control
+      RETURNING
+        VALUE(ro_control) TYPE REF TO zif_uitb_gui_control.
+    METHODS get_active_content_searcher
+      RETURNING
+        VALUE(ro_control) TYPE REF TO zif_uitb_content_searcher.
     "! <p class="shorttext synchronized" lang="en">Handler for toolbar button click event</p>
     METHODS on_toolbar_button
         FOR EVENT function_selected OF cl_gui_toolbar
@@ -105,6 +113,28 @@ CLASS zcl_dbbr_sqle_sidebar IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
+  METHOD zif_uitb_content_searcher~search.
+    DATA(lo_control) = get_active_content_searcher( ).
+    CHECK lo_control IS BOUND.
+    lo_control->search( ).
+  ENDMETHOD.
+
+  METHOD zif_uitb_content_searcher~search_next.
+    DATA(lo_control) = get_active_content_searcher( ).
+    CHECK lo_control IS BOUND.
+    lo_control->search_next( ).
+  ENDMETHOD.
+
+  METHOD zif_uitb_gui_control~focus.
+    DATA(lo_control) = get_active_control( ).
+    CHECK lo_control IS BOUND.
+    lo_control->focus( ).
+  ENDMETHOD.
+
+  METHOD zif_uitb_gui_control~has_focus.
+    DATA(lo_control) = get_active_control( ).
+    rf_has_focus = lo_control->has_focus( ).
+  ENDMETHOD.
 
   METHOD init_layout.
     zcl_uitb_gui_helper=>create_control_toolbar(
@@ -171,6 +201,23 @@ CLASS zcl_dbbr_sqle_sidebar IMPLEMENTATION.
         <ls_active_view>-control->focus( ).
 
     ENDCASE.
+  ENDMETHOD.
+
+  METHOD get_active_control.
+    ASSIGN mt_views[ is_active = abap_true ] TO FIELD-SYMBOL(<ls_active_view>).
+    CHECK sy-subrc = 0.
+
+    ro_control = <ls_active_view>-control.
+  ENDMETHOD.
+
+  METHOD get_active_content_searcher.
+    DATA(lo_active_control) = get_active_control( ).
+    CHECK lo_active_control IS BOUND.
+
+    TRY.
+        ro_control = CAST #( lo_active_control ).
+      CATCH cx_sy_move_cast_error.
+    ENDTRY.
   ENDMETHOD.
 
 ENDCLASS.
