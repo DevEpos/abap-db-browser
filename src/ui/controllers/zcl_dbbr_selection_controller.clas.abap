@@ -291,7 +291,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
+CLASS ZCL_DBBR_SELECTION_CONTROLLER IMPLEMENTATION.
 
 
   METHOD alv_headers_needs_refresh.
@@ -384,37 +384,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD show_string_cell_content.
-    FIELD-SYMBOLS: <lt_data> TYPE table.
-    ASSIGN mo_util->mr_t_data->* TO <lt_data>.
-    CHECK sy-subrc = 0.
-    mo_alv_grid->get_selected_cells( IMPORTING et_cell = DATA(lt_cell) ).
-    DATA(ls_cell) = lt_cell[ 1 ].
-
-    ASSIGN <lt_data>[ ls_cell-row_id-index ] TO FIELD-SYMBOL(<ls_row>).
-    CHECK sy-subrc = 0.
-
-    ASSIGN COMPONENT ls_cell-col_id-fieldname OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_value>).
-    CHECK sy-subrc = 0.
-
-    IF <lv_value> IS INITIAL.
-      MESSAGE |No String content to display| TYPE 'S'.
-      RETURN.
-    ENDIF.
-
-    mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
-    DATA(ls_field) = lt_fieldcat[ fieldname = ls_cell-col_id-fieldname ].
-
-    DATA(lv_value) = |{ <lv_value> }|.
-
-    zcl_uitb_abap_code_viewer=>show_code(
-      iv_title  = |Cell Content for { ls_cell-col_id-fieldname }|
-      iv_code   = lv_value
-      iv_width  = 900
-      iv_height = 500
-      iv_theme  = mo_util->ms_technical_info-code_viewer_theme
-    ).
-  ENDMETHOD.
 
   METHOD calculate_sum_of_cells.
     TYPES: BEGIN OF lty_cell,
@@ -811,6 +780,31 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD disable_checkbox_style.
+    DATA: lf_refresh TYPE abap_bool.
+
+    IF if_selected_cols_only = abap_true.
+      mo_alv_grid->get_selected_columns( IMPORTING et_index_columns = DATA(lt_cols) ).
+    ENDIF.
+
+    mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+
+    LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fcat>) WHERE checkbox = abap_true.
+      IF lt_cols IS NOT INITIAL.
+        CHECK line_exists( lt_cols[ fieldname = <ls_fcat>-fieldname ] ).
+      ENDIF.
+      <ls_fcat>-just = 'L'.
+      CLEAR: <ls_fcat>-checkbox.
+      lf_refresh = abap_true.
+    ENDLOOP.
+
+    CHECK lf_refresh = abap_true.
+
+    mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+  ENDMETHOD.
+
+
   METHOD display_top_header.
 *& Description: Creates top of page header for ALV Grid with dynamic document
 *&---------------------------------------------------------------------*
@@ -1100,6 +1094,66 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
   METHOD group_by_selected_columns.
     mo_util->get_alv_util( )->execute_column_grouping( ).
+  ENDMETHOD.
+
+
+  METHOD hide_cols_without_values.
+    DATA: lt_cols_to_hide TYPE RANGE OF lvc_fname,
+          lf_hide_col     TYPE abap_bool,
+          lv_type         TYPE char1.
+
+    FIELD-SYMBOLS: <lt_data> TYPE table.
+
+    mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+
+    lt_cols_to_hide = VALUE #( FOR field IN lt_fieldcat WHERE ( no_out = abap_false AND tech = abap_false ) ( sign = 'I' option = 'EQ' low = field-fieldname ) ).
+
+    ASSIGN mo_util->mr_t_data->* TO <lt_data>.
+
+    LOOP AT <lt_data> ASSIGNING FIELD-SYMBOL(<ls_data>).
+      IF lt_cols_to_hide IS INITIAL.
+        EXIT.
+      ENDIF.
+
+      LOOP AT lt_cols_to_hide ASSIGNING FIELD-SYMBOL(<ls_field>).
+        CLEAR lf_hide_col.
+
+        ASSIGN COMPONENT <ls_field>-low OF STRUCTURE <ls_data> TO FIELD-SYMBOL(<lv_cell>).
+        DESCRIBE FIELD <lv_cell> TYPE lv_type.
+
+        IF  lv_type = cl_abap_typedescr=>typekind_string OR
+            lv_type = cl_abap_typedescr=>typekind_char OR
+            lv_type = cl_abap_typedescr=>typekind_num.
+          IF <lv_cell> CO '0.,' OR <lv_cell> IS INITIAL.
+            lf_hide_col = abap_true.
+          ENDIF.
+        ELSE.
+          IF <lv_cell> IS INITIAL.
+            lf_hide_col = abap_true.
+          ENDIF.
+        ENDIF.
+
+        IF lf_hide_col = abap_false.
+          DELETE lt_cols_to_hide.
+        ENDIF.
+      ENDLOOP.
+
+    ENDLOOP.
+
+    IF lt_cols_to_hide IS INITIAL.
+      MESSAGE s103(zdbbr_info).
+      RETURN.
+    ENDIF.
+
+    LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fcat>) WHERE fieldname IN lt_cols_to_hide.
+      <ls_fcat>-no_out = abap_true.
+    ENDLOOP.
+
+    MESSAGE s102(zdbbr_info) WITH |{ lines( lt_cols_to_hide ) }|.
+
+    mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
+
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
   ENDMETHOD.
 
 
@@ -2110,7 +2164,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
   ENDMETHOD.
 
 
-
   METHOD show_line_detail.
     DATA(lo_detail_viewer) = NEW lcl_detail_viewer(
       io_util           = mo_util
@@ -2119,6 +2172,39 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       is_technical_info = mo_util->ms_technical_info
     ).
     lo_detail_viewer->show_details( is_line ).
+  ENDMETHOD.
+
+
+  METHOD show_string_cell_content.
+    FIELD-SYMBOLS: <lt_data> TYPE table.
+    ASSIGN mo_util->mr_t_data->* TO <lt_data>.
+    CHECK sy-subrc = 0.
+    mo_alv_grid->get_selected_cells( IMPORTING et_cell = DATA(lt_cell) ).
+    DATA(ls_cell) = lt_cell[ 1 ].
+
+    ASSIGN <lt_data>[ ls_cell-row_id-index ] TO FIELD-SYMBOL(<ls_row>).
+    CHECK sy-subrc = 0.
+
+    ASSIGN COMPONENT ls_cell-col_id-fieldname OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_value>).
+    CHECK sy-subrc = 0.
+
+    IF <lv_value> IS INITIAL.
+      MESSAGE |No String content to display| TYPE 'S'.
+      RETURN.
+    ENDIF.
+
+    mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+    DATA(ls_field) = lt_fieldcat[ fieldname = ls_cell-col_id-fieldname ].
+
+    DATA(lv_value) = |{ <lv_value> }|.
+
+    zcl_uitb_abap_code_viewer=>show_code(
+      iv_title  = |Cell Content for { ls_cell-col_id-fieldname }|
+      iv_code   = lv_value
+      iv_width  = 900
+      iv_height = 500
+      iv_theme  = mo_util->ms_technical_info-code_viewer_theme
+    ).
   ENDMETHOD.
 
 
@@ -2520,90 +2606,4 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     SET TITLEBAR 'OUTPUT_TITLE' OF PROGRAM zif_dbbr_c_report_id=>output WITH lv_select_type_text lv_selection_count_text.
   ENDMETHOD.
-
-
-  METHOD hide_cols_without_values.
-    DATA: lt_cols_to_hide TYPE RANGE OF lvc_fname,
-          lf_hide_col     TYPE abap_bool,
-          lv_type         TYPE char1.
-
-    FIELD-SYMBOLS: <lt_data> TYPE table.
-
-    mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
-
-    lt_cols_to_hide = VALUE #( FOR field IN lt_fieldcat WHERE ( no_out = abap_false AND tech = abap_false ) ( sign = 'I' option = 'EQ' low = field-fieldname ) ).
-
-    ASSIGN mo_util->mr_t_data->* TO <lt_data>.
-
-    LOOP AT <lt_data> ASSIGNING FIELD-SYMBOL(<ls_data>).
-      IF lt_cols_to_hide IS INITIAL.
-        EXIT.
-      ENDIF.
-
-      LOOP AT lt_cols_to_hide ASSIGNING FIELD-SYMBOL(<ls_field>).
-        CLEAR lf_hide_col.
-
-        ASSIGN COMPONENT <ls_field>-low OF STRUCTURE <ls_data> TO FIELD-SYMBOL(<lv_cell>).
-        DESCRIBE FIELD <lv_cell> TYPE lv_type.
-
-        IF  lv_type = cl_abap_typedescr=>typekind_string OR
-            lv_type = cl_abap_typedescr=>typekind_char OR
-            lv_type = cl_abap_typedescr=>typekind_num.
-          IF <lv_cell> CO '0.,' OR <lv_cell> IS INITIAL.
-            lf_hide_col = abap_true.
-          ENDIF.
-        ELSE.
-          IF <lv_cell> IS INITIAL.
-            lf_hide_col = abap_true.
-          ENDIF.
-        ENDIF.
-
-        IF lf_hide_col = abap_false.
-          DELETE lt_cols_to_hide.
-        ENDIF.
-      ENDLOOP.
-
-    ENDLOOP.
-
-    IF lt_cols_to_hide IS INITIAL.
-      MESSAGE s103(zdbbr_info).
-      RETURN.
-    ENDIF.
-
-    LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fcat>) WHERE fieldname IN lt_cols_to_hide.
-      <ls_fcat>-no_out = abap_true.
-    ENDLOOP.
-
-    MESSAGE s102(zdbbr_info) WITH |{ lines( lt_cols_to_hide ) }|.
-
-    mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
-
-    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
-  ENDMETHOD.
-
-
-  METHOD disable_checkbox_style.
-    DATA: lf_refresh TYPE abap_bool.
-
-    IF if_selected_cols_only = abap_true.
-      mo_alv_grid->get_selected_columns( IMPORTING et_index_columns = DATA(lt_cols) ).
-    ENDIF.
-
-    mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
-
-    LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fcat>) WHERE checkbox = abap_true.
-      IF lt_cols IS NOT INITIAL.
-        CHECK line_exists( lt_cols[ fieldname = <ls_fcat>-fieldname ] ).
-      ENDIF.
-      <ls_fcat>-just = 'L'.
-      CLEAR: <ls_fcat>-checkbox.
-      lf_refresh = abap_true.
-    ENDLOOP.
-
-    CHECK lf_refresh = abap_true.
-
-    mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
-    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
-  ENDMETHOD.
-
 ENDCLASS.

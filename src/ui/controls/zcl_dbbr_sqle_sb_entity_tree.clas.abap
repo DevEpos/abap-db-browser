@@ -239,13 +239,22 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD zif_uitb_content_searcher~search.
-    CHECK mo_tree IS BOUND.
-    mo_tree->get_search( )->find( ).
+    DATA(ls_find_result) = mo_tree->get_search( )->find( ).
+
+    IF ls_find_result IS NOT INITIAL.
+      mo_tree->get_selections( )->select_nodes( VALUE #( ( ls_find_result-node_key ) ) ).
+      mo_tree->zif_uitb_gui_control~focus( ).
+    ENDIF.
   ENDMETHOD.
 
+
   METHOD zif_uitb_content_searcher~search_next.
-    CHECK mo_tree IS BOUND.
-    mo_tree->get_search( )->find_next( ).
+    DATA(ls_find_result) = mo_tree->get_search( )->find_next( ).
+
+    IF ls_find_result IS NOT INITIAL.
+      mo_tree->get_selections( )->select_nodes( VALUE #( ( ls_find_result-node_key ) ) ).
+      mo_tree->zif_uitb_gui_control~focus( ).
+    ENDIF.
   ENDMETHOD.
 
   METHOD create_tree.

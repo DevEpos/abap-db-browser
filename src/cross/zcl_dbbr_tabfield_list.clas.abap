@@ -337,7 +337,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
+CLASS ZCL_DBBR_TABFIELD_LIST IMPLEMENTATION.
 
 
   METHOD active_field_exists.
@@ -538,6 +538,36 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD complete_field_infos.
+
+    LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
+
+*.... Determine checkbox status of field
+      IF <ls_field>-is_numeric = abap_false AND
+         <ls_field>-rollname IS NOT INITIAL.
+
+        DATA(lo_elem_descr) = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_name( <ls_field>-rollname ) ).
+
+        lo_elem_descr->get_ddic_fixed_values(
+          RECEIVING
+            p_fixed_values = DATA(lt_fix_values)
+          EXCEPTIONS
+            not_found      = 1
+            no_ddic_type   = 2
+            OTHERS         = 3
+        ).
+        IF sy-subrc = 0.
+          <ls_field>-is_checkbox = xsdbool( lines( lt_fix_values ) = 2 AND
+                                            line_exists( lt_fix_values[ low = 'X' ] ) AND
+                                            line_exists( lt_fix_values[ option = 'EQ' low = space ] ) ).
+        ENDIF.
+      ENDIF.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
   METHOD constructor.
     mt_fields = it_fields.
     mt_tables = it_tables.
@@ -603,6 +633,38 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD delete_custom.
+    DATA(lt_tabname_range) = it_tabname_alias_range.
+
+
+    IF if_delete_formfields = abap_true.
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>gc_formula_dummy_table ) ).
+    ENDIF.
+
+    IF if_delete_params = abap_true.
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ).
+    ELSE.
+*.. Exclude parameters from being deleted until it is clear that no entity exists any more that needs them
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'E' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ).
+    ENDIF.
+
+    IF if_keep_primary = abap_true AND line_exists( mt_tables[ is_primary = abap_true ] ).
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'E' option = 'EQ' low = mt_tables[ is_primary = abap_true ]-tabname_alias ) ).
+    ENDIF.
+
+    IF lt_tabname_range IS NOT INITIAL.
+      DELETE mt_fields WHERE tabname_alias IN lt_tabname_range.
+      DELETE mt_tables WHERE tabname_alias IN lt_tabname_range.
+    ENDIF.
+
+    IF if_delete_params = abap_false AND
+       NOT line_exists( mt_tables[ has_params = abap_true ] ).
+      DELETE mt_fields WHERE tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table.
+      DELETE mt_tables WHERE tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table.
+    ENDIF.
+  ENDMETHOD.
+
+
   METHOD delete_field.
     DELETE mt_fields WHERE fieldname = is_field-fieldname
                        AND tabname   = is_field-tabname.
@@ -638,36 +700,6 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     DELETE mt_fields WHERE is_text_field = abap_true.
   ENDMETHOD.
 
-  METHOD delete_custom.
-    DATA(lt_tabname_range) = it_tabname_alias_range.
-
-
-    IF if_delete_formfields = abap_true.
-      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>gc_formula_dummy_table ) ).
-    ENDIF.
-
-    IF if_delete_params = abap_true.
-      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ).
-    ELSE.
-*.. Exclude parameters from being deleted until it is clear that no entity exists any more that needs them
-      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'E' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ).
-    ENDIF.
-
-    IF if_keep_primary = abap_true AND line_exists( mt_tables[ is_primary = abap_true ] ).
-      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'E' option = 'EQ' low = mt_tables[ is_primary = abap_true ]-tabname_alias ) ).
-    ENDIF.
-
-    IF lt_tabname_range IS NOT INITIAL.
-      DELETE mt_fields WHERE tabname_alias IN lt_tabname_range.
-      DELETE mt_tables WHERE tabname_alias IN lt_tabname_range.
-    ENDIF.
-
-    IF if_delete_params = abap_false AND
-       NOT line_exists( mt_tables[ has_params = abap_true ] ).
-      DELETE mt_fields WHERE tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table.
-      DELETE mt_tables WHERE tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table.
-    ENDIF.
-  ENDMETHOD.
 
   METHOD delete_where_in_tablist.
     DELETE mt_fields WHERE tabname_alias IN it_tabselopt.
@@ -713,16 +745,6 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   METHOD field_is_active.
     ASSIGN COMPONENT ms_fieldnames-active_field OF STRUCTURE is_field_info TO FIELD-SYMBOL(<lv_active_field>).
     rf_is_active = xsdbool( <lv_active_field> = abap_true ).
-  ENDMETHOD.
-
-  METHOD is_multi_table_list.
-    DATA: lv_tab_count TYPE i.
-
-    LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE is_custom = abap_false.
-      ADD 1 TO lv_tab_count.
-    ENDLOOP.
-
-    rf_multi_tables = xsdbool( lv_tab_count > 1 ).
   ENDMETHOD.
 
 
@@ -888,6 +910,11 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD get_tables_ref.
+    rr_tables = REF #( mt_tables ).
+  ENDMETHOD.
+
+
   METHOD get_table_alias_name.
     rv_alias_name = VALUE #( mt_tables[ tabname = iv_tabname ]-tabname_alias DEFAULT iv_tabname ).
   ENDMETHOD.
@@ -909,9 +936,6 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-  METHOD get_tables_ref.
-    rr_tables = REF #( mt_tables ).
-  ENDMETHOD.
 
   METHOD get_where_for_active_check.
     rv_where = ms_where-field_is_active.
@@ -938,18 +962,31 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD has_table.
-    rf_exists = xsdbool( line_exists( mt_tables[ tabname_alias = iv_tabname_alias ] ) ).
-  ENDMETHOD.
 
   METHOD has_multiple_tables.
     result = xsdbool( lines( mt_tables ) > 1 ).
   ENDMETHOD.
 
 
+  METHOD has_table.
+    rf_exists = xsdbool( line_exists( mt_tables[ tabname_alias = iv_tabname_alias ] ) ).
+  ENDMETHOD.
+
+
   METHOD initialize_iterator.
     mv_iterator_index = 1.
     mf_iterator_for_active = if_for_active.
+  ENDMETHOD.
+
+
+  METHOD is_multi_table_list.
+    DATA: lv_tab_count TYPE i.
+
+    LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE is_custom = abap_false.
+      ADD 1 TO lv_tab_count.
+    ENDLOOP.
+
+    rf_multi_tables = xsdbool( lv_tab_count > 1 ).
   ENDMETHOD.
 
 
@@ -974,6 +1011,19 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD replace_table_alias.
+    ASSIGN mt_tables[ tabname_alias = iv_old_alias ] TO FIELD-SYMBOL(<ls_table>).
+    CHECK sy-subrc = 0.
+
+    <ls_table>-tabname_alias = iv_new_alias.
+
+*.. Update the fields as well
+    LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE tabname_alias = iv_old_alias.
+      <ls_field>-tabname_alias = iv_new_alias.
+    ENDLOOP.
+  ENDMETHOD.
+
+
   METHOD serialize_list.
     rs_list_data-fields = mt_fields.
     rs_list_data-tables = mt_tables.
@@ -992,12 +1042,14 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-  METHOD set_multi_table_mode.
-    mf_multi_table_mode = if_active_grouping.
-  ENDMETHOD.
 
   METHOD set_entity_type.
     mv_entity_type = value.
+  ENDMETHOD.
+
+
+  METHOD set_multi_table_mode.
+    mf_multi_table_mode = if_active_grouping.
   ENDMETHOD.
 
 
@@ -1066,18 +1118,6 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
       update_mode( ).
     ENDIF.
-  ENDMETHOD.
-
-  METHOD replace_table_alias.
-    ASSIGN mt_tables[ tabname_alias = iv_old_alias ] TO FIELD-SYMBOL(<ls_table>).
-    CHECK sy-subrc = 0.
-
-    <ls_table>-tabname_alias = iv_new_alias.
-
-*.. Update the fields as well
-    LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE tabname_alias = iv_old_alias.
-      <ls_field>-tabname_alias = iv_new_alias.
-    ENDLOOP.
   ENDMETHOD.
 
 
@@ -1289,34 +1329,4 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   METHOD zif_uitb_data_ref_list~size.
     rv_size = lines( mt_fields ).
   ENDMETHOD.
-
-  METHOD complete_field_infos.
-
-    LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
-
-*.... Determine checkbox status of field
-      IF <ls_field>-is_numeric = abap_false AND
-         <ls_field>-rollname IS NOT INITIAL.
-
-        DATA(lo_elem_descr) = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_name( <ls_field>-rollname ) ).
-
-        lo_elem_descr->get_ddic_fixed_values(
-          RECEIVING
-            p_fixed_values = DATA(lt_fix_values)
-          EXCEPTIONS
-            not_found      = 1
-            no_ddic_type   = 2
-            OTHERS         = 3
-        ).
-        IF sy-subrc = 0.
-          <ls_field>-is_checkbox = xsdbool( lines( lt_fix_values ) = 2 AND
-                                            line_exists( lt_fix_values[ low = 'X' ] ) AND
-                                            line_exists( lt_fix_values[ option = 'EQ' low = space ] ) ).
-        ENDIF.
-      ENDIF.
-
-    ENDLOOP.
-
-  ENDMETHOD.
-
 ENDCLASS.
