@@ -1,4 +1,4 @@
-"! <p class="shorttext synchronized" lang="en">Class for BAdI Implementation DBBR_INTGR_ADT_DISCOVERY</p>
+"! <p class="shorttext synchronized" lang="en">Router ABAP DB Browser</p>
 CLASS zcl_dbbr_adt_intgr_disc_app DEFINITION
   PUBLIC
   INHERITING FROM cl_adt_disc_res_app_base
