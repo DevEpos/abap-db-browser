@@ -146,6 +146,9 @@ CLASS lcl_executor IMPLEMENTATION.
 
               LOOP AT ms_query_result-columns ASSIGNING <ls_column>.
                 ASSIGN COMPONENT <ls_column>-metadata-name OF STRUCTURE <ls_new_line> TO FIELD-SYMBOL(<lv_component>).
+                " TODO: Use WRITE to write the true database value in the target field.
+                "    -> The current approach ignores cases, like a database value of '' in a NUMC field
+*                write <lv_column_value> to <lv_component>.
                 <lv_component> = |{ <ls_column>-dataset[ lv_index ] }|.
               ENDLOOP.
 

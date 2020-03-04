@@ -127,7 +127,6 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         fkey      = zif_uitb_c_gui_screen=>c_functions-f5 )
       ( function  = zif_dbbr_c_selection_functions=>change_cds_parameters
         icon      = icon_parameter_export
-        text      = |{ 'Parameter'(006) }|
         quickinfo = |{ 'Change Parameters'(007) }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-f6 )
       ( butn_type = cntb_btype_sep )
@@ -175,7 +174,8 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>go_to_column
         icon      = icon_next_page
-        text      = |{ 'Scroll to Column'(019) }|
+        text      = |{ 'to Column'(019) }|
+        quickinfo = |{ 'Scroll to Column'(057) }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f4 )
       ( function  = 'ROWS'
         icon      = icon_settings
@@ -208,7 +208,8 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f10 )
       ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>control_tech_view
-        icon      = icon_active_inactive        text = |{ 'Column Headers'(027) }|
+        icon      = icon_active_inactive
+        text      = |{ text-027 }|
         quickinfo = |{ 'Technical Column Names on/off'(028) }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f7 )
       ( function  = zif_dbbr_c_selection_functions=>compare_selected_lines
@@ -223,14 +224,14 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>navigate_association
         icon      = icon_workflow_fork
-        text      = |{ 'Association'(032) }|
         quickinfo = |{ 'Navigate to Association'(033) }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f5 )
       ( function  = zif_dbbr_c_selection_functions=>show_cds_source
         icon      = icon_biw_info_object
-        text      = |{ 'CDS Source' }|
+        text      = |{ 'Source' }|
         quickinfo = |{ 'Show CDS Source Code'(052) }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f10 )
+      ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>open_in_sql_console
         icon      = icon_edit_file
         quickinfo = |{ 'Open in SQL Console'(056) }| )

@@ -196,7 +196,8 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
 
 *... check if variant stores grouping information
     LOOP AT ls_existing_variant-variant_data ASSIGNING FIELD-SYMBOL(<ls_vard>) WHERE data_type = zif_dbbr_global_consts=>gc_variant_datatypes-group_by OR
-                                                                                     data_type = zif_dbbr_global_consts=>gc_variant_datatypes-aggregation.
+                                                                                     data_type = zif_dbbr_global_consts=>gc_variant_datatypes-aggregation or
+                                                                                     data_type = zif_dbbr_global_consts=>gc_variant_datatypes-totals.
       DATA(lf_grouping_is_active) = abap_true.
       mr_tabfields_grouped->clear( ).
       EXIT.

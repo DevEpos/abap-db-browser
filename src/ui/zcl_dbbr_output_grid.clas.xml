@@ -123,7 +123,7 @@
     <item>
      <ID>I</ID>
      <KEY>019</KEY>
-     <ENTRY>Scroll to Column</ENTRY>
+     <ENTRY>to Column</ENTRY>
      <LENGTH>26</LENGTH>
     </item>
     <item>
@@ -171,7 +171,7 @@
     <item>
      <ID>I</ID>
      <KEY>027</KEY>
-     <ENTRY>Column Headers</ENTRY>
+     <ENTRY>Headers</ENTRY>
      <LENGTH>24</LENGTH>
     </item>
     <item>
@@ -341,6 +341,12 @@
      <KEY>056</KEY>
      <ENTRY>Open in SQL Console</ENTRY>
      <LENGTH>29</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>057</KEY>
+     <ENTRY>Scroll to Column</ENTRY>
+     <LENGTH>26</LENGTH>
     </item>
    </TPOOL>
    <DESCRIPTIONS>
