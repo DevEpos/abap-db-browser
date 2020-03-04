@@ -777,10 +777,10 @@
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
        <LINE>007</LINE>
        <COLUMN>001</COLUMN>
-       <LENGTH>077</LENGTH>
+       <LENGTH>095</LENGTH>
        <HEIGHT>001</HEIGHT>
        <C_RESIZE_H>X</C_RESIZE_H>
-       <C_COLN_MIN>077</C_COLN_MIN>
+       <C_COLN_MIN>085</C_COLN_MIN>
       </RPY_DYCATT>
       <RPY_DYCATT>
        <TYPE>TABLE_CTRL</TYPE>
@@ -1005,7 +1005,7 @@
        <NAME>GV_SELFIELD_COUNT</NAME>
        <TEXT>__________________________</TEXT>
        <LINE>007</LINE>
-       <COLUMN>080</COLUMN>
+       <COLUMN>098</COLUMN>
        <LENGTH>026</LENGTH>
        <VISLENGTH>026</VISLENGTH>
        <HEIGHT>001</HEIGHT>

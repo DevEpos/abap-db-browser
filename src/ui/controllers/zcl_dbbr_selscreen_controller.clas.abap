@@ -1178,7 +1178,9 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
     IF mv_current_function = 'PAGE_UP' OR
        mv_current_function = 'PAGE_TOP' OR
-       mv_current_function = 'PAGE_DOWN'.
+       mv_current_function = 'PAGE_DOWN' OR
+       mv_current_function = zif_dbbr_c_selscreen_functions=>to_next_criteria OR
+       mv_current_function = zif_dbbr_c_selscreen_functions=>to_previous_criteria.
 
       zcl_uitb_cursor=>set_cursor(
         iv_field = |{ lc_low_field_name }|
@@ -1583,6 +1585,8 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
            mv_current_function = zif_dbbr_c_selscreen_functions=>execute_selection OR
            mv_current_function = zif_dbbr_c_selscreen_functions=>exec_selection_without_grp OR
            mv_current_function = zif_dbbr_c_selscreen_functions=>save_variant OR
+           mv_current_function = zif_dbbr_c_selscreen_functions=>to_next_criteria OR
+           mv_current_function = zif_dbbr_c_selscreen_functions=>to_previous_criteria OR
            mv_current_function = zif_dbbr_c_selscreen_functions=>create_default_variant.
 
           mo_selection_table->expand_all_table_fields( mo_data->mo_tabfield_list  ).
@@ -1690,6 +1694,12 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_all_criteria.
             mo_selection_table->zif_uitb_table~delete_all( ).
+
+          WHEN zif_dbbr_c_selscreen_functions=>to_next_criteria.
+            mo_selection_table->scroll_to_next_criteria( ).
+
+          WHEN zif_dbbr_c_selscreen_functions=>to_previous_criteria.
+            mo_selection_table->scroll_to_previous_criteria( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>go_to_next_table.
             mo_selection_table->scroll_to_next_table( mo_data->mo_tabfield_list->get_table_list( if_include_only_active = abap_true ) ).

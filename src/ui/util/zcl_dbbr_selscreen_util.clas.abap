@@ -547,6 +547,15 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
             icon      = icon_deselect_all
             function  = zif_dbbr_c_selscreen_functions=>unselect_group_by_all )
           ( butn_type = cntb_btype_sep )
+          ( butn_type = cntb_btype_button
+            function  = zif_dbbr_c_selscreen_functions=>to_next_criteria
+            icon      = icon_previous_value
+            quickinfo = |{ 'Go to next filter criteria' }| )
+          ( butn_type = cntb_btype_button
+            function  = zif_dbbr_c_selscreen_functions=>to_previous_criteria
+            icon      = icon_next_value
+            quickinfo = |{ 'Go to previous filter criteria' }| )
+          ( butn_type = cntb_btype_sep )
           ( function  = zif_dbbr_c_selscreen_functions=>get_variant
             icon      = icon_variants
             butn_type = cntb_btype_dropdown

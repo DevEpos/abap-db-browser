@@ -57,6 +57,8 @@ CLASS zcl_dbbr_selscreen_table DEFINITION
     METHODS scroll_to_previous_table
       IMPORTING
         !it_tablist TYPE zdbbr_entity_info_t .
+    METHODS scroll_to_next_criteria.
+    METHODS scroll_to_previous_criteria.
     METHODS search_value
       IMPORTING
         !iv_code                    LIKE sy-ucomm
@@ -616,6 +618,55 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
     IF lv_index_of_current_table <> 0 AND lv_index_of_current_table <> 1.
       scroll_to_first_field_of_table( it_tablist[ lv_index_of_current_table - 1 ]-tabname ).
     ENDIF.
+  ENDMETHOD.
+
+  METHOD scroll_to_next_criteria.
+    CHECK mr_tableview->top_line > 0.
+
+    DATA(lv_current) = mv_current_line.
+    IF lv_current <= 0.
+      lv_current = mr_tableview->top_line.
+    ENDIF.
+
+    LOOP AT mr_table_data->* ASSIGNING FIELD-SYMBOL(<ls_table_data>) FROM lv_current + 1
+       WHERE low IS NOT INITIAL
+          OR high IS NOT INITIAL
+          OR option IS NOT INITIAL
+          OR push IS NOT INITIAL.
+
+      mr_tableview->top_line = sy-tabix.
+      EXIT.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD scroll_to_previous_criteria.
+    CHECK mr_tableview->top_line > 1.
+
+    DATA(lv_current) = mv_current_line.
+    IF lv_current <= 0.
+      lv_current = mr_tableview->top_line.
+    ELSEIF lv_current = mr_tableview->top_line.
+      lv_current = lv_current - 1.
+    ENDIF.
+
+    WHILE lv_current > 0.
+      ASSIGN mr_table_data->*[ lv_current ] TO FIELD-SYMBOL(<ls_line>).
+      IF sy-subrc = 0.
+        IF <ls_line>-low IS NOT INITIAL OR
+           <ls_line>-high IS NOT INITIAL OR
+           <ls_line>-option IS NOT INITIAL OR
+           <ls_line>-push IS NOT INITIAL.
+          mr_tableview->top_line = lv_current.
+          EXIT.
+        ENDIF.
+      ELSE.
+        EXIT.
+      ENDIF.
+      lv_current = lv_current - 1.
+    ENDWHILE.
+
   ENDMETHOD.
 
 
