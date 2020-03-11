@@ -8,8 +8,6 @@ ENDFORM.
 FORM pbo.
 *... try to instantiate controller instance from memory data
   IF gr_controller IS INITIAL.
-
-*    lcl_dbbr_selection_util=>start_selection_from_memory( ).
     gr_controller = zcl_dbbr_app_starter=>start_selection_from_memory( ).
   ENDIF.
 

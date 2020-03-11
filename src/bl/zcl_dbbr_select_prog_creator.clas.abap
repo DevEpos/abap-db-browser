@@ -114,15 +114,15 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
     METHODS fill_where
       CHANGING
         !ct_lines TYPE string_table .
-    "! <p class="shorttext synchronized" lang="en">Generate subroutine pool for selection</p>
-    "!
-    METHODS generate_subroutine
-      EXPORTING
-        VALUE(ev_prog)          TYPE string
-        VALUE(ev_error_message) TYPE string
-        VALUE(ev_error_line)    TYPE i
-        VALUE(ev_error_offset)  TYPE i
-        VALUE(ev_error_word)    TYPE string .
+
+    "! <p class="shorttext synchronized" lang="en">Determines existing line count with CTE</p>
+    METHODS get_group_by_size_by_cte
+      RETURNING
+        VALUE(rv_size) TYPE zdbbr_no_of_lines.
+    "! <p class="shorttext synchronized" lang="en">Creates count query with CTE</p>
+    METHODS create_count_query_for_cte
+      RETURNING
+        VALUE(ro_query) TYPE REF TO  zcl_dbbr_sql_query .
 ENDCLASS.
 
 
@@ -134,8 +134,6 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     rr_instance = NEW zcl_dbbr_select_prog_creator( ).
 
     rr_instance->mf_only_create_count_logic = if_only_create_count_logic.
-    rr_instance->mf_create_for_all = if_create_for_all.
-    rr_instance->ms_assocication_target = is_association_target.
     rr_instance->mt_select   = it_select.
     rr_instance->mt_from     = it_from.
     rr_instance->mt_having   = it_having.
@@ -143,32 +141,16 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     rr_instance->mt_order_by = it_order_by.
     rr_instance->mt_group_by = it_group_by.
     rr_instance->mv_max_size = iv_max_size.
-
-    IF if_create_for_all = abap_true.
-      rr_instance->generate_subroutine(
-        IMPORTING
-          ev_prog          = DATA(lv_prog)
-          ev_error_message = DATA(lv_error_message)
-          ev_error_line    = DATA(lv_error_line)
-          ev_error_offset  = DATA(lv_error_offset)
-          ev_error_word    = DATA(lv_error_word)
-      ).
-
-      IF lv_error_message IS NOT INITIAL.
-        zcx_dbbr_dyn_prog_generation=>raise_dyn_prog_generation(
-            iv_text = lv_error_message
-        ).
-      ENDIF.
-
-      rr_instance->mv_class = |\\PROGRAM={ lv_prog }\\CLASS=MAIN|.
-    ENDIF.
-
   ENDMETHOD.
 
   METHOD determine_size_for_group_by.
     DATA: lx_root TYPE REF TO cx_root.
 
     FIELD-SYMBOLS: <lt_data> TYPE table.
+
+***    IF sy-saprl > 751. " Common table expressions exist
+***      rv_size = get_group_by_size_by_cte( ).
+***    ELSE.
 
     ASSIGN ir_t_data->* TO <lt_data>.
 
@@ -188,6 +170,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
           EXPORTING
             previous = lx_root.
     ENDTRY.
+***    ENDIF.
   ENDMETHOD.
 
   METHOD determine_size.
@@ -195,34 +178,16 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
 
     FIELD-SYMBOLS: <lt_for_all_data> TYPE table.
 
-    IF mf_create_for_all = abap_true.
-      IF ir_t_for_all IS NOT BOUND.
-        RETURN.
-      ENDIF.
-
-      ASSIGN ir_t_for_all->* TO <lt_for_all_data>.
-
-      IF <lt_for_all_data> IS INITIAL.
-        RETURN.
-      ENDIF.
-
-      CALL METHOD (mv_class)=>size
-        EXPORTING
-          it_for_all_data = <lt_for_all_data>
-        IMPORTING
-          ev_size         = rv_size.
-    ELSE.
-      TRY.
-          SELECT COUNT( * )
-            FROM (mt_from)
-            WHERE (mt_where)
-          INTO @rv_size.
-        CATCH cx_root INTO lx_root.
-          RAISE EXCEPTION TYPE zcx_dbbr_selection_common
-            EXPORTING
-              previous = lx_root.
-      ENDTRY.
-    ENDIF.
+    TRY.
+        SELECT COUNT( * )
+          FROM (mt_from)
+          WHERE (mt_where)
+        INTO @rv_size.
+      CATCH cx_root INTO lx_root.
+        RAISE EXCEPTION TYPE zcx_dbbr_selection_common
+          EXPORTING
+            previous = lx_root.
+    ENDTRY.
 
   ENDMETHOD.
 
@@ -321,219 +286,23 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD generate_subroutine.
-    DATA: lt_lines          TYPE string_table,
-          lv_prog           TYPE string,
-          lv_error_message  TYPE string,
-          lv_code_line      TYPE string,
-          lv_for_all_suffix TYPE string,
-          lv_query_offset   TYPE i.
-
-    lt_lines = VALUE #(
-*... insert program start command
-      ( |program.|                                   )
-    ).
-
-*... create type definition for association navigation if requested
-    IF mf_create_for_all = abap_true.
-      lt_lines = VALUE #( BASE lt_lines
-        ( |TYPES: BEGIN OF lty_for_all_data,| )
-      ).
-      LOOP AT ms_assocication_target-fields ASSIGNING FIELD-SYMBOL(<ls_assoc_field>).
-        lt_lines = VALUE #( BASE lt_lines
-          ( |         { <ls_assoc_field>-name } TYPE { ms_assocication_target-ref_cds_view }-{ <ls_assoc_field>-name },| )
-        ).
-      ENDLOOP.
-      lt_lines = VALUE #( BASE lt_lines
-        ( |	      END OF lty_for_all_data.|                                               )
-        ( |TYPES: ltt_for_all TYPE TABLE OF lty_for_all_data.| )
-      ).
-
-    ENDIF.
-
-
-*... insert class definition to perform various kinds of selects
-    lt_lines = VALUE #( BASE lt_lines
-      ( |CLASS main DEFINITION.|                     )
-      ( |  PUBLIC SECTION.|                          )
-    ).
-    lt_lines = VALUE #( BASE lt_lines
-      ( |    CLASS-METHODS size|                     )
-    ).
-    IF mf_create_for_all = abap_true.
-      lt_lines = VALUE #( BASE lt_lines
-        ( |      IMPORTING|                            )
-        ( |                it_for_all_data TYPE TABLE| )
-      ).
-    ENDIF.
-    lt_lines = VALUE #( BASE lt_lines
-      ( |      EXPORTING|                            )
-      ( |                ev_size TYPE zdbbr_no_of_lines|             )
-      ( |      RAISING   zcx_dbbr_selection_common.|           )
-    ) .
-    IF mf_only_create_count_logic = abap_false.
-
-      lt_lines = VALUE #( BASE lt_lines
-        ( |    CLASS-METHODS select|                   )
-      ).
-      IF mf_create_for_all = abap_true.
-        lt_lines = VALUE #( BASE lt_lines
-          ( |      IMPORTING|                            )
-          ( |                it_for_all_data TYPE TABLE| )
-        ).
-      ENDIF.
-      lt_lines = VALUE #( BASE lt_lines
-        ( |      EXPORTING|                            )
-        ( |                et_data TYPE TABLE| )
-        ( |      RAISING   zcx_dbbr_selection_common.| )
-      ).
-    ENDIF.
-
-    lt_lines = VALUE #( BASE lt_lines
-      ( |ENDCLASS.|                                  )
-    ).
-
-
-    lt_lines = VALUE #( BASE lt_lines
-      ( |CLASS main IMPLEMENTATION.|                )
-
-*... create coding for determing the found lines for a specific where condition
-*... and from clause
-      ( |  METHOD size.|                            )
-    ).
-
-    IF mf_create_for_all = abap_true.
-      lt_lines = VALUE #( BASE lt_lines
-        ( |  FIELD-SYMBOLS: <lt_for_all> TYPE ltt_for_all.| )
-        ( |  ASSIGN it_for_all_data to <lt_for_all>.|       )
-        ( ||                                                )
-      ).
-    ENDIF.
-
-    lt_lines = VALUE #( BASE lt_lines
-      ( |    TRY .|                                 )
-      ( |        SELECT COUNT( * )|                 )
-    ).
-
-    fill_from( CHANGING ct_lines = lt_lines ).
-    IF mf_create_for_all = abap_true.
-      lt_lines = VALUE #( BASE lt_lines
-        ( |          FOR ALL ENTRIES IN @<lt_for_all>| )
-      ).
-    ENDIF.
-    fill_where( CHANGING ct_lines = lt_lines ).
-
-    lt_lines = VALUE #( BASE lt_lines
-      ( |        INTO @ev_size|                                  )
-      ( |          BYPASSING BUFFER.|                            )
-      ( |      CATCH cx_root INTO DATA(lx_root).|                )
-      ( |        RAISE EXCEPTION TYPE zcx_dbbr_selection_common| )
-      ( |          EXPORTING|                                    )
-      ( |            previous = lx_root.|                        )
-      ( |    ENDTRY.|                                            )
-      ( |  ENDMETHOD.|                                           )
-    ).
-
-    IF mf_only_create_count_logic = abap_false.
-
-*... creating logic for actually selecting lines from one or several tables or cds views
-      lt_lines = VALUE #( BASE lt_lines
-        ( |  METHOD select.|    )
-      ).
-      IF mf_create_for_all = abap_true.
-        lt_lines = VALUE #( BASE lt_lines
-          ( |  FIELD-SYMBOLS: <lt_for_all> TYPE ltt_for_all.| )
-          ( |  ASSIGN it_for_all_data to <lt_for_all>.|       )
-          ( ||                                                )
-        ).
-      ENDIF.
-      lt_lines = VALUE #( BASE lt_lines
-        ( |    TRY .|           )
-      ).
-      fill_select( CHANGING ct_lines = lt_lines ).
-      fill_from( CHANGING ct_lines = lt_lines ).
-
-      IF mf_create_for_all = abap_true.
-        lt_lines = VALUE #( BASE lt_lines
-          ( |          FOR ALL ENTRIES IN @<lt_for_all>| )
-        ).
-      ENDIF.
-
-      fill_where( CHANGING ct_lines = lt_lines ).
-
-      IF mf_create_for_all = abap_false.
-        fill_group_by( CHANGING ct_lines = lt_lines ).
-        fill_having( CHANGING ct_lines = lt_lines ).
-        fill_order_by( CHANGING ct_lines = lt_lines ).
-      ENDIF.
-
-      lt_lines = VALUE #( BASE lt_lines
-        ( |        INTO TABLE @data(lt_data) UP TO { mv_max_size } ROWS|  )
-        ( |          BYPASSING BUFFER.|                                   )
-        ( |        MOVE-CORRESPONDING lt_data to et_data.|                )
-        ( |      CATCH cx_root INTO DATA(lx_root).|                       )
-        ( |        RAISE EXCEPTION TYPE zcx_dbbr_selection_common|        )
-        ( |          EXPORTING|                                           )
-        ( |            previous = lx_root.|                               )
-        ( |    ENDTRY.|                                                   )
-        ( |  ENDMETHOD.|                                                  )
-      ).
-    ENDIF.
-
-    lt_lines = VALUE #( BASE lt_lines
-      ( |ENDCLASS.|                                                     )
-    ).
-
-    ev_prog = 'TEMP1'.
-
-    GENERATE SUBROUTINE POOL lt_lines
-        NAME    ev_prog
-        MESSAGE ev_error_message
-        LINE    ev_error_line
-        OFFSET  ev_error_offset
-        WORD    ev_error_word.                         "#EC CI_GENERATE
-
-  ENDMETHOD.
-
-
   METHOD select_data.
     DATA: lx_root TYPE REF TO cx_root.
 
-    FIELD-SYMBOLS: <lt_for_all_data> TYPE table.
-
-    IF mf_create_for_all = abap_true.
-      IF ir_t_for_all IS NOT BOUND.
-        RETURN.
-      ENDIF.
-
-      ASSIGN ir_t_for_all->* TO <lt_for_all_data>.
-
-      IF <lt_for_all_data> IS INITIAL.
-        RETURN.
-      ENDIF.
-
-      CALL METHOD (mv_class)=>select
-        EXPORTING
-          it_for_all_data = <lt_for_all_data>
-        IMPORTING
-          et_data         = et_data.
-    ELSE.
-***      CALL METHOD (mv_class)=>select IMPORTING et_data = et_data.
-      TRY.
-          SELECT (mt_select)
-            FROM (mt_from)
-            WHERE (mt_where)
-            GROUP BY (mt_group_by)
-            HAVING (mt_having)
-            ORDER BY (mt_order_by)
-          INTO CORRESPONDING FIELDS OF TABLE @et_data
-            UP TO @mv_max_size ROWS.
-        CATCH cx_root INTO lx_root.
-          RAISE EXCEPTION TYPE zcx_dbbr_selection_common
-            EXPORTING
-              previous = lx_root.
-      ENDTRY.
-    ENDIF.
+    TRY.
+        SELECT (mt_select)
+          FROM (mt_from)
+          WHERE (mt_where)
+          GROUP BY (mt_group_by)
+          HAVING (mt_having)
+          ORDER BY (mt_order_by)
+        INTO CORRESPONDING FIELDS OF TABLE @et_data
+          UP TO @mv_max_size ROWS.
+      CATCH cx_root INTO lx_root.
+        RAISE EXCEPTION TYPE zcx_dbbr_selection_common
+          EXPORTING
+            previous = lx_root.
+    ENDTRY.
 
   ENDMETHOD.
 
@@ -554,10 +323,62 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     fill_from( CHANGING ct_lines = lt_sql_lines ).
     fill_where( CHANGING ct_lines = lt_sql_lines ).
     fill_group_by( CHANGING ct_lines = lt_sql_lines ).
-    fill_having( changing ct_lines = lt_sql_lines ).
+    fill_having( CHANGING ct_lines = lt_sql_lines ).
     fill_order_by( CHANGING ct_lines = lt_sql_lines ).
 
     CONCATENATE LINES OF lt_sql_lines INTO rv_select_sql SEPARATED BY cl_abap_char_utilities=>cr_lf.
+  ENDMETHOD.
+
+  METHOD create_count_query_for_cte.
+    DATA: lt_sql_lines TYPE string_table,
+          lv_query     TYPE string.
+
+    lt_sql_lines = VALUE #(
+      ( |WITH| )
+      ( |  +group_select as (| )
+      ( || )
+    ).
+
+    fill_select( CHANGING ct_lines = lt_sql_lines ).
+    fill_from( CHANGING ct_lines = lt_sql_lines ).
+    fill_where( CHANGING ct_lines = lt_sql_lines ).
+    fill_group_by( CHANGING ct_lines = lt_sql_lines ).
+    fill_having( CHANGING ct_lines = lt_sql_lines ).
+    lt_sql_lines = VALUE #( BASE lt_sql_lines
+      ( |)| )
+      ( |SELECT COUNT(*) FROM +group_select| )
+    ).
+    CONCATENATE LINES OF lt_sql_lines INTO lv_query SEPARATED BY cl_abap_char_utilities=>cr_lf.
+
+    TRY.
+        ro_query = NEW zcl_dbbr_sql_query_parser(
+          iv_query                 = lv_query
+          if_fill_log_for_messages = abap_false
+        )->parse( ).
+      CATCH zcx_dbbr_sql_query_error INTO DATA(lx_error).
+        lx_error->zif_sat_exception_message~print( ).
+    ENDTRY.
+  ENDMETHOD.
+
+
+  METHOD get_group_by_size_by_cte.
+
+    DATA(lo_count_query) = create_count_query_for_cte( ).
+    CHECK lo_count_query IS NOT INITIAL.
+
+    zcl_dbbr_sql_query_exec=>execute_query(
+      EXPORTING
+        io_query          = lo_count_query
+        iv_row_count      = mv_max_size
+      IMPORTING
+        et_data_info      = DATA(lt_data_info)
+        ev_execution_time = DATA(lv_exec_time)
+        ev_message        = DATA(lv_message)
+        ev_message_type   = DATA(lv_message_type)
+        er_data           = DATA(lr_t_result)
+        ev_line_count     = DATA(lv_line_count)
+    ).
+    rv_size = lv_line_count.
   ENDMETHOD.
 
 ENDCLASS.

@@ -1,24 +1,24 @@
-class ZCL_DBBR_TABFIELD_MANAGER definition
-  public
-  create public .
+CLASS zcl_dbbr_tabfield_manager DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_UITB_SCREEN_CONTROLLER .
+    INTERFACES zif_uitb_screen_controller .
 
-  constants:
-    BEGIN OF mc_tabs,
+    CONSTANTS:
+      BEGIN OF mc_tabs,
         all_fields_tab    TYPE dynfnam VALUE 'ALL_FIELDS',
         filter_fields_tab TYPE dynfnam VALUE 'FILTER_FIELDS',
       END OF mc_tabs .
-  constants:
-    BEGIN OF mc_screens,
+    CONSTANTS:
+      BEGIN OF mc_screens,
         main_screen          TYPE sy-dynnr VALUE '0800',
         all_fields_screen    TYPE sy-dynnr VALUE '0801',
         filter_fields_screen TYPE sy-dynnr VALUE '0802',
       END OF mc_screens .
-  constants:
-    BEGIN OF mc_functions,
+    CONSTANTS:
+      BEGIN OF mc_functions,
         select_fields        TYPE sy-ucomm VALUE 'SEL_ALL',
         select_key_fields    TYPE sy-ucomm VALUE 'SEL_KEY',
         deselect_fields      TYPE sy-ucomm VALUE 'DE_SEL_ALL',
@@ -37,99 +37,99 @@ public section.
         insert_association   TYPE sy-ucomm VALUE 'ADDASSOC',
       END OF mc_functions .
 
-  methods CONSTRUCTOR
-    importing
-      !IR_FIELDS type ref to ZCL_DBBR_TABFIELD_LIST
-      !IF_FIELD_AGGREGATION type BOOLEAN optional
-      !IR_CDS_VIEW type ref to ZCL_SAT_CDS_VIEW optional
-      !IV_MODE type ZDBBR_FIELD_CHOOSER_MODE
-      !IV_ENTITY_TYPE type ZSAT_ENTITY_TYPE
-      !IS_JOIN_DEF type ZDBBR_JOIN_DEF optional .
-  methods SHOW_OUTPUT_FIELDS .
-  methods SHOW_AVAILABLE_FIELDS .
-  methods DATA_SHOULD_BE_TRANSFERRED
-    returning
-      value(RF_TRANSFER_DATA) type BOOLEAN .
-  methods RETRIEVE_CURRENT_DATA
-    returning
-      value(RR_CURRENT_FIELDS) type ref to ZCL_DBBR_TABFIELD_LIST .
+    METHODS constructor
+      IMPORTING
+        !ir_fields            TYPE REF TO zcl_dbbr_tabfield_list
+        !if_field_aggregation TYPE boolean OPTIONAL
+        !ir_cds_view          TYPE REF TO zcl_sat_cds_view OPTIONAL
+        !iv_mode              TYPE zdbbr_field_chooser_mode
+        !iv_entity_type       TYPE zsat_entity_type
+        !is_join_def          TYPE zdbbr_join_def OPTIONAL .
+    METHODS show_output_fields .
+    METHODS show_available_fields .
+    METHODS data_should_be_transferred
+      RETURNING
+        VALUE(rf_transfer_data) TYPE boolean .
+    METHODS retrieve_current_data
+      RETURNING
+        VALUE(rr_current_fields) TYPE REF TO zcl_dbbr_tabfield_list .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  aliases GET_REPORT_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_REPORT_ID .
-  aliases GET_SCREEN_ID
-    for ZIF_UITB_SCREEN_CONTROLLER~GET_SCREEN_ID .
+    ALIASES get_report_id
+      FOR zif_uitb_screen_controller~get_report_id .
+    ALIASES get_screen_id
+      FOR zif_uitb_screen_controller~get_screen_id .
 
-  types:
-    BEGIN OF ty_table_overview.
-            INCLUDE TYPE zdbbr_entity_info.
-    TYPES: style  TYPE  lvc_t_styl.
+    TYPES:
+      BEGIN OF ty_table_overview.
+        INCLUDE TYPE zdbbr_entity_info.
+        TYPES: style TYPE  lvc_t_styl.
     TYPES: x_color  TYPE  char4.
     TYPES: END OF ty_table_overview .
 
-  data MR_OVERVIEW_DOCK type ref to CL_GUI_DOCKING_CONTAINER .
-  data MR_DD_ALV_LIST type ref to CL_ALV_DD_LISTBOX .
-  data:
-    mt_tableoverview TYPE STANDARD TABLE OF ty_table_overview .
-  data MT_FIELDCAT type LVC_T_FCAT .
-  data MR_SELECT_FIELD_TREE type ref to ZCL_DBBR_FIELD_SELECT_TREE .
-  data MR_OUTPUT_FIELD_TREE type ref to ZCL_DBBR_FIELD_OUTPUT_TREE .
-  data MR_FIELDS type ref to ZCL_DBBR_TABFIELD_LIST .
-  data MR_FIELDS_CACHE type ref to ZCL_DBBR_TABFIELD_LIST .
-  data MV_MODE type ZDBBR_FIELD_CHOOSER_MODE .
-  data MF_OUTPUT_TREE_UPDATED type BOOLEAN .
-  data MF_SELECT_TREE_UPDATED type BOOLEAN .
-  data MF_IGNORE_PAI type BOOLEAN .
-  data MF_FIELD_AGGREGATION type BOOLEAN .
-  data MF_TRANSFER_DATA type BOOLEAN .
-  data MV_CURRENT_TABLE type TABNAME .
-  data MV_ENTITY_TYPE type ZSAT_ENTITY_TYPE .
-  data MF_SINGLE_TABLE_MODE type BOOLEAN .
-  data MR_GLOBAL_DATA type ref to ZDBBR_GLOBAL_DATA .
-  data MR_ACTIVE_TAB type ref to SYST_UCOMM .
-  data MR_TREE_TAB_CONTROL type ref to CXTAB_TABSTRIP .
-  data MR_TREE_SCREEN type ref to SYST_DYNNR .
-  data MR_FILTER_FIELDS_TAB type ref to ZDBBR_BUTTON .
-  data MR_CDS_VIEW type ref to ZCL_SAT_CDS_VIEW .
+    DATA mr_overview_dock TYPE REF TO cl_gui_docking_container .
+    DATA mr_dd_alv_list TYPE REF TO cl_alv_dd_listbox .
+    DATA:
+      mt_tableoverview TYPE STANDARD TABLE OF ty_table_overview .
+    DATA mt_fieldcat TYPE lvc_t_fcat .
+    DATA mr_select_field_tree TYPE REF TO zcl_dbbr_field_select_tree .
+    DATA mr_output_field_tree TYPE REF TO zcl_dbbr_field_output_tree .
+    DATA mr_fields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mr_fields_cache TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mv_mode TYPE zdbbr_field_chooser_mode .
+    DATA mf_output_tree_updated TYPE boolean .
+    DATA mf_select_tree_updated TYPE boolean .
+    DATA mf_ignore_pai TYPE boolean .
+    DATA mf_field_aggregation TYPE boolean .
+    DATA mf_transfer_data TYPE boolean .
+    DATA mv_current_table TYPE tabname .
+    DATA mv_entity_type TYPE zsat_entity_type .
+    DATA mf_single_table_mode TYPE boolean .
+    DATA mr_global_data TYPE REF TO zdbbr_global_data .
+    DATA mr_active_tab TYPE REF TO syst_ucomm .
+    DATA mr_tree_tab_control TYPE REF TO cxtab_tabstrip .
+    DATA mr_tree_screen TYPE REF TO syst_dynnr .
+    DATA mr_filter_fields_tab TYPE REF TO zdbbr_button .
+    DATA mr_cds_view TYPE REF TO zcl_sat_cds_view .
 
-  methods CREATE_ALV_GRID .
-  methods DISPLAY_ALV_GRID .
-  methods CREATE_TABLE_OVERVIEW .
-  methods FILTER_FIELDS_FOR_TABLE .
-  methods CREATE_TABLE_OVERVIEW_DATA .
-  methods GET_CURRENT_TAB_CONTROLLER
-    returning
-      value(RR_CONTROLLER) type ref to ZIF_UITB_PAGE_SCROLLER .
-  methods GET_CURRENT_CONTENT_SEARCHER
-    returning
-      value(RR_CONTENT_SEARCHER) type ref to ZIF_UITB_CONTENT_SEARCHER .
-  methods ON_OUTPUT_TREE_UPDATED
-    for event TREE_DATA_UPDATED of ZCL_DBBR_FIELD_OUTPUT_TREE .
-  methods ON_SELECT_TREE_UPDATED
-    for event TREE_DATA_UPDATED of ZCL_DBBR_FIELD_SELECT_TREE .
-  methods ON_TABLE_HOTSPOT_CLICK
-    for event HOTSPOT_CLICK of CL_GUI_ALV_GRID
-    importing
-      !ES_ROW_NO
-      !E_COLUMN_ID
-      !E_ROW_ID .
-  methods ON_TABLE_DATA_CHANGED_FINISHED
-    for event DATA_CHANGED_FINISHED of CL_GUI_ALV_GRID
-    importing
-      !ET_GOOD_CELLS
-      !E_MODIFIED .
+    METHODS create_alv_grid .
+    METHODS display_alv_grid .
+    METHODS create_table_overview .
+    METHODS filter_fields_for_table .
+    METHODS create_table_overview_data .
+    METHODS get_current_tab_controller
+      RETURNING
+        VALUE(rr_controller) TYPE REF TO zif_uitb_page_scroller .
+    METHODS get_current_content_searcher
+      RETURNING
+        VALUE(rr_content_searcher) TYPE REF TO zif_uitb_content_searcher .
+    METHODS on_output_tree_updated
+        FOR EVENT tree_data_updated OF zcl_dbbr_field_output_tree .
+    METHODS on_select_tree_updated
+        FOR EVENT tree_data_updated OF zcl_dbbr_field_select_tree .
+    METHODS on_table_hotspot_click
+        FOR EVENT hotspot_click OF cl_gui_alv_grid
+      IMPORTING
+        !es_row_no
+        !e_column_id
+        !e_row_id .
+    METHODS on_table_data_changed_finished
+        FOR EVENT data_changed_finished OF cl_gui_alv_grid
+      IMPORTING
+        !et_good_cells
+        !e_modified .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_TABFIELD_MANAGER IMPLEMENTATION.
+CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
 
   METHOD constructor.
 
 *... retrieve some references to global data
-    DATA(lr_data_cache) = ZCL_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
+    DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
     mr_global_data = CAST zdbbr_global_data( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
     mr_active_tab = CAST syst_ucomm( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_active_tab ) ).
@@ -157,7 +157,7 @@ CLASS ZCL_DBBR_TABFIELD_MANAGER IMPLEMENTATION.
     ENDIF.
 
     IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-selection AND
-       is_join_def-tables is not INITIAL.
+       is_join_def-tables IS NOT INITIAL.
 
       mf_single_table_mode = abap_true.
 *... set current table to primary table as default mode
@@ -498,7 +498,7 @@ CLASS ZCL_DBBR_TABFIELD_MANAGER IMPLEMENTATION.
           lv_end_col  TYPE i.
 
     IF mv_mode <> zif_dbbr_global_consts=>gc_field_chooser_modes-output.
-      lv_end_line = cond #( when mf_single_table_mode = abap_true then  31 ).
+      lv_end_line = COND #( WHEN mf_single_table_mode = abap_true THEN  31 ).
       lv_end_col = 110.
     ENDIF.
 
@@ -664,7 +664,7 @@ CLASS ZCL_DBBR_TABFIELD_MANAGER IMPLEMENTATION.
           IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output AND
              mf_field_aggregation = abap_true.
             ls_screen-invisible = 1.
-            MODIFY screen FROM ls_screen.
+            MODIFY SCREEN FROM ls_screen.
           ENDIF.
         ENDIF.
       ENDLOOP.

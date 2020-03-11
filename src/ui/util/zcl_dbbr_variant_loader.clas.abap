@@ -396,7 +396,12 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
               <ls_selfield>-totals = abap_true.
 
             WHEN zif_dbbr_global_consts=>gc_variant_datatypes-aggregation.
-              <ls_selfield>-aggregation = <ls_vardata_group_entry>-low_val.
+              " Fallback for old Variant data where totals not yet existed
+              IF <ls_vardata_group_entry>-low_val = 'SUM'.
+                <ls_selfield>-totals = abap_true.
+              ELSE.
+                <ls_selfield>-aggregation = <ls_vardata_group_entry>-low_val.
+              ENDIF.
 
             WHEN zif_dbbr_global_consts=>gc_variant_datatypes-group_by.
               <ls_selfield>-group_by = abap_true.

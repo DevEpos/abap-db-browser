@@ -47,7 +47,7 @@
       </TLINE>
       <TLINE>
        <TDFORMAT>AS</TDFORMAT>
-       <TDLINE>This setting control the automatic creation and loading of selection</TDLINE>
+       <TDLINE>This setting controls the automatic creation and loading of selection</TDLINE>
       </TLINE>
       <TLINE>
        <TDLINE>criteria of the currently chosen entity in the DB Browser.</TDLINE>
@@ -57,13 +57,13 @@
        <TDLINE>Every time a data selection is performed and selection criteria were</TDLINE>
       </TLINE>
       <TLINE>
-       <TDLINE>entered in into the selection screen an automatic variant will be</TDLINE>
+       <TDLINE>entered into the selection screen an automatic variant will be created</TDLINE>
       </TLINE>
       <TLINE>
-       <TDLINE>created with the entered values. The thus created variant is only valid</TDLINE>
+       <TDLINE>with the entered values. The thus created variant is only valid for the</TDLINE>
       </TLINE>
       <TLINE>
-       <TDLINE>for the current user.</TDLINE>
+       <TDLINE>current user.</TDLINE>
       </TLINE>
       <TLINE>
        <TDFORMAT>U1</TDFORMAT>
