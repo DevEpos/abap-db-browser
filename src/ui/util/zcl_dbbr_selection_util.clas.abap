@@ -1217,7 +1217,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     IF mt_where IS INITIAL.
       mt_where = mt_source_where_cond.
-    ELSE.
+    ELSEIF mt_source_where_cond IS NOT INITIAL.
       mt_where = VALUE #( BASE mt_where ( |AND| ) ( LINES OF mt_source_where_cond ) ).
     ENDIF.
   ENDMETHOD.
