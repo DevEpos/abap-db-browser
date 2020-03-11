@@ -56,7 +56,7 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     CLASS-METHODS create_controller_from_data
       IMPORTING
         !is_controller_serialized TYPE zdbbr_sel_ctrl_serialized
-        !ir_t_for_all_data        TYPE REF TO data
+        !ir_t_for_all_data        TYPE REF TO data OPTIONAL
         !if_not_first_screen_call TYPE abap_bool
       RETURNING
         VALUE(rr_controller)      TYPE REF TO zcl_dbbr_selection_controller .
@@ -291,7 +291,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_SELECTION_CONTROLLER IMPLEMENTATION.
+CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD alv_headers_needs_refresh.
@@ -679,7 +679,7 @@ CLASS ZCL_DBBR_SELECTION_CONTROLLER IMPLEMENTATION.
     DATA(lr_tabfields_all) = zcl_dbbr_tabfield_list=>create_from_serialized( is_controller_serialized-tabfields_all_data ).
 
     DATA(ls_tech_info) = is_controller_serialized-technical_info.
-    IF ir_t_for_all_data IS BOUND.
+    IF ir_t_for_all_data IS BOUND OR is_controller_serialized-source_entity_where_cond IS NOT INITIAL.
       ls_tech_info-activate_alv_live_filter = abap_false.
     ENDIF.
 
@@ -690,12 +690,10 @@ CLASS ZCL_DBBR_SELECTION_CONTROLLER IMPLEMENTATION.
                                         nav_breadcrumbs    = navigation_breadcrumbs
     ).
 
-    ls_selection_data-do_for_all_select = xsdbool( ir_t_for_all_data IS BOUND ).
     ls_selection_data-for_all_entries_data = ir_t_for_all_data.
     ls_selection_data-technical_infos = ls_tech_info.
     ls_selection_data-tabfields = lr_tabfields.
     ls_selection_data-tabfields_all = lr_tabfields_all.
-    ls_selection_data-navigation_count = is_controller_serialized-navigation_count.
 
     rr_controller = NEW zcl_dbbr_selection_controller( ls_selection_data ).
 
@@ -1597,7 +1595,7 @@ CLASS ZCL_DBBR_SELECTION_CONTROLLER IMPLEMENTATION.
             lv_sort_func_index = lines( lt_menu_flat ).
           ENDIF.
 
-          lt_temp_menu_entries = value #(
+          lt_temp_menu_entries = VALUE #(
             ( type = sctx_c_type_separator )
             ( type  = sctx_c_type_function
               fcode = zif_dbbr_c_selection_functions=>disable_checkbox_col_style
@@ -1605,7 +1603,7 @@ CLASS ZCL_DBBR_SELECTION_CONTROLLER IMPLEMENTATION.
             ( type = sctx_c_type_separator )
           ).
 
-          INSERT lines of lt_temp_menu_entries INTO lt_menu_flat INDEX lv_sort_func_index.
+          INSERT LINES OF lt_temp_menu_entries INTO lt_menu_flat INDEX lv_sort_func_index.
         ENDIF.
       ENDIF.
 

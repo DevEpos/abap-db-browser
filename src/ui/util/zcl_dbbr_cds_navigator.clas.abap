@@ -11,18 +11,19 @@ CLASS zcl_dbbr_cds_navigator DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    DATA mr_source_cds_view TYPE REF TO ZCL_SAT_CDS_VIEW .
+    DATA mr_source_cds_view TYPE REF TO zcl_sat_cds_view .
     DATA ms_tech_info TYPE zdbbr_tech_info.
     DATA mr_t_data TYPE REF TO data .
-    DATA ms_association TYPE ZSAT_CDS_ASSOCIATION .
+    DATA ms_association TYPE zsat_cds_association .
     DATA mr_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mr_source_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mt_source_index TYPE lvc_t_indx .
-    DATA mv_entity_type TYPE ZSAT_ENTITY_TYPE .
+    DATA mv_entity_type TYPE zsat_entity_type .
     DATA mr_t_for_all_data TYPE REF TO data .
     DATA mt_nav_breadcrumbs TYPE string_table .
     DATA mv_nav_count TYPE i .
-    DATA mt_param_values TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_param_value.
+    DATA mt_param_values TYPE zif_sat_ty_global=>ty_t_cds_param_value.
+    DATA: mt_where TYPE string_table.
 
     METHODS create_output_fields .
     METHODS export_data_to_memory .
@@ -31,12 +32,12 @@ CLASS zcl_dbbr_cds_navigator DEFINITION
       IMPORTING
         !ir_t_data           TYPE REF TO data
         is_tech_info         TYPE zdbbr_tech_info
-        !ir_source_cds_view  TYPE REF TO ZCL_SAT_CDS_VIEW
+        !ir_source_cds_view  TYPE REF TO zcl_sat_cds_view
         !it_source_index     TYPE lvc_t_indx
         !ir_source_tabfields TYPE REF TO zcl_dbbr_tabfield_list
-        !is_association      TYPE ZSAT_CDS_ASSOCIATION
+        !is_association      TYPE zsat_cds_association
         !it_nav_breadcrumbs  TYPE string_table
-        it_param_values      TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_param_value OPTIONAL
+        it_param_values      TYPE zif_sat_ty_global=>ty_t_cds_param_value OPTIONAL
         !iv_nav_count        TYPE i .
     METHODS handle_messages .
 ENDCLASS.
@@ -64,13 +65,13 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
 
     CASE ms_association-kind.
 
-      WHEN ZIF_SAT_C_CDS_ASSOC_TYPE=>entity OR
-           ZIF_SAT_C_CDS_ASSOC_TYPE=>table_function.
+      WHEN zif_sat_c_cds_assoc_type=>entity OR
+           zif_sat_c_cds_assoc_type=>table_function.
 
-        mv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>cds_view.
+        mv_entity_type = zif_sat_c_entity_type=>cds_view.
         TRY.
-            DATA(lr_target_cds) = ZCL_SAT_CDS_VIEW_FACTORY=>read_cds_view( ms_association-ref_cds_view ).
-          CATCH ZCX_SAT_DATA_READ_ERROR INTO DATA(lx_read_error).
+            DATA(lr_target_cds) = zcl_sat_cds_view_factory=>read_cds_view( ms_association-ref_cds_view ).
+          CATCH zcx_sat_data_read_error INTO DATA(lx_read_error).
             MESSAGE lx_read_error->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
         ENDTRY.
         DATA(ls_target_cds_header) = lr_target_cds->get_header( ).
@@ -84,10 +85,10 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
             if_is_primary    = abap_true
         ).
 
-      WHEN ZIF_SAT_C_CDS_ASSOC_TYPE=>table OR
-           ZIF_SAT_C_CDS_ASSOC_TYPE=>view.
+      WHEN zif_sat_c_cds_assoc_type=>table OR
+           zif_sat_c_cds_assoc_type=>view.
 
-        mv_entity_type = ZIF_SAT_C_ENTITY_TYPE=>table.
+        mv_entity_type = zif_sat_c_entity_type=>table.
         zcl_dbbr_tabfield_builder=>create_tabfields(
             iv_tablename        = ms_association-ref_cds_view
             ir_tabfield_list    = mr_tabfields
@@ -117,14 +118,16 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
     ).
 
     DATA(ls_controller_data) = VALUE zdbbr_sel_ctrl_serialized(
-        entity_id              = ms_association-ref_cds_view
-        entity_type            = mv_entity_type
-        technical_info         = ms_tech_info
-        tabfields_data         = ls_tabfield_data
-        tabfields_all_data     = ls_tabfield_data
-        navigation_info        = ms_association
-        navigation_breadcrumbs = mt_nav_breadcrumbs
-        navigation_count       = mv_nav_count + 1
+        entity_id                = ms_association-ref_cds_view
+        entity_type              = mv_entity_type
+        technical_info           = ms_tech_info
+        tabfields_data           = ls_tabfield_data
+        tabfields_all_data       = ls_tabfield_data
+        navigation_info          = ms_association
+        navigation_breadcrumbs   = mt_nav_breadcrumbs
+        navigation_count         = mv_nav_count + 1
+        source_entity_id         = mr_source_cds_view->get_header( )-entityname
+        source_entity_where_cond = mt_where
     ).
 
     lv_mem_id = zif_dbbr_c_report_id=>main && sy-uname.
@@ -133,17 +136,13 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
       serialized = ls_controller_data
     TO MEMORY ID lv_mem_id.
 
-*... also export for all entries selection data
-    lv_mem_id = lv_mem_id && 'FORALLTAB'.
-    ASSIGN mr_t_for_all_data->* TO <lt_for_all_data>.
-    EXPORT
-      data = <lt_for_all_data>
-    TO MEMORY ID lv_mem_id.
   ENDMETHOD.
 
 
   METHOD fill_selection_fields.
-    DATA: lr_s_new_line TYPE REF TO data.
+    DATA: lt_and_tab  TYPE zif_sat_ty_global=>ty_t_and_seltab_sql,
+          lt_or_tab   TYPE zif_sat_ty_global=>ty_t_or_seltab_sql,
+          lt_cond_tab TYPE zif_sat_ty_global=>ty_t_seltab_sql.
 
     FIELD-SYMBOLS: <lt_source>       TYPE table,
                    <lt_for_all_data> TYPE table.
@@ -151,66 +150,49 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
     ASSIGN mr_t_data->* TO <lt_source>.
 
 *... create dynamic table to hold FOR ALL data
-    mr_t_for_all_data = zcl_dbbr_ddic_util=>build_dynamic_std_table(
-      VALUE #(
-        FOR field IN ms_association-fields
-        ( tabname   = ms_association-ref_cds_view
-          fieldname = field-name )
-      )
-    ).
-
+    DATA(lt_key_fields) = mr_source_cds_view->get_columns( ).
+    DELETE lt_key_fields WHERE datatype = 'CLNT'
+                            OR keyflag  = abap_false.
     ASSIGN mr_t_for_all_data->* TO <lt_for_all_data>.
 
     LOOP AT mt_source_index ASSIGNING FIELD-SYMBOL(<lv_index>).
       ASSIGN <lt_source>[ <lv_index> ] TO FIELD-SYMBOL(<ls_data>).
 
-*... Create new line to hold data for navigation
-      CREATE DATA lr_s_new_line LIKE LINE OF <lt_for_all_data>.
-      ASSIGN lr_s_new_line->* TO FIELD-SYMBOL(<ls_new_line>).
-
-      LOOP AT ms_association-fields ASSIGNING FIELD-SYMBOL(<ls_assoc_field>).
-
-        ASSIGN COMPONENT <ls_assoc_field>-name OF STRUCTURE <ls_new_line> TO FIELD-SYMBOL(<lv_target_value>).
+      CLEAR lt_cond_tab.
+      LOOP AT lt_key_fields ASSIGNING FIELD-SYMBOL(<ls_key_field>).
+        ASSIGN COMPONENT <ls_key_field>-fieldname OF STRUCTURE <ls_data> TO FIELD-SYMBOL(<lv_key_field_val>).
         CHECK sy-subrc = 0.
-
-        ASSIGN COMPONENT <ls_assoc_field>-ref_name OF STRUCTURE <ls_data> TO FIELD-SYMBOL(<lv_ref_value>).
-        IF sy-subrc = 0.
-          <lv_target_value> = <lv_ref_value>.
-        ELSE.
-*........ Maybe this field is a literal
-          IF <ls_assoc_field>-ref_name CP |'*'|.
-            DATA(lv_length) = strlen( <ls_assoc_field>-ref_name ).
-            <lv_target_value> = substring( val = <ls_assoc_field>-ref_name len = lv_length - 2 off = 1 ).
-*........ or a preconfigured system variable
-          ELSEIF <ls_assoc_field>-ref_name CP '&$SESSION.*'.
-            IF <ls_assoc_field>-ref_name = '&$SESSION.SYSTEM_LANGUAGE'.
-              <lv_target_value> = sy-langu.
-            ELSEIF <ls_assoc_field>-ref_name = '&$SESSION.SYSTEM_DATE'.
-              <lv_target_value> = sy-datum.
-            ELSEIF <ls_assoc_field>-ref_name = '&$SESSION.USER'.
-              <lv_target_value> = sy-uname.
-            ELSEIF <ls_assoc_field>-ref_name = '&$SESSION.CLIENT'.
-              <lv_target_value> = sy-mandt.
-            ENDIF.
-*........ or a Parameter value
-          ELSEIF <ls_assoc_field>-ref_name CP '$*'.
-*.......... Find the correct parameter value
-            ASSIGN mt_param_values[ name = <ls_assoc_field>-ref_name+1 ] TO FIELD-SYMBOL(<ls_param_val>).
-            IF sy-subrc = 0.
-              <lv_target_value> = <ls_param_val>-value.
-            ENDIF.
-          ENDIF.
-        ENDIF.
-
+        lt_cond_tab = VALUE #( BASE lt_cond_tab
+          ( sqlfieldname = <ls_key_field>-fieldname
+            sign         = 'I'
+            option       = 'EQ'
+            low          = <lv_key_field_val> )
+        ).
       ENDLOOP.
 
-      <lt_for_all_data> = VALUE #( BASE <lt_for_all_data> ( <ls_new_line> ) ).
-
+      IF lines( lt_key_fields ) = lines( lt_cond_tab ).
+        lt_or_tab = VALUE #( BASE lt_or_tab ( values = lt_cond_tab ) ).
+      ENDIF.
     ENDLOOP.
 
-*... remove duplicate entries
-    SORT <lt_for_all_data>.
-    DELETE ADJACENT DUPLICATES FROM <lt_for_all_data> COMPARING ALL FIELDS.
+*.. Create "NOT NULL" condition for a single field of the target
+    DATA(lr_t_target_fields) = mr_tabfields->get_fields_ref( ).
+    LOOP AT lr_t_target_fields->* ASSIGNING FIELD-SYMBOL(<ls_target_key_field>) WHERE datatype <> 'CLNT'.
+      EXIT.
+    ENDLOOP.
+    CHECK <ls_target_key_field> IS ASSIGNED.
+
+    lt_cond_tab = VALUE #(
+      ( sign = 'I' option = zif_sat_c_options=>is_not_null sqlfieldname = |\\{ ms_association-raw_name }-{ <ls_target_key_field>-fieldname_raw }| )
+    ).
+    DATA(lt_not_null_cond) = VALUE zif_sat_ty_global=>ty_t_or_seltab_sql( ( values = lt_cond_tab ) ).
+
+    lt_and_tab = VALUE #(
+      ( lt_not_null_cond )
+      ( lt_or_tab )
+    ).
+    mt_where = zcl_sat_where_clause_builder=>create_and_condition( lt_and_tab ).
+
   ENDMETHOD.
 
 

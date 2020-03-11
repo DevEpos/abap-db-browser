@@ -1622,6 +1622,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
           WHEN zif_dbbr_c_selscreen_functions=>control_sel_fields.
             IF mo_util->choose_tabfields( zif_dbbr_global_consts=>gc_field_chooser_modes-selection ).
               update_aggrgtd_tabfield_list( ).
+              mo_selection_table->zif_uitb_page_scroller~scroll_page_top( ).
             ENDIF.
 
           WHEN zif_dbbr_c_selscreen_functions=>save_query.

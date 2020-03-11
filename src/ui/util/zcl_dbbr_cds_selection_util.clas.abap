@@ -186,8 +186,10 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
           lv_entity          TYPE tabname.
 
     DATA(ls_header) = mo_cds_view->get_header( ).
-    IF  ms_technical_info-use_ddl_view_for_select = abap_true AND
-        ls_header-source_type <> zif_sat_c_cds_view_type=>table_function.
+    IF mv_source_entity_id IS NOT INITIAL.
+      lv_entity = mv_source_entity_id.
+    ELSEIF ms_technical_info-use_ddl_view_for_select = abap_true AND
+           ls_header-source_type <> zif_sat_c_cds_view_type=>table_function.
       lv_entity = mo_cds_view->get_header( )-ddlview.
       lv_from_alias_text = | AS { mo_cds_view->mv_view_name }|.
     ELSE.
@@ -534,17 +536,33 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>change_cds_parameters.
     ENDIF.
 
-    IF NOT mo_cds_view->has_associations( ).
+    DATA(lf_disable_assocs) = abap_true.
+
+    IF mo_cds_view->has_associations( ).
+*.... Check if there any key fields (apart from the client field) otherwise an association cannot
+*.... be followed via sql path expresssions
+      LOOP AT mo_cds_view->get_columns( ) ASSIGNING FIELD-SYMBOL(<ls_col>) WHERE keyflag = abap_true
+                                                                             AND datatype <> 'CLNT'.
+        EXIT.
+      ENDLOOP.
+
+      IF sy-subrc = 0.
+        CLEAR lf_disable_assocs.
+
+        IF ms_technical_info-assoc_sel_mode <> zif_dbbr_c_assoc_select_mode=>docked.
+          result = VALUE #( BASE result
+            ( zif_dbbr_c_selection_functions=>set_focus_to_assoc_list )
+          ).
+        ENDIF.
+      ENDIF.
+
+    ENDIF.
+
+    IF lf_disable_assocs = abap_true.
       result = VALUE #( BASE result
         ( zif_dbbr_c_selection_functions=>navigate_association )
         ( zif_dbbr_c_selection_functions=>set_focus_to_assoc_list )
       ).
-    ELSE.
-      IF ms_technical_info-assoc_sel_mode <> zif_dbbr_c_assoc_select_mode=>docked.
-        result = VALUE #( BASE result
-          ( zif_dbbr_c_selection_functions=>set_focus_to_assoc_list )
-        ).
-      ENDIF.
     ENDIF.
   ENDMETHOD.
 

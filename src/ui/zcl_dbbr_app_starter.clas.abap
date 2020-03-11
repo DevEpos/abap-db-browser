@@ -34,29 +34,29 @@ CLASS zcl_dbbr_app_starter IMPLEMENTATION.
 
     CHECK ls_controller_data IS NOT INITIAL.
 
-    IF ls_controller_data-navigation_info IS NOT INITIAL.
-      lr_t_for_all_data = zcl_dbbr_ddic_util=>build_dynamic_std_table(
-        VALUE #(
-          FOR assoc_field IN ls_controller_data-navigation_info-fields
-          ( tabname   = ls_controller_data-navigation_info-ref_cds_view
-            fieldname = assoc_field-name )
-        )
-      ).
-      ASSIGN lr_t_for_all_data->* TO <lt_for_all_data>.
-
-      lv_mem_id = lv_mem_id && 'FORALLTAB'.
-      IMPORT
-        data = <lt_for_all_data>
-      FROM MEMORY ID lv_mem_id.
-    ENDIF.
-
-*... clear memory
-    FREE MEMORY ID lv_mem_id.
+***    IF ls_controller_data-navigation_info IS NOT INITIAL.
+***      lr_t_for_all_data = zcl_dbbr_ddic_util=>build_dynamic_std_table(
+***        VALUE #(
+***          FOR assoc_field IN ls_controller_data-navigation_info-fields
+***          ( tabname   = ls_controller_data-navigation_info-ref_cds_view
+***            fieldname = assoc_field-name )
+***        )
+***      ).
+***      ASSIGN lr_t_for_all_data->* TO <lt_for_all_data>.
+***
+***      lv_mem_id = lv_mem_id && 'FORALLTAB'.
+***      IMPORT
+***        data = <lt_for_all_data>
+***      FROM MEMORY ID lv_mem_id.
+***    ENDIF.
+***
+****... clear memory
+***    FREE MEMORY ID lv_mem_id.
 
 *... create controller instance
     DATA(lr_selection_controller) = zcl_dbbr_selection_controller=>create_controller_from_data(
       is_controller_serialized = ls_controller_data
-      ir_t_for_all_data        = lr_t_for_all_data
+*      ir_t_for_all_data        = lr_t_for_all_data
       if_not_first_screen_call = abap_true
     ).
     result = lr_selection_controller.

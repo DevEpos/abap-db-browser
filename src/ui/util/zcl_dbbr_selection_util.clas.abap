@@ -20,29 +20,30 @@ CLASS zcl_dbbr_selection_util DEFINITION
 
     TYPES:
       BEGIN OF ty_s_selection_data,
-        entity_type          TYPE zsat_entity_type,
-        entity_id            TYPE zsat_entity_id,
-        query_string         TYPE string,
-        do_for_all_select    TYPE abap_bool,
-        for_all_entries_data TYPE REF TO data,
-        association_target   TYPE zsat_cds_association,
-        selection_fields     TYPE zdbbr_selfield_itab,
-        technical_infos      TYPE zdbbr_tech_info,
-        no_grouping          TYPE abap_bool,
-        grouping_minimum     TYPE zdbbr_grouping_minimum,
-        multi_or             TYPE zdbbr_or_seltab_itab,
-        edit_mode            TYPE abap_bool,
-        delete_mode_active   TYPE abap_bool,
-        selfields_multi      TYPE zdbbr_selfield_itab,
-        tabfields            TYPE REF TO zcl_dbbr_tabfield_list,
-        tabfields_all        TYPE REF TO zcl_dbbr_tabfield_list,
-        table_to_alias_map   TYPE zsat_table_to_alias_map_itab,
-        join_definition      TYPE zdbbr_join_data,
-        join_def             TYPE zdbbr_join_def,
-        exclude_function     TYPE ui_functions,
-        formula              TYPE REF TO zcl_dbbr_formula,
-        nav_breadcrumbs      TYPE string_table,
-        navigation_count     TYPE i,
+        entity_type              TYPE zsat_entity_type,
+        entity_id                TYPE zsat_entity_id,
+        query_string             TYPE string,
+        for_all_entries_data     TYPE REF TO data,
+        association_target       TYPE zsat_cds_association,
+        selection_fields         TYPE zdbbr_selfield_itab,
+        technical_infos          TYPE zdbbr_tech_info,
+        no_grouping              TYPE abap_bool,
+        grouping_minimum         TYPE zdbbr_grouping_minimum,
+        multi_or                 TYPE zdbbr_or_seltab_itab,
+        edit_mode                TYPE abap_bool,
+        delete_mode_active       TYPE abap_bool,
+        selfields_multi          TYPE zdbbr_selfield_itab,
+        tabfields                TYPE REF TO zcl_dbbr_tabfield_list,
+        tabfields_all            TYPE REF TO zcl_dbbr_tabfield_list,
+        table_to_alias_map       TYPE zsat_table_to_alias_map_itab,
+        join_definition          TYPE zdbbr_join_data,
+        join_def                 TYPE zdbbr_join_def,
+        exclude_function         TYPE ui_functions,
+        formula                  TYPE REF TO zcl_dbbr_formula,
+        nav_breadcrumbs          TYPE string_table,
+        navigation_count         TYPE i,
+        source_entity_id         TYPE zsat_entity_id,
+        source_entity_where_cond TYPE string_table,
       END OF ty_s_selection_data .
 
     "! <p class="shorttext synchronized" lang="en">Selection did finish</p>
@@ -144,7 +145,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Type of Entity</p>
     DATA mv_entity_type TYPE zsat_entity_type .
     DATA mr_s_global_data TYPE REF TO zdbbr_global_data .
-    DATA mf_do_for_all_select TYPE abap_bool .
+    DATA mf_navigation_select TYPE abap_bool.
     DATA ms_association_target TYPE zsat_cds_association .
     DATA mr_t_for_all_data TYPE REF TO data .
     "! <p class="shorttext synchronized" lang="en">Creates subroutine pool program for selection data from db</p>
@@ -220,6 +221,8 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mt_current_live_filter TYPE lvc_t_filt .
     "! <p class="shorttext synchronized" lang="en">Abstract ALV Filter for Output Grid</p>
     DATA mr_alv_util TYPE REF TO zcl_dbbr_output_alv_util .
+    DATA mv_source_entity_id TYPE zsat_entity_id.
+    DATA mt_source_where_cond TYPE string_table.
 
     "! <p class="shorttext synchronized" lang="en">Adds column for hiding rows</p>
     METHODS add_hide_flag_column .
@@ -474,12 +477,13 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     mt_nav_breadcrumbs  = is_selection_data-nav_breadcrumbs.
     mv_navigation_count = is_selection_data-navigation_count.
+    mv_source_entity_id = is_selection_data-source_entity_id.
+    mt_source_where_cond = is_selection_data-source_entity_where_cond.
 
     mo_formula            = is_selection_data-formula.
     ms_join_def           = is_selection_data-join_def.
     mv_entity_id          = is_selection_data-entity_id.
     mv_entity_type        = is_selection_data-entity_type.
-    mf_do_for_all_select  = is_selection_data-do_for_all_select.
     mr_t_for_all_data     = is_selection_data-for_all_entries_data.
     ms_association_target = is_selection_data-association_target.
     ms_technical_info     = is_selection_data-technical_infos.
@@ -949,7 +953,11 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 
   METHOD create_from_clause.
-    mt_from = VALUE #( ( |{ ms_control_info-primary_table }| ) ).
+    IF mv_source_entity_id IS NOT INITIAL.
+      mt_from = VALUE #( ( |{ mv_source_entity_id }| ) ).
+    ELSE.
+      mt_from = VALUE #( ( |{ ms_control_info-primary_table }| ) ).
+    ENDIF.
   ENDMETHOD.
 
 
@@ -1070,23 +1078,21 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         ENDIF.
       ENDIF.
 
-      TRY.
-          DATA(lr_selfield) = REF #( mt_selection_fields[ tabname   = lr_current_entry->tabname
-                                                          fieldname = lr_current_entry->fieldname ] ).
-          IF lr_selfield->aggregation <> space OR
-             lr_selfield->totals = abap_true.
-            DATA(lv_aggr_function) = COND string(
-               WHEN lr_selfield->aggregation <> space THEN lr_selfield->aggregation
-               ELSE                                        'SUM'
-            ).
-            APPEND |{ lv_aggr_function }( { lr_current_entry->sql_fieldname_long } ) AS { lr_current_entry->alv_fieldname }, | TO mt_select.
-          ELSE.
-            APPEND |{ lr_current_entry->sql_fieldname_long } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
-          ENDIF.
-        CATCH cx_sy_itab_line_not_found.
-*... safety check: is this field an output field?
-          APPEND |{ lr_current_entry->sql_fieldname_long } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
-      ENDTRY.
+      DATA(lr_selfield) = REF #( mt_selection_fields[ tabname   = lr_current_entry->tabname
+                                                      fieldname = lr_current_entry->fieldname ] OPTIONAL ).
+      IF lr_selfield IS BOUND AND
+         ( lr_selfield->aggregation <> space OR
+           lr_selfield->totals = abap_true ).
+        DATA(lv_aggr_function) = COND string(
+           WHEN lr_selfield->aggregation <> space THEN lr_selfield->aggregation
+           ELSE                                        'SUM'
+        ).
+        APPEND |{ lv_aggr_function }( { lr_current_entry->sql_fieldname_long } ) AS { lr_current_entry->alv_fieldname }, | TO mt_select.
+      ELSEIF ms_association_target IS NOT INITIAL.
+        APPEND |\\{ ms_association_target-raw_name }-{ lr_current_entry->sql_fieldname_long } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
+      ELSE.
+        APPEND |{ lr_current_entry->sql_fieldname_long } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
+      ENDIF.
     ENDWHILE.
 
     IF mf_group_by = abap_true.
@@ -1207,10 +1213,12 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 
   METHOD create_where_clause.
-    IF mf_do_for_all_select = abap_true.
-      create_for_all_where_clause( ).
+    create_default_where_clause( ).
+
+    IF mt_where IS INITIAL.
+      mt_where = mt_source_where_cond.
     ELSE.
-      create_default_where_clause( ).
+      mt_where = VALUE #( BASE mt_where ( |AND| ) ( LINES OF mt_source_where_cond ) ).
     ENDIF.
   ENDMETHOD.
 
@@ -1547,7 +1555,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
            if_refresh_only = abap_false.
           mo_select_program = zcl_dbbr_select_prog_creator=>create_program(
               if_only_create_count_logic = if_count_lines
-              if_create_for_all          = mf_do_for_all_select
               is_association_target      = ms_association_target
               it_select                  = mt_select
               it_from                    = mt_from
