@@ -174,6 +174,9 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
         ( function  = zif_dbbr_c_selscreen_functions=>create_sql_query
           icon      = icon_create
           quickinfo = |{ 'Create Custom Query'(009) }| )
+        ( function  = zif_dbbr_c_selscreen_functions=>import_queries
+          icon      = icon_import
+          quickinfo = |{ 'Import Queries'(010) }| )
       )
     ).
 
@@ -400,6 +403,9 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selscreen_functions=>copy_query.
         copy_query( ).
+
+      WHEN zif_dbbr_c_selscreen_functions=>import_queries.
+        NEW zcl_dbbr_query_importer( )->import_data( ).
 
       WHEN zif_dbbr_c_selscreen_functions=>edit_jump_fields.
         maintain_jumps( ).

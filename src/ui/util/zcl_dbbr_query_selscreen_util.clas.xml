@@ -66,6 +66,12 @@
      <ENTRY>Create Custom Query</ENTRY>
      <LENGTH>29</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>010</KEY>
+     <ENTRY>Import Queries</ENTRY>
+     <LENGTH>24</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>

@@ -1,6 +1,7 @@
 INTERFACE zif_dbbr_c_selscreen_functions
   PUBLIC .
 
+  CONSTANTS import_queries TYPE ui_func VALUE 'IMPORT_QUERIES' ##NO_TEXT.
   CONSTANTS to_next_criteria TYPE sy-ucomm VALUE 'TO_NEXT_CRITERIA' ##NO_TEXT.
   CONSTANTS to_previous_criteria TYPE sy-ucomm VALUE 'TO_PREVIOUS_CRITERIA' ##NO_TEXT.
   CONSTANTS load_default_variant TYPE sy-ucomm VALUE 'LOADDEFAULTVARIANT' ##NO_TEXT.
