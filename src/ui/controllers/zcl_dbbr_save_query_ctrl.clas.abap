@@ -192,6 +192,7 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
           it_selfields           = mr_t_selfields->*
           it_multi_selfields     = mr_t_multi_selfields->*
           it_multi_or            = mr_t_multi_or->*
+          is_global_data         = mr_ui_global_data->*
       ).
       IF ls_variant-variant_data IS NOT INITIAL.
         zcl_dbbr_variant_factory=>save_variant( is_var_data = ls_variant ).

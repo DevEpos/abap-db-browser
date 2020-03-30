@@ -196,7 +196,7 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
 
 *... check if variant stores grouping information
     LOOP AT ls_existing_variant-variant_data ASSIGNING FIELD-SYMBOL(<ls_vard>) WHERE data_type = zif_dbbr_global_consts=>gc_variant_datatypes-group_by OR
-                                                                                     data_type = zif_dbbr_global_consts=>gc_variant_datatypes-aggregation or
+                                                                                     data_type = zif_dbbr_global_consts=>gc_variant_datatypes-aggregation OR
                                                                                      data_type = zif_dbbr_global_consts=>gc_variant_datatypes-totals.
       DATA(lf_grouping_is_active) = abap_true.
       mr_tabfields_grouped->clear( ).
@@ -374,6 +374,7 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
 
 
   METHOD fill_selscreen_with_vardata.
+    FIELD-SYMBOLS: <ls_vardata_group_entry> TYPE zdbbr_vardata.
 
     LOOP AT it_variant_data ASSIGNING FIELD-SYMBOL(<ls_vardata>)
       GROUP BY ( tabname_alias = <ls_vardata>-tabname
@@ -389,7 +390,7 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
       IF sy-subrc = 0.
         DATA(lf_first_selvalue) = abap_true.
 
-        LOOP AT lt_vardata_group ASSIGNING FIELD-SYMBOL(<ls_vardata_group_entry>).
+        LOOP AT lt_vardata_group ASSIGNING <ls_vardata_group_entry>.
           CASE <ls_vardata_group_entry>-data_type.
 
             WHEN zif_dbbr_global_consts=>gc_variant_datatypes-totals.
@@ -435,6 +436,22 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
               ENDIF.
           ENDCASE.
         ENDLOOP.
+
+      ELSE.
+*...... Maybe it is custom field
+        CHECK lines( lt_vardata_group ) = 1.
+        ASSIGN lt_vardata_group[ 1 ] TO <ls_vardata_group_entry>.
+        CHECK <ls_vardata_group_entry>-tabname = zif_dbbr_c_cust_var_fld_ids=>custom_field_table.
+
+        CASE <ls_vardata_group_entry>-fieldname.
+
+          WHEN zif_dbbr_c_cust_var_fld_ids=>grouping_minimum.
+            mr_s_global_data->grouping_minimum = <ls_vardata_group_entry>-low_val.
+
+          WHEN zif_dbbr_c_cust_var_fld_ids=>max_lines.
+            mr_s_global_data->max_lines = <ls_vardata_group_entry>-low_val.
+
+        ENDCASE.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.

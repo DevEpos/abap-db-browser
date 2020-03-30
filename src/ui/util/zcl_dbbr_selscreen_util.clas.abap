@@ -277,6 +277,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         it_selfields           = mo_data->mr_t_table_data->*
         it_multi_selfields     = mo_data->mr_t_selfields_multi->*
         it_multi_or            = lr_t_multi_or->*
+        is_global_data         = mo_data->mr_s_global_data->*
     ).
 
 *.. Currently only filter criteria will be stored in automatic variant

@@ -206,6 +206,7 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
          it_selfields           = COND #( WHEN ms_ui_refs-xfilter_fields->* = abap_true AND mr_t_selfields IS BOUND THEN mr_t_selfields->* )
          it_multi_selfields     = COND #( WHEN ms_ui_refs-xfilter_fields->* = abap_true AND mr_t_selfields_multi IS BOUND THEN mr_t_selfields_multi->* )
          it_multi_or            = COND #( WHEN ms_ui_refs-xfilter_fields->* = abap_true AND mr_multi_or_itab IS BOUND THEN mr_multi_or_itab->* )
+         is_global_data         = mr_s_global_data->*
      ).
 
 *.. create user/ddic sort order for output / sorting fields

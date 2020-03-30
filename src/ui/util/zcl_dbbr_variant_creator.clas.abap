@@ -11,14 +11,15 @@ CLASS zcl_dbbr_variant_creator DEFINITION
       IMPORTING
         !iv_variant_id          TYPE zdbbr_variant_id OPTIONAL
         !iv_variant_name        TYPE zdbbr_variant_name OPTIONAL
-        !iv_entity_id           TYPE ZSAT_ENTITY_ID
-        !iv_entity_type         TYPE ZSAT_ENTITY_TYPE
+        !iv_entity_id           TYPE zsat_entity_id
+        !iv_entity_type         TYPE zsat_entity_type
         !iv_variant_description TYPE ddtext OPTIONAL
         !if_has_output_fields   TYPE abap_bool OPTIONAL
         !if_has_sort_fields     TYPE abap_bool OPTIONAL
         !it_selfields           TYPE zdbbr_selfield_itab
         !it_multi_selfields     TYPE zdbbr_selfield_itab OPTIONAL
         !it_multi_or            TYPE zdbbr_or_seltab_itab OPTIONAL
+        !is_global_data         TYPE zdbbr_global_data OPTIONAL
       RETURNING
         VALUE(rs_variant)       TYPE zdbbr_variant_data .
   PROTECTED SECTION.
@@ -46,10 +47,16 @@ CLASS zcl_dbbr_variant_creator DEFINITION
     "! <p class="shorttext synchronized" lang="en">Add mutli or values to variant data</p>
     CLASS-METHODS add_multi_or_variant_data
       IMPORTING
-        !is_selfield_info TYPE zdbbr_selfield_info
+        is_selfield_info TYPE zdbbr_selfield_info
       CHANGING
-        !cs_layout_data   TYPE zdbbr_vardata
-        !ct_layout_data   TYPE zdbbr_vardata_itab .
+        cs_layout_data   TYPE zdbbr_vardata
+        ct_layout_data   TYPE zdbbr_vardata_itab .
+    "! <p class="shorttext synchronized" lang="en">Adds custom fields to variant</p>
+    CLASS-METHODS add_custom_fields_to_variant
+      IMPORTING
+        is_global_data TYPE zdbbr_global_data
+      CHANGING
+        ct_layout_data TYPE zdbbr_vardata_itab.
 ENDCLASS.
 
 
@@ -241,6 +248,25 @@ CLASS zcl_dbbr_variant_creator IMPLEMENTATION.
       ENDLOOP.
     ENDLOOP.
 
+    IF is_global_data IS NOT INITIAL.
+      add_custom_fields_to_variant(
+        EXPORTING is_global_data = is_global_data
+        CHANGING  ct_layout_data = rs_variant-variant_data
+      ).
+    ENDIF.
+
     rs_variant-has_criteria = xsdbool( rs_variant-variant_data IS NOT INITIAL ).
   ENDMETHOD.
+
+  METHOD add_custom_fields_to_variant.
+    ct_layout_data = value #( base ct_layout_data
+      ( tabname   = zif_dbbr_c_cust_var_fld_ids=>custom_field_table
+        fieldname = zif_dbbr_c_cust_var_fld_ids=>max_lines
+        low_val   = is_global_data-max_lines )
+      ( tabname   = zif_dbbr_c_cust_var_fld_ids=>custom_field_table
+        fieldname = zif_dbbr_c_cust_var_fld_ids=>grouping_minimum
+        low_val   = is_global_data-grouping_minimum )
+    ).
+  ENDMETHOD.
+
 ENDCLASS.
