@@ -520,6 +520,15 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     IF is_selection_data-no_grouping = abap_true.
       clear_aggregation_fields( CHANGING ct_selection_fields = mt_selection_fields ).
     ENDIF.
+
+*.. Change technical settings if some conditions are met
+    IF mt_multi_or IS NOT INITIAL.
+      IF ms_technical_info-activate_alv_live_filter = abap_true.
+        MESSAGE |ALV Live Filter is not if OR-Tuples are used| TYPE 'S'.
+      ENDIF.
+
+      CLEAR: ms_technical_info-activate_alv_live_filter.
+    ENDIF.
   ENDMETHOD.
 
 
