@@ -1087,8 +1087,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         ENDIF.
       ENDIF.
 
-      DATA(lr_selfield) = REF #( mt_selection_fields[ tabname   = lr_current_entry->tabname
-                                                      fieldname = lr_current_entry->fieldname ] OPTIONAL ).
+      DATA(lr_selfield) = REF #( mt_selection_fields[ tabname_alias = lr_current_entry->tabname_alias
+                                                      fieldname     = lr_current_entry->fieldname ] OPTIONAL ).
       IF lr_selfield IS BOUND AND
          ( lr_selfield->aggregation <> space OR
            lr_selfield->totals = abap_true ).

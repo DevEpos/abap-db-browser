@@ -11,7 +11,7 @@ CLASS zcl_dbbr_field_select_tree DEFINITION
 
     METHODS constructor
       IMPORTING
-        VALUE(ir_fields)      TYPE REF TO zcl_dbbr_tabfield_list
+        io_fields             TYPE REF TO zcl_dbbr_tabfield_list
         !iv_mode              TYPE zdbbr_field_chooser_mode
         !if_single_table_mode TYPE boolean OPTIONAL
         !iv_current_table     TYPE tabname OPTIONAL
@@ -133,7 +133,7 @@ CLASS zcl_dbbr_field_select_tree IMPLEMENTATION.
 
 
   METHOD constructor.
-    mo_fields = ir_fields.
+    mo_fields = io_fields.
     mv_field_count = mo_fields->get_field_count( ).
     mv_current_table = iv_current_table.
     mf_single_table_mode = if_single_table_mode.
@@ -603,13 +603,13 @@ CLASS zcl_dbbr_field_select_tree IMPLEMENTATION.
       WHEN 'COLLAPSE_ALL'.
         mo_tree_model->collapse_all_nodes( ).
 
-      WHEN zcl_dbbr_tabfield_manager=>mc_functions-select_fields.
+      WHEN zcl_dbbr_tabfield_manager=>c_fcode-select_fields.
         select_all_fields( ).
 
-      WHEN zcl_dbbr_tabfield_manager=>mc_functions-select_key_fields.
+      WHEN zcl_dbbr_tabfield_manager=>c_fcode-select_key_fields.
         select_key_fields( ).
 
-      WHEN zcl_dbbr_tabfield_manager=>mc_functions-deselect_fields.
+      WHEN zcl_dbbr_tabfield_manager=>c_fcode-deselect_fields.
         deselect_all_fields( ).
 
     ENDCASE.

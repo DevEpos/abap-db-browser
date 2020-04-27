@@ -439,7 +439,8 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     lo_fields->delete_where_in_tablist( VALUE #( ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ) ).
 
     DATA(lr_tabfield_manager) = NEW zcl_dbbr_tabfield_manager(
-      ir_fields            = lo_fields
+      io_fields            = lo_fields
+      io_original_fields   = mo_data->mo_tabfield_list
       is_join_def          = mo_data->mr_s_join_def->*
       if_field_aggregation = lf_field_aggr_active
       iv_mode              = iv_mode

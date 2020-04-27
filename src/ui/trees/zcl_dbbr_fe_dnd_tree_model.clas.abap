@@ -21,7 +21,7 @@ CLASS zcl_dbbr_fe_dnd_tree_model DEFINITION
     TYPES:
       BEGIN OF mty_node_data.
         INCLUDE TYPE treemsnod.
-    TYPES: items TYPE treemcitab.
+        TYPES: items TYPE treemcitab.
     TYPES: END OF mty_node_data .
 
     DATA mv_current_node_index TYPE num5 VALUE 00000 ##NO_TEXT.
@@ -128,35 +128,35 @@ CLASS zcl_dbbr_fe_dnd_tree_model DEFINITION
 
 
     METHODS on_tree_drag
-          FOR EVENT drag OF cl_list_tree_model
+        FOR EVENT drag OF cl_list_tree_model
       IMPORTING
-          !drag_drop_object
-          !node_key .
+        !drag_drop_object
+        !node_key .
     METHODS on_node_context_menu_request
-          FOR EVENT node_context_menu_request OF cl_list_tree_model
+        FOR EVENT node_context_menu_request OF cl_list_tree_model
       IMPORTING
-          !menu
-          !node_key .
+        !menu
+        !node_key .
     METHODS on_node_context_menu_select
-          FOR EVENT node_context_menu_select OF cl_list_tree_model
+        FOR EVENT node_context_menu_select OF cl_list_tree_model
       IMPORTING
-          !fcode
-          !node_key .
+        !fcode
+        !node_key .
     METHODS on_node_double_click
-          FOR EVENT node_double_click OF cl_list_tree_model
+        FOR EVENT node_double_click OF cl_list_tree_model
       IMPORTING
-          !node_key .
+        !node_key .
 
     METHODS on_node_enter_key
-          FOR EVENT node_keypress OF cl_list_tree_model
+        FOR EVENT node_keypress OF cl_list_tree_model
       IMPORTING
-          key
-          node_key.
+        key
+        node_key.
     METHODS on_toolbar_button
-          FOR EVENT function_selected OF cl_gui_toolbar
+        FOR EVENT function_selected OF cl_gui_toolbar
       IMPORTING
-          sender
-          fcode.
+        sender
+        fcode.
 
 ENDCLASS.
 
@@ -371,7 +371,7 @@ CLASS zcl_dbbr_fe_dnd_tree_model IMPLEMENTATION.
 
     LOOP AT lr_fields->* ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE is_text_field    = abap_false
                                                               AND is_formula_field = abap_false
-                                                              and is_parameter     = abap_false
+                                                              AND is_parameter     = abap_false
       GROUP BY ( alias   = <ls_field>-alias
                  tabname = <ls_field>-tabname )
 
@@ -439,6 +439,9 @@ CLASS zcl_dbbr_fe_dnd_tree_model IMPLEMENTATION.
   METHOD create_saved_formula_node.
     DATA(lv_node_key) = get_next_node_key( ).
 
+    DATA(lv_formula_string) = is_formula-formula_string.
+    REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN lv_formula_string WITH cl_abap_char_utilities=>newline.
+
     mo_tree_model->add_node(
       node_key                = lv_node_key
       relative_node_key       = iv_top_node
@@ -447,7 +450,7 @@ CLASS zcl_dbbr_fe_dnd_tree_model IMPLEMENTATION.
       image                   = |{ icon_space }|
       drag_drop_id            = iv_dnd_handle
       user_object             = NEW zcl_dbbr_fe_dnd_object(
-                                    iv_text         = is_formula-formula_string
+                                    iv_text         = lv_formula_string
                                     if_is_long_text = abap_true
                                     iv_db_id        = CONV #( is_formula-id ) )
       item_table              = VALUE treemlitab(

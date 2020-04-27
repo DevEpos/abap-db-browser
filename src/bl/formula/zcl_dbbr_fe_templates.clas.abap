@@ -41,7 +41,7 @@ CLASS ZCL_DBBR_FE_TEMPLATES IMPLEMENTATION.
     gv_set_cell_color_template = `$SET_CELL_COLOR fieldname 'C500'.`.
 
     define concat.
-      &1 = &1 && &2 && cl_abap_char_utilities=>cr_lf.
+      &1 = &1 && &2 && cl_abap_char_utilities=>newline.
     end-OF-DEFINITION.
 
     concat gv_introduction_template:

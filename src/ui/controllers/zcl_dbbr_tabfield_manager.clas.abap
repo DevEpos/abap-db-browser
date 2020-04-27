@@ -7,18 +7,18 @@ CLASS zcl_dbbr_tabfield_manager DEFINITION
     INTERFACES zif_uitb_screen_controller .
 
     CONSTANTS:
-      BEGIN OF mc_tabs,
+      BEGIN OF c_tabs,
         all_fields_tab    TYPE dynfnam VALUE 'ALL_FIELDS',
         filter_fields_tab TYPE dynfnam VALUE 'FILTER_FIELDS',
-      END OF mc_tabs .
+      END OF c_tabs .
     CONSTANTS:
-      BEGIN OF mc_screens,
+      BEGIN OF c_screens,
         main_screen          TYPE sy-dynnr VALUE '0800',
         all_fields_screen    TYPE sy-dynnr VALUE '0801',
         filter_fields_screen TYPE sy-dynnr VALUE '0802',
-      END OF mc_screens .
+      END OF c_screens .
     CONSTANTS:
-      BEGIN OF mc_functions,
+      BEGIN OF c_fcode,
         select_fields        TYPE sy-ucomm VALUE 'SEL_ALL',
         select_key_fields    TYPE sy-ucomm VALUE 'SEL_KEY',
         deselect_fields      TYPE sy-ucomm VALUE 'DE_SEL_ALL',
@@ -35,13 +35,14 @@ CLASS zcl_dbbr_tabfield_manager DEFINITION
         select_text_fields   TYPE sy-ucomm VALUE 'SEL_T_ALL',
         deselect_text_fields TYPE sy-ucomm VALUE 'DESEL_T_AL',
         insert_association   TYPE sy-ucomm VALUE 'ADDASSOC',
-      END OF mc_functions .
+      END OF c_fcode .
 
     METHODS constructor
       IMPORTING
-        !ir_fields            TYPE REF TO zcl_dbbr_tabfield_list
+        !io_fields            TYPE REF TO zcl_dbbr_tabfield_list
+        !io_original_fields   TYPE REF TO zcl_dbbr_tabfield_list
         !if_field_aggregation TYPE boolean OPTIONAL
-        !ir_cds_view          TYPE REF TO zcl_sat_cds_view OPTIONAL
+        !io_cds_view          TYPE REF TO zcl_sat_cds_view OPTIONAL
         !iv_mode              TYPE zdbbr_field_chooser_mode
         !iv_entity_type       TYPE zsat_entity_type
         !is_join_def          TYPE zdbbr_join_def OPTIONAL .
@@ -73,10 +74,11 @@ CLASS zcl_dbbr_tabfield_manager DEFINITION
     DATA:
       mt_tableoverview TYPE STANDARD TABLE OF ty_table_overview .
     DATA mt_fieldcat TYPE lvc_t_fcat .
-    DATA mr_select_field_tree TYPE REF TO zcl_dbbr_field_select_tree .
-    DATA mr_output_field_tree TYPE REF TO zcl_dbbr_field_output_tree .
-    DATA mr_fields TYPE REF TO zcl_dbbr_tabfield_list .
-    DATA mr_fields_cache TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_select_field_tree TYPE REF TO zcl_dbbr_field_select_tree .
+    DATA mo_output_field_tree TYPE REF TO zcl_dbbr_field_output_tree .
+    DATA mo_fields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_original_fields TYPE REF TO zcl_dbbr_tabfield_list .
+    DATA mo_fields_cache TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mv_mode TYPE zdbbr_field_chooser_mode .
     DATA mf_output_tree_updated TYPE boolean .
     DATA mf_select_tree_updated TYPE boolean .
@@ -91,7 +93,7 @@ CLASS zcl_dbbr_tabfield_manager DEFINITION
     DATA mr_tree_tab_control TYPE REF TO cxtab_tabstrip .
     DATA mr_tree_screen TYPE REF TO syst_dynnr .
     DATA mr_filter_fields_tab TYPE REF TO zdbbr_button .
-    DATA mr_cds_view TYPE REF TO zcl_sat_cds_view .
+    DATA mo_cds_view TYPE REF TO zcl_sat_cds_view .
 
     METHODS create_alv_grid .
     METHODS display_alv_grid .
@@ -139,21 +141,22 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
     mv_entity_type = iv_entity_type.
 
     mv_mode = iv_mode.
-    mr_cds_view = ir_cds_view.
+    mo_cds_view = io_cds_view.
     mf_field_aggregation = if_field_aggregation.
 
-    mr_fields = ir_fields.
+    mo_fields = io_fields.
+    mo_original_fields = io_original_fields.
 
 *... set starting parameters before screen is initially called
     IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output AND
        mf_field_aggregation = abap_true.
       mr_active_tab->* =
-      mr_tree_tab_control->activetab = zcl_dbbr_tabfield_manager=>mc_tabs-filter_fields_tab.
-      mr_tree_screen->* = zcl_dbbr_tabfield_manager=>mc_screens-filter_fields_screen.
+      mr_tree_tab_control->activetab = zcl_dbbr_tabfield_manager=>c_tabs-filter_fields_tab.
+      mr_tree_screen->* = zcl_dbbr_tabfield_manager=>c_screens-filter_fields_screen.
     ELSE.
       mr_active_tab->* =
-      mr_tree_tab_control->activetab = zcl_dbbr_tabfield_manager=>mc_tabs-all_fields_tab.
-      mr_tree_screen->* = zcl_dbbr_tabfield_manager=>mc_screens-all_fields_screen.
+      mr_tree_tab_control->activetab = zcl_dbbr_tabfield_manager=>c_tabs-all_fields_tab.
+      mr_tree_screen->* = zcl_dbbr_tabfield_manager=>c_screens-all_fields_screen.
     ENDIF.
 
     IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-selection AND
@@ -161,20 +164,21 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
       mf_single_table_mode = abap_true.
 *... set current table to primary table as default mode
-      DATA(lt_tables) = mr_fields->get_table_list( ).
+      DATA(lt_tables) = mo_fields->get_table_list( ).
       mv_current_table = lt_tables[ is_primary = abap_true ]-tabname_alias.
 
-      CLEAR mr_fields_cache.
+      CLEAR mo_fields_cache.
 
 *... create table overview list befor extraction
       create_table_overview_data( ).
-      mr_fields_cache = mr_fields->extract_fields( VALUE #( ( sign = 'E' option = 'EQ' low = mv_current_table ) ) ).
+      mo_fields_cache = mo_fields->extract_fields( VALUE #( ( sign = 'E' option = 'EQ' low = mv_current_table ) ) ).
     ENDIF.
 
-    mr_output_field_tree = COND #(
+    mo_output_field_tree = COND #(
        WHEN mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-selection THEN
          NEW zcl_dbbr_field_output_tree(
-            ir_fields            = mr_fields
+            io_fields            = mo_fields
+            io_original_fields   = mo_original_fields
             if_field_aggregation = if_field_aggregation
             if_single_table_mode = mf_single_table_mode
             iv_mode              = mv_mode
@@ -183,7 +187,8 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
          )
        ELSE
          NEW zcl_dbbr_fld_outp_tree_out(
-            ir_fields            = mr_fields
+            io_fields            = mo_fields
+            io_original_fields   = mo_original_fields
             if_field_aggregation = if_field_aggregation
             if_single_table_mode = mf_single_table_mode
             iv_mode              = mv_mode
@@ -192,8 +197,8 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
          )
     ).
 
-    mr_select_field_tree = NEW #(
-      ir_fields            = mr_fields
+    mo_select_field_tree = NEW #(
+      io_fields            = mo_fields
       iv_mode              = mv_mode
       if_single_table_mode = mf_single_table_mode
       iv_current_table     = mv_current_table
@@ -202,8 +207,8 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
 *... register event handlers for tree update
     SET HANDLER:
-        on_output_tree_updated FOR mr_output_field_tree,
-        on_select_tree_updated FOR mr_select_field_tree.
+        on_output_tree_updated FOR mo_output_field_tree,
+        on_select_tree_updated FOR mo_select_field_tree.
 
   ENDMETHOD.
 
@@ -267,7 +272,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
   METHOD create_table_overview_data.
 
     mt_tableoverview = CORRESPONDING #(
-      mr_fields->get_table_list( if_exclude_parameters        = abap_true
+      mo_fields->get_table_list( if_exclude_parameters        = abap_true
                                  if_exclude_fields_not_loaded = abap_true )
     ).
 
@@ -311,12 +316,12 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
   METHOD filter_fields_for_table.
 
-    mr_select_field_tree->update_current_table( mv_current_table ).
-    mr_select_field_tree->update_nodes( ).
+    mo_select_field_tree->update_current_table( mv_current_table ).
+    mo_select_field_tree->update_nodes( ).
 
-    mr_output_field_tree->update_current_table( mv_current_table ).
-    mr_output_field_tree->reset_update_ability( ).
-    mr_output_field_tree->fill_tree( ).
+    mo_output_field_tree->update_current_table( mv_current_table ).
+    mo_output_field_tree->reset_update_ability( ).
+    mo_output_field_tree->fill_tree( ).
 
   ENDMETHOD.
 
@@ -324,8 +329,8 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
   METHOD get_current_content_searcher.
 
     rr_content_searcher = COND #(
-        WHEN mr_active_tab->* = mc_tabs-all_fields_tab THEN mr_select_field_tree
-        WHEN mr_active_tab->* = mc_tabs-filter_fields_tab THEN mr_output_field_tree
+        WHEN mr_active_tab->* = c_tabs-all_fields_tab THEN mo_select_field_tree
+        WHEN mr_active_tab->* = c_tabs-filter_fields_tab THEN mo_output_field_tree
     ).
 
   ENDMETHOD.
@@ -333,10 +338,10 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
   METHOD get_current_tab_controller.
 
-    IF mr_active_tab->* = mc_tabs-all_fields_tab.
-      rr_controller = mr_select_field_tree.
+    IF mr_active_tab->* = c_tabs-all_fields_tab.
+      rr_controller = mo_select_field_tree.
     ELSE.
-      rr_controller = mr_output_field_tree.
+      rr_controller = mo_output_field_tree.
     ENDIF.
 
   ENDMETHOD.
@@ -376,7 +381,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
         CLEAR lr_s_entity_info->x_color.
 
 *... clear possible set active flags
-        mr_fields->clear_active_flag( ).
+        mo_fields->clear_active_flag( ).
 *... set primary table as active table
         LOOP AT mt_tableoverview ASSIGNING FIELD-SYMBOL(<ls_overview_table>).
           IF to_upper( <ls_overview_table>-tabname_alias ) = mr_global_data->primary_table.
@@ -385,17 +390,17 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
         ENDLOOP.
 
         mv_current_table = mt_tableoverview[ is_primary = abap_true ]-tabname_alias.
-        mr_fields->add_fields( mr_fields_cache ).
-        mr_fields_cache->clear( ).
+        mo_fields->add_fields( mo_fields_cache ).
+        mo_fields_cache->clear( ).
 
-        mr_fields_cache = mr_fields->extract_fields( VALUE #( ( sign = 'E' option = 'EQ' low = mv_current_table ) ) ).
+        mo_fields_cache = mo_fields->extract_fields( VALUE #( ( sign = 'E' option = 'EQ' low = mv_current_table ) ) ).
 
         filter_fields_for_table( ).
         mr_dd_alv_list->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
       ELSE.
 *... flag was removed from table in the cache
-        IF mr_fields_cache IS NOT INITIAL.
-          mr_fields_cache->clear_active_flag( iv_tablename = lr_s_entity_info->tabname_alias ).
+        IF mo_fields_cache IS NOT INITIAL.
+          mo_fields_cache->clear_active_flag( iv_tablename = lr_s_entity_info->tabname_alias ).
         ENDIF.
       ENDIF.
 
@@ -419,10 +424,10 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
         lr_current_line->x_color = zif_dbbr_global_consts=>gc_alv_colors-light_green.
 
         mv_current_table = lr_current_line->tabname_alias.
-        mr_fields->add_fields( mr_fields_cache ).
-        mr_fields_cache->clear( ).
+        mo_fields->add_fields( mo_fields_cache ).
+        mo_fields_cache->clear( ).
 
-        mr_fields_cache = mr_fields->extract_fields( VALUE #( ( sign = 'E' option = 'EQ' low = mv_current_table ) ) ).
+        mo_fields_cache = mo_fields->extract_fields( VALUE #( ( sign = 'E' option = 'EQ' low = mv_current_table ) ) ).
         filter_fields_for_table( ).
 
         mr_dd_alv_list->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
@@ -434,10 +439,10 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
   METHOD retrieve_current_data.
     " check if there any cached fields
-    IF mr_fields_cache IS NOT INITIAL.
-      mr_fields->add_fields( mr_fields_cache ).
-      mr_fields_cache->clear( ).
-      CLEAR mr_fields_cache.
+    IF mo_fields_cache IS NOT INITIAL.
+      mo_fields->add_fields( mo_fields_cache ).
+      mo_fields_cache->clear( ).
+      CLEAR mo_fields_cache.
     ENDIF.
 
     " update table list of tabfield list
@@ -445,14 +450,14 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
       LOOP AT mt_tableoverview ASSIGNING FIELD-SYMBOL(<ls_table>).
         <ls_table>-selection_order = sy-tabix.
       ENDLOOP.
-      mr_fields->set_table_list( CORRESPONDING #( mt_tableoverview ) ).
+      mo_fields->set_table_list( CORRESPONDING #( mt_tableoverview ) ).
     ENDIF.
 
     " update sort fields -> sorting will be removed if field is not longer an output field
     IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output.
-      mr_fields->initialize_iterator( ).
-      WHILE mr_fields->has_more_lines( ).
-        DATA(lr_current_field) = mr_fields->get_next_entry( ).
+      mo_fields->initialize_iterator( ).
+      WHILE mo_fields->has_more_lines( ).
+        DATA(lr_current_field) = mo_fields->get_next_entry( ).
         IF lr_current_field->output_active = abap_false.
           CLEAR: lr_current_field->sort_active,
                  lr_current_field->sort_direction,
@@ -461,19 +466,19 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
       ENDWHILE.
     ENDIF.
 
-    rr_current_fields = mr_fields.
+    rr_current_fields = mo_fields.
 
   ENDMETHOD.
 
 
   METHOD show_available_fields.
 
-    mr_select_field_tree->create_tree( ).
+    mo_select_field_tree->create_tree( ).
 
     " check if an update is needed
     IF mf_output_tree_updated = abap_true.
 
-      mr_select_field_tree->refresh_from_model( ).
+      mo_select_field_tree->refresh_from_model( ).
       CLEAR mf_output_tree_updated.
     ENDIF.
 
@@ -484,10 +489,10 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
     IF mf_select_tree_updated = abap_true.
 
-      mr_output_field_tree->reset_update_ability( ).
+      mo_output_field_tree->reset_update_ability( ).
     ENDIF.
 
-    mr_output_field_tree->fill_tree( ).
+    mo_output_field_tree->fill_tree( ).
     CLEAR mf_select_tree_updated.
 
   ENDMETHOD.
@@ -535,8 +540,8 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
   METHOD zif_uitb_screen_controller~free_screen_resources.
 
-    mr_output_field_tree->free( ).
-    mr_select_field_tree->free( ).
+    mo_output_field_tree->free( ).
+    mo_select_field_tree->free( ).
     IF mr_overview_dock IS BOUND.
       mr_overview_dock->free( ).
     ENDIF.
@@ -562,7 +567,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    IF sy-dynnr = mc_screens-main_screen.
+    IF sy-dynnr = c_screens-main_screen.
       CASE cv_function_code.
         WHEN zif_dbbr_global_consts=>gc_function_codes-cancel.
           zcl_dbbr_screen_helper=>leave_screen( ).
@@ -576,59 +581,59 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
     CASE cv_function_code.
 
-      WHEN mc_tabs-all_fields_tab.
+      WHEN c_tabs-all_fields_tab.
         mr_active_tab->* =
         mr_tree_tab_control->activetab = cv_function_code.
-        mr_tree_screen->* = mc_screens-all_fields_screen.
+        mr_tree_screen->* = c_screens-all_fields_screen.
 
-      WHEN mc_tabs-filter_fields_tab.
+      WHEN c_tabs-filter_fields_tab.
         mr_active_tab->* =
         mr_tree_tab_control->activetab = cv_function_code.
-        mr_tree_screen->* = mc_screens-filter_fields_screen.
+        mr_tree_screen->* = c_screens-filter_fields_screen.
 
-      WHEN mc_functions-sort_in_ddic.
-        mr_output_field_tree->sort_fields_in_ddic_order( ).
+      WHEN c_fcode-sort_in_ddic.
+        mo_output_field_tree->sort_fields_in_ddic_order( ).
 
-      WHEN mc_functions-select_fields.
-        mr_select_field_tree->select_all_fields( ).
+      WHEN c_fcode-select_fields.
+        mo_select_field_tree->select_all_fields( ).
 
-      WHEN mc_functions-deselect_fields.
-        mr_select_field_tree->deselect_all_fields( ).
+      WHEN c_fcode-deselect_fields.
+        mo_select_field_tree->deselect_all_fields( ).
 
-      WHEN mc_functions-select_text_fields.
-        mr_select_field_tree->select_all_text_fields( ).
+      WHEN c_fcode-select_text_fields.
+        mo_select_field_tree->select_all_text_fields( ).
 
-      WHEN mc_functions-deselect_text_fields.
-        mr_select_field_tree->deselect_all_text_fields( ).
+      WHEN c_fcode-deselect_text_fields.
+        mo_select_field_tree->deselect_all_text_fields( ).
 
-      WHEN mc_functions-select_key_fields.
-        mr_select_field_tree->select_key_fields( ).
+      WHEN c_fcode-select_key_fields.
+        mo_select_field_tree->select_key_fields( ).
 
-      WHEN mc_functions-delete_selected.
-        mr_output_field_tree->delete_selected_nodes( ).
+      WHEN c_fcode-delete_selected.
+        mo_output_field_tree->delete_selected_nodes( ).
 
-      WHEN mc_functions-move_node_top.
-        mr_output_field_tree->move_selected_nodes( zcl_dbbr_field_output_tree=>mc_node_move_types-top ).
+      WHEN c_fcode-move_node_top.
+        mo_output_field_tree->move_selected_nodes( zcl_dbbr_field_output_tree=>c_node_move_types-top ).
 
-      WHEN mc_functions-move_node_bottom.
-        mr_output_field_tree->move_selected_nodes( zcl_dbbr_field_output_tree=>mc_node_move_types-bottom ).
+      WHEN c_fcode-move_node_bottom.
+        mo_output_field_tree->move_selected_nodes( zcl_dbbr_field_output_tree=>c_node_move_types-bottom ).
 
-      WHEN mc_functions-move_node_up.
-        mr_output_field_tree->move_selected_nodes( zcl_dbbr_field_output_tree=>mc_node_move_types-up ).
+      WHEN c_fcode-move_node_up.
+        mo_output_field_tree->move_selected_nodes( zcl_dbbr_field_output_tree=>c_node_move_types-up ).
 
-      WHEN mc_functions-move_node_down.
-        mr_output_field_tree->move_selected_nodes( zcl_dbbr_field_output_tree=>mc_node_move_types-down ).
+      WHEN c_fcode-move_node_down.
+        mo_output_field_tree->move_selected_nodes( zcl_dbbr_field_output_tree=>c_node_move_types-down ).
 
-      WHEN mc_functions-page_up.
+      WHEN c_fcode-page_up.
         get_current_tab_controller( )->scroll_page_up( ).
 
-      WHEN mc_functions-page_down.
+      WHEN c_fcode-page_down.
         get_current_tab_controller( )->scroll_page_down( ).
 
-      WHEN mc_functions-page_top.
+      WHEN c_fcode-page_top.
         get_current_tab_controller( )->scroll_page_top( ).
 
-      WHEN mc_functions-page_bottom.
+      WHEN c_fcode-page_bottom.
         get_current_tab_controller( )->scroll_page_bottom( ).
 
       WHEN zif_dbbr_global_consts=>gc_function_codes-search.
@@ -649,18 +654,18 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
     zif_uitb_screen_controller~set_status( ).
 
-    IF sy-dynnr = mc_screens-main_screen.
+    IF sy-dynnr = c_screens-main_screen.
       create_table_overview( ).
     ENDIF.
 
     " init tree data
-    IF sy-dynnr = mc_screens-all_fields_screen. " screen for defining output/selection fields
+    IF sy-dynnr = c_screens-all_fields_screen. " screen for defining output/selection fields
       show_available_fields( ).
-    ELSEIF sy-dynnr = mc_screens-filter_fields_screen. " screen for sorting checked output/selection fields
+    ELSEIF sy-dynnr = c_screens-filter_fields_screen. " screen for sorting checked output/selection fields
       show_output_fields( ).
     ELSE.
       LOOP AT SCREEN INTO DATA(ls_screen).
-        IF ls_screen-name = mc_tabs-all_fields_tab.
+        IF ls_screen-name = c_tabs-all_fields_tab.
           IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output AND
              mf_field_aggregation = abap_true.
             ls_screen-invisible = 1.
@@ -677,22 +682,22 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
     DATA: lt_exclude_tab TYPE TABLE OF sy-ucomm.
 
-    IF sy-dynnr = mc_screens-main_screen.
+    IF sy-dynnr = c_screens-main_screen.
 
-      IF mr_active_tab->* = mc_tabs-all_fields_tab.
-        lt_exclude_tab = VALUE #( ( mc_functions-delete_selected )
-                                  ( mc_functions-sort_in_ddic )
-                                  ( mc_functions-move_node_up )
-                                  ( mc_functions-move_node_down )
-                                  ( mc_functions-move_node_top )
-                                  ( mc_functions-move_node_bottom ) ).
+      IF mr_active_tab->* = c_tabs-all_fields_tab.
+        lt_exclude_tab = VALUE #( ( c_fcode-delete_selected )
+                                  ( c_fcode-sort_in_ddic )
+                                  ( c_fcode-move_node_up )
+                                  ( c_fcode-move_node_down )
+                                  ( c_fcode-move_node_top )
+                                  ( c_fcode-move_node_bottom ) ).
       ELSE.
-        lt_exclude_tab = VALUE #( ( mc_functions-select_fields )
-                                  ( mc_functions-select_key_fields )
-                                  ( mc_functions-deselect_fields )
-                                  ( mc_functions-select_text_fields )
-                                  ( mc_functions-deselect_text_fields )
-                                  ( mc_functions-insert_association ) ).
+        lt_exclude_tab = VALUE #( ( c_fcode-select_fields )
+                                  ( c_fcode-select_key_fields )
+                                  ( c_fcode-deselect_fields )
+                                  ( c_fcode-select_text_fields )
+                                  ( c_fcode-deselect_text_fields )
+                                  ( c_fcode-insert_association ) ).
 *        IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output AND
 *           mf_field_aggregation = abap_true.
 *          lt_exclude_tab = VALUE #( BASE lt_exclude_tab
@@ -703,8 +708,8 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
       CASE mv_mode.
         WHEN zif_dbbr_global_consts=>gc_field_chooser_modes-selection.
-          APPEND mc_functions-select_text_fields TO lt_exclude_tab.
-          APPEND mc_functions-deselect_text_fields TO lt_exclude_tab.
+          APPEND c_fcode-select_text_fields TO lt_exclude_tab.
+          APPEND c_fcode-deselect_text_fields TO lt_exclude_tab.
       ENDCASE.
 
       SET PF-STATUS '0800' OF PROGRAM zif_dbbr_c_report_id=>main  EXCLUDING lt_exclude_tab.

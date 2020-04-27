@@ -542,22 +542,22 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       refresh_alternative_texts( <lr_tabfields> ).
     ELSE.
       ASSIGN mo_data->mo_tabfield_list TO <lr_tabfields>.
+    ENDIF.
 
-      " check if there is at least one formula field that will be shown
-      DATA(lr_table_searcher) = NEW zcl_uitb_table_func_executor( ir_table = <lr_tabfields>->get_fields_ref( ) ).
-      IF lr_formula IS BOUND AND lr_formula->is_valid( ).
-        DATA(lv_form_field_output_count) = lr_table_searcher->count_lines(
-          it_field_selopts = VALUE #(
-            ( fieldname   = 'IS_FORMULA_FIELD'
-              selopt_itab = VALUE #( ( sign = 'I' option = 'EQ' low = abap_true ) ) )
-            ( fieldname   = 'OUTPUT_ACTIVE'
-              selopt_itab = VALUE #( ( sign = 'I' option = 'EQ' low = abap_true ) ) )
-          )
-        ).
+    " check if there is at least one formula field that will be shown
+    DATA(lr_table_searcher) = NEW zcl_uitb_table_func_executor( ir_table = <lr_tabfields>->get_fields_ref( ) ).
+    IF lr_formula IS BOUND AND lr_formula->is_valid( ).
+      DATA(lv_form_field_output_count) = lr_table_searcher->count_lines(
+        it_field_selopts = VALUE #(
+          ( fieldname   = 'IS_FORMULA_FIELD'
+            selopt_itab = VALUE #( ( sign = 'I' option = 'EQ' low = abap_true ) ) )
+          ( fieldname   = 'OUTPUT_ACTIVE'
+            selopt_itab = VALUE #( ( sign = 'I' option = 'EQ' low = abap_true ) ) )
+        )
+      ).
 
-        DATA(lr_valid_formula) = COND #( WHEN lv_form_field_output_count > 0 OR
-                                            lr_formula->has_executable_code( ) THEN lr_formula ).
-      ENDIF.
+      DATA(lr_valid_formula) = COND #( WHEN lv_form_field_output_count > 0 OR
+                                          lr_formula->has_executable_code( ) THEN lr_formula ).
     ENDIF.
 
     DATA(lt_selfields) = mo_selection_table->get_data( ).
