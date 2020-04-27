@@ -107,7 +107,7 @@ CLASS zcl_dbbr_entity_alias_util IMPLEMENTATION.
   METHOD initialize_aliases.
     CLEAR gt_alv_alias_in_use.
 
-    IF if_alv_alias_only = abap_true.
+    IF if_alv_alias_only = abap_false.
       CLEAR gt_alias_in_use.
     ENDIF.
   ENDMETHOD.

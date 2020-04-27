@@ -181,6 +181,11 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
         iv_tabname           TYPE tabname
       RETURNING
         VALUE(rv_alias_name) TYPE tabname.
+    METHODS get_table_ref_by_alias
+      IMPORTING
+        iv_tabname_alias TYPE tabname
+      RETURNING
+        VALUE(rr_table)  TYPE REF TO zdbbr_entity_info.
     METHODS get_table_list
       IMPORTING
         !if_include_only_active       TYPE abap_bool OPTIONAL
@@ -337,7 +342,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_TABFIELD_LIST IMPLEMENTATION.
+CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
 
   METHOD active_field_exists.
@@ -920,6 +925,10 @@ CLASS ZCL_DBBR_TABFIELD_LIST IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD get_table_ref_by_alias.
+    rr_table = ref #( mt_tables[ tabname_alias = iv_tabname_alias ] optional ).
+  ENDMETHOD.
+
   METHOD get_table_list.
     rt_tables = mt_tables.
 
@@ -1233,7 +1242,7 @@ CLASS ZCL_DBBR_TABFIELD_LIST IMPLEMENTATION.
 
 
   METHOD update_virtual_join_for_table.
-    LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE tabname = iv_table_name.
+    LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>) USING KEY unique WHERE tabname_alias = iv_table_name.
       <ls_field>-is_virtual_join_field = if_virtual_join.
     ENDLOOP.
   ENDMETHOD.

@@ -194,7 +194,7 @@
 
    METHOD validate.
      IF mt_field_cond IS INITIAL.
-       ZCX_SAT_VALIDATION_EXCEPTION=>raise_with_text(
+       zcx_sat_validation_exception=>raise_with_text(
            iv_text = |Join Table { mv_tabname } has no single Field condition|
        ).
      ENDIF.
@@ -265,7 +265,7 @@
        ELSEIF lv_or_group <> lv_filter_or_group_node. " AND
 *              lv_filter_or_group_node IS NOT INITIAL.
 *....... The last filter's OR needs to be switched to AND
-         <ls_last_filter>-and_or = ZIF_SAT_C_SELECTION_CONDITION=>and.
+         <ls_last_filter>-and_or = zif_sat_c_selection_condition=>and.
          lv_or_group = lv_filter_or_group_node.
        ENDIF.
 
@@ -292,26 +292,36 @@
 
    METHOD update_alias.
      LOOP AT mt_field_cond ASSIGNING FIELD-SYMBOL(<ls_field_cond>).
-       IF <ls_field_cond>-field_ref->ms_field-ref_table_alias = iv_alias_old.
-         <ls_field_cond>-field_ref->ms_field-ref_table_alias = iv_alias_new.
+       IF <ls_field_cond>-field_ref->ms_field-ref_table_alias = iv_old_alias.
+         <ls_field_cond>-field_ref->ms_field-ref_table_alias = iv_new_alias.
          rt_nodes_to_update = VALUE #( BASE rt_nodes_to_update
            ( node_key  = <ls_field_cond>-node_key
              item_key  = c_columns-value
-             new_value = |{ iv_alias_new }-{ <ls_field_cond>-field_ref->ms_field-ref_field }| )
+             new_value = |{ iv_new_alias }-{ <ls_field_cond>-field_ref->ms_field-ref_field }| )
          ).
        ENDIF.
      ENDLOOP.
 
      LOOP AT mt_filter_cond ASSIGNING FIELD-SYMBOL(<ls_filter_cond>).
-       IF <ls_filter_cond>-filter_ref->ms_filter-tabname_alias = iv_alias_old.
-         <ls_filter_cond>-filter_ref->ms_filter-tabname_alias = iv_alias_new.
+       IF <ls_filter_cond>-filter_ref->ms_filter-tabname_alias = iv_old_alias.
+         <ls_filter_cond>-filter_ref->ms_filter-tabname_alias = iv_new_alias.
          rt_nodes_to_update = VALUE #( BASE rt_nodes_to_update
            ( node_key  = <ls_filter_cond>-node_key
              item_key  = c_columns-field
-             new_value = |{ iv_alias_new }-{ <ls_filter_cond>-filter_ref->ms_filter-fieldname }| )
+             new_value = |{ iv_new_alias }-{ <ls_filter_cond>-filter_ref->ms_filter-fieldname }| )
          ).
        ENDIF.
      ENDLOOP.
+
+     IF mv_alias = iv_old_alias.
+       mv_alias = iv_new_alias.
+       mf_changed = abap_true.
+     ENDIF.
+
+     IF mf_changed = abap_false AND rt_nodes_to_update IS NOT INITIAL.
+       mf_changed = abap_true.
+     ENDIF.
+
    ENDMETHOD.
 
  ENDCLASS.
@@ -340,22 +350,42 @@
      ENDLOOP.
    ENDMETHOD.
 
-   METHOD update_alias.
+   METHOD update_primary_alias.
 
      LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>).
        rt_nodes_to_update = VALUE #(
          BASE rt_nodes_to_update
          ( LINES OF CORRESPONDING #(
               <ls_table>-tab_ref->update_alias(
-                  iv_alias_old = mv_primary_entity_alias
-                  iv_alias_new = iv_alias )
+                  iv_old_alias = mv_primary_entity_alias
+                  iv_new_alias = iv_alias )
            )
          )
        ).
      ENDLOOP.
 
      mv_primary_entity_alias = iv_alias.
+     mf_changed = abap_true.
 
+   ENDMETHOD.
+
+   METHOD update_table_alias.
+     LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_join_table>).
+       rt_nodes_to_update = VALUE #(
+           BASE rt_nodes_to_update
+           ( LINES OF CORRESPONDING #(
+                <ls_join_table>-tab_ref->update_alias(
+                   iv_old_alias = iv_old_alias
+                   iv_new_alias = iv_new_alias )
+                )
+           )
+       ).
+       IF <ls_join_table>-alias = iv_old_alias.
+         <ls_join_table>-alias = iv_new_alias.
+       ENDIF.
+     ENDLOOP.
+
+     mf_changed = abap_true.
    ENDMETHOD.
 
    METHOD has_changes.
@@ -445,4 +475,7 @@
        <ls_table>-tab_ref->validate( ).
      ENDLOOP.
    ENDMETHOD.
+
+
+
  ENDCLASS.

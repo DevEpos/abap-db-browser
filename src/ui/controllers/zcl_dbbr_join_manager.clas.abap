@@ -275,11 +275,13 @@ CLASS zcl_dbbr_join_manager DEFINITION
     METHODS update_node_values
       IMPORTING
         it_nodes_to_update TYPE lty_t_node_to_update.
+    "! <p class="shorttext synchronized" lang="en">Resets the Alias buffer to the initial values of the join</p>
+    METHODS reset_alias_buffer.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_JOIN_MANAGER IMPLEMENTATION.
+CLASS zcl_dbbr_join_manager IMPLEMENTATION.
 
 
   METHOD add_and_condition.
@@ -613,7 +615,7 @@ CLASS ZCL_DBBR_JOIN_MANAGER IMPLEMENTATION.
         zcl_dbbr_entity_alias_util=>unregister_alias( |{ mo_join->mv_primary_entity_alias }| ).
       ENDIF.
 
-      DATA(lt_nodes_to_update) = mo_join->update_alias( |{ lv_new_alias }| ).
+      DATA(lt_nodes_to_update) = mo_join->update_primary_alias( |{ lv_new_alias }| ).
 
       update_node_values( lt_nodes_to_update ).
 
@@ -1664,6 +1666,7 @@ CLASS ZCL_DBBR_JOIN_MANAGER IMPLEMENTATION.
           ) <> '1'.
         io_callback->cancel_exit( ).
       ELSE.
+        reset_alias_buffer( ).
       ENDIF.
     ENDIF.
   ENDMETHOD.
@@ -1857,6 +1860,18 @@ CLASS ZCL_DBBR_JOIN_MANAGER IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD reset_alias_buffer.
+    zcl_dbbr_entity_alias_util=>initialize_aliases( ).
+
+    zcl_dbbr_entity_alias_util=>add_entity_alias( mr_join_def->primary_table_alias ).
+
+    LOOP AT mr_join_def->tables ASSIGNING FIELD-SYMBOL(<ls_join_table>).
+      zcl_dbbr_entity_alias_util=>add_entity_alias( <ls_join_table>-add_table_alias ).
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
   METHOD test_join.
     DATA(ls_join_def) = mo_join->to_structure( mo_join_tree ).
 
@@ -1920,19 +1935,10 @@ CLASS ZCL_DBBR_JOIN_MANAGER IMPLEMENTATION.
 
 
   METHOD update_table_alias.
-    DATA: lt_nodes_to_update TYPE lty_t_node_to_update.
-
-    LOOP AT mo_join->mt_tables REFERENCE INTO DATA(lo_join_table).
-      lt_nodes_to_update = VALUE #(
-          BASE lt_nodes_to_update
-          ( LINES OF CORRESPONDING #(
-               lo_join_table->tab_ref->update_alias(
-                  iv_alias_old = iv_old_alias
-                  iv_alias_new = iv_new_alias )
-               )
-          )
-      ).
-    ENDLOOP.
+    DATA(lt_nodes_to_update) = mo_join->update_table_alias(
+      iv_new_alias = iv_new_alias
+      iv_old_alias = iv_old_alias
+    ).
 
     update_node_values( lt_nodes_to_update ).
   ENDMETHOD.

@@ -215,7 +215,7 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
 
     lv_checktable = ms_dtel_info-checktable.
 
-    IF lv_checktable = '*'.
+    IF lv_checktable = '*' OR lv_checktable IS INITIAL.
       " retrieve possible checktable from data element
       SELECT SINGLE entitytab FROM dd04l INTO @lv_checktable WHERE rollname = @ms_dtel_info-rollname.
     ENDIF.

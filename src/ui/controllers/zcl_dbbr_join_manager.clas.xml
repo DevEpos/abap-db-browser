@@ -430,6 +430,12 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
+     <CMPNAME>RESET_ALIAS_BUFFER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Resets the Alias buffer to the initial values of the join</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_JOIN_MANAGER</CLSNAME>
      <CMPNAME>ST_JOIN_TYPE_FIXVALS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Description of Domain Fixed Values</DESCRIPT>

@@ -957,13 +957,52 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     DATA(lv_max_index) = VALUE #( lt_old_tablist[ 1 ]-selection_order OPTIONAL ).
     SORT lt_old_tablist BY selection_order ASCENDING.
 
+*.. Handle alias change of primary table
+    IF <ls_join_definition>-primary_table_alias <> lv_old_primary_alias.
+      mo_data->mo_tabfield_list->replace_table_alias(
+        iv_old_alias = lv_old_primary_alias
+        iv_new_alias = <ls_join_definition>-primary_table_alias
+      ).
+      LOOP AT <lt_selection_fields> ASSIGNING <ls_selfield> WHERE tabname_alias = lv_old_primary_alias.
+        <ls_selfield>-tabname_alias = <ls_join_definition>-primary_table_alias.
+      ENDLOOP.
+      LOOP AT <lt_selection_fields_multi> ASSIGNING <ls_selfield> WHERE tabname_alias = lv_old_primary_alias.
+        <ls_selfield>-tabname_alias = <ls_join_definition>-primary_table_alias.
+      ENDLOOP.
+    ENDIF.
+
 *.. add fields of join table to selfields output
     LOOP AT <ls_join_definition>-tables ASSIGNING FIELD-SYMBOL(<ls_join_table_info>).
       DATA(lf_is_new_table) = abap_false.
 
 *..... check if fields for join table are already in selection fields table
-      ASSIGN lt_old_tablist[ KEY alias tabname_alias = <ls_join_table_info>-add_table_alias ] TO FIELD-SYMBOL(<ls_existing_table>).
-      IF sy-subrc <> 0.
+
+      IF line_exists( lt_old_tablist[ tabname_alias = <ls_join_table_info>-add_table_alias
+                                      tabname       = <ls_join_table_info>-add_table
+                                      is_primary    = abap_false ] ).
+
+        DATA(lr_s_existing_tab) = mo_data->mo_tabfield_list->get_table_ref_by_alias( <ls_join_table_info>-add_table_alias ).
+*...... check if join table is of type 'conditional join' to prevent selection
+        IF lr_s_existing_tab->virtual_join_table = abap_true.
+          lr_s_existing_tab->no_selection_allowed = abap_true.
+        ENDIF.
+
+        if lr_s_existing_tab->selection_order IS INITIAL.
+          ADD 1 TO lv_max_index.
+          lr_s_existing_tab->active_selection = abap_true.
+          lr_s_existing_tab->selection_order = lv_max_index.
+        ENDIF.
+
+*...... check if this table's join type changed to or from virtual join
+        IF lr_s_existing_tab->virtual_join_table <> <ls_join_table_info>-is_virtual.
+
+*........ update the is_post_join flag of all table fields for this table
+          mo_data->mo_tabfield_list->update_virtual_join_for_table(
+            iv_table_name  = lr_s_existing_tab->tabname_alias
+            if_virtual_join = lr_s_existing_tab->virtual_join_table
+          ).
+        ENDIF.
+      ELSE.
         lf_is_new_table = abap_true.
 
         IF <ls_join_table_info>-entity_type = zif_sat_c_entity_type=>cds_view.
@@ -984,32 +1023,6 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
           ).
         ENDIF.
 
-*...... add new join table to table list
-        APPEND ls_new_entity TO lt_old_tablist ASSIGNING <ls_existing_table>.
-      ENDIF.
-
-*.... check if join table is of type 'conditional join' to prevent selection
-      IF <ls_join_table_info>-is_virtual = abap_true.
-        <ls_existing_table>-no_selection_allowed = abap_true.
-      ENDIF.
-
-      IF <ls_existing_table>-selection_order IS INITIAL.
-        ADD 1 TO lv_max_index.
-        <ls_existing_table>-active_selection = abap_true.
-        <ls_existing_table>-selection_order = lv_max_index.
-      ENDIF.
-
-*.... check if this table's join type changed to or from virtual join
-      IF lf_is_new_table = abap_false.
-        DATA(ls_old_join_table) = lt_join_tables_old[ add_table = <ls_existing_table>-tabname ].
-        IF ls_old_join_table-is_virtual <> <ls_join_table_info>-is_virtual.
-
-*........ update the is_post_join flag of all table fields for this table
-          mo_data->mo_tabfield_list->update_virtual_join_for_table(
-            iv_table_name  = <ls_existing_table>-tabname
-            if_virtual_join = <ls_join_table_info>-is_virtual
-          ).
-        ENDIF.
       ENDIF.
     ENDLOOP.
 
@@ -1019,22 +1032,6 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         option = zif_dbbr_global_consts=>gc_options-eq
         low    = add_table-add_table_alias             )
     ).
-
-    IF <ls_join_definition>-primary_table_alias <> lv_old_primary_alias.
-      mo_data->mo_tabfield_list->replace_table_alias(
-        iv_old_alias = lv_old_primary_alias
-        iv_new_alias = <ls_join_definition>-primary_table_alias
-      ).
-      LOOP AT <lt_selection_fields> ASSIGNING <ls_selfield> WHERE tabname_alias = lv_old_primary_alias.
-        <ls_selfield>-tabname_alias = <ls_join_definition>-primary_table_alias.
-      ENDLOOP.
-      LOOP AT <lt_selection_fields_multi> ASSIGNING <ls_selfield> WHERE tabname_alias = lv_old_primary_alias.
-        <ls_selfield>-tabname_alias = <ls_join_definition>-primary_table_alias.
-      ENDLOOP.
-    ENDIF.
-
-*    DELETE <lt_selection_fields> WHERE tabname_alias NOT IN lt_add_tables_selopt.
-*    DELETE <lt_selection_fields_multi> WHERE tabname_alias NOT IN lt_add_tables_selopt.
 
 *.. update tabfield list
     mo_data->mo_tabfield_list->delete_custom(
@@ -1159,6 +1156,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
 *... search for field in cache
         ASSIGN lt_selection_fields[ tabname_alias = lr_current_entry->tabname_alias
+                                    tabname       = lr_current_entry->tabname
                                     fieldname     = lr_current_entry->fieldname ] TO FIELD-SYMBOL(<ls_existing_selfield>).
         IF sy-subrc = 0.
           mo_data->mr_t_table_data->* = VALUE #( BASE mo_data->mr_t_table_data->* ( <ls_existing_selfield> ) ).
