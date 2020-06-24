@@ -7,6 +7,14 @@ CLASS zcl_dbbr_output_alv_util DEFINITION
 
     DATA mf_use_live_filter TYPE abap_bool READ-ONLY .
 
+    "! <p class="shorttext synchronized" lang="en">Hides empty columns</p>
+    METHODS hide_empty_columns
+      EXPORTING
+        ef_no_empty_cols TYPE abap_bool
+        ev_hidden_cols   TYPE i
+      CHANGING
+        ct_fieldcat      TYPE lvc_t_fcat.
+
     "! <p class="shorttext synchronized" lang="en">Builds selection criteria from db filters</p>
     METHODS build_selection_criteria
       EXPORTING
@@ -689,6 +697,59 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
 
   METHOD update_result_table_ref.
     mr_t_data = ir_t_data.
+  ENDMETHOD.
+
+  METHOD hide_empty_columns.
+    DATA: lt_cols_to_hide TYPE RANGE OF lvc_fname,
+          lf_hide_col     TYPE abap_bool,
+          lv_type         TYPE char1.
+
+    FIELD-SYMBOLS: <lt_data> TYPE table.
+
+    lt_cols_to_hide = VALUE #( FOR field IN ct_fieldcat WHERE ( no_out = abap_false AND tech = abap_false ) ( sign = 'I' option = 'EQ' low = field-fieldname ) ).
+
+    ASSIGN mr_t_data->* TO <lt_data>.
+
+    LOOP AT <lt_data> ASSIGNING FIELD-SYMBOL(<ls_data>).
+      IF lt_cols_to_hide IS INITIAL.
+        EXIT.
+      ENDIF.
+
+      LOOP AT lt_cols_to_hide ASSIGNING FIELD-SYMBOL(<ls_field>).
+        CLEAR lf_hide_col.
+
+        ASSIGN COMPONENT <ls_field>-low OF STRUCTURE <ls_data> TO FIELD-SYMBOL(<lv_cell>).
+        DESCRIBE FIELD <lv_cell> TYPE lv_type.
+
+        IF  lv_type = cl_abap_typedescr=>typekind_string OR
+            lv_type = cl_abap_typedescr=>typekind_char OR
+            lv_type = cl_abap_typedescr=>typekind_num.
+          IF <lv_cell> CO '0.,' OR <lv_cell> IS INITIAL.
+            lf_hide_col = abap_true.
+          ENDIF.
+        ELSE.
+          IF <lv_cell> IS INITIAL.
+            lf_hide_col = abap_true.
+          ENDIF.
+        ENDIF.
+
+        IF lf_hide_col = abap_false.
+          DELETE lt_cols_to_hide.
+        ENDIF.
+      ENDLOOP.
+
+    ENDLOOP.
+
+    IF lt_cols_to_hide IS INITIAL.
+      ef_no_empty_cols = abap_true.
+      RETURN.
+    ENDIF.
+
+    LOOP AT ct_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fcat>) WHERE fieldname IN lt_cols_to_hide.
+      <ls_fcat>-no_out = abap_true.
+    ENDLOOP.
+
+    ev_hidden_cols = lines( lt_cols_to_hide ).
   ENDMETHOD.
 
 ENDCLASS.
