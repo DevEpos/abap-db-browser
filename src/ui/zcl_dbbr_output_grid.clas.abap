@@ -346,6 +346,10 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         fcode = zif_dbbr_c_selection_functions=>hide_cols_without_values
         text  = |{ 'Hide all Columns where no values exist'(041) }|
     ).
+    lo_cols_menu->add_function(
+        fcode = zif_dbbr_c_selection_functions=>show_all_columns
+        text  = |{ 'Show all Columns'(058) }|
+    ).
 
     DATA(lo_variant_menu) = NEW cl_ctmenu( ).
     lo_variant_menu->add_function(

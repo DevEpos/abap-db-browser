@@ -100,29 +100,20 @@ CLASS zcl_dbbr_selection_controller DEFINITION
         tabname  TYPE tabname,
       END OF ty_group_tab_map .
 
-    CONSTANTS c_col_group_prefix TYPE char3 VALUE 'SPG' ##NO_TEXT.
     CLASS-DATA ss_hide_row_filter TYPE lvc_s_filt .
     DATA mt_column_groups TYPE lvc_t_sgrp .
-    DATA:
-      mt_group_tab_map TYPE HASHED TABLE OF ty_group_tab_map WITH UNIQUE KEY sp_group .
     DATA mf_layout_transferred TYPE sap_bool .
-    CONSTANTS mc_container TYPE dynfnam VALUE 'GRID' ##NO_TEXT.
     DATA mf_first_cell_marked TYPE boolean .
     DATA mf_no_data TYPE abap_bool.
     DATA mo_alv_grid TYPE REF TO zcl_dbbr_output_grid .
     DATA mo_alv_header_doc TYPE REF TO cl_dd_document .
     DATA mo_header_dock TYPE REF TO cl_gui_docking_container .
-    DATA mo_side_toolbar_dock TYPE REF TO cl_gui_docking_container .
-    DATA mo_side_toolbar TYPE REF TO cl_gui_toolbar .
     DATA ms_alv_layout TYPE lvc_s_layo .
-    DATA mv_max_lines_existing TYPE sy-tabix .
     DATA mf_default_alv_var_active TYPE abap_bool .
     DATA mo_util TYPE REF TO zcl_dbbr_selection_util .
-    DATA mf_grouping_active TYPE abap_bool .
     DATA mf_has_parent TYPE abap_bool .
     DATA mo_splitter_container TYPE REF TO cl_gui_splitter_container .
     DATA mo_output_container TYPE REF TO cl_gui_container .
-    DATA mf_selection_finished TYPE abap_bool .
     DATA: mo_textfield_util TYPE REF TO zcl_dbbr_text_field_ui_util.
 
     "! <p class="shorttext synchronized" lang="en">Indicates if the ALV header needs a refresh</p>
@@ -287,6 +278,7 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     METHODS disable_checkbox_style
       IMPORTING
         if_selected_cols_only TYPE abap_bool OPTIONAL.
+    METHODS show_all_cols.
 ENDCLASS.
 
 
@@ -1096,58 +1088,34 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD hide_cols_without_values.
-    DATA: lt_cols_to_hide TYPE RANGE OF lvc_fname,
-          lf_hide_col     TYPE abap_bool,
-          lv_type         TYPE char1.
-
-    FIELD-SYMBOLS: <lt_data> TYPE table.
-
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
 
-    lt_cols_to_hide = VALUE #( FOR field IN lt_fieldcat WHERE ( no_out = abap_false AND tech = abap_false ) ( sign = 'I' option = 'EQ' low = field-fieldname ) ).
+    mo_util->get_alv_util( )->hide_empty_columns(
+      IMPORTING
+        ef_no_empty_cols = DATA(lf_no_empty_cols)
+        ev_hidden_cols   = DATA(lv_hidden_cols)
+      CHANGING
+        ct_fieldcat      = lt_fieldcat
+    ).
 
-    ASSIGN mo_util->mr_t_data->* TO <lt_data>.
-
-    LOOP AT <lt_data> ASSIGNING FIELD-SYMBOL(<ls_data>).
-      IF lt_cols_to_hide IS INITIAL.
-        EXIT.
-      ENDIF.
-
-      LOOP AT lt_cols_to_hide ASSIGNING FIELD-SYMBOL(<ls_field>).
-        CLEAR lf_hide_col.
-
-        ASSIGN COMPONENT <ls_field>-low OF STRUCTURE <ls_data> TO FIELD-SYMBOL(<lv_cell>).
-        DESCRIBE FIELD <lv_cell> TYPE lv_type.
-
-        IF  lv_type = cl_abap_typedescr=>typekind_string OR
-            lv_type = cl_abap_typedescr=>typekind_char OR
-            lv_type = cl_abap_typedescr=>typekind_num.
-          IF <lv_cell> CO '0.,' OR <lv_cell> IS INITIAL.
-            lf_hide_col = abap_true.
-          ENDIF.
-        ELSE.
-          IF <lv_cell> IS INITIAL.
-            lf_hide_col = abap_true.
-          ENDIF.
-        ENDIF.
-
-        IF lf_hide_col = abap_false.
-          DELETE lt_cols_to_hide.
-        ENDIF.
-      ENDLOOP.
-
-    ENDLOOP.
-
-    IF lt_cols_to_hide IS INITIAL.
+    IF lf_no_empty_cols = abap_true.
       MESSAGE s103(zdbbr_info).
       RETURN.
     ENDIF.
 
-    LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fcat>) WHERE fieldname IN lt_cols_to_hide.
-      <ls_fcat>-no_out = abap_true.
-    ENDLOOP.
+    MESSAGE s102(zdbbr_info) WITH |{ lv_hidden_cols }|.
 
-    MESSAGE s102(zdbbr_info) WITH |{ lines( lt_cols_to_hide ) }|.
+    mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
+
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+  ENDMETHOD.
+
+  METHOD show_all_cols.
+    mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+
+    LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fcat>) WHERE tech = abap_false.
+      <ls_fcat>-no_out = abap_false.
+    ENDLOOP.
 
     mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
 
@@ -1271,13 +1239,20 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     DATA(lt_sort) = mo_util->mt_sort_alv.
     DATA(lt_filter) = mo_util->get_alv_filter_from_criteria( ).
 
+    DATA(lt_fieldcat) = mo_util->mt_fieldcat.
+
+    IF mo_util->ms_technical_info-auto_hide_empty_cols = abap_true.
+      mo_util->get_alv_util( )->hide_empty_columns( CHANGING ct_fieldcat = lt_fieldcat ).
+    ENDIF.
+
     mo_alv_grid->set_table_for_first_display(
       EXPORTING is_layout         = ms_alv_layout
                 i_save            = 'A'
                 i_default         = mo_util->ms_technical_info-enable_alv_default_variant
                 is_variant        = ls_variant
                 it_special_groups = mt_column_groups
-      CHANGING  it_fieldcatalog   = mo_util->mt_fieldcat
+*      CHANGING  it_fieldcatalog   = mo_util->mt_fieldcat
+      CHANGING  it_fieldcatalog   = lt_fieldcat
                 it_outtab         = <lt_table>
                 it_sort           = lt_sort
                 it_filter         = lt_filter
@@ -2066,8 +2041,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 *&---------------------------------------------------------------------*
 *& Description: Saves current selection as custom f4 help for a database table
 *&---------------------------------------------------------------------*
-    DATA: lf_go_to_f4_manager TYPE abap_bool.
-
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
     DELETE lt_fieldcat WHERE no_out = abap_true OR tech = abap_true.
     SORT lt_fieldcat BY col_pos.
@@ -2497,6 +2470,10 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         hide_cols_without_values( ).
         RETURN.
 
+      WHEN zif_dbbr_c_selection_functions=>show_all_columns.
+        show_all_cols( ).
+        RETURN.
+
       WHEN zif_dbbr_c_selection_functions=>show_shortcuts.
         mo_alv_grid->show_active_default_shortcuts( ).
         RETURN.
@@ -2561,8 +2538,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
   METHOD zif_uitb_screen_controller~set_status.
     DATA: lt_excluding TYPE ui_functions.
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
-
     lt_excluding = mo_util->zif_dbbr_screen_util~get_deactivated_functions( ).
 
     IF mo_alv_grid IS NOT INITIAL.

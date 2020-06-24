@@ -1,7 +1,8 @@
 INTERFACE zif_dbbr_user_settings_ids
   PUBLIC .
 
-
+  "! Type ABAP_BOOL
+  CONSTANTS c_auto_hide_empty_cols TYPE string VALUE 'P_AUTHEC' ##NO_TEXT.
   "! Type ABAP_BOOL
   CONSTANTS c_advanced_mode TYPE string VALUE 'P_ADVM' ##NO_TEXT.
   "! Type ABAP_BOOL

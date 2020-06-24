@@ -2,6 +2,7 @@
 INTERFACE zif_dbbr_c_selection_functions
   PUBLIC .
 
+  CONSTANTS show_all_columns TYPE sy-ucomm VALUE 'SHOW_ALL_COLS' ##NO_TEXT.
   CONSTANTS add_text_field TYPE sy-ucomm VALUE 'ADD_TEXT_FIELDS' ##NO_TEXT.
   CONSTANTS manage_text_fields TYPE sy-ucomm VALUE 'MANAGE_TEXT_FIELDS' ##NO_TEXT.
   CONSTANTS show_cds_source TYPE sy-ucomm VALUE 'SHOWCDSSRC' ##NO_TEXT.

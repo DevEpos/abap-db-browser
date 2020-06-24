@@ -1089,6 +1089,9 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
       DATA(lr_selfield) = REF #( mt_selection_fields[ tabname_alias = lr_current_entry->tabname_alias
                                                       fieldname     = lr_current_entry->fieldname ] OPTIONAL ).
+
+      DATA(lv_alias_clause) = COND #( WHEN lr_current_entry->alv_fieldname = 'PRIMARY' THEN || ELSE | AS { lr_current_entry->alv_fieldname }| ).
+
       IF lr_selfield IS BOUND AND
          ( lr_selfield->aggregation <> space OR
            lr_selfield->totals = abap_true ).
@@ -1096,11 +1099,11 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
            WHEN lr_selfield->aggregation <> space THEN lr_selfield->aggregation
            ELSE                                        'SUM'
         ).
-        APPEND |{ lv_aggr_function }( { lr_current_entry->sql_fieldname_long } ) AS { lr_current_entry->alv_fieldname }, | TO mt_select.
+        APPEND |{ lv_aggr_function }( { lr_current_entry->sql_fieldname_long } ){ lv_alias_clause }, | TO mt_select.
       ELSEIF ms_association_target IS NOT INITIAL.
-        APPEND |\\{ ms_association_target-raw_name }-{ lr_current_entry->sql_fieldname_long } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
+        APPEND |\\{ ms_association_target-raw_name }-{ lr_current_entry->sql_fieldname_long }{ lv_alias_clause }, | TO mt_select.
       ELSE.
-        APPEND |{ lr_current_entry->sql_fieldname_long } AS { lr_current_entry->alv_fieldname }, | TO mt_select.
+        APPEND |{ lr_current_entry->sql_fieldname_long }{ lv_alias_clause }, | TO mt_select.
       ENDIF.
     ENDWHILE.
 

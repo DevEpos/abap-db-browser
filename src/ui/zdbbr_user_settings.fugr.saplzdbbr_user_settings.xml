@@ -321,6 +321,12 @@
      <LENGTH>40</LENGTH>
     </item>
     <item>
+     <ID>I</ID>
+     <KEY>T40</KEY>
+     <ENTRY>Automatically hide columns with no content</ENTRY>
+     <LENGTH>84</LENGTH>
+    </item>
+    <item>
      <ID>S</ID>
      <KEY>P_ASNVMO</KEY>
      <ENTRY>Selection Mode for Association</ENTRY>

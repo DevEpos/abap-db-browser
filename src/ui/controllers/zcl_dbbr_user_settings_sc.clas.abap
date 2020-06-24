@@ -85,6 +85,7 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
         always_load_def_variant_first TYPE REF TO zdbbr_user_settings_a-always_load_def_variant_first,
         dock_obj_nav_on_right         TYPE REF TO zdbbr_user_settings_a-dock_obj_nav_on_right,
         selscr_compact_col_widths     TYPE REF TO zdbbr_user_settings_a-selscr_compact_col_widths,
+        auto_hide_empty_cols          TYPE REF TO zdbbr_user_settings_a-auto_hide_empty_cols,
       END OF ms_user_settings_refs .
     DATA mf_data_changed TYPE abap_bool .
 
@@ -149,7 +150,8 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
         auto_sel_filter_saving        c_auto_select_criteria_saving,
         always_load_def_variant_first c_always_load_def_var_first,
         dock_obj_nav_on_right         c_dock_obj_nav_on_right,
-        selscr_compact_col_widths     c_selscr_compact_col_widths.
+        selscr_compact_col_widths     c_selscr_compact_col_widths,
+        auto_hide_empty_cols          c_auto_hide_empty_cols.
   ENDMETHOD.
 
   METHOD initialize_screen.

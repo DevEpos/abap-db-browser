@@ -348,6 +348,12 @@
      <ENTRY>Scroll to Column</ENTRY>
      <LENGTH>26</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>058</KEY>
+     <ENTRY>Show all Columns</ENTRY>
+     <LENGTH>26</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
