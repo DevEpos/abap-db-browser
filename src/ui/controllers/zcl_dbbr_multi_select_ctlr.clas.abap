@@ -13,11 +13,11 @@ CLASS zcl_dbbr_multi_select_ctlr DEFINITION
     METHODS determine_line_count .
     METHODS call_f4_help
       IMPORTING
-        !if_for_low TYPE boolean
-        !if_multi   TYPE boolean OPTIONAL .
+        !if_for_low TYPE abap_bool
+        !if_multi   TYPE abap_bool OPTIONAL .
     METHODS should_data_be_transferred
       RETURNING
-        VALUE(rf_transfer) TYPE boolean .
+        VALUE(rf_transfer) TYPE abap_bool .
     METHODS transfer_data
       CHANGING
         !cs_selfield       TYPE zdbbr_selfield
@@ -32,15 +32,15 @@ CLASS zcl_dbbr_multi_select_ctlr DEFINITION
 
     DATA mo_custom_f4_map TYPE REF TO zcl_dbbr_custom_f4_map .
     DATA mo_table TYPE REF TO zcl_dbbr_multi_select_table .
-    DATA mf_transfer TYPE boolean .
+    DATA mf_transfer TYPE abap_bool .
     DATA mr_ui_multi_select_field TYPE REF TO zdbbr_selfield .
     DATA mr_ui_option_templ_button TYPE REF TO zdbbr_button .
     DATA mr_ui_multi_select_fields TYPE REF TO zdbbr_selfield_itab .
-    DATA ms_option_template TYPE se16n_sel_option .
+    DATA ms_option_template TYPE zdbbr_sel_option .
 
     METHODS call_selfield_f4_help_multi
       IMPORTING
-        !if_low       TYPE boolean
+        !if_low       TYPE abap_bool
         !iv_tablename TYPE tabname
         !iv_fieldname TYPE fieldname.
     METHODS take_entered_values .
@@ -48,7 +48,7 @@ CLASS zcl_dbbr_multi_select_ctlr DEFINITION
     METHODS call_selfield_f4_custom_multi
       IMPORTING
         !iv_current_line LIKE sy-tabix
-        !if_low          TYPE boolean .
+        !if_low          TYPE abap_bool .
     METHODS choose_option_template .
 ENDCLASS.
 
@@ -99,7 +99,7 @@ CLASS zcl_dbbr_multi_select_ctlr IMPLEMENTATION.
   METHOD call_selfield_f4_custom_multi.
 *& Description: Calls custom multi searchhelp for field
 *&---------------------------------------------------------------------*
-    FIELD-SYMBOLS: <lv_selvalue> TYPE se16n_value.
+    FIELD-SYMBOLS: <lv_selvalue> TYPE zsat_value.
 
     " 1) read f4 help definition
     mo_custom_f4_map->read_custom_f4_definition(

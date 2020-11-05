@@ -15,7 +15,7 @@ CLASS zcl_dbbr_favmenu_factory DEFINITION
     "! <p class="shorttext synchronized" lang="en">Delete favorite entries for query name range</p>
     METHODS delete_favs_for_query_names
       IMPORTING
-        !it_query_name_range TYPE ZIF_SAT_TY_GLOBAL=>ty_t_selopt .
+        !it_query_name_range TYPE zif_sat_ty_global=>ty_t_selopt .
     "! <p class="shorttext synchronized" lang="en">Delete global favorites</p>
     METHODS delete_global_favorites .
     "! <p class="shorttext synchronized" lang="en">Delete most used entry</p>
@@ -63,9 +63,9 @@ CLASS zcl_dbbr_favmenu_factory DEFINITION
     METHODS refresh_most_used
       IMPORTING
         !iv_entry     TYPE tabname
-        !iv_entry_raw TYPE ZSAT_ENTITY_ID_raw
+        !iv_entry_raw TYPE zsat_entity_id_raw
         !iv_text      TYPE ddtext OPTIONAL
-        !iv_type      TYPE ZSAT_FAVMENU_TYPE .
+        !iv_type      TYPE zsat_favmenu_type .
     "! <p class="shorttext synchronized" lang="en">Repair favorites tree</p>
     METHODS repair_favorite_tree .
     "! <p class="shorttext synchronized" lang="en">Update description of favorite</p>
@@ -204,7 +204,7 @@ CLASS zcl_dbbr_favmenu_factory IMPLEMENTATION.
 
   METHOD get_favorites.
 
-    DATA(lv_username) = COND sysuname( WHEN if_global_favorites = abap_true THEN
+    DATA(lv_username) = COND sy-uname( WHEN if_global_favorites = abap_true THEN
                                          ''
                                        ELSE
                                          sy-uname ).

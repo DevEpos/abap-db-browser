@@ -1674,8 +1674,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     TYPES: BEGIN OF lty_selfield,
              fieldname         TYPE scrtext_l,
-             value             TYPE se16n_value,
-             value_unconverted TYPE se16n_value,
+             value             TYPE zsat_value,
+             value_unconverted TYPE zsat_value,
              tech_fieldname    TYPE fieldname,
            END OF lty_selfield.
 

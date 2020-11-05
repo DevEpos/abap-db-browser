@@ -547,7 +547,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     " get the current new max object id for the new favorite entry
     DATA(lv_new_fav_id) = mo_favmenu_f->get_next_object_id( if_global = mf_global_fav_mode ).
     DATA(lr_favmenu_entry_new) = NEW zdbbr_favmenu(
-        uname         = COND sysuname( WHEN mf_global_fav_mode = abap_false THEN sy-uname )
+        uname         = COND sy-uname( WHEN mf_global_fav_mode = abap_false THEN sy-uname )
         favtype       = lv_favorite_type
         fav_entry     = lv_favorite_name
         fav_entry_raw = lv_favorite_name_raw
@@ -647,7 +647,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     " get the current new max object id for the new favorite entry
     DATA(lv_new_fav_id) = mo_favmenu_f->get_next_object_id( if_global = mf_global_fav_mode ).
     DATA(lr_favmenu_entry_new) = NEW zdbbr_favmenu(
-        uname      = COND sysuname( WHEN mf_global_fav_mode = abap_false THEN sy-uname )
+        uname      = COND sy-uname( WHEN mf_global_fav_mode = abap_false THEN sy-uname )
         favtype    = zif_dbbr_c_favmenu_type=>folder
         object_id  = lv_new_fav_id
         parent_id  = ls_parent_favnode_data-object_id

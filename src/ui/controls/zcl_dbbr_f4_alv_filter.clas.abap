@@ -11,7 +11,7 @@ CLASS zcl_dbbr_f4_alv_filter DEFINITION
       BEGIN OF ty_s_f4_filter,
         field_text  TYPE ddtext,
         option      TYPE ddoption,
-        option_icon TYPE iconbutton,
+        option_icon TYPE c length 75,
         tabname     TYPE tabname,
         fieldname   TYPE fieldname,
       END OF ty_s_f4_filter.

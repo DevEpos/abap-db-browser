@@ -17,7 +17,7 @@ CLASS zcl_dbbr_f4_helper DEFINITION
     CLASS-METHODS get_cds_field_f4_infos
       IMPORTING
         iv_fieldname       TYPE fieldname
-        iv_cds_view_name   TYPE ZSAT_CDS_VIEW_NAME
+        iv_cds_view_name   TYPE zsat_cds_view_name
       RETURNING
         VALUE(rs_f4_infos) TYPE zdbbr_sh_infos.
     "! <p class="shorttext synchronized" lang="en">Call built in selection field value help</p>
@@ -57,7 +57,7 @@ CLASS zcl_dbbr_f4_helper DEFINITION
         !if_determine_dynp_value TYPE boolean OPTIONAL
         !iv_search_help          TYPE shlpname OPTIONAL
       CHANGING
-        !cv_value                TYPE ZSAT_VALUE .
+        !cv_value                TYPE zsat_value .
     "! <p class="shorttext synchronized" lang="en">Call value help for selection field</p>
     CLASS-METHODS call_f4
       IMPORTING
@@ -205,9 +205,9 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
           lf_reset      TYPE boolean.
 
     DATA: BEGIN OF ls_f4_dummy,
-            tab      TYPE dbnam,
+            tab      TYPE tabname,
             minus(1),
-            field    TYPE fdnam,
+            field    TYPE fieldname,
           END OF ls_f4_dummy.
 
 
@@ -267,9 +267,9 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
 *& return the selected value(s)
 *&---------------------------------------------------------------------*
     TYPES: BEGIN OF f4_dummy,
-             tab      TYPE dbnam,
+             tab      TYPE tabname,
              minus(1),
-             field    TYPE fdnam,
+             field    TYPE fieldname,
            END OF f4_dummy.
 
     DATA: lv_tabname    TYPE tabname,
@@ -279,7 +279,7 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
 
           ls_f4_dummy   TYPE f4_dummy.
 
-    FIELD-SYMBOLS: <lv_selvalue> TYPE ZSAT_VALUE.
+    FIELD-SYMBOLS: <lv_selvalue> TYPE zsat_value.
 
     IF if_low = abap_true.
       ASSIGN cs_selfield-low TO <lv_selvalue>.
@@ -324,7 +324,7 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
         " perform alpha conversion if necessary
         IF if_do_not_convert_alpha = abap_false AND
            cs_selfield-fieldname <> iv_fieldname.
-          ZCL_SAT_DATA_CONVERTER=>perform_alpha_conversion_input( EXPORTING iv_tabname   = lv_tabname
+          zcl_sat_data_converter=>perform_alpha_conversion_input( EXPORTING iv_tabname   = lv_tabname
                                                                              iv_fieldname = lv_fieldname
                                                                              iv_value     = <ls_return_value>-fieldval
                                                                    IMPORTING ev_output    = <ls_return_value>-fieldval ).
@@ -340,7 +340,7 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
           ENDIF.
 
           IF cs_selfield-is_parameter = abap_true.
-            ZCL_SAT_DATA_CONVERTER=>convert_values_to_int_format(
+            zcl_sat_data_converter=>convert_values_to_int_format(
               EXPORTING iv_rollname  = cs_selfield-rollname
                         iv_type      = cs_selfield-inttype
                         iv_decimals  = CONV #( cs_selfield-decimals )
@@ -348,7 +348,7 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
               CHANGING  cv_value1    = <lv_selvalue>
             ).
           ELSE.
-            ZCL_SAT_DATA_CONVERTER=>convert_selopt_to_int_format(
+            zcl_sat_data_converter=>convert_selopt_to_int_format(
               EXPORTING iv_tabname   = cs_selfield-tabname
                         iv_fieldname = cs_selfield-fieldname
               CHANGING  cv_value1    = <lv_selvalue>
@@ -372,15 +372,15 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
 *&---------------------------------------------------------------------*
 *& Description: Call built in f4 method and return selected value
 *&---------------------------------------------------------------------*
-    FIELD-SYMBOLS: <lv_selvalue> TYPE ZSAT_VALUE.
+    FIELD-SYMBOLS: <lv_selvalue> TYPE zsat_value.
 
     DATA: lv_selvalue   TYPE dynfieldvalue,
           lt_return_tab TYPE TABLE OF ddshretval.
 
     DATA: BEGIN OF ls_f4_dummy,
-            tab      TYPE dbnam,
+            tab      TYPE tabname,
             minus(1),
-            field    TYPE fdnam,
+            field    TYPE fieldname,
           END OF ls_f4_dummy.
 
     IF if_low = abap_true.
@@ -416,7 +416,7 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
       ASSIGN lt_return_tab[ retfield = ls_f4_dummy ] TO FIELD-SYMBOL(<ls_return>).
       IF sy-subrc = 0.
         IF if_do_not_convert_alpha = abap_false AND cs_selfields-fieldname <> iv_fieldname.
-          ZCL_SAT_DATA_CONVERTER=>perform_alpha_conversion_input( EXPORTING iv_tabname   = iv_tablename
+          zcl_sat_data_converter=>perform_alpha_conversion_input( EXPORTING iv_tabname   = iv_tablename
                                                                               iv_fieldname = iv_fieldname
                                                                               iv_value     = <ls_return>-fieldval
                                                                     IMPORTING ev_output    = <ls_return>-fieldval ).
@@ -428,7 +428,7 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
         ASSIGN lt_return_tab[ fieldname = iv_fieldname ] TO <ls_return>.
         IF sy-subrc = 0.
           IF if_do_not_convert_alpha = abap_false AND cs_selfields-fieldname <> iv_fieldname.
-            ZCL_SAT_DATA_CONVERTER=>perform_alpha_conversion_input( EXPORTING iv_tabname   = iv_tablename
+            zcl_sat_data_converter=>perform_alpha_conversion_input( EXPORTING iv_tabname   = iv_tablename
                                                                                 iv_fieldname = iv_fieldname
                                                                                 iv_value     = <ls_return>-fieldval
                                                                       IMPORTING ev_output    = <ls_return>-fieldval ).

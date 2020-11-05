@@ -116,11 +116,6 @@ INTERFACE zif_dbbr_global_consts
       red             TYPE char4 VALUE 'C610' ##no_text,
     END OF gc_alv_colors .
   CONSTANTS:
-    BEGIN OF gc_order_by_type,
-      ascending  TYPE se16n_toplow VALUE 'ASC' ##no_text,
-      descending TYPE se16n_toplow VALUE 'DES' ##no_text,
-    END OF gc_order_by_type .
-  CONSTANTS:
     BEGIN OF gc_sort_direction,
       ascending  TYPE zdbbr_sort_direction VALUE 'ASC' ##no_text,
       descending TYPE zdbbr_sort_direction VALUE 'DES' ##no_text,

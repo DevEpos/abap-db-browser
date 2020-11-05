@@ -3,18 +3,18 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <DD04V>
-    <ROLLNAME>ZDBBR_CREATED_TIME</ROLLNAME>
+    <ROLLNAME>ZDBBR_GROUP_BY</ROLLNAME>
     <DDLANGUAGE>E</DDLANGUAGE>
-    <DOMNAME>TIME</DOMNAME>
+    <DOMNAME>CHAR1</DOMNAME>
     <HEADLEN>55</HEADLEN>
     <SCRLEN1>10</SCRLEN1>
     <SCRLEN2>20</SCRLEN2>
     <SCRLEN3>40</SCRLEN3>
-    <DDTEXT>Changed At</DDTEXT>
-    <REPTEXT>Changed At</REPTEXT>
-    <SCRTEXT_S>Chgd At</SCRTEXT_S>
-    <SCRTEXT_M>Changed At</SCRTEXT_M>
-    <SCRTEXT_L>Changed At</SCRTEXT_L>
+    <DDTEXT>Group by for Select</DDTEXT>
+    <REPTEXT>Grouping</REPTEXT>
+    <SCRTEXT_S>Group By</SCRTEXT_S>
+    <SCRTEXT_M>Grouping</SCRTEXT_M>
+    <SCRTEXT_L>Grouping</SCRTEXT_L>
     <DTELMASTER>E</DTELMASTER>
     <REFKIND>D</REFKIND>
    </DD04V>

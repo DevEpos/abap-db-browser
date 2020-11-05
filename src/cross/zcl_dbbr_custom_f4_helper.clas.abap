@@ -30,6 +30,7 @@ CLASS zcl_dbbr_custom_f4_helper DEFINITION
         !ct_selfield        TYPE zdbbr_selfield_itab OPTIONAL .
   PROTECTED SECTION.
   PRIVATE SECTION.
+    TYPES: ty_where_line TYPE c LENGTH 132.
     TYPES: BEGIN OF ty_table_alias_map,
              tabname   TYPE string,
              alias     TYPE string,
@@ -71,7 +72,7 @@ CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
 
   METHOD build_f4_range_table.
     " does the entered value contain a wildcard character
-    DATA(lv_option) = COND option( WHEN contains( val = iv_entered_value sub = '*' ) THEN 'CP' ELSE 'EQ' ).
+    DATA(lv_option) = COND ddoption( WHEN contains( val = iv_entered_value sub = '*' ) THEN 'CP' ELSE 'EQ' ).
 
     ct_selected_ranges = VALUE #(
       ( tablename  = iv_table_of_key_field
@@ -244,7 +245,7 @@ CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
     DATA: lt_select          TYPE TABLE OF string,
           lt_tables          TYPE HASHED TABLE OF tabname WITH UNIQUE KEY table_line,
           lt_component_table TYPE abap_component_tab,
-          lt_where           TYPE TABLE OF se16n_where_132,
+          lt_where           TYPE TABLE OF ty_where_line,
           lt_from_clause     TYPE string_table,
           lt_fieldcat        TYPE lvc_t_fcat,
           lt_sort            TYPE TABLE OF string
@@ -294,7 +295,7 @@ CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
       IF iv_entered_value IS NOT INITIAL.
         DATA(lt_entered_value_selopt) = VALUE zif_sat_ty_global=>ty_t_selopt(
           ( low    = iv_entered_value
-            option = COND option( WHEN contains( val = iv_entered_value sub = '*' ) THEN 'CP' ELSE 'EQ' )
+            option = COND ddoption( WHEN contains( val = iv_entered_value sub = '*' ) THEN 'CP' ELSE 'EQ' )
             sign   = 'I' )
         ).
         DATA(lv_entered_value_low) = COND string(
@@ -410,7 +411,7 @@ CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
           lt_selection_fields   TYPE TABLE OF rsdsfields,
           lt_selected_ranges    TYPE rsds_trange,
           lt_free_sel_where     TYPE rsds_twhere,
-          lt_where              TYPE TABLE OF se16n_where_132,
+          lt_where              TYPE TABLE OF ty_where_line,
           lv_filter_field_count TYPE i.
 
     """ create selection fields for free selection

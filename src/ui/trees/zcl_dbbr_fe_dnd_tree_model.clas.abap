@@ -24,7 +24,7 @@ CLASS zcl_dbbr_fe_dnd_tree_model DEFINITION
         TYPES: items TYPE treemcitab.
     TYPES: END OF mty_node_data .
 
-    DATA mv_current_node_index TYPE num5 VALUE 00000 ##NO_TEXT.
+    DATA mv_current_node_index TYPE numc5 VALUE 00000 ##NO_TEXT.
     DATA mv_top_node TYPE tm_nodekey .
     DATA mv_icon_top_node TYPE tm_nodekey .
     DATA mv_color_top_node TYPE tm_nodekey .

@@ -10,7 +10,7 @@ CLASS zcl_dbbr_jumplist_param_table DEFINITION
       IMPORTING
         !it_jump_params        TYPE zdbbr_jumpparam_data_ui_itab
         !ir_query_fields       TYPE REF TO zcl_dbbr_tabfield_list
-        !it_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB .
+        !it_table_to_alias_map TYPE zsat_table_to_alias_map_itab .
     METHODS delete_selected_params .
     METHODS param_id_f4 .
     METHODS param_value_f4 .
@@ -30,7 +30,7 @@ CLASS zcl_dbbr_jumplist_param_table DEFINITION
       END OF mc_table_fields.
 
     DATA mr_query_fields TYPE REF TO zcl_dbbr_tabfield_list.
-    DATA mt_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB.
+    DATA mt_table_to_alias_map TYPE zsat_table_to_alias_map_itab.
 ENDCLASS.
 
 
@@ -83,7 +83,7 @@ CLASS zcl_dbbr_jumplist_param_table IMPLEMENTATION.
 
 
   METHOD param_id_f4.
-    DATA: lv_value TYPE se16n_value.
+    DATA: lv_value TYPE zsat_value.
     FIELD-SYMBOLS: <ls_current_line> TYPE zdbbr_jumpparam_data_ui.
 
     ASSIGN mr_current_line->* TO <ls_current_line>.
@@ -117,7 +117,7 @@ CLASS zcl_dbbr_jumplist_param_table IMPLEMENTATION.
 
     lr_join_field_f4->display_value_help(
       IMPORTING ev_chosen_field            = DATA(lv_field)
-                ev_chosen_table_alias      = data(lv_tabname_alias)
+                ev_chosen_table_alias      = DATA(lv_tabname_alias)
                 ev_chosen_field_with_alias = DATA(lv_field_with_alias) ).
 
     IF lv_field IS NOT INITIAL.

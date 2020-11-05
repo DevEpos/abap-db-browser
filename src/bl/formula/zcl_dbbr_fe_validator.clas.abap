@@ -36,8 +36,6 @@ CLASS zcl_dbbr_fe_validator DEFINITION
       RAISING
         zcx_dbbr_formula_exception .
     METHODS get_statements_from_code
-      IMPORTING
-        !it_keywords      TYPE char20_t OPTIONAL
       EXPORTING
         !et_formula_lines TYPE zif_dbbr_fe_types=>tt_statement
       RAISING

@@ -56,8 +56,8 @@ CLASS lcl_detail_viewer DEFINITION.
     TYPES:
       BEGIN OF ty_s_selfield,
         fieldname         TYPE scrtext_l,
-        value             TYPE se16n_value,
-        value_unconverted TYPE se16n_value,
+        value             TYPE zsat_value,
+        value_unconverted TYPE zsat_value,
         tech_fieldname    TYPE fieldname,
         hidden            TYPE abap_bool,
       END OF ty_s_selfield.

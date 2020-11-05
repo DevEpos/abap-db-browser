@@ -114,7 +114,7 @@ CLASS zcl_dbbr_sqle_sb_entity_tree DEFINITION
     METHODS fill_view_table_node
       IMPORTING
         io_node        TYPE REF TO zcl_uitb_ctm_node
-        it_fields      TYPE dfies_tab
+        it_fields      TYPE zsat_dfies_itab
         if_expand_node TYPE abap_bool OPTIONAL
         if_association TYPE abap_bool OPTIONAL
         ir_user_data   TYPE REF TO ty_s_user_data.

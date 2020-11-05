@@ -171,7 +171,7 @@ CLASS ZCL_DBBR_JUMPLIST_TABLE IMPLEMENTATION.
 
 
   METHOD jump_target_f4.
-    DATA: lv_value TYPE se16n_value.
+    DATA: lv_value TYPE zsat_value.
 
     FIELD-SYMBOLS: <ls_current_line> TYPE zdbbr_jumpdest_data_ui.
 

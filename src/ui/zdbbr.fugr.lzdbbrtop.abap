@@ -27,7 +27,7 @@ DATA: subquery TYPE zdbbr_button.
 DATA: gt_selection_fields       TYPE zdbbr_selfield_itab,
       gt_multi_or               TYPE zdbbr_selfield_itab,
       gs_multi_or               TYPE zdbbr_selfield,
-      gv_or_tuple_number        TYPE tswpos,
+      gv_or_tuple_number        TYPE zdbbr_seq_number,
       gs_selfields              TYPE zdbbr_selfield,
       gv_selfields_title        TYPE char128,
       gt_selection_fields_multi TYPE zdbbr_selfield_itab,
@@ -37,7 +37,7 @@ DATA: gt_selection_fields       TYPE zdbbr_selfield_itab,
       gv_fieldname              TYPE fieldname,
       gv_field_descr            TYPE scrtext_m,
       gv_multi_select_lines     LIKE sy-tabix,
-      gv_option_template        TYPE se16n_option.
+      gv_option_template        TYPE ddoption.
 
 FIELD-SYMBOLS: <gt_table> TYPE table.
 DATA: gr_dynamic_table TYPE REF TO data.

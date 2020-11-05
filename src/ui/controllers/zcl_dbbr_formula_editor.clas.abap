@@ -391,7 +391,7 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
 
 
   METHOD show_ddic_value_help.
-    DATA: lv_rollname TYPE se16n_value.
+    DATA: lv_rollname TYPE zsat_value.
 
     " get value of selected text
     lv_rollname = mo_editor->get_selected_text( ).

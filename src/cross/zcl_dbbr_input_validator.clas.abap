@@ -1,19 +1,19 @@
-class ZCL_DBBR_INPUT_VALIDATOR definition
-  public
-  create public .
+CLASS zcl_dbbr_input_validator DEFINITION
+  PUBLIC
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  class-methods CHECK_AND_CROP_INPUT
-    changing
-      !CV_VALUE type SE16N_VALUE .
+    CLASS-METHODS check_and_crop_input
+      CHANGING
+        !cv_value TYPE zsat_value .
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_INPUT_VALIDATOR IMPLEMENTATION.
+CLASS zcl_dbbr_input_validator IMPLEMENTATION.
 
 
   METHOD check_and_crop_input.
@@ -23,12 +23,12 @@ CLASS ZCL_DBBR_INPUT_VALIDATOR IMPLEMENTATION.
 
     DATA(lv_length) = strlen( cv_value ).
     IF lv_length > 45.
-      DATA(lv_cropped) = CONV se16n_value( cv_value(44) ).
+      DATA(lv_cropped) = CONV zsat_value( cv_value(44) ).
       lv_cropped+44(1) = '*'.
       CLEAR cv_value.
       cv_value = lv_cropped.
 
-      MESSAGE i450(wusl).
+      MESSAGE i104(zdbbr_info).
     ENDIF.
 
 

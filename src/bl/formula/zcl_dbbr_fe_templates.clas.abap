@@ -1,4 +1,4 @@
-CLASS ZCL_DBBR_fe_templates DEFINITION
+CLASS zcl_dbbr_fe_templates DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -11,25 +11,27 @@ CLASS ZCL_DBBR_fe_templates DEFINITION
     CLASS-DATA gv_icon_example TYPE string.
     CLASS-DATA gv_icon_quicktip_example TYPE string.
     CLASS-DATA gv_form_field_tmplt TYPE string.
-    class-data gv_form_field_rllnam_tmplt type string.
+    CLASS-DATA gv_form_field_rllnam_tmplt TYPE string.
     CLASS-DATA gv_text_for_field_tmplt TYPE string.
     CLASS-DATA gv_icon_field_tmplt TYPE string.
     CLASS-DATA gv_icon_tt_field_tmplt TYPE string.
-    class-data gv_set_icon_tmplt type string.
-    class-data gv_set_row_color_template type string.
-    class-data gv_set_cell_color_template type string.
+    CLASS-DATA gv_set_icon_tmplt TYPE string.
+    CLASS-DATA gv_set_row_color_template TYPE string.
+    CLASS-DATA gv_set_cell_color_template TYPE string.
     CLASS-DATA gv_form_unit_tmplt TYPE string.
-    class-data gt_valid_keywords_range type range of char20.
+    CLASS-DATA gt_valid_keywords_range TYPE RANGE OF char20.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_FE_TEMPLATES IMPLEMENTATION.
+CLASS zcl_dbbr_fe_templates IMPLEMENTATION.
 
 
   METHOD class_constructor.
+    DATA: lt_keywords TYPE TABLE OF char20.
+
     gv_form_field_tmplt        = `$DEF      ffname   TYPE Table-Field`.
     gv_form_field_rllnam_tmplt = `$DEF      ffname   TYPE Data Element`.
     gv_text_for_field_tmplt    = `$TEXT     ffname   'Short Text'  'Long Text'.`.
@@ -40,9 +42,9 @@ CLASS ZCL_DBBR_FE_TEMPLATES IMPLEMENTATION.
     gv_set_row_color_template  = `$SET_ROW_COLOR  'C500'.`.
     gv_set_cell_color_template = `$SET_CELL_COLOR fieldname 'C500'.`.
 
-    define concat.
+    DEFINE concat.
       &1 = &1 && &2 && cl_abap_char_utilities=>newline.
-    end-OF-DEFINITION.
+    END-OF-DEFINITION.
 
     concat gv_introduction_template:
       `* A formula is a series of statements, that are executed for every`,
@@ -131,18 +133,18 @@ CLASS ZCL_DBBR_FE_TEMPLATES IMPLEMENTATION.
       `  $SET_ICON_TT  icon_field   ICON_SPACE         space.`,
       `ENDIF.`.
 
-      data(lt_keywords) = VALUE char20_t(
-        ( 'DATA' ) ( 'IF' ) ( 'ELSE' ) ( 'ELSEIF' ) ( 'ENDIF' ) ( 'ASSIGN' ) ( 'CASE' ) ( 'WHEN' ) ( 'ENDCASE' ) ( 'CHECK' ) ( 'CLEAR' ) ( 'COMPUTE' )
-        ( 'WHILE' ) ( 'ENDWHILE' ) ( 'CONTINUE' ) ( 'EXIT' ) ( 'DO' ) ( 'ENDDO' )
-        ( 'CONCATENATE' ) ( 'CONDENSE' ) ( 'CONSTANTS' )  ( 'CONVERT' )
-        ( 'FIELD-SYMBOLS' ) ( 'MOVE' ) ( 'REPLACE' ) ( 'SHIFT' ) ( 'SPLIT' ) ( 'STATICS' ) ( 'TRANSLATE' ) ( 'TYPES' )
-        ( 'WHEN' ) ( 'WRITE' )
-      ).
+    lt_keywords = VALUE #(
+      ( 'DATA' ) ( 'IF' ) ( 'ELSE' ) ( 'ELSEIF' ) ( 'ENDIF' ) ( 'ASSIGN' ) ( 'CASE' ) ( 'WHEN' ) ( 'ENDCASE' ) ( 'CHECK' ) ( 'CLEAR' ) ( 'COMPUTE' )
+      ( 'WHILE' ) ( 'ENDWHILE' ) ( 'CONTINUE' ) ( 'EXIT' ) ( 'DO' ) ( 'ENDDO' )
+      ( 'CONCATENATE' ) ( 'CONDENSE' ) ( 'CONSTANTS' )  ( 'CONVERT' )
+      ( 'FIELD-SYMBOLS' ) ( 'MOVE' ) ( 'REPLACE' ) ( 'SHIFT' ) ( 'SPLIT' ) ( 'STATICS' ) ( 'TRANSLATE' ) ( 'TYPES' )
+      ( 'WHEN' ) ( 'WRITE' )
+    ).
 
-      gt_valid_keywords_range = value #(
-        let i = 'I' eq = 'EQ' in
-        for keyword in lt_keywords
-        ( sign = i option = eq low = keyword )
-      ).
+    gt_valid_keywords_range = VALUE #(
+      LET i = 'I' eq = 'EQ' IN
+      FOR keyword IN lt_keywords
+      ( sign = i option = eq low = keyword )
+    ).
   ENDMETHOD.
 ENDCLASS.

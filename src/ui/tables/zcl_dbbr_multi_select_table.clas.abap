@@ -29,7 +29,7 @@ CLASS zcl_dbbr_multi_select_table DEFINITION
         VALUE(rs_template) TYPE zdbbr_selfield .
     METHODS update_option_template
       IMPORTING
-        !is_option_template TYPE se16n_sel_option .
+        !is_option_template TYPE zdbbr_sel_option .
   PROTECTED SECTION.
 
   PRIVATE SECTION.
@@ -38,11 +38,11 @@ CLASS zcl_dbbr_multi_select_table DEFINITION
     DATA mr_selfield_lines TYPE REF TO zdbbr_selfield_itab.
     DATA mr_ui_multi_select_ctrl TYPE REF TO cxtab_control.
     DATA mr_ui_option_button TYPE REF TO zdbbr_button.
-    DATA mr_ui_opt_template TYPE REF TO se16n_option.
+    DATA mr_ui_opt_template TYPE REF TO ddoption.
     DATA mr_ui_push_button TYPE REF TO zdbbr_button.
     DATA mr_ui_linecount TYPE REF TO syst_tabix.
     DATA mr_ui_multi_select_lines TYPE REF TO syst_tabix.
-    DATA ms_option_template TYPE se16n_sel_option.
+    DATA ms_option_template TYPE zdbbr_sel_option.
 
 ENDCLASS.
 

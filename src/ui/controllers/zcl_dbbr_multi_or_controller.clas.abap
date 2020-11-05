@@ -55,7 +55,7 @@ CLASS zcl_dbbr_multi_or_controller DEFINITION
     DATA mt_multi_selfield_all TYPE zdbbr_selfield_itab .
     DATA mr_ui_multi_or_field TYPE REF TO zdbbr_selfield .
     DATA mr_ui_multi_or_fields TYPE REF TO zdbbr_selfield_itab .
-    DATA mr_ui_multi_or_tuple_no TYPE REF TO tswpos .
+    DATA mr_ui_multi_or_tuple_no TYPE REF TO zdbbr_seq_number .
     DATA mr_ui_selfields TYPE REF TO zdbbr_selfield_itab .
     DATA mr_ui_multi_or_ctrl TYPE REF TO cxtab_control .
 
@@ -113,7 +113,7 @@ CLASS zcl_dbbr_multi_or_controller IMPLEMENTATION.
     mr_ui_multi_or_field = CAST zdbbr_selfield( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_multi_or ) ).
     mr_ui_selfields = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_selection_fields ) ).
     mr_ui_multi_or_fields = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_multi_or ) ).
-    mr_ui_multi_or_tuple_no = CAST tswpos( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_or_tuple_number ) ).
+    mr_ui_multi_or_tuple_no = CAST zdbbr_seq_number( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_or_tuple_number ) ).
     mr_ui_multi_or_ctrl = CAST cxtab_control( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_multi_or_tc ) ).
 
     " fill table from selection criteria table

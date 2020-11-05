@@ -1048,8 +1048,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         BASE mt_sort_alv
         ( spos       = lr_field->sort_order
           fieldname  = lr_field->alv_fieldname
-          up         = xsdbool( lr_field->sort_direction = zif_dbbr_global_consts=>gc_order_by_type-ascending )
-          down       = xsdbool( lr_field->sort_direction = zif_dbbr_global_consts=>gc_order_by_type-descending ) )
+          up         = xsdbool( lr_field->sort_direction = zif_dbbr_global_consts=>gc_sort_direction-ascending )
+          down       = xsdbool( lr_field->sort_direction = zif_dbbr_global_consts=>gc_sort_direction-descending ) )
       ).
     ENDWHILE.
 
