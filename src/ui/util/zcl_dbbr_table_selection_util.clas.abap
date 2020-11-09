@@ -281,7 +281,8 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
     IF mf_group_by = abap_false AND
        mf_aggregation = abap_false AND
        ms_control_info-primary_table_tabclass = 'TRANSP' AND
-       ms_technical_info-advanced_mode = abap_true.
+       ms_technical_info-advanced_mode = abap_true and
+       zcl_dbbr_dep_feature_util=>is_se16n_available( ).
       DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>edit_data.
     ENDIF.
   ENDMETHOD.

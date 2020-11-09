@@ -63,6 +63,7 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
     ENDIF.
 
     mf_is_view = xsdbool( ls_table_info-tabclass = 'VIEW' ).
+    mo_data->mr_s_settings->disable_edit = mf_is_view.
 
     mo_data->mr_s_global_data->client_dependent = ls_table_info-clidep.
 
