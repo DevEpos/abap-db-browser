@@ -1,68 +1,68 @@
-class ZCL_DBBR_DISTINCT_VAL_CHOOSER definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_distinct_val_chooser DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  interfaces ZIF_UITB_VIEW .
+    INTERFACES zif_uitb_view .
 
-  methods CONSTRUCTOR
-    importing
-      !IR_T_DATA type ref to DATA
-      !IS_FIELD_INFO type ZDBBR_TABFIELD_INFO_UI
-      !IV_FIELDNAME type FIELDNAME
-      !IF_VIA_DB type ABAP_BOOL optional
-      !IT_FILTERED_ENTRIES type LVC_T_FIDX optional .
-  methods GET_CHOSEN_VALUE
-    returning
-      value(RESULT) type ZSAT_VALUE .
-  methods HAS_CHOSEN_VALUE
-    returning
-      value(RESULT) type ABAP_BOOL .
+    METHODS constructor
+      IMPORTING
+        !ir_t_data           TYPE REF TO data
+        !is_field_info       TYPE zdbbr_tabfield_info_ui
+        !iv_fieldname        TYPE fieldname
+        !if_via_db           TYPE abap_bool OPTIONAL
+        !it_filtered_entries TYPE lvc_t_fidx OPTIONAL .
+    METHODS get_chosen_value
+      RETURNING
+        VALUE(result) TYPE zsat_value .
+    METHODS has_chosen_value
+      RETURNING
+        VALUE(result) TYPE abap_bool .
   PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
 
-  types:
-    BEGIN OF ty_distinct,
-        fieldvalue     TYPE ZSAT_VALUE,
-        fieldvalue_int TYPE ZSAT_VALUE,
+    TYPES:
+      BEGIN OF ty_distinct,
+        fieldvalue     TYPE zsat_value,
+        fieldvalue_int TYPE zsat_value,
         count          TYPE sy-tabix,
       END OF ty_distinct .
 
-  data MR_VIEW type ref to ZIF_UITB_TEMPLATE_PROG .
-  data MR_DATA type ref to DATA .
-  data MV_FILTER_FIELDNAME type FIELDNAME .
-  data:
-    mt_distinct_values TYPE STANDARD TABLE OF ty_distinct WITH EMPTY KEY .
-  data MV_CHOSEN_VALUE type ZSAT_VALUE .
-  data MR_ALV type ref to ZCL_UITB_ALV .
-  data MS_FIELD_INFO type ZDBBR_TABFIELD_INFO_UI .
-  data MF_CHOSEN_VALUE type ABAP_BOOL .
-  data MF_VIA_DB type ABAP_BOOL .
-  data MT_FILTERED_ENTRIES type LVC_T_FIDX .
+    DATA mr_view TYPE REF TO zif_uitb_template_prog .
+    DATA mr_data TYPE REF TO data .
+    DATA mv_filter_fieldname TYPE fieldname .
+    DATA:
+      mt_distinct_values TYPE STANDARD TABLE OF ty_distinct WITH EMPTY KEY .
+    DATA mv_chosen_value TYPE zsat_value .
+    DATA mr_alv TYPE REF TO zcl_uitb_alv .
+    DATA ms_field_info TYPE zdbbr_tabfield_info_ui .
+    DATA mf_chosen_value TYPE abap_bool .
+    DATA mf_via_db TYPE abap_bool .
+    DATA mt_filtered_entries TYPE lvc_t_fidx .
 
-  methods ON_PAI
-    for event USER_COMMAND of ZIF_UITB_VIEW_CALLBACK
-    importing
-      !ER_CALLBACK
-      !EV_FUNCTION_ID .
-  methods ON_PBO
-    for event BEFORE_OUTPUT of ZIF_UITB_VIEW_CALLBACK
-    importing
-      !ER_CALLBACK .
-  methods ON_LINK_CLICK
-    for event LINK_CLICK of ZCL_UITB_ALV_EVENTS
-    importing
-      !EV_COLUMN
-      !EV_ROW .
-  methods DO_ON_FIRST_SCREEN_CALL .
-  methods GROUP_BY_FIELD .
+    METHODS on_pai
+        FOR EVENT user_command OF zif_uitb_view_callback
+      IMPORTING
+        !er_callback
+        !ev_function_id .
+    METHODS on_pbo
+        FOR EVENT before_output OF zif_uitb_view_callback
+      IMPORTING
+        !er_callback .
+    METHODS on_link_click
+        FOR EVENT link_click OF zcl_uitb_alv_events
+      IMPORTING
+        !ev_column
+        !ev_row .
+    METHODS do_on_first_screen_call .
+    METHODS group_by_field .
 ENDCLASS.
 
 
 
-CLASS ZCL_DBBR_DISTINCT_VAL_CHOOSER IMPLEMENTATION.
+CLASS zcl_dbbr_distinct_val_chooser IMPLEMENTATION.
 
 
   METHOD constructor.
@@ -72,18 +72,18 @@ CLASS ZCL_DBBR_DISTINCT_VAL_CHOOSER IMPLEMENTATION.
     ASSIGN ir_t_data->* TO <lt_data>.
     CREATE DATA mr_data LIKE <lt_data>.
 
-    DATA(lr_extended_list) = NEW zcl_uitb_data_list(
+    DATA(lr_extended_list) = zcl_uitb_data_list=>create_for_table_ref(
         ir_t_data      = mr_data
-
     ).
-    IF NOT lr_extended_list->zif_uitb_data_ref_list~has_component( 'LINE_INDEX' ).
-      lr_extended_list->extend_table(
+
+    IF NOT lr_extended_list->has_component( 'LINE_INDEX' ).
+      lr_extended_list->extend(
         it_comp_extend = VALUE #(
           ( component = 'LINE_INDEX' type = 'SYST-TABIX' )
         )
       ).
 
-      mr_data = lr_extended_list->zif_uitb_data_ref_list~get_all( ).
+      mr_data = lr_extended_list->get_all( ).
     ENDIF.
 
 
@@ -92,7 +92,7 @@ CLASS ZCL_DBBR_DISTINCT_VAL_CHOOSER IMPLEMENTATION.
 
 *.. Fill line index
     LOOP AT <lt_data_copy> ASSIGNING FIELD-SYMBOL(<ls_line>).
-      ASSIGN COMPONENT 'LINE_INDEX' of STRUCTURE <ls_line> to FIELD-SYMBOL(<lv_line>).
+      ASSIGN COMPONENT 'LINE_INDEX' OF STRUCTURE <ls_line> TO FIELD-SYMBOL(<lv_line>).
       CHECK sy-subrc = 0.
       <lv_line> = sy-tabix.
     ENDLOOP.
