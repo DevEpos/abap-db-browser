@@ -1897,7 +1897,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ENDIF.
 
       IF screen-name = 'GS_DATA-EDIT'.
-        screen-input = COND #( WHEN zcl_dbbr_feature_access=>is_se16n_available( ) THEN 1 ELSE 0 ).
+        screen-input = COND #( WHEN zcl_dbbr_dep_feature_util=>is_se16n_available( ) THEN 1 ELSE 0 ).
         MODIFY SCREEN.
       ENDIF.
 
@@ -1907,7 +1907,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ENDIF.
 
       IF screen-name = 'BT_EDIT_MODE_INFO'.
-        screen-active = COND #( WHEN zcl_dbbr_feature_access=>is_se16n_available( ) THEN 0 ELSE 1 ).
+        screen-active = COND #( WHEN zcl_dbbr_dep_feature_util=>is_se16n_available( ) THEN 0 ELSE 1 ).
         MODIFY SCREEN.
       ENDIF.
     ENDLOOP.
