@@ -639,30 +639,30 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0001.</LINE>
+       <LINE>  MODULE pbo_0001.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE get_linecount_0001.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW/>
-      <RPY_DYFLOW>
-       <LINE>LOOP AT gt_multi_select INTO gs_multi_select</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>WITH CONTROL multi_tc</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>CURSOR multi_tc-current_line.</LINE>
+       <LINE>  MODULE get_linecount_0001.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE display_lines.</LINE>
+       <LINE>  LOOP AT gt_multi_select INTO gs_multi_select</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE prepare_fields.</LINE>
+       <LINE>       WITH CONTROL multi_tc</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>       CURSOR multi_tc-current_line.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW/>
+      <RPY_DYFLOW>
+       <LINE>    MODULE display_lines.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    MODULE prepare_fields.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>  ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
@@ -670,33 +670,33 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE cancel_0001 AT EXIT-COMMAND.</LINE>
+       <LINE>  MODULE cancel_0001 AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>LOOP AT gt_multi_select.</LINE>
+       <LINE>  LOOP AT gt_multi_select.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CHAIN.</LINE>
+       <LINE>    CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_multi_select-low.</LINE>
+       <LINE>      FIELD gs_multi_select-low.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_multi_select-high.</LINE>
+       <LINE>      FIELD gs_multi_select-high.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE update_selection_field_multi on CHAIN-REQUEST.</LINE>
+       <LINE>      MODULE update_selection_field_multi on CHAIN-REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDCHAIN.</LINE>
+       <LINE>    ENDCHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>  ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE pai_0001.</LINE>
+       <LINE>  MODULE pai_0001.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
@@ -704,45 +704,12 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_multi_select-low  MODULE field_f4_multi_low.</LINE>
+       <LINE>  FIELD gs_multi_select-low  MODULE field_f4_multi_low.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_multi_select-high MODULE field_f4_multi_high.</LINE>
+       <LINE>  FIELD gs_multi_select-high MODULE field_f4_multi_high.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>7</item>
-      <item>7</item>
-      <item>0</item>
-      <item>4</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>6</item>
-      <item>6</item>
-      <item>6</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -954,11 +921,29 @@
       <RPY_DYFATC>
        <CONT_TYPE>SCREEN</CONT_TYPE>
        <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>PUSH</TYPE>
+       <NAME>BT_EDIT_MODE_INFO</NAME>
+       <ICON_NAME>ICON_INFORMATION</ICON_NAME>
+       <ICON_QINFO>Show_edit_mode_information</ICON_QINFO>
+       <ICON_QSPEC>X</ICON_QSPEC>
+       <WITH_ICON>X</WITH_ICON>
+       <LINE>004</LINE>
+       <COLUMN>054</COLUMN>
+       <LENGTH>032</LENGTH>
+       <VISLENGTH>003</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <PUSH_FCODE>EDIT_MODE_INFO</PUSH_FCODE>
+       <FORMAT>CHAR</FORMAT>
+       <REQU_ENTRY>N</REQU_ENTRY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>CHECK</TYPE>
        <NAME>GS_DATA-DELETE_MODE</NAME>
        <TEXT>Delete_Entries__</TEXT>
        <LINE>004</LINE>
-       <COLUMN>054</COLUMN>
+       <COLUMN>059</COLUMN>
        <LENGTH>018</LENGTH>
        <VISLENGTH>018</VISLENGTH>
        <HEIGHT>001</HEIGHT>
@@ -1584,36 +1569,36 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE table_pbo_0100.</LINE>
+       <LINE>  MODULE table_pbo_0100.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE get_linecount_0100.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW/>
-      <RPY_DYFLOW>
-       <LINE>LOOP AT gt_selection_fields INTO gs_selfields</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>WITH CONTROL selfields_tc</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>CURSOR selfields_tc-current_line.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>MODULE display_data.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>MODULE table_line_pbo_0100.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>MODULE determine_looplines_0100.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>  MODULE get_linecount_0100.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE modify_screen.</LINE>
+       <LINE>  LOOP AT gt_selection_fields INTO gs_selfields</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>     WITH CONTROL selfields_tc</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>     CURSOR selfields_tc-current_line.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    MODULE display_data.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    MODULE table_line_pbo_0100.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    MODULE determine_looplines_0100.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>  ENDLOOP.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW/>
+      <RPY_DYFLOW>
+       <LINE>  MODULE modify_screen.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
@@ -1621,125 +1606,78 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE cancel AT EXIT-COMMAND.</LINE>
+       <LINE>  MODULE cancel AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>CHAIN.</LINE>
+       <LINE>  CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_entity_info-entity_id.</LINE>
+       <LINE>    FIELD gs_entity_info-entity_id.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE check_entity ON CHAIN-REQUEST.</LINE>
+       <LINE>    MODULE check_entity ON CHAIN-REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDCHAIN.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW/>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_data-edit MODULE check_edit_mode.</LINE>
+       <LINE>  ENDCHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE reset_flags.</LINE>
+       <LINE>  FIELD gs_data-edit MODULE check_edit_mode.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>LOOP AT gt_selection_fields.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>CHAIN.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_selfields-low.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_selfields-high.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_selfields-group_by.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_selfields-totals.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_selfields-aggregation.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_selfields-system_value_type.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>MODULE update_selfields ON CHAIN-REQUEST.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>ENDCHAIN.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>  MODULE reset_flags.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE user_command_0100.</LINE>
+       <LINE>  LOOP AT gt_selection_fields.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    CHAIN.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      FIELD gs_selfields-low.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      FIELD gs_selfields-high.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      FIELD gs_selfields-group_by.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      FIELD gs_selfields-totals.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      FIELD gs_selfields-aggregation.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      FIELD gs_selfields-system_value_type.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      MODULE update_selfields ON CHAIN-REQUEST.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    ENDCHAIN.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>  ENDLOOP.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW/>
+      <RPY_DYFLOW>
+       <LINE>  MODULE user_command_0100.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>PROCESS ON VALUE-REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_selfields-low MODULE field_f4_low.</LINE>
+       <LINE>  FIELD gs_selfields-low MODULE field_f4_low.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_selfields-high MODULE field_f4_high.</LINE>
+       <LINE>  FIELD gs_selfields-high MODULE field_f4_high.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>5</item>
-      <item>5</item>
-      <item>4</item>
-      <item>4</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>6</item>
-      <item>6</item>
-      <item>6</item>
-      <item>6</item>
-      <item>6</item>
-      <item>6</item>
-      <item>6</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -1901,7 +1839,7 @@
        <LINE>PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE status_0101.</LINE>
+       <LINE>  MODULE status_0101.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
@@ -1909,18 +1847,18 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE back_0101 AT EXIT-COMMAND.</LINE>
+       <LINE>  MODULE back_0101 AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_built_in_f4-search_table MODULE check_search_table.</LINE>
+       <LINE>  FIELD gs_built_in_f4-search_table MODULE check_search_table.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_built_in_f4-search_field MODULE check_search_field.</LINE>
+       <LINE>  FIELD gs_built_in_f4-search_field MODULE check_search_field.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE user_command_0101.</LINE>
+       <LINE>  MODULE user_command_0101.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
@@ -1928,30 +1866,12 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_built_in_f4-search_table MODULE search_table_f4.</LINE>
+       <LINE>  FIELD gs_built_in_f4-search_table MODULE search_table_f4.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_built_in_f4-search_field MODULE search_field_f4.</LINE>
+       <LINE>  FIELD gs_built_in_f4-search_field MODULE search_field_f4.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -2094,7 +2014,7 @@
        <LINE>PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0105.</LINE>
+       <LINE>  MODULE pbo_0105.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
@@ -2102,17 +2022,9 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE pai_0105.</LINE>
+       <LINE>  MODULE pai_0105.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -2415,60 +2327,60 @@
        <LINE>PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE get_linecount_0106.</LINE>
+       <LINE>  MODULE get_linecount_0106.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>LOOP AT gt_multi_or INTO gs_multi_or</LINE>
+       <LINE>  LOOP AT gt_multi_or INTO gs_multi_or</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>WITH CONTROL multi_or_tc</LINE>
+       <LINE>       WITH CONTROL multi_or_tc</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CURSOR multi_or_tc-current_line.</LINE>
+       <LINE>       CURSOR multi_or_tc-current_line.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE table_pbo_0106.</LINE>
+       <LINE>    MODULE table_pbo_0106.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>  ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0106.</LINE>
+       <LINE>  MODULE pbo_0106.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>PROCESS AFTER INPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE cancel_0106 AT EXIT-COMMAND.</LINE>
+       <LINE>  MODULE cancel_0106 AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>LOOP AT gt_multi_or.</LINE>
+       <LINE>  LOOP AT gt_multi_or.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CHAIN.</LINE>
+       <LINE>    CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_multi_or-low.</LINE>
+       <LINE>      FIELD gs_multi_or-low.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_multi_or-high.</LINE>
+       <LINE>      FIELD gs_multi_or-high.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE update_selfield_0106 ON CHAIN-REQUEST.</LINE>
+       <LINE>      MODULE update_selfield_0106 ON CHAIN-REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDCHAIN.</LINE>
+       <LINE>    ENDCHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>  ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE pai_0106.</LINE>
+       <LINE>  MODULE pai_0106.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
@@ -2476,42 +2388,12 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_multi_or-low  MODULE field_f4_multi_or_low.</LINE>
+       <LINE>  FIELD gs_multi_or-low  MODULE field_f4_multi_or_low.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_multi_or-high MODULE field_f4_multi_or_high.</LINE>
+       <LINE>  FIELD gs_multi_or-high MODULE field_f4_multi_or_high.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>7</item>
-      <item>7</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>6</item>
-      <item>6</item>
-      <item>6</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -2790,81 +2672,58 @@
        <LINE>PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0108.</LINE>
+       <LINE>  MODULE pbo_0108.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>LOOP AT gt_altcoltext INTO gs_altcoltext</LINE>
+       <LINE>  LOOP AT gt_altcoltext INTO gs_altcoltext</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>WITH CONTROL altcoltext_tc</LINE>
+       <LINE>        WITH CONTROL altcoltext_tc</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CURSOR altcoltext_tc-current_line.</LINE>
+       <LINE>        CURSOR altcoltext_tc-current_line.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE table_line_pbo_0108.</LINE>
+       <LINE>    MODULE table_line_pbo_0108.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>  ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>PROCESS AFTER INPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE back_0108 AT EXIT-COMMAND.</LINE>
+       <LINE>  MODULE back_0108 AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>LOOP AT gt_altcoltext.</LINE>
+       <LINE>  LOOP AT gt_altcoltext.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CHAIN.</LINE>
+       <LINE>    CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_altcoltext-alt_short_text.</LINE>
+       <LINE>      FIELD gs_altcoltext-alt_short_text.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_altcoltext-alt_long_text.</LINE>
+       <LINE>      FIELD gs_altcoltext-alt_long_text.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE table_line_pai_0108.</LINE>
+       <LINE>      MODULE table_line_pai_0108.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDCHAIN.</LINE>
+       <LINE>    ENDCHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>  ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE pai_0108.</LINE>
+       <LINE>  MODULE pai_0108.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>8</item>
-      <item>8</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>6</item>
-      <item>6</item>
-      <item>6</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -3036,31 +2895,22 @@
        <LINE>PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE status_0202.</LINE>
+       <LINE>  MODULE status_0202.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>PROCESS AFTER INPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE determine_cursor_0202.</LINE>
+       <LINE>  MODULE determine_cursor_0202.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE back_0202 AT EXIT-COMMAND.</LINE>
+       <LINE>  MODULE back_0202 AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE user_command_0202.</LINE>
+       <LINE>  MODULE user_command_0202.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-      <item>2</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -3163,27 +3013,19 @@
        <LINE>PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0300.</LINE>
+       <LINE>  MODULE pbo_0300.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>PROCESS AFTER INPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE cancel_0300 AT EXIT-COMMAND.</LINE>
+       <LINE>  MODULE cancel_0300 AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pai_0300.</LINE>
+       <LINE>  MODULE pai_0300.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -3282,31 +3124,22 @@
        <LINE>PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0800.</LINE>
+       <LINE>  MODULE pbo_0800.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CALL SUBSCREEN tree_screen INCLUDING sy-repid gv_tree_screen.</LINE>
+       <LINE>  CALL SUBSCREEN tree_screen INCLUDING sy-repid gv_tree_screen.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>PROCESS AFTER INPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE exit_0800 AT EXIT-COMMAND.</LINE>
+       <LINE>  MODULE exit_0800 AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pai_0800.</LINE>
+       <LINE>  MODULE pai_0800.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -3365,19 +3198,13 @@
        <LINE>PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0800.</LINE>
+       <LINE>  MODULE pbo_0800.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>PROCESS AFTER INPUT.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -3436,19 +3263,13 @@
        <LINE>PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0800.</LINE>
+       <LINE>  MODULE pbo_0800.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>PROCESS AFTER INPUT.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -3542,27 +3363,19 @@
        <LINE>PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0820.</LINE>
+       <LINE>  MODULE pbo_0820.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
        <LINE>PROCESS AFTER INPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE exit_0820 at EXIT-COMMAND.</LINE>
+       <LINE>  MODULE exit_0820 at EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pai_0820.</LINE>
+       <LINE>  MODULE pai_0820.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-     </SPACES>
     </item>
    </DYNPROS>
    <CUA>

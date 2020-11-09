@@ -61,9 +61,7 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
     DATA mf_from_central_search TYPE abap_bool .
     DATA mf_group_fields_updated TYPE boolean .
     DATA mf_join_tables_updated TYPE boolean .
-    DATA mv_old_top_line TYPE i.
     DATA mf_search_successful TYPE boolean .
-    DATA mf_skipped_start TYPE abap_bool .
     DATA mf_table_was_changed TYPE boolean .
     DATA mo_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory .
     " attributes for data output
@@ -75,7 +73,6 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
     "! <p class="shorttext synchronized" lang="en">Navigation Control in Selection Screen</p>
     DATA mo_navigator TYPE REF TO zcl_dbbr_object_navigator .
     DATA mo_selection_table TYPE REF TO zcl_dbbr_selscreen_table .
-    DATA mo_toolbar_cont TYPE REF TO cl_gui_custom_container .
     DATA mo_util TYPE REF TO zcl_dbbr_selscreen_util .
     DATA:
       BEGIN OF ms_entity_update,
@@ -84,10 +81,6 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
         is_initial TYPE abap_bool,
       END OF ms_entity_update .
     DATA mv_current_function TYPE sy-ucomm .
-    DATA mv_default_option_button TYPE zdbbr_button .
-    DATA mv_default_push_button TYPE zdbbr_button .
-    DATA mv_tab_size_text TYPE string .
-
     METHODS choose_other_entity .
     METHODS clear_edit_flags .
     METHODS create_table_header
@@ -668,12 +661,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD load_entity.
-    DATA: lv_new_query_name TYPE zsat_query_name,
-          lf_is_query       TYPE abap_bool,
-          lf_cds_mode       TYPE abap_bool,
-          lv_cds_name       TYPE zsat_cds_view_name,
-          lv_new_tab_name   TYPE tabname16.
-
     IF iv_entity_id IS NOT INITIAL AND
        iv_entity_type IS NOT INITIAL.
       CHECK NOT mo_util->is_entity_loaded(
@@ -1842,8 +1829,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD zif_uitb_screen_controller~load_context_menu.
-    DATA: ls_current_line TYPE zdbbr_selfield.
-
     cl_ctmenu=>load_gui_status(
       program = get_report_id( )
       status  = '0100_CTX_SELFIELD'
@@ -1875,8 +1860,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD zif_uitb_screen_controller~pbo.
-    DATA ls_screen TYPE screen.
-
     IF mf_first_call = abap_true.
       mo_cursor = zcl_uitb_cursor=>get_cursor( ).
       CLEAR: mf_first_call.
@@ -1904,19 +1887,27 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ENDIF.
 
       IF screen-group4 = 'EDT'.
-        screen-input = COND #( WHEN mo_data->is_join_active( ) OR mo_data->mr_s_settings->disable_edit = abap_true THEN
-                                    0
-                                  ELSE
-                                    1 ).
+        screen-input = COND #(
+          WHEN mo_data->is_join_active( )
+            OR mo_data->mr_s_settings->disable_edit = abap_true
+               THEN 0
+          ELSE      1
+        ).
+        MODIFY SCREEN.
+      ENDIF.
+
+      IF screen-name = 'GS_DATA-EDIT'.
+        screen-input = COND #( WHEN zcl_dbbr_feature_access=>is_se16n_available( ) THEN 1 ELSE 0 ).
         MODIFY SCREEN.
       ENDIF.
 
       IF screen-name = 'GS_DATA-DELETE_MODE'.
-        IF mo_data->mr_s_global_data->advanced_mode = abap_false.
-          screen-active = 0.
-        ELSE.
-          screen-active = 1.
-        ENDIF.
+        screen-active = COND #( WHEN mo_data->mr_s_global_data->advanced_mode = abap_false THEN 0 ELSE 1 ).
+        MODIFY SCREEN.
+      ENDIF.
+
+      IF screen-name = 'BT_EDIT_MODE_INFO'.
+        screen-active = COND #( WHEN zcl_dbbr_feature_access=>is_se16n_available( ) THEN 0 ELSE 1 ).
         MODIFY SCREEN.
       ENDIF.
     ENDLOOP.

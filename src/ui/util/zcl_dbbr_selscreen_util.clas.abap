@@ -988,7 +988,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
           lr_s_existing_tab->no_selection_allowed = abap_true.
         ENDIF.
 
-        if lr_s_existing_tab->selection_order IS INITIAL.
+        IF lr_s_existing_tab->selection_order IS INITIAL.
           ADD 1 TO lv_max_index.
           lr_s_existing_tab->active_selection = abap_true.
           lr_s_existing_tab->selection_order = lv_max_index.
@@ -1311,6 +1311,10 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       WHEN zif_dbbr_c_selscreen_functions=>delete_default_variant.
         CLEAR cv_function.
         zcl_dbbr_default_variant_util=>delete_default_variant( me ).
+
+      WHEN zif_dbbr_c_selscreen_functions=>show_edit_mode_info.
+        CLEAR cv_function.
+        MESSAGE |SE16N is not available in this System, so editing of data is not possible| TYPE 'I'.
 
     ENDCASE.
   ENDMETHOD.

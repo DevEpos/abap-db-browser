@@ -76,24 +76,39 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
 
   METHOD edit_data.
-    DATA: lt_output_fields TYPE STANDARD TABLE OF se16n_output,
-          lt_or_selfields  TYPE STANDARD TABLE OF se16n_or_seltab.
+    DATA: lr_iterator       TYPE REF TO zif_uitb_data_ref_iterator,
+          lr_field          TYPE REF TO zdbbr_tabfield_info_ui,
+          lr_s_output_field TYPE REF TO data.
+
+    FIELD-SYMBOLS: <lt_or_selfields>     TYPE table,
+                   <lt_output_selfields> TYPE table.
+
+    DATA(lo_output_fields_table) = zcl_uitb_data_list=>create_for_table_name( 'SE16N_OUTPUT' ).
+    DATA(lo_or_selfields_table) = zcl_uitb_data_list=>create_for_table_name( 'SE16N_OR_SELTAB' ).
 
     IF if_called_from_output = abap_true.
-      mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
-      lt_output_fields = VALUE #(
-        FOR output_field IN lt_fieldcat
-        WHERE ( no_out = abap_false AND
-                tech   = abap_false )
-        ( field = output_field-fieldname )
-      ).
+      mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat2) ).
+      LOOP AT lt_fieldcat2 ASSIGNING FIELD-SYMBOL(<ls_fieldcat>) WHERE no_out = abap_false
+                                                                   AND tech   = abap_false.
+        lr_s_output_field = lo_output_fields_table->create_new_line( ).
+        lo_output_fields_table->fill_component(
+            ir_s_element = lr_s_output_field
+            iv_comp_name = 'FIELD'
+            iv_value     = <ls_fieldcat>-fieldname
+        ).
+      ENDLOOP.
     ELSE.
       mo_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
-      DATA(lr_iterator) = mo_tabfields->get_iterator( if_for_active = abap_true ).
+      lr_iterator = mo_tabfields->get_iterator( if_for_active = abap_true ).
 
       WHILE lr_iterator->has_next( ).
-        DATA(lr_field) = CAST zdbbr_tabfield_info_ui( lr_iterator->get_next( ) ).
-        lt_output_fields = VALUE #( BASE lt_output_fields ( field = lr_field->fieldname ) ).
+        lr_field = CAST zdbbr_tabfield_info_ui( lr_iterator->get_next( ) ).
+        lr_s_output_field = lo_output_fields_table->create_new_line( ).
+        lo_output_fields_table->fill_component(
+            ir_s_element = lr_s_output_field
+            iv_comp_name = 'FIELD'
+            iv_value     = lr_field->fieldname
+        ).
       ENDWHILE.
     ENDIF.
 
@@ -101,7 +116,26 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
       create_where_clause( ).
     ENDIF.
 
-    lt_or_selfields = CORRESPONDING #( mt_or MAPPING seltab = values ).
+    LOOP AT mt_or ASSIGNING FIELD-SYMBOL(<ls_or>).
+      DATA(lr_s_or_tuple) = lo_or_selfields_table->create_new_line( ).
+      lo_or_selfields_table->fill_component(
+          ir_s_element         = lr_s_or_tuple
+          iv_comp_name         = 'POS'
+          iv_value             = <ls_or>-pos
+      ).
+      lo_or_selfields_table->fill_component(
+          ir_s_element         = lr_s_or_tuple
+          iv_comp_name         = 'SELTAB'
+          iv_value             = <ls_or>-values
+          if_use_corresponding = abap_true
+      ).
+    ENDLOOP.
+
+    DATA(lr_t_or_selfields) = lo_or_selfields_table->get_all( ).
+    DATA(lr_t_output_selfields) = lo_output_fields_table->get_all( ).
+
+    ASSIGN lr_t_or_selfields->* TO <lt_or_selfields>.
+    ASSIGN lr_t_output_selfields->* TO <lt_output_selfields>.
 
     CALL FUNCTION 'SE16N_INTERFACE'
       EXPORTING
@@ -113,8 +147,8 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
         i_tech_names     = ms_technical_info-tech_names
         i_uname          = sy-uname
       TABLES
-        it_or_selfields  = lt_or_selfields
-        it_output_fields = lt_output_fields
+        it_or_selfields  = <lt_or_selfields>
+        it_output_fields = <lt_output_selfields>
       EXCEPTIONS
         no_values        = 1
         OTHERS           = 2.
@@ -122,12 +156,11 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
       MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
                  WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
     ENDIF.
+
   ENDMETHOD.
 
 
   METHOD execute_selection.
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
-
     determine_group_by_state( ).
     determine_aggregation_state( ).
 
@@ -258,7 +291,7 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selection_functions=>edit_data.
         CLEAR cv_function.
-        edit_data( ).
+        edit_data( if_called_from_output = abap_true ).
 
     ENDCASE.
 
