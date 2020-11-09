@@ -1878,6 +1878,9 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       set_cursor( ).
     ENDIF.
 
+    data(lf_no_editing_possible) = xsdbool( mo_data->is_join_active( ) OR
+                                            mo_data->mr_s_settings->disable_edit = abap_true ).
+
     LOOP AT SCREEN.
       IF screen-name = 'BTN_EXTENDED_SEARCH'.
         IF mf_from_central_search = abap_true.
@@ -1887,17 +1890,13 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ENDIF.
 
       IF screen-group4 = 'EDT'.
-        screen-input = COND #(
-          WHEN mo_data->is_join_active( )
-            OR mo_data->mr_s_settings->disable_edit = abap_true
-               THEN 0
-          ELSE      1
-        ).
+        screen-input = COND #( when lf_no_editing_possible = abap_true THEN 0 else 1 ).
         MODIFY SCREEN.
       ENDIF.
 
       IF screen-name = 'GS_DATA-EDIT'.
-        screen-input = COND #( WHEN zcl_dbbr_dep_feature_util=>is_se16n_available( ) THEN 1 ELSE 0 ).
+        screen-input = COND #( WHEN zcl_dbbr_dep_feature_util=>is_se16n_available( ) and
+                                    lf_no_editing_possible = abap_false THEN 1 ELSE 0 ).
         MODIFY SCREEN.
       ENDIF.
 
