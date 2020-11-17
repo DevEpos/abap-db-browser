@@ -4,7 +4,6 @@
   <asx:values>
    <AREAT>Jump Destinations for Queries</AREAT>
    <INCLUDES>
-    <SOBJ_NAME>LZDBBR_FIELD_JUMP_LISTF01</SOBJ_NAME>
     <SOBJ_NAME>LZDBBR_FIELD_JUMP_LISTI01</SOBJ_NAME>
     <SOBJ_NAME>LZDBBR_FIELD_JUMP_LISTO01</SOBJ_NAME>
     <SOBJ_NAME>LZDBBR_FIELD_JUMP_LISTTOP</SOBJ_NAME>
@@ -385,144 +384,105 @@
      </FIELDS>
      <FLOW_LOGIC>
       <RPY_DYFLOW>
-       <LINE>PROCESS BEFORE OUTPUT.</LINE>
+       <LINE>  PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0100.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW/>
-      <RPY_DYFLOW>
-       <LINE>LOOP AT gt_jumpfields INTO gs_jumpfield</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>WITH CONTROL jump_fields_tc</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>CURSOR jump_fields_tc-current_line.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>MODULE table_line_pbo_0100.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>    MODULE pbo_0100.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>PROCESS AFTER INPUT.</LINE>
+       <LINE>    LOOP AT gt_jumpfields INTO gs_jumpfield</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE determine_cursor_0100.</LINE>
+       <LINE>          WITH CONTROL jump_fields_tc</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE back_0100 AT EXIT-COMMAND.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW/>
-      <RPY_DYFLOW>
-       <LINE>LOOP AT gt_jumpfields.</LINE>
+       <LINE>          CURSOR jump_fields_tc-current_line.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CHAIN.</LINE>
+       <LINE>      MODULE table_line_pbo_0100.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-marked.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-jump_field.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-criterion.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-crit_operation.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-crit_value.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-jump_target.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-skip_1st_screen.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-is_active.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>field gs_jumpfield-jump_target_type.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-is_hotspot.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>MODULE table_line_pai_0100.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>ENDCHAIN.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>    ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE table_line_validate_0100.</LINE>
+       <LINE>  PROCESS AFTER INPUT.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    MODULE determine_cursor_0100.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    MODULE back_0100 AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE pai_0100.</LINE>
+       <LINE>    LOOP AT gt_jumpfields.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      CHAIN.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_jumpfield-marked.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_jumpfield-jump_field.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_jumpfield-criterion.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_jumpfield-crit_operation.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_jumpfield-crit_value.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_jumpfield-jump_target.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_jumpfield-skip_1st_screen.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_jumpfield-is_active.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        field gs_jumpfield-jump_target_type.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_jumpfield-is_hotspot.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        MODULE table_line_pai_0100.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      ENDCHAIN.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>PROCESS ON VALUE-REQUEST.</LINE>
+       <LINE>    MODULE table_line_validate_0100.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW/>
+      <RPY_DYFLOW>
+       <LINE>    MODULE pai_0100.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW/>
+      <RPY_DYFLOW>
+       <LINE>  PROCESS ON VALUE-REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-jump_field MODULE jump_field_0100_f4.</LINE>
+       <LINE>    FIELD gs_jumpfield-jump_field MODULE jump_field_0100_f4.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-criterion MODULE jump_crit_0100_f4.</LINE>
+       <LINE>    FIELD gs_jumpfield-criterion MODULE jump_crit_0100_f4.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_jumpfield-jump_target MODULE jump_target_0100_f4.</LINE>
+       <LINE>    FIELD gs_jumpfield-jump_target MODULE jump_target_0100_f4.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>2</item>
-      <item>4</item>
-      <item>0</item>
-      <item>4</item>
-      <item>10</item>
-      <item>10</item>
-      <item>6</item>
-      <item>4</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>4</item>
-      <item>0</item>
-      <item>4</item>
-      <item>6</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>6</item>
-      <item>4</item>
-      <item>0</item>
-      <item>4</item>
-      <item>0</item>
-      <item>4</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>4</item>
-      <item>4</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -711,116 +671,84 @@
      </FIELDS>
      <FLOW_LOGIC>
       <RPY_DYFLOW>
-       <LINE>PROCESS BEFORE OUTPUT.</LINE>
+       <LINE>  PROCESS BEFORE OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE pbo_0101.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW/>
-      <RPY_DYFLOW>
-       <LINE>LOOP AT gt_params INTO gs_param</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>WITH CONTROL params_tc</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>CURSOR params_tc-current_line.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>MODULE table_line_pbo_0101.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>    MODULE pbo_0101.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>PROCESS AFTER INPUT.</LINE>
+       <LINE>    LOOP AT gt_params INTO gs_param</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE determine_cursor_0101.</LINE>
+       <LINE>          WITH CONTROL params_tc</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE back_0101 AT EXIT-COMMAND.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW/>
-      <RPY_DYFLOW>
-       <LINE>LOOP AT gt_params.</LINE>
+       <LINE>          CURSOR params_tc-current_line.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CHAIN.</LINE>
+       <LINE>      MODULE table_line_pbo_0101.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_param-parameter_id.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_param-value.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_param-active.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>FIELD gs_param-obligatory.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>MODULE table_line_pai_0101.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>ENDCHAIN.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>    ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE table_line_validate_0101.</LINE>
+       <LINE>  PROCESS AFTER INPUT.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    MODULE determine_cursor_0101.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    MODULE back_0101 AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>MODULE pai_0101.</LINE>
+       <LINE>    LOOP AT gt_params.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      CHAIN.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_param-parameter_id.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_param-value.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_param-active.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        FIELD gs_param-obligatory.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>        MODULE table_line_pai_0101.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>      ENDCHAIN.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW>
-       <LINE>PROCESS ON VALUE-REQUEST.</LINE>
+       <LINE>    MODULE table_line_validate_0101.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW/>
+      <RPY_DYFLOW>
+       <LINE>    MODULE pai_0101.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW/>
+      <RPY_DYFLOW>
+       <LINE>  PROCESS ON VALUE-REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_param-value MODULE param_value_f4_0101.</LINE>
+       <LINE>    FIELD gs_param-value MODULE param_value_f4_0101.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD gs_param-parameter_id MODULE param_id_f4_0101.</LINE>
+       <LINE>    FIELD gs_param-parameter_id MODULE param_id_f4_0101.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>2</item>
-      <item>4</item>
-      <item>0</item>
-      <item>4</item>
-      <item>10</item>
-      <item>10</item>
-      <item>6</item>
-      <item>4</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>4</item>
-      <item>0</item>
-      <item>4</item>
-      <item>6</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>8</item>
-      <item>6</item>
-      <item>4</item>
-      <item>0</item>
-      <item>4</item>
-      <item>0</item>
-      <item>4</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>4</item>
-     </SPACES>
     </item>
    </DYNPROS>
    <CUA>
