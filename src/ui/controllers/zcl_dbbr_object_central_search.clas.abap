@@ -27,8 +27,8 @@ CLASS zcl_dbbr_object_central_search DEFINITION
     DATA mf_specific_search TYPE abap_bool .
     TYPES: BEGIN OF ty_s_result.
     TYPES: type_icon TYPE char40.
-        INCLUDE TYPE zsat_entity.
-    TYPES: END OF ty_s_result.
+           INCLUDE TYPE zsat_entity.
+           TYPES: END OF ty_s_result.
     CONSTANTS: BEGIN OF c_functions,
                  adt                         TYPE ui_func VALUE 'INADT',
                  show_cds_source             TYPE ui_func VALUE 'SHOWSOURCE',
@@ -112,23 +112,23 @@ CLASS zcl_dbbr_object_central_search DEFINITION
     "! <p class="shorttext synchronized" lang="en">User command handerl for ALV action</p>
     "!
     METHODS on_user_command
-          FOR EVENT function_chosen OF zcl_uitb_alv_events
+        FOR EVENT function_chosen OF zcl_uitb_alv_events
       IMPORTING
-          !ev_function
-          !ev_tag .
+        !ev_function
+        !ev_tag .
     "! <p class="shorttext synchronized" lang="en">Context menu handler for ALV</p>
     "!
     METHODS on_alv_context_menu
-          FOR EVENT context_menu OF zcl_uitb_alv_events
+        FOR EVENT context_menu OF zcl_uitb_alv_events
       IMPORTING
-          er_menu.
+        er_menu.
     "! <p class="shorttext synchronized" lang="en">Link Click handler for ALV</p>
     "!
     METHODS on_link_click
-          FOR EVENT link_click OF zcl_uitb_alv_events
+        FOR EVENT link_click OF zcl_uitb_alv_events
       IMPORTING
-          !ev_row
-          !ev_column .
+        !ev_row
+        !ev_column .
     METHODS parse_query
       IMPORTING
         iv_query        TYPE string
@@ -164,6 +164,7 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
 
       WHEN c_functions-db_browser_content.
         IF mt_result IS NOT INITIAL.
+          mo_alv->get_metadata( ).
           DATA(lv_selected_index) = get_selected_index( ).
           IF lv_selected_index IS INITIAL.
             MESSAGE |Select exactly one entity| TYPE 'S'.
@@ -174,6 +175,7 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
         ENDIF.
 
       WHEN OTHERS.
+        mo_alv->get_metadata( ).
         on_user_command( ev_function = io_command->mv_function ).
 
     ENDCASE.
