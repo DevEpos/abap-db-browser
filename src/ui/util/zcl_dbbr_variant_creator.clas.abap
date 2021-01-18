@@ -259,13 +259,13 @@ CLASS zcl_dbbr_variant_creator IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD add_custom_fields_to_variant.
-    ct_layout_data = value #( base ct_layout_data
+    ct_layout_data = VALUE #( BASE ct_layout_data
       ( tabname   = zif_dbbr_c_cust_var_fld_ids=>custom_field_table
         fieldname = zif_dbbr_c_cust_var_fld_ids=>max_lines
-        low_val   = is_global_data-max_lines )
+        low_val   = |{ is_global_data-max_lines ALIGN = LEFT }| )
       ( tabname   = zif_dbbr_c_cust_var_fld_ids=>custom_field_table
         fieldname = zif_dbbr_c_cust_var_fld_ids=>grouping_minimum
-        low_val   = is_global_data-grouping_minimum )
+        low_val   = |{ is_global_data-grouping_minimum ALIGN = LEFT }| )
     ).
   ENDMETHOD.
 
