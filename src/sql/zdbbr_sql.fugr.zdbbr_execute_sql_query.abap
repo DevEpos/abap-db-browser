@@ -15,9 +15,9 @@ FUNCTION ZDBBR_EXECUTE_SQL_QUERY.
   ).
 
   TRY.
-        es_query_result = lo_proxy_executor->execute_select(
-            iv_row_count = iv_row_count
-        ).
+      es_query_result = lo_proxy_executor->execute_select(
+          iv_row_count = iv_row_count
+      ).
     CATCH zcx_dbbr_sql_query_error INTO DATA(lx_sql_error).
       es_query_result-message = lx_sql_error->zif_sat_exception_message~get_message( ).
       es_query_result-message_severity = 'E'.
