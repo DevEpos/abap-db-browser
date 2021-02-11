@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <AREAT>Functions for SQL Execution</AREAT>
+   <INCLUDES>
+    <SOBJ_NAME>LZDBBR_SQLTOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZDBBR_SQL</SOBJ_NAME>
+   </INCLUDES>
+   <FUNCTIONS>
+    <item>
+     <FUNCNAME>ZDBBR_EXECUTE_SQL_QUERY</FUNCNAME>
+     <REMOTE_CALL>R</REMOTE_CALL>
+     <SHORT_TEXT>Executes SQL Query</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>IS_QUERY</PARAMETER>
+       <TYP>ZDBBR_SQL_QUERY</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>IT_PARAMETERS</PARAMETER>
+       <OPTIONAL>X</OPTIONAL>
+       <TYP>ZDBBR_QUERY_PARAMETER_T</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>IV_ROW_COUNT</PARAMETER>
+       <DEFAULT>100</DEFAULT>
+       <OPTIONAL>X</OPTIONAL>
+       <TYP>I</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>IF_COUNT_ONLY</PARAMETER>
+       <OPTIONAL>X</OPTIONAL>
+       <TYP>SAP_BOOL</TYP>
+      </RSIMP>
+     </IMPORT>
+     <EXPORT>
+      <RSEXP>
+       <PARAMETER>ES_QUERY_RESULT</PARAMETER>
+       <TYP>ZDBBR_DP_TABLE_DATA</TYP>
+      </RSEXP>
+     </EXPORT>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>IS_QUERY</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IT_PARAMETERS</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IV_ROW_COUNT</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>IF_COUNT_ONLY</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>ES_QUERY_RESULT</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+   </FUNCTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

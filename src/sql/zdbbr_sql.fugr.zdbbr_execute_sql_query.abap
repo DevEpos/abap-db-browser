@@ -15,21 +15,9 @@ FUNCTION ZDBBR_EXECUTE_SQL_QUERY.
   ).
 
   TRY.
-      IF if_count_only = abap_false.
         es_query_result = lo_proxy_executor->execute_select(
             iv_row_count = iv_row_count
         ).
-      ELSE.
-*    TRY.
-*        DATA(lv_count_query) = zcl_dbbr_open_sql_dp_util=>get_count_star_query( iv_query ).
-*        es_query_result-line_count = zcl_dbbr_open_sql_dp_util=>get_count_star_value( lv_count_query ).
-*      CATCH cx_adt_datapreview_common INTO lx_preview_error.
-*        es_query_result-message_severity = 'E'.
-*        es_query_result-message = lx_preview_error->get_text( ).
-*    ENDTRY.
-
-      ENDIF.
-
     CATCH zcx_dbbr_sql_query_error INTO DATA(lx_sql_error).
       es_query_result-message = lx_sql_error->zif_sat_exception_message~get_message( ).
       es_query_result-message_severity = 'E'.

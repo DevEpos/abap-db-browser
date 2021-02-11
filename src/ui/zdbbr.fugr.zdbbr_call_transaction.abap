@@ -1,6 +1,6 @@
 FUNCTION ZDBBR_CALL_TRANSACTION.
 *"----------------------------------------------------------------------
-*"*"Lokale Schnittstelle:
+*"*"Local Interface:
 *"  IMPORTING
 *"     VALUE(IS_JUMP_DEST) TYPE  ZDBBR_JUMPDEST_DATA_UI
 *"----------------------------------------------------------------------

@@ -72,61 +72,33 @@ CLASS lcl_executor IMPLEMENTATION.
         IF ls_metadata-rollname IS NOT INITIAL.
           lr_type = CAST #( cl_abap_typedescr=>describe_by_name( ls_metadata-rollname ) ).
         ELSE.
-          CASE ls_metadata-typekind.
-
-            WHEN cl_abap_typedescr=>typekind_int1.
-              lr_type = cl_abap_elemdescr=>get_int1( ).
-
-            WHEN cl_abap_typedescr=>typekind_hex.
-              lr_type = cl_abap_elemdescr=>get_x( ls_metadata-length ).
-
-            WHEN cl_abap_typedescr=>typekind_num.
-              lr_type = cl_abap_elemdescr=>get_n( ls_metadata-length ).
-
-            WHEN cl_abap_typedescr=>typekind_int8.
-              lr_type = cl_abap_elemdescr=>get_int8( ).
-
-            WHEN cl_abap_typedescr=>typekind_int2.
-              lr_type = cl_abap_elemdescr=>get_int2( ).
-
-            WHEN cl_abap_typedescr=>typekind_date.
-              lr_type = cl_abap_elemdescr=>get_d( ).
-
-            WHEN cl_abap_typedescr=>typekind_string.
-              lr_type = cl_abap_elemdescr=>get_string( ).
-
-            WHEN cl_abap_typedescr=>typekind_time.
-              lr_type = cl_abap_elemdescr=>get_t( ).
-
-            WHEN cl_abap_typedescr=>typekind_clike OR
-                 cl_abap_typedescr=>typekind_char.
-              lr_type = cl_abap_elemdescr=>get_c( p_length = ls_metadata-length ).
-
-            WHEN cl_abap_typedescr=>typekind_packed.
-              lr_type = cl_abap_elemdescr=>get_p( p_length = ls_metadata-int_length p_decimals = CONV #( ls_metadata-decimals ) ).
-
-            WHEN cl_abap_typedescr=>typekind_float.
-              lr_type = cl_abap_elemdescr=>get_f( ).
-
-            WHEN cl_abap_typedescr=>typekind_struct1.
-              lr_type = cl_abap_elemdescr=>get_string( ).
-
-            WHEN cl_abap_typedescr=>typekind_int.
-              lr_type = cl_abap_elemdescr=>get_i( ).
-
-            WHEN OTHERS.
-          ENDCASE.
-
+          TRY.
+              lr_type = cl_abap_elemdescr=>get_by_kind(
+                  p_type_kind = ls_metadata-typekind
+                  p_length    = ls_metadata-length
+                  p_decimals  = CONV #( ls_metadata-decimals )
+              ).
+            CATCH cx_parameter_invalid_range.
+              CASE ls_metadata-typekind.
+                WHEN cl_abap_typedescr=>typekind_struct1.
+                  lr_type = cl_abap_elemdescr=>get_string( ).
+                WHEN OTHERS.
+                  ms_query_result-message = |Error during type creation. Type for Tablecolumn: { ls_metadata-name } could not be determined|.
+                  ms_query_result-message_severity = 'E'.
+                  RETURN.
+              ENDCASE.
+          ENDTRY.
         ENDIF.
 
         lt_abap_comp_type = VALUE #(
           BASE lt_abap_comp_type
-          ( name    = ls_metadata-name
-            type    = lr_type )
+          ( name = ls_metadata-name
+            type = lr_type )
         ).
       ENDLOOP.
 
       IF lt_abap_comp_type IS NOT INITIAL.
+
         TRY.
             DATA(lr_line_type) = cl_abap_structdescr=>create(
                 p_components = lt_abap_comp_type

@@ -171,8 +171,7 @@
     </item>
     <item>
      <FUNCNAME>ZDBBR_CALL_TRANSACTION</FUNCNAME>
-     <REMOTE_CALL>R</REMOTE_CALL>
-     <SHORT_TEXT>Öffnet Transaktion in neuem Modus</SHORT_TEXT>
+     <SHORT_TEXT>Opens Transaction in new task</SHORT_TEXT>
      <IMPORT>
       <RSIMP>
        <PARAMETER>IS_JUMP_DEST</PARAMETER>
@@ -182,62 +181,6 @@
      <DOCUMENTATION>
       <RSFDO>
        <PARAMETER>IS_JUMP_DEST</PARAMETER>
-       <KIND>P</KIND>
-       <STEXT>DBAnalyt.:.: UI-Daten eines Sprungfeldes</STEXT>
-      </RSFDO>
-     </DOCUMENTATION>
-    </item>
-    <item>
-     <FUNCNAME>ZDBBR_EXECUTE_SQL_QUERY</FUNCNAME>
-     <REMOTE_CALL>R</REMOTE_CALL>
-     <SHORT_TEXT>Execute SQL Query</SHORT_TEXT>
-     <IMPORT>
-      <RSIMP>
-       <PARAMETER>IS_QUERY</PARAMETER>
-       <TYP>ZDBBR_SQL_QUERY</TYP>
-      </RSIMP>
-      <RSIMP>
-       <PARAMETER>IT_PARAMETERS</PARAMETER>
-       <OPTIONAL>X</OPTIONAL>
-       <TYP>ZDBBR_QUERY_PARAMETER_T</TYP>
-      </RSIMP>
-      <RSIMP>
-       <PARAMETER>IV_ROW_COUNT</PARAMETER>
-       <DEFAULT>100</DEFAULT>
-       <OPTIONAL>X</OPTIONAL>
-       <TYP>I</TYP>
-      </RSIMP>
-      <RSIMP>
-       <PARAMETER>IF_COUNT_ONLY</PARAMETER>
-       <OPTIONAL>X</OPTIONAL>
-       <TYP>SAP_BOOL</TYP>
-      </RSIMP>
-     </IMPORT>
-     <EXPORT>
-      <RSEXP>
-       <PARAMETER>ES_QUERY_RESULT</PARAMETER>
-       <TYP>ZDBBR_DP_TABLE_DATA</TYP>
-      </RSEXP>
-     </EXPORT>
-     <DOCUMENTATION>
-      <RSFDO>
-       <PARAMETER>IS_QUERY</PARAMETER>
-       <KIND>P</KIND>
-      </RSFDO>
-      <RSFDO>
-       <PARAMETER>IT_PARAMETERS</PARAMETER>
-       <KIND>P</KIND>
-      </RSFDO>
-      <RSFDO>
-       <PARAMETER>IV_ROW_COUNT</PARAMETER>
-       <KIND>P</KIND>
-      </RSFDO>
-      <RSFDO>
-       <PARAMETER>IF_COUNT_ONLY</PARAMETER>
-       <KIND>P</KIND>
-      </RSFDO>
-      <RSFDO>
-       <PARAMETER>ES_QUERY_RESULT</PARAMETER>
        <KIND>P</KIND>
       </RSFDO>
      </DOCUMENTATION>
