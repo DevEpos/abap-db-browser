@@ -529,10 +529,10 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
 
     zcl_dbbr_screen_helper=>show_progress( iv_progress = 1 iv_text     = 'Searching...' ).
 
-    DATA(ls_max_option) = mo_search_query->get_option( zif_sat_c_object_search=>c_search_option-max_rows ).
+    DATA(ls_max_option) = mo_search_query->get_option( zif_sat_c_object_search=>c_general_search_params-max_rows ).
 *.. Automatically fill max rows option from search settings
     IF ls_max_option IS INITIAL.
-      mo_search_query->set_option( VALUE #( option = zif_sat_c_object_search=>c_search_option-max_rows
+      mo_search_query->set_option( VALUE #( option = zif_sat_c_object_search=>c_general_search_params-max_rows
                                             value_range = VALUE #( ( sign = 'I' option = 'EQ' low = |{ ms_settings-max_hits }| ) )
                                           ) ).
     ENDIF.
