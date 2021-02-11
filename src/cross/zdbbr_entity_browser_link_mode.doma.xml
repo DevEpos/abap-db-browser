@@ -33,6 +33,20 @@
      <DOMVALUE_L>3</DOMVALUE_L>
      <DDTEXT>Open with ADT Tools</DDTEXT>
     </DD07V>
+    <DD07V>
+     <DOMNAME>ZDBBR_ENTITY_BROWSER_LINK_MODE</DOMNAME>
+     <VALPOS>0004</VALPOS>
+     <DDLANGUAGE>E</DDLANGUAGE>
+     <DOMVALUE_L>4</DOMVALUE_L>
+     <DDTEXT>Show Content</DDTEXT>
+    </DD07V>
+    <DD07V>
+     <DOMNAME>ZDBBR_ENTITY_BROWSER_LINK_MODE</DOMNAME>
+     <VALPOS>0005</VALPOS>
+     <DDLANGUAGE>E</DDLANGUAGE>
+     <DOMVALUE_L>5</DOMVALUE_L>
+     <DDTEXT>Show Content (New Window)</DDTEXT>
+    </DD07V>
    </DD07V_TAB>
   </asx:values>
  </asx:abap>

@@ -96,7 +96,9 @@ CLASS zcl_dbbr_object_central_search DEFINITION
     "!
     METHODS show_content
       IMPORTING
-        if_new_window TYPE abap_bool OPTIONAL.
+        iv_entity_type TYPE zsat_entity_type
+        iv_entity_id   TYPE zsat_entity_id
+        if_new_window  TYPE abap_bool OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Updates the search settings menu</p>
     METHODS update_search_settings_menu.
     "! <p class="shorttext synchronized" lang="en">Handler for performing the search</p>
@@ -214,16 +216,16 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
     IF if_new_window = abap_true.
       CALL FUNCTION 'ZDBBR_SHOW_SELSCREEN' STARTING NEW TASK 'ZDBBR_OBJ_BRS_EXEC_JUMP'
         EXPORTING
-          iv_entity_id       = mr_current_selected->entity_id
-          iv_entity_type     = mr_current_selected->entity_type
+          iv_entity_id       = iv_entity_id
+          iv_entity_type     = iv_entity_type
           if_skip_selscreen  = abap_true
           if_load_parameters = abap_true.
 
     ELSE.
       DATA(lo_variant_starter) = zcl_dbbr_variant_starter_fac=>create_variant_starter(
           iv_variant_id        = zif_dbbr_global_consts=>c_dummy_variant
-          iv_entity_type       = mr_current_selected->entity_type
-          iv_variant_entity_id = |{ mr_current_selected->entity_id }|
+          iv_entity_type       = iv_entity_type
+          iv_variant_entity_id = |{ iv_entity_id }|
       ).
 
       lo_variant_starter->initialize( ).
@@ -281,6 +283,20 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
             CATCH zcx_sat_adt_error INTO DATA(lx_adt_error).
               lx_adt_error->zif_sat_exception_message~print( ).
           ENDTRY.
+
+        WHEN zif_dbbr_c_eb_link_mode=>show_content.
+          show_content(
+              iv_entity_type = iv_entity_type
+              iv_entity_id   = iv_entity_id
+              if_new_window  = abap_false
+          ).
+        when zif_dbbr_c_eb_link_mode=>show_content_new_window.
+          show_content(
+              iv_entity_type = iv_entity_type
+              iv_entity_id   = iv_entity_id
+              if_new_window  = abap_true
+          ).
+
       ENDCASE.
 
     ELSE.
@@ -673,10 +689,10 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
         ENDTRY.
 
       WHEN c_functions-db_browser_content.
-        show_content( ).
+        open_in( zif_dbbr_c_eb_link_mode=>show_content ).
 
       WHEN c_functions-db_browser_content_new_task.
-        show_content( if_new_window = abap_true ).
+        open_in( zif_dbbr_c_eb_link_mode=>show_content_new_window ).
     ENDCASE.
   ENDMETHOD.
 
