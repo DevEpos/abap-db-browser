@@ -3,7 +3,7 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_DBBR_EXEC_DEP_TREE_COMMAND</CLSNAME>
+    <CLSNAME>ZCL_DBBR_DEP_TREE_CMD_EXEC</CLSNAME>
     <LANGU>E</LANGU>
     <DESCRIPT>Show Dependency Tree Command</DESCRIPT>
     <STATE>1</STATE>
@@ -13,7 +13,7 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_EXEC_DEP_TREE_COMMAND</CLSNAME>
+     <CLSNAME>ZCL_DBBR_DEP_TREE_CMD_EXEC</CLSNAME>
      <CMPNAME>CONSTRUCTOR</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Create command</DESCRIPT>

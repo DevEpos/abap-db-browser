@@ -2076,7 +2076,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         ENDTRY.
 
       WHEN c_functions-analyze_dependencies.
-        zcl_uitb_screen_util=>set_current_command( NEW zcl_dbbr_exec_dep_tree_command( <ls_user_data>-entity_id_raw ) ).
+        zcl_uitb_screen_util=>set_current_command( NEW zcl_dbbr_dep_tree_cmd_exec( <ls_user_data>-entity_id_raw ) ).
         zcl_uitb_screen_util=>raise_gui_command( ).
 
       WHEN c_functions-used_as_assoc.
