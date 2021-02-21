@@ -168,12 +168,82 @@ ENDCLASS.
 
 
 
-CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
-  METHOD constructor.
-    mv_raw_query = iv_query.
-    mf_fill_log_for_msg = if_fill_log_for_messages.
-    SPLIT mv_raw_query AT cl_abap_char_utilities=>cr_lf INTO TABLE mt_query_lines.
+CLASS ZCL_DBBR_SQL_QUERY_PARSER IMPLEMENTATION.
+
+
+  METHOD check_parameters_where_used.
+    DATA: lt_param_check_range TYPE RANGE OF string.
+
+    CHECK mt_parameter IS NOT INITIAL.
+
+    ASSIGN mt_stmnt[ is_main_query = abap_true ] TO FIELD-SYMBOL(<ls_select>).
+    CHECK sy-subrc = 0.
+
+    LOOP AT <ls_select>-tokens ASSIGNING FIELD-SYMBOL(<ls_token>) WHERE type = sana_tok_field.
+      LOOP AT mt_parameter ASSIGNING FIELD-SYMBOL(<ls_parameter>) WHERE is_used = abap_false.
+        IF <ls_token>-value CP '*' && <ls_parameter>-name  && '*'.
+          <ls_parameter>-is_used = abap_true.
+        ENDIF.
+      ENDLOOP.
+      IF sy-subrc <> 0.
+        EXIT.
+      ENDIF.
+    ENDLOOP.
+
+    IF line_exists( mt_parameter[ is_used = abap_false ] ).
+      IF mf_fill_log_for_msg = abap_true.
+        DATA(lo_protocol) = zcl_uitb_protocol=>get_instance( ).
+        LOOP AT mt_parameter ASSIGNING <ls_parameter> WHERE is_used = abap_false.
+          lo_protocol->add_warning(
+              iv_message     = |Parameter { <ls_parameter>-name } is not used in query|
+              iv_line_number = CONV #( <ls_parameter>-line_in_query )
+          ).
+        ENDLOOP.
+      ENDIF.
+    ENDIF.
   ENDMETHOD.
+
+
+  METHOD check_syntax.
+    DATA: lv_line    TYPE i,
+          lv_word    TYPE string,
+          lv_message TYPE string.
+
+    SELECT SINGLE * FROM trdir
+    INTO @DATA(dir)
+    WHERE name = @sy-cprog.
+
+    DATA(lt_query_lines) = mt_query_lines.
+
+    insert_into_table_clause( CHANGING ct_query_lines = lt_query_lines  ).
+
+    DATA(lt_source_code) = VALUE string_table(
+      ( |REPORT ZCHECK_QUERY.| )
+      ( LINES OF lt_query_lines )
+    ).
+
+    SYNTAX-CHECK FOR lt_source_code MESSAGE         lv_message
+                                    LINE            lv_line
+                                    WORD            lv_word
+                                    DIRECTORY ENTRY dir.
+
+    IF lv_message IS NOT INITIAL AND sy-subrc <> 0.
+      zcx_dbbr_sql_query_error=>raise_with_text(
+          iv_text        = lv_message
+          iv_line_number = lv_line - 1
+      ).
+    ENDIF.
+
+*.. Remove all lines but the select statement
+    IF mv_select_stmnt_index > 1.
+      DELETE mt_query_lines FROM 1 TO mv_select_stmnt_index - 1.
+      mv_select_query_end_row = mv_select_query_end_row - mv_select_stmnt_index + 1.
+    ENDIF.
+
+    CONCATENATE LINES OF mt_query_lines INTO mv_executable_query SEPARATED BY cl_abap_char_utilities=>cr_lf.
+
+  ENDMETHOD.
+
 
   METHOD class_constructor.
     gt_invalid_keyword_range = VALUE #(
@@ -195,6 +265,109 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
     ).
   ENDMETHOD.
 
+
+  METHOD combine_stmnt_with_tokens.
+*.. Combine statements and tokens
+    LOOP AT mt_stmnt_raw ASSIGNING FIELD-SYMBOL(<ls_stmnt>).
+      DATA(ls_statement) = VALUE ty_s_statement(
+          terminator  = <ls_stmnt>-terminator
+          type        = <ls_stmnt>-type
+          tokens      = VALUE ty_t_token(
+            FOR token IN mt_token_raw FROM <ls_stmnt>-from TO <ls_stmnt>-to
+            ( value             = token-str
+              value_no_modifier = token-str
+              row               = token-row
+              col               = token-col
+              type              = token-type )
+          )
+      ).
+
+      ls_statement-first_token = ls_statement-tokens[ 1 ]-value.
+      ls_statement-is_main_query = xsdbool( ls_statement-first_token = c_keywords-select OR
+                                            ls_statement-first_token = c_keywords-with ).
+
+      mt_stmnt = VALUE #( BASE mt_stmnt ( ls_statement ) ).
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD constructor.
+    mv_raw_query = iv_query.
+    mf_fill_log_for_msg = if_fill_log_for_messages.
+    SPLIT mv_raw_query AT cl_abap_char_utilities=>cr_lf INTO TABLE mt_query_lines.
+  ENDMETHOD.
+
+
+  METHOD determine_main_stmnt_props.
+    DATA: lt_aggregate_func_range TYPE RANGE OF string,
+          lv_select_index         TYPE sy-tabix.
+
+    FIELD-SYMBOLS: <ls_token> LIKE LINE OF mt_token_raw.
+
+    mf_single_result = abap_false.
+
+*.. Determine the last select statement in the query
+    IF line_exists( mt_token_raw[ str = c_keywords-with ] ).
+      lv_select_index = lines( mt_token_raw ).
+      WHILE lv_select_index > 0.
+        IF mt_token_raw[ lv_select_index ]-str = c_keywords-select.
+*........ If it is the last main select, the preceding token has to be a parenthesis
+          IF mt_token_raw[ lv_select_index - 1 ]-str = ')'.
+            EXIT.
+          ENDIF.
+        ENDIF.
+        lv_select_index = lv_select_index - 1.
+      ENDWHILE.
+
+    ELSE.
+      lv_select_index = line_index( mt_token_raw[ str = c_keywords-select ] ).
+    ENDIF.
+
+*.. Check if INTO TABLE is possible for the query by checking if COUNT is available without
+*... any active aggregation functions
+    LOOP AT mt_token_raw ASSIGNING <ls_token> FROM lv_select_index WHERE str CP c_keywords-count_pattern.
+      EXIT.
+    ENDLOOP.
+    IF sy-subrc = 0.
+      lt_aggregate_func_range = VALUE #(
+        ( sign = 'I' option = 'EQ' low = 'GROUP' )
+        ( sign = 'I' option = 'EQ' low = 'SUM' )
+        ( sign = 'I' option = 'EQ' low = 'MAX' )
+        ( sign = 'I' option = 'EQ' low = 'MIN' )
+        ( sign = 'I' option = 'EQ' low = 'AVG' )
+      ).
+      LOOP AT mt_token_raw ASSIGNING <ls_token> FROM lv_select_index WHERE str IN lt_aggregate_func_range.
+        EXIT.
+      ENDLOOP.
+      mf_single_result = xsdbool( sy-subrc <> 0 ).
+    ENDIF.
+
+    LOOP AT mt_token_raw ASSIGNING <ls_token> FROM lv_select_index WHERE str = c_keywords-union.
+      EXIT.
+    ENDLOOP.
+    IF sy-subrc = 0.
+      mv_query_type = c_keywords-union.
+    ELSE.
+      mv_query_type = c_keywords-select.
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD extract_parameters.
+    LOOP AT mt_stmnt ASSIGNING FIELD-SYMBOL(<ls_stmnt>) WHERE first_token = c_keywords-data.
+
+      DATA(ls_parameter) = CAST ty_s_parameter( NEW lcl_query_param_parser( <ls_stmnt>-tokens )->parse( ) ).
+      IF ls_parameter->name IS NOT INITIAL.
+        mt_parameter = VALUE #( BASE mt_parameter ( ls_parameter->* ) ).
+      ENDIF.
+
+      DELETE mt_stmnt.
+    ENDLOOP.
+  ENDMETHOD.
+
+
   METHOD get_entities_in_query.
     CHECK iv_query IS NOT INITIAL.
     DATA(lo_parser) = NEW zcl_dbbr_sql_query_parser(
@@ -208,6 +381,27 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
     ENDTRY.
 
   ENDMETHOD.
+
+
+  METHOD insert_into_table_clause.
+*.. Find select/with statement
+    ASSIGN mt_stmnt[ is_main_query = abap_true ] TO FIELD-SYMBOL(<ls_select_stmnt>).
+    CHECK sy-subrc = 0.
+
+    DATA(ls_last_token) = <ls_select_stmnt>-tokens[ lines( <ls_select_stmnt>-tokens ) ].
+
+*.. find position in query lines
+    ASSIGN ct_query_lines[ ls_last_token-row ] TO FIELD-SYMBOL(<lv_query_line>).
+
+    mv_select_query_end_offset = ls_last_token-col + strlen( ls_last_token-value ).
+    mv_select_query_end_row = ls_last_token-row.
+    IF mf_single_result = abap_true.
+      <lv_query_line> = |{ <lv_query_line>(mv_select_query_end_offset) } INTO @DATA(result).|.
+    ELSE.
+      <lv_query_line> = |{ <lv_query_line>(mv_select_query_end_offset) } INTO TABLE @DATA(result).|.
+    ENDIF.
+  ENDMETHOD.
+
 
   METHOD parse.
     CHECK mv_raw_query IS NOT INITIAL.
@@ -259,76 +453,10 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD tokenize.
-
-    DATA: lv_message     TYPE string,
-          lv_word        TYPE char80,
-          lv_line        TYPE i,
-          lt_db_entities TYPE TABLE OF tabname.
-
-    SCAN ABAP-SOURCE mt_query_lines TOKENS INTO     mt_token_raw
-                                    STATEMENTS INTO mt_stmnt_raw
-                                    MESSAGE INTO    lv_message
-                                    WORD INTO       lv_word
-                                    LINE INTO       lv_line
-                                    WITH ANALYSIS.
-
-    IF lv_message IS NOT INITIAL.
-      RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error
-        EXPORTING
-          textid = zcx_dbbr_application_exc=>general_error
-          msgv1  = |{ lv_message }|
-          msgv2  = |{ lv_word }|
-          msgv3  = |{ lv_line }|.
-    ENDIF.
-
-    LOOP AT mt_stmnt_raw ASSIGNING FIELD-SYMBOL(<ls_stmnt>).
-
-      CALL FUNCTION 'RS_QUALIFY_ABAP_TOKENS_STR'
-        EXPORTING
-          statement_type = <ls_stmnt>-type
-          index_from     = <ls_stmnt>-from
-          index_to       = <ls_stmnt>-to
-        CHANGING
-          stokesx_tab    = mt_token_raw
-        EXCEPTIONS
-          OTHERS         = 0.
-
-    ENDLOOP.
-
-*.. extract db entities from query tokens
-    LOOP AT mt_token_raw ASSIGNING FIELD-SYMBOL(<ls_token>) WHERE type = sana_tok_type
-                                                              AND str IS NOT INITIAL.
-      CHECK <ls_token>-str(1) <> '+'.
-      DATA(lv_token) = <ls_token>-str.
-      REPLACE ALL OCCURRENCES OF '(' IN lv_token WITH space.
-      lt_db_entities = VALUE #( BASE lt_db_entities
-        ( CONV #( lv_token ) )
-      ).
-    ENDLOOP.
-
-    IF sy-subrc = 0.
-      SORT lt_db_entities.
-      DELETE ADJACENT DUPLICATES FROM lt_db_entities.
-      mt_query_entities = VALUE #( FOR entity IN lt_db_entities ( sign = 'I' option = 'EQ' low = entity ) ).
-    ENDIF.
+  METHOD parse_query.
 
   ENDMETHOD.
 
-
-  METHOD pre_validate_tokens.
-    LOOP AT mt_token_raw ASSIGNING FIELD-SYMBOL(<ls_token>) WHERE str IN gt_invalid_keyword_range.
-      EXIT.
-    ENDLOOP.
-
-    IF sy-subrc = 0.
-      RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error
-        EXPORTING
-          textid      = zcx_dbbr_sql_query_error=>invalid_token
-          msgv1       = |{ <ls_token>-str }|
-          line_number = <ls_token>-row.
-    ENDIF.
-  ENDMETHOD.
 
   METHOD pre_validate_statements.
     DATA: lv_select_stmnt_count TYPE i.
@@ -389,33 +517,18 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD combine_stmnt_with_tokens.
-*.. Combine statements and tokens
-    LOOP AT mt_stmnt_raw ASSIGNING FIELD-SYMBOL(<ls_stmnt>).
-      DATA(ls_statement) = VALUE ty_s_statement(
-          terminator  = <ls_stmnt>-terminator
-          type        = <ls_stmnt>-type
-          tokens      = VALUE ty_t_token(
-            FOR token IN mt_token_raw FROM <ls_stmnt>-from TO <ls_stmnt>-to
-            ( value             = token-str
-              value_no_modifier = token-str
-              row               = token-row
-              col               = token-col
-              type              = token-type )
-          )
-      ).
-
-      ls_statement-first_token = ls_statement-tokens[ 1 ]-value.
-      ls_statement-is_main_query = xsdbool( ls_statement-first_token = c_keywords-select OR
-                                            ls_statement-first_token = c_keywords-with ).
-
-      mt_stmnt = VALUE #( BASE mt_stmnt ( ls_statement ) ).
+  METHOD pre_validate_tokens.
+    LOOP AT mt_token_raw ASSIGNING FIELD-SYMBOL(<ls_token>) WHERE str IN gt_invalid_keyword_range.
+      EXIT.
     ENDLOOP.
 
-  ENDMETHOD.
-
-  METHOD parse_query.
-
+    IF sy-subrc = 0.
+      RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error
+        EXPORTING
+          textid      = zcx_dbbr_sql_query_error=>invalid_token
+          msgv1       = |{ <ls_token>-str }|
+          line_number = <ls_token>-row.
+    ENDIF.
   ENDMETHOD.
 
 
@@ -423,163 +536,60 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
     ms_select_stmnt-tokens = NEW lcl_query_token_simplifier( ms_select_stmnt-tokens )->simplify( ).
   ENDMETHOD.
 
-  METHOD extract_parameters.
-    LOOP AT mt_stmnt ASSIGNING FIELD-SYMBOL(<ls_stmnt>) WHERE first_token = c_keywords-data.
 
-      DATA(ls_parameter) = CAST ty_s_parameter( NEW lcl_query_param_parser( <ls_stmnt>-tokens )->parse( ) ).
-      IF ls_parameter->name IS NOT INITIAL.
-        mt_parameter = VALUE #( BASE mt_parameter ( ls_parameter->* ) ).
-      ENDIF.
+  METHOD tokenize.
 
-      DELETE mt_stmnt.
-    ENDLOOP.
-  ENDMETHOD.
+    DATA: lv_message     TYPE string,
+          lv_word        TYPE char80,
+          lv_line        TYPE i,
+          lt_db_entities TYPE TABLE OF tabname.
 
-  METHOD check_parameters_where_used.
-    DATA: lt_param_check_range TYPE RANGE OF string.
+    SCAN ABAP-SOURCE mt_query_lines TOKENS INTO     mt_token_raw
+                                    STATEMENTS INTO mt_stmnt_raw
+                                    MESSAGE INTO    lv_message
+                                    WORD INTO       lv_word
+                                    LINE INTO       lv_line
+                                    WITH ANALYSIS.
 
-    CHECK mt_parameter IS NOT INITIAL.
-
-    ASSIGN mt_stmnt[ is_main_query = abap_true ] TO FIELD-SYMBOL(<ls_select>).
-    CHECK sy-subrc = 0.
-
-    LOOP AT <ls_select>-tokens ASSIGNING FIELD-SYMBOL(<ls_token>) WHERE type = sana_tok_field.
-      LOOP AT mt_parameter ASSIGNING FIELD-SYMBOL(<ls_parameter>) WHERE is_used = abap_false.
-        IF <ls_token>-value CP '*' && <ls_parameter>-name  && '*'.
-          <ls_parameter>-is_used = abap_true.
-        ENDIF.
-      ENDLOOP.
-      IF sy-subrc <> 0.
-        EXIT.
-      ENDIF.
-    ENDLOOP.
-
-    IF line_exists( mt_parameter[ is_used = abap_false ] ).
-      IF mf_fill_log_for_msg = abap_true.
-        DATA(lo_protocol) = zcl_uitb_protocol=>get_instance( ).
-        LOOP AT mt_parameter ASSIGNING <ls_parameter> WHERE is_used = abap_false.
-          lo_protocol->add_warning(
-              iv_message     = |Parameter { <ls_parameter>-name } is not used in query|
-              iv_line_number = CONV #( <ls_parameter>-line_in_query )
-          ).
-        ENDLOOP.
-      ENDIF.
+    IF lv_message IS NOT INITIAL.
+      RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error
+        EXPORTING
+          textid = zcx_dbbr_application_exc=>general_error
+          msgv1  = |{ lv_message }|
+          msgv2  = |{ lv_word }|
+          msgv3  = |{ lv_line }|.
     ENDIF.
-  ENDMETHOD.
 
-  METHOD insert_into_table_clause.
-*.. Find select/with statement
-    ASSIGN mt_stmnt[ is_main_query = abap_true ] TO FIELD-SYMBOL(<ls_select_stmnt>).
-    CHECK sy-subrc = 0.
+    LOOP AT mt_stmnt_raw ASSIGNING FIELD-SYMBOL(<ls_stmnt>).
 
-    DATA(ls_last_token) = <ls_select_stmnt>-tokens[ lines( <ls_select_stmnt>-tokens ) ].
+      CALL FUNCTION 'RS_QUALIFY_ABAP_TOKENS_STR'
+        EXPORTING
+          statement_type = <ls_stmnt>-type
+          index_from     = <ls_stmnt>-from
+          index_to       = <ls_stmnt>-to
+        CHANGING
+          stokesx_tab    = mt_token_raw
+        EXCEPTIONS
+          OTHERS         = 0.
 
-*.. find position in query lines
-    ASSIGN ct_query_lines[ ls_last_token-row ] TO FIELD-SYMBOL(<lv_query_line>).
+    ENDLOOP.
 
-    mv_select_query_end_offset = ls_last_token-col + strlen( ls_last_token-value ).
-    mv_select_query_end_row = ls_last_token-row.
-    IF mf_single_result = abap_true.
-      <lv_query_line> = |{ <lv_query_line>(mv_select_query_end_offset) } INTO @DATA(result).|.
-    ELSE.
-      <lv_query_line> = |{ <lv_query_line>(mv_select_query_end_offset) } INTO TABLE @DATA(result).|.
-    ENDIF.
-  ENDMETHOD.
-
-  METHOD check_syntax.
-    DATA: lv_line    TYPE i,
-          lv_word    TYPE string,
-          lv_message TYPE string.
-
-    SELECT SINGLE * FROM trdir
-    INTO @DATA(dir)
-    WHERE name = @sy-cprog.
-
-    DATA(lt_query_lines) = mt_query_lines.
-
-    insert_into_table_clause( CHANGING ct_query_lines = lt_query_lines  ).
-
-    DATA(lt_source_code) = VALUE string_table(
-      ( |REPORT ZCHECK_QUERY.| )
-      ( LINES OF lt_query_lines )
-    ).
-
-    SYNTAX-CHECK FOR lt_source_code MESSAGE         lv_message
-                                    LINE            lv_line
-                                    WORD            lv_word
-                                    DIRECTORY ENTRY dir.
-
-    IF lv_message IS NOT INITIAL AND sy-subrc <> 0.
-      zcx_dbbr_sql_query_error=>raise_with_text(
-          iv_text        = lv_message
-          iv_line_number = lv_line - 1
+*.. extract db entities from query tokens
+    LOOP AT mt_token_raw ASSIGNING FIELD-SYMBOL(<ls_token>) WHERE type = sana_tok_type
+                                                              AND str IS NOT INITIAL.
+      CHECK <ls_token>-str(1) <> '+'.
+      DATA(lv_token) = <ls_token>-str.
+      REPLACE ALL OCCURRENCES OF '(' IN lv_token WITH space.
+      lt_db_entities = VALUE #( BASE lt_db_entities
+        ( CONV #( lv_token ) )
       ).
-    ENDIF.
-
-*.. Remove all lines but the select statement
-    IF mv_select_stmnt_index > 1.
-      DELETE mt_query_lines FROM 1 TO mv_select_stmnt_index - 1.
-      mv_select_query_end_row = mv_select_query_end_row - mv_select_stmnt_index + 1.
-    ENDIF.
-
-    CONCATENATE LINES OF mt_query_lines INTO mv_executable_query SEPARATED BY cl_abap_char_utilities=>cr_lf.
-
-  ENDMETHOD.
-
-
-  METHOD determine_main_stmnt_props.
-    DATA: lt_aggregate_func_range TYPE RANGE OF string,
-          lv_select_index         TYPE sy-tabix.
-
-    FIELD-SYMBOLS: <ls_token> LIKE LINE OF mt_token_raw.
-
-    mf_single_result = abap_false.
-
-*.. Determine the last select statement in the query
-    IF line_exists( mt_token_raw[ str = c_keywords-with ] ).
-      lv_select_index = lines( mt_token_raw ).
-      WHILE lv_select_index > 0.
-        IF mt_token_raw[ lv_select_index ]-str = c_keywords-select.
-*........ If it is the last main select, the preceding token has to be a parenthesis
-          IF mt_token_raw[ lv_select_index - 1 ]-str = ')'.
-            EXIT.
-          ENDIF.
-        ENDIF.
-        lv_select_index = lv_select_index - 1.
-      ENDWHILE.
-
-    ELSE.
-      lv_select_index = line_index( mt_token_raw[ str = c_keywords-select ] ).
-    ENDIF.
-
-*.. Check if INTO TABLE is possible for the query by checking if COUNT is available without
-*... any active aggregation functions
-    LOOP AT mt_token_raw ASSIGNING <ls_token> FROM lv_select_index WHERE str CP c_keywords-count_pattern.
-      EXIT.
     ENDLOOP.
-    IF sy-subrc = 0.
-      lt_aggregate_func_range = VALUE #(
-        ( sign = 'I' option = 'EQ' low = 'GROUP' )
-        ( sign = 'I' option = 'EQ' low = 'SUM' )
-        ( sign = 'I' option = 'EQ' low = 'MAX' )
-        ( sign = 'I' option = 'EQ' low = 'MIN' )
-        ( sign = 'I' option = 'EQ' low = 'AVG' )
-      ).
-      LOOP AT mt_token_raw ASSIGNING <ls_token> FROM lv_select_index WHERE str IN lt_aggregate_func_range.
-        EXIT.
-      ENDLOOP.
-      mf_single_result = xsdbool( sy-subrc <> 0 ).
-    ENDIF.
 
-    LOOP AT mt_token_raw ASSIGNING <ls_token> FROM lv_select_index WHERE str = c_keywords-union.
-      EXIT.
-    ENDLOOP.
     IF sy-subrc = 0.
-      mv_query_type = c_keywords-union.
-    ELSE.
-      mv_query_type = c_keywords-select.
+      SORT lt_db_entities.
+      DELETE ADJACENT DUPLICATES FROM lt_db_entities.
+      mt_query_entities = VALUE #( FOR entity IN lt_db_entities ( sign = 'I' option = 'EQ' low = entity ) ).
     ENDIF.
 
   ENDMETHOD.
-
 ENDCLASS.
