@@ -934,7 +934,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       ls_field-dd_roll = lr_current_field->rollname.
 
       ls_field-f4availabl = lr_current_field->f4_available.
-
       ls_field-sp_group = VALUE #( mt_group_tab_map[ tabname = lr_current_field->tabname ]-sp_group OPTIONAL ).
 
       APPEND ls_field TO mt_fieldcat.
@@ -1090,7 +1089,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       DATA(lr_selfield) = REF #( mt_selection_fields[ tabname_alias = lr_current_entry->tabname_alias
                                                       fieldname     = lr_current_entry->fieldname ] OPTIONAL ).
 
-      DATA(lv_alias_clause) = COND #( WHEN lr_current_entry->alv_fieldname = 'PRIMARY' THEN || ELSE | AS { lr_current_entry->alv_fieldname }| ).
+      DATA(lv_alias_clause) = | AS !{ lr_current_entry->alv_fieldname }|.
 
       IF lr_selfield IS BOUND AND
          ( lr_selfield->aggregation <> space OR
