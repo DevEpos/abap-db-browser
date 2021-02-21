@@ -195,8 +195,8 @@ CLASS zcl_dbbr_selopt_util IMPLEMENTATION.
 
     CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
       EXPORTING
-        i_buffer_active        = ' '
-        i_structure_name       = 'SE16N_SEL_OPTION'
+        i_buffer_active        = space
+        i_structure_name       = 'ZDBBR_SEL_OPTION'
       CHANGING
         ct_fieldcat            = lt_fieldcat
       EXCEPTIONS
