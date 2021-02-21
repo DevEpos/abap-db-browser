@@ -489,12 +489,10 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
 
   METHOD fill_entity_texts.
-    DATA(lv_language) = zcl_sat_system_helper=>get_system_language( ).
-
     zcl_uitb_screen_util=>show_progress( iv_progress = 75 iv_text = |{ 'Loading Descriptions...'(037) }| ).
 
     SELECT entity, description
-      FROM zsat_i_databaseentity( p_language = @lv_language )
+      FROM zsat_i_databaseentity
       FOR ALL ENTRIES IN @mt_node_map
       WHERE entity = @mt_node_map-entity_id
     INTO TABLE @DATA(lt_texts).

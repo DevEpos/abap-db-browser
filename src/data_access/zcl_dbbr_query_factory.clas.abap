@@ -216,7 +216,7 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
 
       IF cs_query_data-entity_type IS INITIAL.
         SELECT SINGLE type
-          FROM zsat_i_databaseentity( p_language = @sy-langu )
+          FROM zsat_i_databaseentity
           WHERE entity = @cs_query_data-primary_table
         INTO @cs_query_data-entity_type.
       ENDIF.

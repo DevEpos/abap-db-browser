@@ -16,7 +16,7 @@ CLASS zcl_dbbr_ddic_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Check if there is a single DB entry for the given entity</p>
     CLASS-METHODS exists_data_for_entity
       IMPORTING
-        iv_entity_id          TYPE ZSAT_ENTITY_ID
+        iv_entity_id          TYPE zsat_entity_id
       RETURNING
         VALUE(rf_data_exists) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Retrieve all mappings of domain to convexit</p>
@@ -33,7 +33,7 @@ CLASS zcl_dbbr_ddic_util DEFINITION
       EXPORTING
         VALUE(ev_clipboard_count) TYPE sy-tabix
       RETURNING
-        VALUE(rt_entities)        TYPE ZSAT_ENTITY_T.
+        VALUE(rt_entities)        TYPE zsat_entity_t.
     "! <p class="shorttext synchronized" lang="en">Create initial RAW value</p>
     CLASS-METHODS create_initial_raw_value
       IMPORTING
@@ -102,20 +102,20 @@ CLASS zcl_dbbr_ddic_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Build dynamic standard table</p>
     CLASS-METHODS build_dynamic_sorted_table
       IMPORTING
-        !it_fields          TYPE ZSAT_DFIES_ITAB
+        !it_fields          TYPE zsat_dfies_itab
         !if_unique_key      TYPE abap_bool DEFAULT abap_true
       RETURNING
         VALUE(rr_table_ref) TYPE REF TO data .
     "! <p class="shorttext synchronized" lang="en">Build dynamic hash table</p>
     CLASS-METHODS build_dynamic_hash_table
       IMPORTING
-        !it_fields    TYPE ZSAT_DFIES_ITAB
+        !it_fields    TYPE zsat_dfies_itab
       RETURNING
         VALUE(result) TYPE REF TO data .
     "! <p class="shorttext synchronized" lang="en">Build dynamic table with keys</p>
     CLASS-METHODS build_dynamic_table_with_keys
       IMPORTING
-        !it_fields          TYPE ZSAT_DFIES_ITAB
+        !it_fields          TYPE zsat_dfies_itab
         !it_key_tab         TYPE abap_table_keydescr_tab
       RETURNING
         VALUE(rr_table_ref) TYPE REF TO data .
@@ -135,7 +135,7 @@ CLASS zcl_dbbr_ddic_util DEFINITION
     CLASS-METHODS check_for_possible_systype
       IMPORTING
         !iv_inttype           TYPE inttype
-        !iv_system_value_type TYPE ZSAT_SYST_VALUE_TYPE
+        !iv_system_value_type TYPE zsat_syst_value_type
       RETURNING
         VALUE(rf_possible)    TYPE boolean .
     "! <p class="shorttext synchronized" lang="en">Check if the given transaction is valid</p>
@@ -147,7 +147,7 @@ CLASS zcl_dbbr_ddic_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Builds dynamic standard table</p>
     CLASS-METHODS build_dynamic_std_table
       IMPORTING
-        !it_fields    TYPE ZSAT_DFIES_ITAB
+        !it_fields    TYPE zsat_dfies_itab
       RETURNING
         VALUE(result) TYPE REF TO data .
     "! <p class="shorttext synchronized" lang="en">Call the customizing view of the given table</p>
@@ -163,7 +163,7 @@ CLASS zcl_dbbr_ddic_util DEFINITION
 
     CLASS-METHODS create_dynamic_table
       IMPORTING
-        !it_fields         TYPE ZSAT_DFIES_ITAB
+        !it_fields         TYPE zsat_dfies_itab
         !it_key_defs       TYPE abap_table_keydescr_tab OPTIONAL
         !if_unique_key     TYPE abap_bool OPTIONAL
         !if_sorted_table   TYPE abap_bool OPTIONAL
@@ -351,22 +351,22 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
     rf_possible = abap_true.
 
     CASE iv_system_value_type.
-      WHEN ZIF_SAT_C_SYSTEM_VALUE_TYPE=>date.
+      WHEN zif_sat_c_system_value_type=>date.
         IF iv_inttype <> cl_abap_typedescr=>typekind_date.
           rf_possible = abap_false.
         ENDIF.
 
-      WHEN ZIF_SAT_C_SYSTEM_VALUE_TYPE=>time.
+      WHEN zif_sat_c_system_value_type=>time.
         IF iv_inttype <> cl_abap_typedescr=>typekind_time.
           rf_possible = abap_false.
         ENDIF.
 
-      WHEN ZIF_SAT_C_SYSTEM_VALUE_TYPE=>user.
+      WHEN zif_sat_c_system_value_type=>user.
         IF iv_inttype <> cl_abap_typedescr=>typekind_char.
           rf_possible = abap_false.
         ENDIF.
 
-      WHEN ZIF_SAT_C_SYSTEM_VALUE_TYPE=>language.
+      WHEN zif_sat_c_system_value_type=>language.
         IF iv_inttype <> cl_abap_typedescr=>typekind_char.
           rf_possible = abap_false.
         ENDIF.
@@ -391,12 +391,12 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
     ).
 
     IF sy-subrc <> 0.
-      ZCX_SAT_VALIDATION_EXCEPTION=>raise_from_sy( ).
+      zcx_sat_validation_exception=>raise_from_sy( ).
     ELSE.
       IF lf_exists = abap_false.
-        RAISE EXCEPTION TYPE ZCX_SAT_VALIDATION_EXCEPTION
+        RAISE EXCEPTION TYPE zcx_sat_validation_exception
           EXPORTING
-            textid = ZCX_SAT_VALIDATION_EXCEPTION=>package_not_existing
+            textid = zcx_sat_validation_exception=>package_not_existing
             msgv1  = |{ iv_package }|.
       ENDIF.
     ENDIF.
@@ -502,14 +502,14 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
 
         WHEN zif_dbbr_c_text_selection_type=>domain_value.
           DATA(lr_elemdescr) = CAST cl_abap_elemdescr( cl_abap_elemdescr=>describe_by_name( <ls_add_text>-id_field_rollname ) ).
-          <ls_add_text>-domain_fix_values = lr_elemdescr->get_ddic_fixed_values( p_langu = ZCL_SAT_SYSTEM_HELPER=>get_system_language( ) ).
+          <ls_add_text>-domain_fix_values = lr_elemdescr->get_ddic_fixed_values( p_langu = zcl_sat_system_helper=>get_system_language( ) ).
 
         WHEN zif_dbbr_c_text_selection_type=>table OR
              zif_dbbr_c_text_selection_type=>text_table.
 
           " build dynamic hashtable for text selection
           " 2) collect fields for hash table
-          DATA(lt_fields) = VALUE ZSAT_DFIES_ITAB(
+          DATA(lt_fields) = VALUE zsat_dfies_itab(
               ( tabname   = <ls_add_text>-text_table
                 fieldname = <ls_add_text>-key_field
                 keyflag   = abap_true )
@@ -620,7 +620,7 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
 
     IF result IS INITIAL.
       MESSAGE e018(zdbbr_info) WITH iv_table_field iv_table_name INTO DATA(lv_dummy).
-      ZCX_SAT_VALIDATION_EXCEPTION=>raise_from_sy(
+      zcx_sat_validation_exception=>raise_from_sy(
           iv_parameter = iv_dynfname
           iv_line      = iv_loop_line
       ).
@@ -644,14 +644,14 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
          ls_table_info-tabclass <> 'VIEW' AND
          ls_table_info-tabclass <> 'POOL'.
         MESSAGE e001(wusl) WITH iv_table_name lv_object_type INTO DATA(lv_message).
-        ZCX_SAT_VALIDATION_EXCEPTION=>raise_from_sy(
+        zcx_sat_validation_exception=>raise_from_sy(
           iv_parameter = iv_dynpro_fieldname
         ).
       ELSE.
         IF ( ls_table_info-tabclass = 'VIEW' AND ls_table_info-viewclass = 'C' ) AND
              if_customizing_view_allowed = abap_false.
           MESSAGE e001(wusl) WITH iv_table_name lv_object_type INTO lv_message.
-          ZCX_SAT_VALIDATION_EXCEPTION=>raise_from_sy(
+          zcx_sat_validation_exception=>raise_from_sy(
             iv_parameter = iv_dynpro_fieldname
           ).
         ENDIF.
@@ -659,7 +659,7 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
       ENDIF.
     ELSE.
       MESSAGE e007(e2) WITH iv_table_name INTO lv_message.
-      ZCX_SAT_VALIDATION_EXCEPTION=>raise_from_sy(
+      zcx_sat_validation_exception=>raise_from_sy(
         iv_parameter = iv_dynpro_fieldname
       ).
     ENDIF.
@@ -679,7 +679,6 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
     WRITE |{ <lv_raw_value> }| TO lv_raw.
     result = lv_raw.
   ENDMETHOD.
-
 
 
   METHOD get_entities_from_clipboard.
@@ -723,16 +722,14 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
         FOR query IN lt_queries_from_clipboard
         ( entity_id     = query-query_name
           entity_id_raw = query-query_name
-          entity_type   = ZIF_SAT_C_ENTITY_TYPE=>query
+          entity_type   = zif_sat_c_entity_type=>query
           description   = query-description )
       ).
     ENDIF.
 
 *.. Now try to find tables/views/cds views
-    DATA(lv_description_language) = ZCL_SAT_SYSTEM_HELPER=>get_system_language( ).
-
     SELECT *
-      FROM zsat_i_databaseentity( p_language = @lv_description_language )
+      FROM zsat_i_databaseentity
       FOR ALL ENTRIES IN @lt_possible_entities
       WHERE entity = @lt_possible_entities-table_line
     INTO TABLE @DATA(lt_entities).
@@ -751,14 +748,10 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
   ENDMETHOD.
 
 
-
-
-
-
   METHOD get_domain_to_convexit_entries.
     TYPES: BEGIN OF lty_convexit2dom.
-        INCLUDE TYPE zdbbr_conve2dom.
-    TYPES: funcname TYPE funcname.
+             INCLUDE TYPE zdbbr_conve2dom.
+             TYPES: funcname TYPE funcname.
     TYPES: END OF lty_convexit2dom.
 
     DATA: lt_conv2domain TYPE TABLE OF lty_convexit2dom.
@@ -793,12 +786,6 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
       ENDLOOP.
     ENDIF.
   ENDMETHOD.
-
-
-
-
-
-
 
 
   METHOD exists_data_for_entity.

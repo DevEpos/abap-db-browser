@@ -449,7 +449,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 
   METHOD class_constructor.
-    DATA(lt_api_states) = cl_ris_adt_res_release_states=>get_all( i_with_longtext = abap_false ).
+    DATA(lt_api_states) = cl_ris_adt_res_release_states=>get_all( ).
     gt_api_state_texts = VALUE #( FOR api IN lt_api_states ( api_state = api-name description = api-description )
                                   ( api_state = zif_sat_c_cds_api_state=>not_released description = 'Not Released'(045) ) ).
   ENDMETHOD.
@@ -962,7 +962,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
 *.. Check table/view count in package
     SELECT *
-      FROM zsat_i_databaseentityaggr( p_language = @sy-langu )
+      FROM zsat_i_databaseentityaggr
       WHERE developmentpackage = @io_package->package_name
     INTO TABLE @DATA(lt_entity_count_in_package).
 
@@ -1323,7 +1323,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
           lv_date_text TYPE string.
 
     SELECT SINGLE *
-      FROM zsat_i_databaseentity( p_language = @sy-langu )
+      FROM zsat_i_databaseentity
       WHERE entity = @iv_tabname
     INTO @DATA(ls_entity).
 
@@ -1587,9 +1587,8 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD expand_tech_settings_node.
-    DATA(lv_language) = zcl_sat_system_helper=>get_system_language( ).
     SELECT SINGLE *
-     FROM zsat_i_dbtabletechsettings( p_language = @lv_language )
+     FROM zsat_i_dbtabletechsettings
      WHERE tablename = @iv_tabname
     INTO @DATA(ls_tech_settings).
 
@@ -2363,7 +2362,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
        lr_user_data->node_type = c_node_type-view.
 
       SELECT SINGLE developmentpackage
-        FROM zsat_i_databaseentity( p_language = @sy-langu )
+        FROM zsat_i_databaseentity
         WHERE entity = @lr_user_data->entity_id
       INTO @DATA(lv_package).
 

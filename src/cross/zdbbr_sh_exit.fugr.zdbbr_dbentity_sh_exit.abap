@@ -38,10 +38,8 @@ FUNCTION ZDBBR_DBENTITY_SH_EXIT.
 
     DATA: lt_result TYPE TABLE OF zdbbr_entity_sh_result.
 
-    DATA(lv_language) = zcl_sat_system_helper=>get_system_language( ).
-
     SELECT entityraw AS entity_id, description AS ddtext, developmentpackage AS devclass
-      FROM zsat_i_databaseentity( p_language = @lv_language )
+      FROM zsat_i_databaseentity
       WHERE entity IN @lt_entity_range
         AND developmentpackage IN @lt_package_range
         AND description IN @lt_description_selopt

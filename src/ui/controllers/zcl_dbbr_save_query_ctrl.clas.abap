@@ -135,7 +135,7 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
 
     IF lv_primary_entity_type IS INITIAL.
       SELECT SINGLE type
-        FROM zsat_i_databaseentity( p_language = @sy-langu )
+        FROM zsat_i_databaseentity
         WHERE entity = @mr_ui_global_data->primary_table
       INTO @lv_primary_entity_type.
     ENDIF.
