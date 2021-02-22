@@ -63,7 +63,7 @@ CLASS zcl_dbbr_dialogs IMPLEMENTATION.
 
   METHOD show_user_settings.
     DATA(lr_user_settings) = NEW zcl_dbbr_user_settings_sc(
-        is_user_settings = cs_settings
+        is_user_settings = zcl_dbbr_usersettings_factory=>get_settings( )
         if_disable_save  = if_disable_save
         iv_start_tab     = iv_start_tab
         iv_start_dynnr   = iv_start_dynnr
