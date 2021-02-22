@@ -109,43 +109,43 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
         FOR EVENT aggregation_attr_changed OF zcl_dbbr_selscreen_table .
     "! <p class="shorttext synchronized" lang="en">Handler for selection of favorite entry</p>
     METHODS on_faventry_selected
-        FOR EVENT entity_chosen OF zcl_dbbr_selscr_nav_events
+      FOR EVENT entity_chosen OF zcl_dbbr_selscr_nav_events
       IMPORTING
         !ev_entity_id
         !ev_entity_type .
     "! <p class="shorttext synchronized" lang="en">Handler for favorites tree event</p>
     METHODS on_fav_tree_event
-        FOR EVENT favtree_event OF zcl_dbbr_selscr_nav_events
+      FOR EVENT favtree_event OF zcl_dbbr_selscr_nav_events
       IMPORTING
         !er_handler .
     "! <p class="shorttext synchronized" lang="en">Handler for history navigation event</p>
     METHODS on_history_navigation
-        FOR EVENT navigated OF zcl_dbbr_selscreen_history
+      FOR EVENT navigated OF zcl_dbbr_selscreen_history
       IMPORTING
         !es_history_entry
         !ev_current_index .
     "! <p class="shorttext synchronized" lang="en">Event handler for requesting new entity for screen</p>
     METHODS on_request_new_entity
-        FOR EVENT request_new_entity OF zcl_dbbr_selscreen_util
+      FOR EVENT request_new_entity OF zcl_dbbr_selscreen_util
       IMPORTING
         !ev_id
         !ev_type
         ef_force_loading.
     "! <p class="shorttext synchronized" lang="en">Event Handler for requesting new object search</p>
     METHODS on_request_object_search
-        FOR EVENT request_object_search OF zcl_dbbr_selscr_nav_events
+      FOR EVENT request_object_search OF zcl_dbbr_selscr_nav_events
       IMPORTING
         ev_object_type
         ev_search_query
         ef_close_popup.
     "! <p class="shorttext synchronized" lang="en">Handler for Toolbar button press event</p>
     METHODS on_toolbar_button_pressed
-        FOR EVENT toolbar_button_pressed OF zcl_dbbr_toolbar_util
+      FOR EVENT toolbar_button_pressed OF zcl_dbbr_toolbar_util
       IMPORTING
         !ev_function .
     "! <p class="shorttext synchronized" lang="en">Handler for variant favorites entry selection</p>
     METHODS on_variant_faventry_selected
-        FOR EVENT variant_entry_chosen OF zcl_dbbr_selscr_nav_events
+      FOR EVENT variant_entry_chosen OF zcl_dbbr_selscr_nav_events
       IMPORTING
         !ev_entity_id
         !ev_entity_type
@@ -201,6 +201,7 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
     "! <p class="shorttext synchronized" lang="en">Assigns custom value help(s) to Table Field</p>
     METHODS assign_custom_f4.
     METHODS delete_all_input.
+    METHODS reset_input_fields.
 ENDCLASS.
 
 
@@ -926,6 +927,24 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
         zcl_dbbr_ddic_util=>navigate_to_table( mo_data->mr_s_entity_info->entity_id ).
       ENDIF.
     ENDIF.
+  ENDMETHOD.
+
+  METHOD reset_input_fields.
+    delete_all_input( ).
+
+    IF mo_data IS INITIAL OR mo_data->mr_s_global_data IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DATA(ls_user_settings) = zcl_dbbr_usersettings_factory=>get_settings( ).
+    mo_data->mr_s_global_data->max_lines = ls_user_settings-max_lines.
+
+    CLEAR mo_data->mr_s_global_data->grouping_minimum.
+
+    IF mo_util IS BOUND.
+      mo_util->delete_auto_variant( ).
+    ENDIF.
+
   ENDMETHOD.
 
   METHOD refresh_alternative_texts.
@@ -1680,6 +1699,9 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
           WHEN zif_dbbr_c_selscreen_functions=>delete_all_input.
             delete_all_input( ).
 
+          WHEN zif_dbbr_c_selscreen_functions=>reset_input_fields.
+            reset_input_fields( ).
+
           WHEN zif_dbbr_c_selscreen_functions=>delete_all_criteria.
             mo_selection_table->zif_uitb_table~delete_all( ).
 
@@ -1878,7 +1900,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       set_cursor( ).
     ENDIF.
 
-    data(lf_no_editing_possible) = xsdbool( mo_data->is_join_active( ) OR
+    DATA(lf_no_editing_possible) = xsdbool( mo_data->is_join_active( ) OR
                                             mo_data->mr_s_settings->disable_edit = abap_true ).
 
     LOOP AT SCREEN.
@@ -1890,12 +1912,12 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       ENDIF.
 
       IF screen-group4 = 'EDT'.
-        screen-input = COND #( when lf_no_editing_possible = abap_true THEN 0 else 1 ).
+        screen-input = COND #( WHEN lf_no_editing_possible = abap_true THEN 0 ELSE 1 ).
         MODIFY SCREEN.
       ENDIF.
 
       IF screen-name = 'GS_DATA-EDIT'.
-        screen-input = COND #( WHEN zcl_dbbr_dep_feature_util=>is_se16n_available( ) and
+        screen-input = COND #( WHEN zcl_dbbr_dep_feature_util=>is_se16n_available( ) AND
                                     lf_no_editing_possible = abap_false THEN 1 ELSE 0 ).
         MODIFY SCREEN.
       ENDIF.

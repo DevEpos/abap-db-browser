@@ -87,7 +87,7 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Returns the title for the selection screen</p>
     "!
     METHODS get_title
-          ABSTRACT
+      ABSTRACT
       RETURNING
         VALUE(result) TYPE string .
     "! <p class="shorttext synchronized" lang="en">Checks if selection screen has loaded entity content</p>
@@ -128,6 +128,7 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     METHODS can_execute
       RETURNING
         VALUE(rf_can_execute) TYPE abap_bool.
+    METHODS delete_auto_variant.
   PROTECTED SECTION.
 
     TYPES:
@@ -158,7 +159,7 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
 
     "! <p class="shorttext synchronized" lang="en">Internal logic to load an entity</p>
     METHODS load_entity_internal
-          ABSTRACT
+      ABSTRACT
       RETURNING
         VALUE(rf_entity_loaded) TYPE abap_bool .
     "! <p class="shorttext synchronized" lang="en">Update buttons for multiple table mode</p>
@@ -207,7 +208,7 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Fills the selection screen table</p>
     "!
     METHODS fill_primary_entity
-          ABSTRACT
+      ABSTRACT
       IMPORTING
         is_primary_entity TYPE zdbbr_entity_info OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Fills the onscreen gui toolbar</p>
@@ -259,6 +260,17 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD check_edit_mode ##needed.
+  ENDMETHOD.
+
+  METHOD delete_auto_variant.
+    get_entity_information(
+      IMPORTING
+        ev_entity_id   = DATA(lv_entity_id)
+        ev_type        = DATA(lv_entity_type) ).
+
+    zcl_dbbr_variant_factory=>delete_auto_variant(
+      iv_entity_id   = lv_entity_id
+      iv_entity_type = lv_entity_type ).
   ENDMETHOD.
 
   METHOD save_current_criteria.
@@ -1322,5 +1334,6 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
   METHOD zif_dbbr_screen_util~handle_pbo.
     update_multiple_table_buttons( mo_data->mo_tabfield_list->has_multiple_tables( ) ).
   ENDMETHOD.
+
 
 ENDCLASS.
