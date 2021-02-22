@@ -314,10 +314,10 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
       " 1st solution, just add the hidden fields back to the selection screen
       INSERT LINES OF VALUE zdbbr_selfield_itab(
         FOR hidden_field IN mt_selection_fields_hidden
-        WHERE ( tabname = <ls_line>-tabname )
+        WHERE ( tabname_alias = <ls_line>-tabname_alias )
         ( hidden_field )
       ) INTO mr_table_data->* INDEX lv_index.
-      DELETE mt_selection_fields_hidden WHERE tabname = <ls_line>-tabname.
+      DELETE mt_selection_fields_hidden WHERE tabname_alias = <ls_line>-tabname_alias.
     ENDLOOP.
   ENDMETHOD.
 
@@ -329,11 +329,11 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
 
       INSERT LINES OF VALUE zdbbr_selfield_itab(
         FOR hidden_field IN mt_selection_fields_hidden
-        WHERE ( tabname = <ls_table_header>-tabname )
+        WHERE ( tabname_alias = <ls_table_header>-tabname_alias )
         ( hidden_field )
       ) INTO mr_table_data->* INDEX lv_tabix.
 
-      DELETE mt_selection_fields_hidden WHERE tabname = <ls_table_header>-tabname.
+      DELETE mt_selection_fields_hidden WHERE tabname_alias = <ls_table_header>-tabname_alias.
 
       <ls_table_header>-tree_collapsed = abap_false.
     ENDLOOP.
@@ -357,22 +357,22 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
       " 1st solution, just add the hidden fields back to the selection screen
       INSERT LINES OF VALUE zdbbr_selfield_itab(
         FOR hidden_field IN mt_selection_fields_hidden
-        WHERE ( tabname = <ls_current_line>-tabname )
+        WHERE ( tabname_alias = <ls_current_line>-tabname_alias )
         ( hidden_field )
       ) INTO mr_table_data->* INDEX lv_index.
-      DELETE mt_selection_fields_hidden WHERE tabname = <ls_current_line>-tabname.
+      DELETE mt_selection_fields_hidden WHERE tabname_alias = <ls_current_line>-tabname_alias.
     ELSE.
       " remove rows for table
       mt_selection_fields_hidden = VALUE #(
         BASE mt_selection_fields_hidden
         FOR visible_field IN mr_table_data->*
         WHERE ( is_table_header = abap_false AND
-                tabname         = <ls_current_line>-tabname )
+                tabname_alias   = <ls_current_line>-tabname_alias )
         ( visible_field )
       ).
 
       DELETE mr_table_data->* WHERE is_table_header = abap_false
-                                AND tabname         = <ls_current_line>-tabname.
+                                AND tabname_alias   = <ls_current_line>-tabname_alias.
       <ls_current_line>-tree_collapsed = abap_true.
     ENDIF.
   ENDMETHOD.

@@ -825,6 +825,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
   METHOD create_table_header.
     rs_table_header = VALUE zdbbr_selfield(
       tabname              = iv_tabname
+      tabname_alias        = iv_tabname_alias
       is_table_header      = abap_true
       description          = iv_tabname_alias
       fieldname_raw        = iv_tabname
