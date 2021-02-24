@@ -35,8 +35,8 @@
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
-       <LENGTH>255</LENGTH>
-       <HEIGHT>200</HEIGHT>
+       <LENGTH>010</LENGTH>
+       <HEIGHT>010</HEIGHT>
        <C_RESIZE_V>X</C_RESIZE_V>
        <C_RESIZE_H>X</C_RESIZE_H>
        <C_LINE_MIN>001</C_LINE_MIN>
@@ -70,66 +70,6 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>  MODULE pai.</LINE>
-      </RPY_DYFLOW>
-     </FLOW_LOGIC>
-    </item>
-    <item>
-     <HEADER>
-      <PROGRAM>SAPLZDBBR_OUTPUT</PROGRAM>
-      <SCREEN>0200</SCREEN>
-      <LANGUAGE>E</LANGUAGE>
-      <DESCRIPT>Ausgabe als ALV-Tree</DESCRIPT>
-      <TYPE>N</TYPE>
-      <NEXTSCREEN>0200</NEXTSCREEN>
-      <LINES>060</LINES>
-      <COLUMNS>255</COLUMNS>
-     </HEADER>
-     <CONTAINERS>
-      <RPY_DYCATT>
-       <TYPE>SCREEN</TYPE>
-       <NAME>SCREEN</NAME>
-      </RPY_DYCATT>
-      <RPY_DYCATT>
-       <TYPE>CUST_CTRL</TYPE>
-       <NAME>TREE</NAME>
-       <ELEMENT_OF>SCREEN</ELEMENT_OF>
-       <LINE>001</LINE>
-       <COLUMN>001</COLUMN>
-       <LENGTH>252</LENGTH>
-       <HEIGHT>057</HEIGHT>
-       <C_RESIZE_V>X</C_RESIZE_V>
-       <C_RESIZE_H>X</C_RESIZE_H>
-       <C_LINE_MIN>018</C_LINE_MIN>
-       <C_COLN_MIN>126</C_COLN_MIN>
-      </RPY_DYCATT>
-     </CONTAINERS>
-     <FIELDS>
-      <RPY_DYFATC>
-       <CONT_TYPE>SCREEN</CONT_TYPE>
-       <CONT_NAME>SCREEN</CONT_NAME>
-       <TYPE>OKCODE</TYPE>
-       <NAME>OK_CODE</NAME>
-       <TEXT>____________________</TEXT>
-       <LENGTH>020</LENGTH>
-       <VISLENGTH>020</VISLENGTH>
-       <HEIGHT>001</HEIGHT>
-       <FORMAT>CHAR</FORMAT>
-       <INPUT_FLD>X</INPUT_FLD>
-      </RPY_DYFATC>
-     </FIELDS>
-     <FLOW_LOGIC>
-      <RPY_DYFLOW>
-       <LINE>PROCESS BEFORE OUTPUT.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>  MODULE pbo_0200.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW/>
-      <RPY_DYFLOW>
-       <LINE>PROCESS AFTER INPUT.</LINE>
-      </RPY_DYFLOW>
-      <RPY_DYFLOW>
-       <LINE>  MODULE pai_0200.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
     </item>

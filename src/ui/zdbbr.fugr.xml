@@ -4502,7 +4502,7 @@
       <TEXT_NAME>ICON_DELETE</TEXT_NAME>
       <ICON_ID>@11@</ICON_ID>
       <FUN_TEXT>Delete all Deviating Texts</FUN_TEXT>
-      <ICON_TEXT>Delete All</ICON_TEXT>
+      <ICON_TEXT>All</ICON_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>DEL_ALTTXT</CODE>
@@ -4511,7 +4511,6 @@
       <TEXT_NAME>ICON_DELETE</TEXT_NAME>
       <ICON_ID>@11@</ICON_ID>
       <FUN_TEXT>Delete deviating Text</FUN_TEXT>
-      <ICON_TEXT>Delete Dev.</ICON_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>DEL_COND</CODE>

@@ -145,39 +145,11 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
 
   METHOD create_content.
 
-    create_control_toolbar(
-      EXPORTING
-        io_parent    = io_container
-        it_button    = VALUE #(
-        ( function = c_functions-check
-          quickinfo   = |{ 'Check Formula'(016) }|
-          icon        = icon_check )
-        ( function = c_functions-activate
-          quickinfo   = |{ 'Activate Formula'(017) }|
-          icon        = icon_activate )
-        ( function = c_functions-rollname_f4
-          icon        = icon_search
-          quickinfo   = |{ 'Find and Insert Data Element'(018) }| )
-        ( function = c_functions-delete
-          icon        = icon_delete
-          quickinfo   = |{ 'Delete Formula and Leave Editor'(019) }| )
-        ( function = c_functions-insert_col_texts
-          text        = |{ 'Insert Column Texts'(020) }|
-          icon        = icon_create_text
-          quickinfo   = |{ 'Insert Col. Texts for Formula Field'(021) }| )
-        ( function = c_functions-insert_icon
-          text        = |{ 'Insert Icon'(022) }| )
-        )
-      IMPORTING
-        eo_toolbar   = DATA(lo_toolbar)
-        eo_client    = DATA(lo_container)
-    ).
-
     mo_splitter = NEW zcl_uitb_gui_splitter_cont(
       iv_elements = 2
-      iv_size     = '70:30'
+      iv_size     = '400:*'
       iv_mode     = zcl_uitb_gui_splitter_cont=>c_mode-cols
-      io_parent   = lo_container
+      io_parent   = io_container
     ).
     create_formula_editor( ).
     create_dnd_tree_control( ).
@@ -237,7 +209,7 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
 
   METHOD create_dnd_tree_control.
     mo_template_tm = NEW zcl_dbbr_fe_dnd_tree_model(
-        ir_parent        = mo_splitter->get_container( 2 )
+        ir_parent        = mo_splitter->get_container( 1 )
         ir_tabfield_list = mo_tabfield_list
         it_join_tables   = ms_join_def-tables
     ).
@@ -248,9 +220,35 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
   METHOD create_formula_editor.
     CHECK mo_editor IS INITIAL.
 
+    create_control_toolbar(
+      EXPORTING
+        io_parent    = mo_splitter->get_container( 2 )
+        it_button    = VALUE #(
+        ( function = c_functions-check
+          quickinfo   = |{ 'Check Formula'(016) }|
+          icon        = icon_check )
+        ( function = c_functions-activate
+          quickinfo   = |{ 'Activate Formula'(017) }|
+          icon        = icon_activate )
+        ( function = c_functions-rollname_f4
+          icon        = icon_search
+          quickinfo   = |{ 'Find and Insert Data Element'(018) }| )
+        ( function = c_functions-delete
+          icon        = icon_delete
+          quickinfo   = |{ 'Delete Formula and Leave Editor'(019) }| )
+        ( function = c_functions-insert_col_texts
+          text        = |{ 'Insert Column Texts'(020) }|
+          icon        = icon_create_text
+          quickinfo   = |{ 'Insert Col. Texts for Formula Field'(021) }| )
+        ( function = c_functions-insert_icon
+          text        = |{ 'Insert Icon'(022) }| )
+        )
+      IMPORTING
+        eo_toolbar   = DATA(lo_toolbar)
+        eo_client    = DATA(lo_container) ).
+
     mo_editor = NEW zcl_uitb_gui_code_editor(
-        io_parent = mo_splitter->get_container( 1 )
-    ).
+      io_parent = lo_container ).
 
     mo_editor->set_text( iv_text = mv_formula ).
   ENDMETHOD.
