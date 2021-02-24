@@ -214,8 +214,10 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     "! <p class="shorttext synchronized" lang="en">Checks if this list has multiple tables</p>
     "!
     METHODS has_multiple_tables
+      IMPORTING
+        if_count_form_fields TYPE abap_bool DEFAULT abap_true
       RETURNING
-        VALUE(result) TYPE abap_bool .
+        VALUE(result)        TYPE abap_bool .
     METHODS initialize_iterator
       IMPORTING
         !if_for_active TYPE boolean OPTIONAL .
@@ -926,7 +928,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
 
   METHOD get_table_ref_by_alias.
-    rr_table = ref #( mt_tables[ tabname_alias = iv_tabname_alias ] optional ).
+    rr_table = REF #( mt_tables[ tabname_alias = iv_tabname_alias ] OPTIONAL ).
   ENDMETHOD.
 
   METHOD get_table_list.
@@ -973,7 +975,16 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
 
   METHOD has_multiple_tables.
-    result = xsdbool( lines( mt_tables ) > 1 ).
+    DATA: lv_table_count TYPE i.
+
+    IF if_count_form_fields = abap_true.
+      result = xsdbool( lines( mt_tables ) > 1 ).
+    ELSE.
+      LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE tabname <> zif_dbbr_global_consts=>gc_formula_dummy_table.
+        lv_table_count = lv_table_count + 1.
+      ENDLOOP.
+      result = xsdbool( lv_table_count > 1 ).
+    ENDIF.
   ENDMETHOD.
 
 

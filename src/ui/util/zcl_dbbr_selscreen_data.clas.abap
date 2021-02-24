@@ -240,7 +240,7 @@ CLASS zcl_dbbr_selscreen_data IMPLEMENTATION.
 
 
   METHOD is_multi_table_mode.
-    result = mo_tabfield_list->has_multiple_tables( ).
+    result = mo_tabfield_list->has_multiple_tables( if_count_form_fields = abap_false ).
   ENDMETHOD.
 
 
