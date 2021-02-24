@@ -423,6 +423,7 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
 *.. Create new OR condition
     DATA(lo_edit_join_cond_view) = NEW zcl_dbbr_edit_join_cond_view(
       iv_mode               = zcl_dbbr_edit_join_cond_view=>c_value_mode
+      is_source_entity      = mo_join->get_entity( iv_alias = <ls_node>-alias )->get_tab_info( )
       it_target_entity_list = mo_join->get_possible_entities_for_f4( <ls_node>-alias )
     ).
 

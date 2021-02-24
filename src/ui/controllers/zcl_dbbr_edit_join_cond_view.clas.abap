@@ -319,24 +319,22 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
           iv_tablename          = mv_source_entity
           iv_dynpname_fieldname = |{ c_p_join_src_field }|
         CHANGING
-          cv_fieldname          = mr_join_source_field->*
-      ).
+          cv_fieldname          = mr_join_source_field->* ).
       IF mf_allow_offset = abap_true.
         fill_field_attribute_fields(
           if_source    = abap_true
           iv_tabname   = mv_source_entity
-          iv_fieldname = mr_join_source_field->*
-        ).
+          iv_fieldname = mr_join_source_field->* ).
       ENDIF.
     ELSE.
 *.... call join f4 field value help like in old join definition screen
       DATA(lr_join_field_f4) = NEW zcl_dbbr_tabfield_tree_f4(
         iv_screen_title     = 'Field F4 for Source'
         io_tree_node_filler = NEW zcl_dbbr_table_treeno_fill(
-           it_join_tables = mt_target_entity_list
-        )
-      ).
-
+          it_join_tables = mt_target_entity_list ) ).
+      lr_join_field_f4->set_preferred_entity(
+        iv_entity_alias    = ms_source_entity-add_table_alias
+        if_collapse_others = abap_true ).
       lr_join_field_f4->display_value_help(
         IMPORTING ev_chosen_field            = DATA(lv_field)
                   ev_chosen_table            = DATA(lv_table)

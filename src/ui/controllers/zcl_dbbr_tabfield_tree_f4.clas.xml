@@ -72,6 +72,12 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Handler for node key press</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_TABFIELD_TREE_F4</CLSNAME>
+     <CMPNAME>SET_PREFERRED_ENTITY</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Sets the preferred entity which is to be expanded</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

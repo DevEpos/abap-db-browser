@@ -234,27 +234,31 @@ CLASS zcl_dbbr_table_treeno_fill IMPLEMENTATION.
           ENDCASE.
 
           ir_nodes->add_node(
-              iv_node_key          = lv_table_node_key
-              if_folder            = abap_true
-              iv_image             = lv_icon
-              iv_expanded_image    = lv_icon
-              it_item_table        = VALUE #(
-                ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
-                  font      = cl_item_tree_model=>item_font_prop
-                  class     = cl_item_tree_model=>item_class_text
-                  text      = |{ <ls_join_table_sel>-entity_id_raw }| )
-                ( item_name = zcl_dbbr_tabfield_tree_f4=>c_hier_col2
-                  font      = cl_item_tree_model=>item_font_prop
-                  text      = |({ <ls_join_table_sel>-entity_alias })|
-                  class     = cl_item_tree_model=>item_class_text
-                  style     = zif_uitb_c_ctm_style=>inverted_blue )
-                ( item_name = zcl_dbbr_tabfield_tree_f4=>c_hier_col3
-                  style     = zif_uitb_c_ctm_style=>inverted_gray
-                  font      = cl_item_tree_model=>item_font_prop
-                  class     = cl_item_tree_model=>item_class_text
-                  text      = ls_tab_info-ddtext )
-              )
-          ).
+            iv_node_key          = lv_table_node_key
+            if_folder            = abap_true
+            iv_image             = lv_icon
+            iv_expanded_image    = lv_icon
+            it_item_table        = VALUE #(
+              ( item_name = zcl_uitb_column_tree_model=>c_hierarchy_column
+                font      = cl_item_tree_model=>item_font_prop
+                class     = cl_item_tree_model=>item_class_text
+                text      = |{ <ls_join_table_sel>-entity_id_raw }| )
+              ( item_name = zcl_dbbr_tabfield_tree_f4=>c_hier_col2
+                font      = cl_item_tree_model=>item_font_prop
+                text      = |({ <ls_join_table_sel>-entity_alias })|
+                class     = cl_item_tree_model=>item_class_text
+                style     = zif_uitb_c_ctm_style=>inverted_blue )
+              ( item_name = zcl_dbbr_tabfield_tree_f4=>c_hier_col3
+                style     = zif_uitb_c_ctm_style=>inverted_gray
+                font      = cl_item_tree_model=>item_font_prop
+                class     = cl_item_tree_model=>item_class_text
+                text      = ls_tab_info-ddtext ) ) ).
+
+          rt_node_map = VALUE #( BASE rt_node_map
+            ( node_key  = lv_table_node_key
+              alias     = <ls_join_table_sel>-entity_alias
+              tabname   = <ls_join_table_sel>-entity_id
+              node_type = zif_dbbr_tree_node_filler=>c_node_type-table ) ).
 
           create_table_field_nodes(
             EXPORTING
@@ -262,15 +266,13 @@ CLASS zcl_dbbr_table_treeno_fill IMPLEMENTATION.
               iv_table_node = lv_table_node_key
               is_entity     = <ls_join_table_sel>
             CHANGING
-              ct_node_map   = rt_node_map
-          ).
+              ct_node_map   = rt_node_map ).
 
         ENDLOOP. " Loop over tables
 
         create_matched_node_and_fields(
           EXPORTING ir_nodes    = ir_nodes
-          CHANGING  ct_node_map = rt_node_map
-        ).
+          CHANGING  ct_node_map = rt_node_map ).
       CATCH zcx_uitb_tree_error.
     ENDTRY.
 
