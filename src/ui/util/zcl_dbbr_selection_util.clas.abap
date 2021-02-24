@@ -87,7 +87,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
         VALUE(rr_alv_util) TYPE REF TO zcl_dbbr_output_alv_util .
     "! <p class="shorttext synchronized" lang="en">Retrieves information about entity</p>
     METHODS get_entity_name
-          ABSTRACT
+      ABSTRACT
       RETURNING
         VALUE(result) TYPE tabname .
     "! <p class="shorttext synchronized" lang="en">Handle custom context menu request for alv</p>
@@ -902,15 +902,11 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         ls_field-ref_table = lr_current_field->tabname.
       ENDIF.
 
-
-      IF lf_use_num_conversion = abap_false.
-        fill_fcat_quan_curr_field(
-          EXPORTING ir_tabfield       = lr_current_field
-                    ir_tabfields      = mo_tabfields
-          CHANGING  cv_quantity_field = ls_field-qfieldname
-                    cv_currency_field = ls_field-cfieldname
-        ).
-      ENDIF.
+      fill_fcat_quan_curr_field(
+        EXPORTING ir_tabfield       = lr_current_field
+                  ir_tabfields      = mo_tabfields
+        CHANGING  cv_quantity_field = ls_field-qfieldname
+                  cv_currency_field = ls_field-cfieldname ).
 
       set_fieldcat_coltexts(
         EXPORTING ir_field    = lr_current_field
