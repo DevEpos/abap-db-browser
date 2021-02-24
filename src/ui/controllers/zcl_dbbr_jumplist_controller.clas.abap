@@ -70,7 +70,7 @@ CLASS zcl_dbbr_jumplist_controller IMPLEMENTATION.
     DATA(lr_new_line) = REF #( <lt_table>[ lv_new_line_index ] ).
     lr_new_line->ref_query_id = mv_query_id.
     lr_new_line->is_active = abap_true.
-    lr_new_line->jump_target_type = zif_dbbr_global_consts=>gc_jump_call_types-normal.
+    lr_new_line->jump_target_type = zif_dbbr_global_consts=>c_jump_call_types-normal.
     lr_new_line->is_hotspot = abap_true.
     lr_new_line->skip_1st_screen = abap_true.
   ENDMETHOD.
@@ -299,7 +299,7 @@ CLASS zcl_dbbr_jumplist_controller IMPLEMENTATION.
     mr_table->clear_is_copied_flags( ).
 
     CASE lv_function.
-      WHEN zif_dbbr_global_consts=>gc_function_codes-leave_screen.
+      WHEN zif_dbbr_global_consts=>c_function_codes-leave_screen.
         zcl_dbbr_screen_helper=>leave_screen( ).
 
       WHEN mc_function_codes-save_jump_fields.

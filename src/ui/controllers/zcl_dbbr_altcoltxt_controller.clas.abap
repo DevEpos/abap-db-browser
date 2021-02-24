@@ -113,11 +113,11 @@ CLASS zcl_dbbr_altcoltxt_controller IMPLEMENTATION.
 
   METHOD zif_uitb_screen_controller~cancel.
     CASE iv_function_code.
-      WHEN zif_dbbr_global_consts=>gc_function_codes-cancel OR
-           zif_dbbr_global_consts=>gc_function_codes-cancel_screen.
+      WHEN zif_dbbr_global_consts=>c_function_codes-cancel OR
+           zif_dbbr_global_consts=>c_function_codes-cancel_screen.
         zcl_dbbr_screen_helper=>leave_screen( ).
 
-      WHEN zif_dbbr_global_consts=>gc_function_codes-quit_program.
+      WHEN zif_dbbr_global_consts=>c_function_codes-quit_program.
         zcl_dbbr_screen_helper=>quit_program( ).
 
     ENDCASE.
@@ -151,7 +151,7 @@ CLASS zcl_dbbr_altcoltxt_controller IMPLEMENTATION.
       WHEN mc_function_codes-delete_alternate_text.
         mr_table->zif_uitb_table~delete_current_line( ).
 
-      WHEN zif_dbbr_global_consts=>gc_function_codes-leave_screen.
+      WHEN zif_dbbr_global_consts=>c_function_codes-leave_screen.
         zcl_dbbr_screen_helper=>leave_screen( ).
       WHEN OTHERS.
     ENDCASE.

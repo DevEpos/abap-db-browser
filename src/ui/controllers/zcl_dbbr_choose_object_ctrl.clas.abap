@@ -70,7 +70,7 @@ CLASS zcl_dbbr_choose_object_ctrl IMPLEMENTATION.
 
   METHOD validate_user_input.
     " don't validate during cancel action
-    IF iv_function_code = zif_dbbr_global_consts=>gc_function_codes-cancel.
+    IF iv_function_code = zif_dbbr_global_consts=>c_function_codes-cancel.
       RETURN.
     ENDIF.
 
@@ -171,7 +171,7 @@ CLASS zcl_dbbr_choose_object_ctrl IMPLEMENTATION.
     zcl_uitb_cursor=>get_cursor( ).
 
     CASE lv_function.
-      WHEN zif_dbbr_global_consts=>gc_function_codes-cancel.
+      WHEN zif_dbbr_global_consts=>c_function_codes-cancel.
         zcl_dbbr_screen_helper=>leave_screen( ).
 
       WHEN 'MODE_CHANGE'.

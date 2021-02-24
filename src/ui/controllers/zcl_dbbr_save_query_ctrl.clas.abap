@@ -141,7 +141,7 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
     ENDIF.
 
     " 3) save the query
-    mr_tabfield_list->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-selection ).
+    mr_tabfield_list->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-selection ).
 
     mr_tabfield_list->get_fields(
       EXPORTING if_include_only_checked = abap_true

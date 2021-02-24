@@ -323,7 +323,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
             ( fieldname  = <ls_field>-fieldname
               up         = abap_true )
           ).
-          <ls_field>-emphasize = zif_dbbr_global_consts=>gc_alv_colors-light_green.
+          <ls_field>-emphasize = zif_dbbr_global_consts=>c_alv_colors-light_green.
         ENDIF.
         lt_field_compare = VALUE #( BASE lt_field_compare
           ( fieldname  = <ls_field>-fieldname

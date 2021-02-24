@@ -278,9 +278,9 @@ CLASS zcl_dbbr_field_output_tree IMPLEMENTATION.
         ( item_name  = c_column_names-hierarchy_column
           class      = cl_list_tree_model=>item_class_text
           font       = cl_list_tree_model=>item_font_prop
-          text       = COND #( WHEN mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output THEN
+          text       = COND #( WHEN mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-output THEN
                                  TEXT-009
-                               WHEN mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-selection THEN
+                               WHEN mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-selection THEN
                                  TEXT-010 )
         )
       )
@@ -370,8 +370,8 @@ CLASS zcl_dbbr_field_output_tree IMPLEMENTATION.
           font       = cl_list_tree_model=>item_font_prop
           t_image    = SWITCH #(
              <ls_tabfield_info>-sort_direction
-             WHEN zif_dbbr_global_consts=>gc_sort_direction-ascending  THEN icon_sort_up
-             WHEN zif_dbbr_global_consts=>gc_sort_direction-descending THEN icon_sort_down
+             WHEN zif_dbbr_global_consts=>c_sort_direction-ascending  THEN icon_sort_up
+             WHEN zif_dbbr_global_consts=>c_sort_direction-descending THEN icon_sort_down
           )
         )
       ).
@@ -410,7 +410,7 @@ CLASS zcl_dbbr_field_output_tree IMPLEMENTATION.
     mo_toolbar_container = NEW cl_gui_custom_container( container_name = c_toolbar_container ).
     mo_toolbar = NEW cl_gui_toolbar( parent = mo_toolbar_container ).
 
-    IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output.
+    IF mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-output.
       mo_toolbar->add_button(
           fcode            = c_fcode-insert_text_fields    " fcode associated to a button
           icon             = icon_insert_row    " icon name defined like '@0a@'

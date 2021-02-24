@@ -461,10 +461,10 @@ CLASS zcl_dbbr_multi_or_controller IMPLEMENTATION.
     DATA(lr_cursor) = zcl_uitb_cursor=>get_cursor( ).
 
     CASE lv_function_code.
-      WHEN zif_dbbr_global_consts=>gc_function_codes-cancel OR
-           zif_dbbr_global_consts=>gc_function_codes-cancel_screen OR
-           zif_dbbr_global_consts=>gc_function_codes-leave_screen OR
-           zif_dbbr_global_consts=>gc_function_codes-quit_program.
+      WHEN zif_dbbr_global_consts=>c_function_codes-cancel OR
+           zif_dbbr_global_consts=>c_function_codes-cancel_screen OR
+           zif_dbbr_global_consts=>c_function_codes-leave_screen OR
+           zif_dbbr_global_consts=>c_function_codes-quit_program.
 
         zcl_dbbr_screen_helper=>leave_screen( ).
 
@@ -507,16 +507,16 @@ CLASS zcl_dbbr_multi_or_controller IMPLEMENTATION.
       WHEN mc_functions-search_further.
         mf_search_successful = mr_multi_or_table->search( if_continue_previous_search = abap_true ).
 
-      WHEN zif_dbbr_global_consts=>gc_function_codes-scroll_to_top.
+      WHEN zif_dbbr_global_consts=>c_function_codes-scroll_to_top.
         mr_multi_or_table->zif_uitb_page_scroller~scroll_page_top( ).
 
-      WHEN zif_dbbr_global_consts=>gc_function_codes-scroll_page_up.
+      WHEN zif_dbbr_global_consts=>c_function_codes-scroll_page_up.
         mr_multi_or_table->zif_uitb_page_scroller~scroll_page_up( ).
 
-      WHEN zif_dbbr_global_consts=>gc_function_codes-scroll_page_down.
+      WHEN zif_dbbr_global_consts=>c_function_codes-scroll_page_down.
         mr_multi_or_table->zif_uitb_page_scroller~scroll_page_down( ).
 
-      WHEN zif_dbbr_global_consts=>gc_function_codes-scroll_to_bottom.
+      WHEN zif_dbbr_global_consts=>c_function_codes-scroll_to_bottom.
         mr_multi_or_table->zif_uitb_page_scroller~scroll_page_bottom( ).
 
       WHEN mc_functions-copy_selvalues_from_selscreen.

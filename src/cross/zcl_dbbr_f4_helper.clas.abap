@@ -145,9 +145,9 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
         ).
 
 *...... get unique output field
-        IF ls_f4_infos-type = zif_dbbr_global_consts=>gc_searchhelp_types-domain_fix_values.
+        IF ls_f4_infos-type = zif_dbbr_global_consts=>c_searchhelp_types-domain_fix_values.
           ls_f4_infos-unique_text_field = abap_true.
-        ELSEIF ls_f4_infos-type = zif_dbbr_global_consts=>gc_searchhelp_types-search_help AND
+        ELSEIF ls_f4_infos-type = zif_dbbr_global_consts=>c_searchhelp_types-search_help AND
            ( ls_f4_infos-sel_method_type = zif_dbbr_c_sh_selmethod_type=>table_selection OR
              ls_f4_infos-sel_method_type = zif_dbbr_c_sh_selmethod_type=>view_selection OR
              ls_f4_infos-sel_method_type = zif_dbbr_c_sh_selmethod_type=>with_text_table_selection ).

@@ -505,12 +505,12 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     " 3) call transaction in new mode
     CASE ls_jumpfield-jump_target_type.
-      WHEN zif_dbbr_global_consts=>gc_jump_call_types-normal.
+      WHEN zif_dbbr_global_consts=>c_jump_call_types-normal.
         CALL FUNCTION 'ZDBBR_CALL_TRANSACTION' " STARTING NEW TASK 'NEWT'
 *          DESTINATION 'NONE'
           EXPORTING
             is_jump_dest = ls_jumpfield.    " DBAnalyt.:.: UI-Daten eines Sprungfeldes
-      WHEN zif_dbbr_global_consts=>gc_jump_call_types-start_new_mode.
+      WHEN zif_dbbr_global_consts=>c_jump_call_types-start_new_mode.
         CALL FUNCTION 'ZDBBR_CALL_TRANSACTION' STARTING NEW TASK 'NEWT'
           DESTINATION 'NONE'
           EXPORTING
@@ -1006,25 +1006,25 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       " is this a sorted field?
       TRY.
           DATA(ls_sorted) = it_sort[ fieldname = <ls_fieldcat>-fieldname ].
-          <ls_fieldcat>-emphasize = zif_dbbr_global_consts=>gc_alv_colors-light_green.
+          <ls_fieldcat>-emphasize = zif_dbbr_global_consts=>c_alv_colors-light_green.
         CATCH cx_sy_itab_line_not_found.
           " is this a formula field
           IF <ls_fieldcat>-parameter2 = 'F'.
 
             <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-color_formula_fields = abap_true THEN
-                                                zif_dbbr_global_consts=>gc_alv_colors-light_yellow ).
+                                                zif_dbbr_global_consts=>c_alv_colors-light_yellow ).
             CONTINUE.
           ENDIF.
 
           IF <ls_fieldcat>-parameter2 = 'K'.
-            <ls_fieldcat>-emphasize = zif_dbbr_global_consts=>gc_alv_emphasize-key_color.
+            <ls_fieldcat>-emphasize = zif_dbbr_global_consts=>c_alv_emphasize-key_color.
             CONTINUE.
           ENDIF.
 
 *          IF line_exists( mt_add_texts[ text_field_alv_int = <ls_fieldcat>-fieldname ] ).
           IF <ls_fieldcat>-parameter2 = 'T'.
             <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-emphasize_text_fields = abap_true THEN
-                                                zif_dbbr_global_consts=>gc_alv_emphasize-text_field_color  ).
+                                                zif_dbbr_global_consts=>c_alv_emphasize-text_field_color  ).
           ENDIF.
       ENDTRY.
     ENDLOOP.
@@ -2298,9 +2298,9 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       IF sy-subrc = 0.
         lr_tabfield->sort_active = abap_true.
         lr_tabfield->sort_direction = COND #( WHEN <ls_sort_criteria>-down = abap_true THEN
-                                                zif_dbbr_global_consts=>gc_sort_direction-descending
+                                                zif_dbbr_global_consts=>c_sort_direction-descending
                                               WHEN <ls_sort_criteria>-up = abap_true THEN
-                                                zif_dbbr_global_consts=>gc_sort_direction-ascending ).
+                                                zif_dbbr_global_consts=>c_sort_direction-ascending ).
         lr_tabfield->sort_order = <ls_sort_criteria>-spos.
       ENDIF.
     ENDWHILE.
@@ -2372,18 +2372,18 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         zcl_dbbr_screen_helper=>leave_screen( ).
         RETURN.
 
-      WHEN zif_dbbr_global_consts=>gc_function_codes-leave_screen OR
-           zif_dbbr_global_consts=>gc_function_codes-cancel_screen OR
-           zif_dbbr_global_consts=>gc_function_codes-quit_program.
+      WHEN zif_dbbr_global_consts=>c_function_codes-leave_screen OR
+           zif_dbbr_global_consts=>c_function_codes-cancel_screen OR
+           zif_dbbr_global_consts=>c_function_codes-quit_program.
 
-        IF lv_function_code = zif_dbbr_global_consts=>gc_function_codes-leave_screen AND
+        IF lv_function_code = zif_dbbr_global_consts=>c_function_codes-leave_screen AND
            mo_util->ms_technical_info-auto_layout_transfer = abap_true AND
            mo_util->mf_aggregation = abap_false AND
            mo_util->mf_group_by = abap_false.
           transfer_layout_info_to_selscr( ).
         ENDIF.
         zif_uitb_screen_controller~free_screen_resources( ).
-        IF lv_function_code = zif_dbbr_global_consts=>gc_function_codes-quit_program.
+        IF lv_function_code = zif_dbbr_global_consts=>c_function_codes-quit_program.
           zcl_dbbr_screen_helper=>quit_program( ).
         ELSE.
           zcl_dbbr_screen_helper=>leave_screen( ).

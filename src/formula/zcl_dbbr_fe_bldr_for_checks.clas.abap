@@ -41,7 +41,7 @@ CLASS zcl_dbbr_fe_bldr_for_checks IMPLEMENTATION.
 
     " insert all tables
     DATA(lt_tables) = mr_tabfields->get_table_list( ).
-    DELETE lt_tables WHERE tabname = zif_dbbr_global_consts=>gc_formula_dummy_table
+    DELETE lt_tables WHERE tabname = zif_dbbr_global_consts=>c_formula_dummy_table
                         OR tabname = zif_dbbr_global_consts=>c_parameter_dummy_table.
 
     IF lines( lt_tables ) > 1.

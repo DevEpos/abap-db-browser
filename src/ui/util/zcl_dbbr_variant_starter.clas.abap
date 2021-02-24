@@ -114,7 +114,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
                                   is_field-scrtext_l )
       is_key                = is_field-keyflag
 *... default sign is inclusive
-      default_sign          = zif_dbbr_global_consts=>gc_options-i
+      default_sign          = zif_dbbr_global_consts=>c_options-i
       is_virtual_join_field = is_entity-virtual_join_table
       is_foreign_key        = xsdbool( is_field-checktable IS NOT INITIAL )
       std_short_text        = is_field-scrtext_s
@@ -220,8 +220,8 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
     SORT ms_variant-variant_data BY tuple_id tabname fieldname counter.
 
     " check if variant stores grouping information
-    LOOP AT ms_variant-variant_data ASSIGNING FIELD-SYMBOL(<ls_vard>) WHERE data_type = zif_dbbr_global_consts=>gc_variant_datatypes-group_by OR
-                                                                            data_type = zif_dbbr_global_consts=>gc_variant_datatypes-aggregation.
+    LOOP AT ms_variant-variant_data ASSIGNING FIELD-SYMBOL(<ls_vard>) WHERE data_type = zif_dbbr_global_consts=>c_variant_datatypes-group_by OR
+                                                                            data_type = zif_dbbr_global_consts=>c_variant_datatypes-aggregation.
       DATA(lf_grouping_is_active) = abap_true.
       EXIT.
     ENDLOOP.
@@ -368,13 +368,13 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
       LOOP AT lt_vardata_group ASSIGNING FIELD-SYMBOL(<ls_vardata_group_entry>).
         CASE <ls_vardata_group_entry>-data_type.
 
-          WHEN zif_dbbr_global_consts=>gc_variant_datatypes-totals.
+          WHEN zif_dbbr_global_consts=>c_variant_datatypes-totals.
             <ls_selfield>-totals = abap_true.
 
-          WHEN zif_dbbr_global_consts=>gc_variant_datatypes-aggregation.
+          WHEN zif_dbbr_global_consts=>c_variant_datatypes-aggregation.
             <ls_selfield>-aggregation = <ls_vardata_group_entry>-low_val.
 
-          WHEN zif_dbbr_global_consts=>gc_variant_datatypes-group_by.
+          WHEN zif_dbbr_global_consts=>c_variant_datatypes-group_by.
             <ls_selfield>-group_by = abap_true.
           WHEN OTHERS. " normal selection field
             IF lf_first_selvalue = abap_true.

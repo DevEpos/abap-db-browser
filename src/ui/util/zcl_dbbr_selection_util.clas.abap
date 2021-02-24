@@ -794,7 +794,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 *...create fieldcatalog / `select`-part from output fields
 *...1) update mode of tabfield list to `output`.
-    mo_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
+    mo_tabfields->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-output ).
     mo_tabfields->sort( ).
 
     mo_tabfields->initialize_iterator( ).
@@ -852,13 +852,13 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
           ls_field-fix_column = xsdbool( ms_technical_info-key_cols_not_fixed = abap_false ).
           ls_field-key_sel = abap_true.
         ELSE.
-          ls_field-emphasize = zif_dbbr_global_consts=>gc_alv_emphasize-key_color.
+          ls_field-emphasize = zif_dbbr_global_consts=>c_alv_emphasize-key_color.
         ENDIF.
       ENDIF.
 
       IF lr_current_field->is_formula_field = abap_true.
         ls_field-emphasize = COND #( WHEN ms_technical_info-color_formula_fields = abap_true THEN
-                                              zif_dbbr_global_consts=>gc_alv_colors-light_yellow ).
+                                              zif_dbbr_global_consts=>c_alv_colors-light_yellow ).
         ls_field-parameter2 = 'F'.
         ls_field-icon = zcl_dbbr_formula_helper=>is_icon_field( lr_current_field ).
       ENDIF.
@@ -1016,7 +1016,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD create_order_by_clause.
     """ create fieldcatalog / `order by`-part from output fields
     " 1) update mode of tabfield list to `sort`.
-    mo_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-sort ).
+    mo_tabfields->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-sort ).
 
     " check if there is at least one `sort`-field
     CHECK mo_tabfields->checked_field_exists( ).
@@ -1031,8 +1031,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
       DATA(lv_order_by_type) = SWITCH string(
         lr_field->sort_direction
-        WHEN zif_dbbr_global_consts=>gc_sort_direction-ascending THEN 'ASCENDING'
-        WHEN zif_dbbr_global_consts=>gc_sort_direction-descending THEN 'DESCENDING'
+        WHEN zif_dbbr_global_consts=>c_sort_direction-ascending THEN 'ASCENDING'
+        WHEN zif_dbbr_global_consts=>c_sort_direction-descending THEN 'DESCENDING'
       ).
       mt_order_by = VALUE #( BASE mt_order_by ( |{ lr_field->sql_fieldname_long } { lv_order_by_type }, | ) ).
 
@@ -1043,8 +1043,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         BASE mt_sort_alv
         ( spos       = lr_field->sort_order
           fieldname  = lr_field->alv_fieldname
-          up         = xsdbool( lr_field->sort_direction = zif_dbbr_global_consts=>gc_sort_direction-ascending )
-          down       = xsdbool( lr_field->sort_direction = zif_dbbr_global_consts=>gc_sort_direction-descending ) )
+          up         = xsdbool( lr_field->sort_direction = zif_dbbr_global_consts=>c_sort_direction-ascending )
+          down       = xsdbool( lr_field->sort_direction = zif_dbbr_global_consts=>c_sort_direction-descending ) )
       ).
     ENDWHILE.
 
@@ -1059,7 +1059,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD create_select_clause.
     CLEAR mt_select.
 
-    mo_tabfields->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-output ).
+    mo_tabfields->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-output ).
 
     mo_tabfields->initialize_iterator( ).
 
@@ -1152,7 +1152,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     DATA(ls_add_text_field) = VALUE lvc_s_fcat(
         fieldname      = ir_selfield->alv_fieldname
         emphasize      = COND #( WHEN ms_technical_info-emphasize_text_fields = abap_true THEN
-                                   zif_dbbr_global_consts=>gc_alv_emphasize-text_field_color  )
+                                   zif_dbbr_global_consts=>c_alv_emphasize-text_field_color  )
         lowercase      = abap_true
         ref_field      = lv_ref_field
         ref_table      = lv_ref_table
@@ -1339,7 +1339,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     DATA(lt_tables) = mo_tabfields->get_table_list( ).
     DATA(ls_primary_table) = lt_tables[ is_primary = abap_true ].
     DELETE lt_tables WHERE is_primary = abap_true
-                        OR tabname = zif_dbbr_global_consts=>gc_formula_dummy_table
+                        OR tabname = zif_dbbr_global_consts=>c_formula_dummy_table
                         OR tabname = zif_dbbr_global_consts=>c_parameter_dummy_table.
 
 *.. add primary table and number of lines

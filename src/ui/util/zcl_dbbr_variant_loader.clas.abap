@@ -195,9 +195,9 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
     SORT ls_existing_variant-variant_data BY tuple_id tabname fieldname counter.
 
 *... check if variant stores grouping information
-    LOOP AT ls_existing_variant-variant_data ASSIGNING FIELD-SYMBOL(<ls_vard>) WHERE data_type = zif_dbbr_global_consts=>gc_variant_datatypes-group_by OR
-                                                                                     data_type = zif_dbbr_global_consts=>gc_variant_datatypes-aggregation OR
-                                                                                     data_type = zif_dbbr_global_consts=>gc_variant_datatypes-totals.
+    LOOP AT ls_existing_variant-variant_data ASSIGNING FIELD-SYMBOL(<ls_vard>) WHERE data_type = zif_dbbr_global_consts=>c_variant_datatypes-group_by OR
+                                                                                     data_type = zif_dbbr_global_consts=>c_variant_datatypes-aggregation OR
+                                                                                     data_type = zif_dbbr_global_consts=>c_variant_datatypes-totals.
       DATA(lf_grouping_is_active) = abap_true.
       mr_tabfields_grouped->clear( ).
       EXIT.
@@ -262,7 +262,7 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
                      ls_tabfield-sort_order.
             ELSE.
               ls_tabfield-sort_active = abap_true.
-              ls_tabfield-sort_direction = zif_dbbr_global_consts=>gc_sort_direction-ascending.
+              ls_tabfield-sort_direction = zif_dbbr_global_consts=>c_sort_direction-ascending.
               ls_tabfield-sort_order = lv_index.
             ENDIF.
             mr_tabfields_grouped->append_tabfield_info( ls_tabfield ).
@@ -393,10 +393,10 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
         LOOP AT lt_vardata_group ASSIGNING <ls_vardata_group_entry>.
           CASE <ls_vardata_group_entry>-data_type.
 
-            WHEN zif_dbbr_global_consts=>gc_variant_datatypes-totals.
+            WHEN zif_dbbr_global_consts=>c_variant_datatypes-totals.
               <ls_selfield>-totals = abap_true.
 
-            WHEN zif_dbbr_global_consts=>gc_variant_datatypes-aggregation.
+            WHEN zif_dbbr_global_consts=>c_variant_datatypes-aggregation.
               " Fallback for old Variant data where totals not yet existed
               IF <ls_vardata_group_entry>-low_val = 'SUM'.
                 <ls_selfield>-totals = abap_true.
@@ -404,7 +404,7 @@ CLASS zcl_dbbr_variant_loader IMPLEMENTATION.
                 <ls_selfield>-aggregation = <ls_vardata_group_entry>-low_val.
               ENDIF.
 
-            WHEN zif_dbbr_global_consts=>gc_variant_datatypes-group_by.
+            WHEN zif_dbbr_global_consts=>c_variant_datatypes-group_by.
               <ls_selfield>-group_by = abap_true.
             WHEN OTHERS. " normal selection field
               IF lf_first_selvalue = abap_true.

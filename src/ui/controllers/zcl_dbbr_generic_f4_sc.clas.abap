@@ -149,16 +149,16 @@ CLASS zcl_dbbr_generic_f4_sc IMPLEMENTATION.
   METHOD zif_uitb_screen_controller~set_status.
     DATA(lt_exclude) = mt_function_exclude.
 
-    IF mv_display_mode = zif_dbbr_global_consts=>gc_display_modes-view.
+    IF mv_display_mode = zif_dbbr_global_consts=>c_display_modes-view.
       lt_exclude = VALUE #( ( c_save_func ) ).
     ENDIF.
 
     SET PF-STATUS '0202' OF PROGRAM zif_dbbr_c_report_id=>main EXCLUDING lt_exclude.
     DATA(lv_title) = SWITCH string(
       mv_display_mode
-      WHEN zif_dbbr_global_consts=>gc_display_modes-view THEN |{ 'Display' }|
-      WHEN zif_dbbr_global_consts=>gc_display_modes-create THEN |{ 'Create' }|
-      WHEN zif_dbbr_global_consts=>gc_display_modes-edit THEN |{ 'Edit' }|
+      WHEN zif_dbbr_global_consts=>c_display_modes-view THEN |{ 'Display' }|
+      WHEN zif_dbbr_global_consts=>c_display_modes-create THEN |{ 'Create' }|
+      WHEN zif_dbbr_global_consts=>c_display_modes-edit THEN |{ 'Edit' }|
     ).
     DATA(lv_title2) = | { 'Value Help' }|.
     SET TITLEBAR 'PROGTITLE' OF PROGRAM zif_dbbr_c_report_id=>main WITH lv_title lv_title2.

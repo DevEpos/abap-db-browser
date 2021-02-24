@@ -272,7 +272,7 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
       ENDTRY.
     ENDIF.
 
-    cs_selfields-sign = zif_dbbr_global_consts=>gc_options-i.
+    cs_selfields-sign = zif_dbbr_global_consts=>c_options-i.
   ENDMETHOD.
 
 

@@ -158,7 +158,7 @@ CLASS zcl_dbbr_base_select_tc IMPLEMENTATION.
   METHOD fill_selopt_sign.
 
     IF mr_selfield_line->sign = space.
-      mr_selfield_line->sign = zif_dbbr_global_consts=>gc_options-i.
+      mr_selfield_line->sign = zif_dbbr_global_consts=>c_options-i.
     ENDIF.
 
   ENDMETHOD.

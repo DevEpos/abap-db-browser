@@ -436,7 +436,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     FIELD-SYMBOLS: <lo_tabfields> TYPE REF TO zcl_dbbr_tabfield_list.
 
     DATA(lf_field_aggr_active) = mo_data->mo_selection_table->aggregation_is_active( ).
-    IF lf_field_aggr_active = abap_true AND iv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output.
+    IF lf_field_aggr_active = abap_true AND iv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-output.
       ASSIGN mo_data->mo_tabfield_aggr_list TO <lo_tabfields>.
     ELSE.
       ASSIGN mo_data->mo_tabfield_list TO <lo_tabfields>.
@@ -476,7 +476,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
-    IF iv_mode <> zif_dbbr_global_consts=>gc_field_chooser_modes-selection OR
+    IF iv_mode <> zif_dbbr_global_consts=>c_field_chooser_modes-selection OR
        rf_fields_updated = abap_false.
       RETURN.
     ENDIF.
@@ -714,7 +714,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
                                   is_field-scrtext_l )
       is_key                = xsdbool( is_field-keyflag = abap_true )
 *...... default sign is inclusive
-      default_sign          = zif_dbbr_global_consts=>gc_options-i
+      default_sign          = zif_dbbr_global_consts=>c_options-i
       is_virtual_join_field = is_entity-virtual_join_table
       is_foreign_key        = xsdbool( is_field-checktable IS NOT INITIAL )
       std_short_text        = is_field-scrtext_s
@@ -1042,8 +1042,8 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
     DATA(lt_add_tables_selopt) = VALUE zdbbr_tabname_range_itab(
       FOR add_table IN <ls_join_definition>-tables
-      ( sign   = zif_dbbr_global_consts=>gc_options-i
-        option = zif_dbbr_global_consts=>gc_options-eq
+      ( sign   = zif_dbbr_global_consts=>c_options-i
+        option = zif_dbbr_global_consts=>c_options-eq
         low    = add_table-add_table_alias             )
     ).
 
@@ -1106,7 +1106,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     DATA: lt_current_table_list TYPE RANGE OF tabname.
 
 *... set `selection mode` for tabfield list to prevent unwanted behaviour
-    mo_data->mo_tabfield_list->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-selection ).
+    mo_data->mo_tabfield_list->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-selection ).
 
 *... first get all active selection tables
     DATA(lt_tables) = mo_data->mo_tabfield_list->get_table_list( ).
@@ -1192,7 +1192,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
   METHOD update_selection_mask.
 *... set `selection mode` for tabfield list to prevent unwanted behaviour
-    mo_data->mo_tabfield_list->switch_mode( zif_dbbr_global_consts=>gc_field_chooser_modes-selection ).
+    mo_data->mo_tabfield_list->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-selection ).
 
     mo_data->mo_tabfield_list->sort( ).
 

@@ -60,9 +60,9 @@ CLASS ZCL_DBBR_tabfield IMPLEMENTATION.
     ASSIGN mr_table_field_info->* TO <ls_tabfield>.
 
     CASE mv_mode.
-      WHEN ZIF_DBBR_global_consts=>gc_field_chooser_modes-output.
+      WHEN ZIF_DBBR_global_consts=>c_field_chooser_modes-output.
         <ls_tabfield>-output_active = if_active.
-      WHEN ZIF_DBBR_global_consts=>gc_field_chooser_modes-selection.
+      WHEN ZIF_DBBR_global_consts=>c_field_chooser_modes-selection.
         <ls_tabfield>-selection_active = if_active.
     ENDCASE.
   ENDMETHOD.
@@ -73,9 +73,9 @@ CLASS ZCL_DBBR_tabfield IMPLEMENTATION.
     ASSIGN mr_table_field_info->* TO <ls_tabfield>.
 
     CASE mv_mode.
-      WHEN ZIF_DBBR_global_consts=>gc_field_chooser_modes-output.
+      WHEN ZIF_DBBR_global_consts=>c_field_chooser_modes-output.
         <ls_tabfield>-output_order = iv_order.
-      WHEN ZIF_DBBR_global_consts=>gc_field_chooser_modes-selection.
+      WHEN ZIF_DBBR_global_consts=>c_field_chooser_modes-selection.
         <ls_tabfield>-selection_order = iv_order.
     ENDCASE.
 

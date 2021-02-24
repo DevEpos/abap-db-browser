@@ -259,7 +259,7 @@ CLASS ZCL_DBBR_ADDTEXTFIELD_CTRL IMPLEMENTATION.
     ZIF_UITB_SCREEN_CONTROLLER~set_status( ).
 
     " deactivate key fields during edit mode
-    IF mv_display_mode = ZIF_DBBR_global_consts=>gc_display_modes-edit.
+    IF mv_display_mode = ZIF_DBBR_global_consts=>c_display_modes-edit.
       LOOP AT SCREEN INTO DATA(ls_screen).
         IF ls_screen-group1 = 'CON'.
           ls_screen-input = 0.
