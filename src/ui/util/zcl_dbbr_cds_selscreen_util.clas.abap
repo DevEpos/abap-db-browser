@@ -17,8 +17,6 @@ CLASS zcl_dbbr_cds_selscreen_util DEFINITION
         REDEFINITION .
     METHODS set_custom_functions
         REDEFINITION .
-    METHODS update_description_texts
-        REDEFINITION .
     METHODS zif_dbbr_screen_table_util~handle_pbo
         REDEFINITION .
     METHODS zif_dbbr_screen_util~get_deactivated_functions
@@ -176,55 +174,6 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
 
   ENDMETHOD.
 
-
-  METHOD update_description_texts.
-*.. reload the cds view with the new language
-    TRY.
-        mo_cds_view = zcl_sat_cds_view_factory=>read_cds_view( mv_cds_view ).
-      CATCH zcx_sat_data_read_error INTO DATA(lx_read_error).
-        MESSAGE lx_read_error->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
-        RETURN.
-    ENDTRY.
-
-*.. update enitity description
-    mo_data->mr_v_selmask_entity_text->* = mo_cds_view->get_header( )-description.
-
-    DATA(lr_t_fields) = mo_data->mo_tabfield_list->get_fields_ref( ).
-
-    LOOP AT lr_t_fields->* ASSIGNING FIELD-SYMBOL(<ls_field>)
-      GROUP BY ( tabname = <ls_field>-tabname )
-      ASSIGNING FIELD-SYMBOL(<ls_grouped_fields>).
-
-      CHECK <ls_grouped_fields>-tabname = mv_cds_view.
-
-      LOOP AT GROUP <ls_grouped_fields> ASSIGNING FIELD-SYMBOL(<ls_group_entry>).
-        DATA(ls_data_element) = zcl_sat_ddic_repo_access=>get_data_element( <ls_group_entry>-rollname ).
-        <ls_group_entry>-std_short_text  = ls_data_element-scrtext_s.
-        <ls_group_entry>-std_medium_text = ls_data_element-scrtext_m.
-        <ls_group_entry>-std_long_text   = ls_data_element-scrtext_l.
-        <ls_group_entry>-header_text     = ls_data_element-reptext.
-        <ls_group_entry>-field_ddtext    = ls_data_element-ddtext.
-
-        " update selfield column description
-        DATA(lr_s_selfield) = REF #( mo_data->mr_t_table_data->*[
-            tabname         = <ls_group_entry>-tabname
-            fieldname       = <ls_group_entry>-fieldname
-            is_table_header = abap_false ] OPTIONAL ).
-
-        IF lr_s_selfield IS NOT INITIAL.
-          lr_s_selfield->texts = CORRESPONDING #( ls_data_element ).
-          lr_s_selfield->description = COND #( WHEN ls_data_element-scrtext_l IS NOT INITIAL THEN
-                                                  ls_data_element-scrtext_l
-                                               WHEN ls_data_element-scrtext_m IS NOT INITIAL THEN
-                                                  ls_data_element-scrtext_m
-                                               WHEN ls_data_element-ddtext IS NOT INITIAL THEN
-                                                  ls_data_element-ddtext
-                                               ELSE
-                                                  <ls_group_entry>-fieldname_raw ).
-        ENDIF.
-      ENDLOOP.
-    ENDLOOP.
-  ENDMETHOD.
 
   METHOD create_table_header.
     " check if table is special parameter table

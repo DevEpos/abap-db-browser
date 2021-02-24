@@ -108,9 +108,6 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Sets custom entity functions and menus</p>
     METHODS set_custom_functions
         ABSTRACT .
-    "! <p class="shorttext synchronized" lang="en">Updates the descriptions texts for the entity</p>
-    METHODS update_description_texts
-        ABSTRACT .
     "! <p class="shorttext synchronized" lang="en">Update entity type for dynamic search help</p>
     METHODS update_entity_type_sh .
     "! <p class="shorttext synchronized" lang="en">Updates the join definition</p>

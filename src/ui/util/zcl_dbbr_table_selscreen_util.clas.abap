@@ -20,8 +20,6 @@ CLASS zcl_dbbr_table_selscreen_util DEFINITION
         REDEFINITION .
     METHODS set_custom_functions
         REDEFINITION .
-    METHODS update_description_texts
-        REDEFINITION .
     METHODS zif_dbbr_screen_util~get_deactivated_functions
         REDEFINITION .
     METHODS zif_dbbr_screen_util~handle_ui_function
@@ -207,70 +205,6 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
 *... fill custom functions
     mo_data->mr_s_entity_function1->text = 'Navigate to Table Definition'(002).
     mo_data->mr_s_entity_function2->text = 'Where-Used-List for Table'(003).
-  ENDMETHOD.
-
-
-  METHOD update_description_texts.
-
-*.. update table description
-    DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( mv_entity_id ).
-    mo_data->mr_v_selmask_entity_text->* = ls_table_info-ddtext.
-
-    DATA(lr_t_fields) = mo_data->mo_tabfield_list->get_fields_ref( ).
-
-*.. update field descriptions
-    LOOP AT lr_t_fields->* ASSIGNING FIELD-SYMBOL(<ls_field>)
-      GROUP BY ( tabname = <ls_field>-tabname )
-      ASSIGNING FIELD-SYMBOL(<ls_grouped_fields>).
-
-      " get updated table field infos for new descriptions
-      zcl_sat_ddic_repo_access=>get_table_field_infos(
-        EXPORTING iv_tablename    = <ls_grouped_fields>-tabname
-        IMPORTING et_table_fields = DATA(lt_table_fields)
-      ).
-
-      LOOP AT GROUP <ls_grouped_fields> ASSIGNING FIELD-SYMBOL(<ls_group_entry>).
-        DATA(lr_s_ddic_field) = REF #( lt_table_fields[ tabname   = <ls_group_entry>-tabname
-                                                        fieldname = <ls_group_entry>-fieldname ] OPTIONAL ).
-        IF lr_s_ddic_field IS NOT INITIAL.
-          DATA(ls_alt_text) = mo_altcoltext_f->find_alternative_text(
-            iv_tabname   = <ls_group_entry>-tabname
-            iv_fieldname = <ls_group_entry>-fieldname ).
-
-          <ls_group_entry>-std_short_text  = lr_s_ddic_field->scrtext_s.
-          <ls_group_entry>-alt_medium_text = ls_alt_text-alt_short_text.
-          <ls_group_entry>-std_medium_text = lr_s_ddic_field->scrtext_m.
-          <ls_group_entry>-std_long_text   = lr_s_ddic_field->scrtext_l.
-          <ls_group_entry>-alt_long_text   = ls_alt_text-alt_long_text.
-          <ls_group_entry>-header_text     = lr_s_ddic_field->reptext.
-          <ls_group_entry>-field_ddtext    = COND #( WHEN ls_alt_text-alt_long_text IS NOT INITIAL THEN ls_alt_text-alt_long_text ELSE lr_s_ddic_field->fieldtext ).
-
-          " update selfield column description
-          DATA(lr_s_selfield) = REF #( mo_data->mr_t_table_data->*[
-              tabname         = <ls_group_entry>-tabname
-              fieldname       = <ls_group_entry>-fieldname
-              is_table_header = abap_false ] OPTIONAL ).
-
-          IF lr_s_selfield IS NOT INITIAL.
-            lr_s_selfield->texts = CORRESPONDING #( lr_s_ddic_field->* ).
-            " try to find alternative col text
-
-            IF ls_alt_text IS NOT INITIAL AND ls_alt_text-alt_long_text IS NOT INITIAL.
-              lr_s_selfield->description = ls_alt_text-alt_long_text.
-            ELSE.
-              lr_s_selfield->description = COND #( WHEN lr_s_selfield->scrtext_l IS NOT INITIAL THEN
-                                                      lr_s_selfield->scrtext_l
-                                                   WHEN lr_s_selfield->scrtext_m IS NOT INITIAL THEN
-                                                      lr_s_selfield->scrtext_m
-                                                   WHEN lr_s_selfield->ddtext IS NOT INITIAL THEN
-                                                      lr_s_selfield->ddtext
-                                                   ELSE
-                                                      <ls_group_entry>-fieldname_raw ).
-            ENDIF.
-          ENDIF.
-        ENDIF.
-      ENDLOOP.
-    ENDLOOP.
   ENDMETHOD.
 
 
