@@ -20,7 +20,7 @@ CLASS ZCL_DBBR_FE_ICON_FIELD_EXTR IMPLEMENTATION.
 
     rs_field = VALUE ZIF_DBBR_fe_types=>ty_form_field(
         field             = <lt_tokens>[ 2 ]-str
-        type_name         = ZIF_DBBR_fe_constants=>c_icon_type
+        type_name         = zif_dbbr_c_fe_global=>c_icon_type
     ).
 
   endmethod.

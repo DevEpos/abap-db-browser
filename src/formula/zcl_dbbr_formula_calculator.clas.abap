@@ -38,7 +38,7 @@ CLASS zcl_dbbr_formula_calculator IMPLEMENTATION.
 
 
   METHOD calculate_row.
-    PERFORM (zif_dbbr_fe_constants=>c_formula_subroutine_form) IN PROGRAM (mv_subroutine_pool) CHANGING cr_row.
+    PERFORM (zif_dbbr_c_fe_global=>c_formula_subroutine_form) IN PROGRAM (mv_subroutine_pool) CHANGING cr_row.
   ENDMETHOD.
 
 

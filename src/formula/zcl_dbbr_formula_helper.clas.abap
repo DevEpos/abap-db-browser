@@ -137,8 +137,8 @@ CLASS zcl_dbbr_formula_helper IMPLEMENTATION.
 
   METHOD is_icon_field.
     result = xsdbool( ir_tabfield->is_formula_field = abap_true AND
-                      ( ir_tabfield->rollname = zif_dbbr_fe_constants=>c_icon_type OR
-                        ir_tabfield->rollname = zif_dbbr_fe_constants=>c_icon_tt_type ) ).
+                      ( ir_tabfield->rollname = zif_dbbr_c_fe_global=>c_icon_type OR
+                        ir_tabfield->rollname = zif_dbbr_c_fe_global=>c_icon_tt_type ) ).
   ENDMETHOD.
 
 

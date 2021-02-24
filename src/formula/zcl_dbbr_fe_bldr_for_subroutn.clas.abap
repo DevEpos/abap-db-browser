@@ -53,7 +53,7 @@ CLASS ZCL_DBBR_fe_bldr_for_subroutn IMPLEMENTATION.
 
 
     mr_formula->get_statements( IMPORTING et_statements = DATA(lt_stmnt) ).
-    et_lines = VALUE #( BASE et_lines ( |FORM { ZIF_DBBR_fe_constants=>c_formula_subroutine_form } CHANGING row TYPE REF TO data.| ) ( ) ).
+    et_lines = VALUE #( BASE et_lines ( |FORM { zif_dbbr_c_fe_global=>c_formula_subroutine_form } CHANGING row TYPE REF TO data.| ) ( ) ).
 
     " include try block to catch all kinds of exceptions during formula calculations
     et_lines = VALUE #( BASE et_lines ( |TRY.| ) ( ) ).

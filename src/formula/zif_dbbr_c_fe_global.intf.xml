@@ -3,7 +3,7 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOINTERF>
-    <CLSNAME>ZIF_DBBR_FE_CONSTANTS</CLSNAME>
+    <CLSNAME>ZIF_DBBR_C_FE_GLOBAL</CLSNAME>
     <LANGU>E</LANGU>
     <DESCRIPT>Constants for formula editor</DESCRIPT>
     <EXPOSURE>2</EXPOSURE>
