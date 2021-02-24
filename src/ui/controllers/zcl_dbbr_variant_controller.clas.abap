@@ -170,7 +170,7 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
       IF zcl_dbbr_appl_util=>popup_to_confirm(
              iv_title      = |{ TEXT-ms2 }|
              iv_query      = |{ TEXT-013 } '{ ms_ui_refs-variant_name->* }'. { TEXT-014 } { TEXT-016 }|
-             iv_icon_type  = 'ICON_MESSAGE_WARNING' ) <> zif_dbbr_global_consts=>c_popup_answers-yes.
+             iv_icon_type  = 'ICON_MESSAGE_WARNING' ) <> zif_dbbr_c_global=>c_popup_answers-yes.
         RETURN.
       ENDIF.
 
@@ -214,9 +214,9 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
         ms_ui_refs-xsort_fields->* = abap_true.
 
       DATA(lr_tabfields) = mo_tabfields->copy( ).
-      lr_tabfields->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-output ).
+      lr_tabfields->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-output ).
       lr_tabfields->sort( ).
-      lr_tabfields->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-sort ).
+      lr_tabfields->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-sort ).
       lr_tabfields->sort( ).
 
 *.... clear flag for selected fields

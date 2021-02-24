@@ -1006,7 +1006,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             ENDIF.
 
             DATA(lr_f4_screen_controller) = NEW zcl_dbbr_built_in_f4_sc(
-                iv_display_mode  = zif_dbbr_global_consts=>c_display_modes-create
+                iv_display_mode  = zif_dbbr_c_global=>c_display_modes-create
                 iv_current_table = ls_current_line-tabname
                 iv_current_field = ls_current_line-fieldname
             ).
@@ -1276,7 +1276,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
     DATA(lo_formula_editor) = NEW zcl_dbbr_formula_editor(
       io_tabfield_list = lo_tabfields
       is_join_def      = mo_data->mr_s_join_def->*
-      iv_display_mode  = zif_dbbr_global_consts=>c_display_modes-edit
+      iv_display_mode  = zif_dbbr_c_global=>c_display_modes-edit
       iv_formula       = COND #( WHEN lo_formula IS BOUND THEN lo_formula->get_formula_string( ) )
     ).
 
@@ -1430,7 +1430,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       IF <ls_selfield>-group_by = abap_true.
         ls_tabfield-sort_active = abap_true.
         ls_tabfield-sort_order = sy-tabix.
-        ls_tabfield-sort_direction = zif_dbbr_global_consts=>c_sort_direction-ascending.
+        ls_tabfield-sort_direction = zif_dbbr_c_global=>c_sort_direction-ascending.
       ELSEIF <ls_selfield>-aggregation <> space OR
              <ls_selfield>-totals = abap_true.
         CLEAR: ls_tabfield-sort_active,
@@ -1493,7 +1493,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD zif_uitb_screen_controller~cancel.
-    IF iv_function_code = zif_dbbr_global_consts=>c_function_codes-quit_program.
+    IF iv_function_code = zif_dbbr_c_global=>c_function_codes-quit_program.
       zcl_dbbr_screen_helper=>quit_program( ).
     ELSE.
       zif_uitb_screen_controller~free_screen_resources( ).
@@ -1605,13 +1605,13 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
           WHEN zif_dbbr_c_selscreen_functions=>select_option_equal.
             set_select_option( iv_current_line = lv_current_index
-                               iv_option       = zif_dbbr_global_consts=>c_options-eq
-                               iv_sign         = zif_dbbr_global_consts=>c_options-i ).
+                               iv_option       = zif_dbbr_c_global=>c_options-eq
+                               iv_sign         = zif_dbbr_c_global=>c_options-i ).
 
           WHEN zif_dbbr_c_selscreen_functions=>select_option_not_equal.
             set_select_option( iv_current_line = lv_current_index
-                               iv_option       = zif_dbbr_global_consts=>c_options-ne
-                               iv_sign         = zif_dbbr_global_consts=>c_options-i ).
+                               iv_option       = zif_dbbr_c_global=>c_options-ne
+                               iv_sign         = zif_dbbr_c_global=>c_options-i ).
 
           WHEN zif_dbbr_c_selscreen_functions=>show_formula_manager.
             show_formula_editor( ).
@@ -1623,10 +1623,10 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             mo_util->choose_sort_fields( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>control_output_fields.
-            mo_util->choose_tabfields( zif_dbbr_global_consts=>c_field_chooser_modes-output ).
+            mo_util->choose_tabfields( zif_dbbr_c_global=>c_field_chooser_modes-output ).
 
           WHEN zif_dbbr_c_selscreen_functions=>control_sel_fields.
-            IF mo_util->choose_tabfields( zif_dbbr_global_consts=>c_field_chooser_modes-selection ).
+            IF mo_util->choose_tabfields( zif_dbbr_c_global=>c_field_chooser_modes-selection ).
               update_aggrgtd_tabfield_list( ).
               mo_selection_table->zif_uitb_page_scroller~scroll_page_top( ).
             ENDIF.
@@ -1676,11 +1676,11 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
           WHEN zif_dbbr_c_selscreen_functions=>define_joins.
             define_join_relations( ).
 
-          WHEN zif_dbbr_global_consts=>c_function_codes-quit_program.
+          WHEN zif_dbbr_c_global=>c_function_codes-quit_program.
             zcl_dbbr_screen_helper=>quit_program( ).
 
-          WHEN zif_dbbr_global_consts=>c_function_codes-leave_screen OR
-               zif_dbbr_global_consts=>c_function_codes-cancel_screen.
+          WHEN zif_dbbr_c_global=>c_function_codes-leave_screen OR
+               zif_dbbr_c_global=>c_function_codes-cancel_screen.
             zif_uitb_screen_controller~free_screen_resources( ).
             zcl_dbbr_screen_helper=>leave_screen( ).
 
@@ -1735,16 +1735,16 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
           WHEN zif_dbbr_c_selscreen_functions=>delete_f4_from_field.
             delete_f4_helps( ).
 
-          WHEN zif_dbbr_global_consts=>c_function_codes-scroll_to_top.
+          WHEN zif_dbbr_c_global=>c_function_codes-scroll_to_top.
             mo_selection_table->zif_uitb_page_scroller~scroll_page_top( ).
 
-          WHEN zif_dbbr_global_consts=>c_function_codes-scroll_page_up.
+          WHEN zif_dbbr_c_global=>c_function_codes-scroll_page_up.
             mo_selection_table->zif_uitb_page_scroller~scroll_page_up( ).
 
-          WHEN zif_dbbr_global_consts=>c_function_codes-scroll_page_down.
+          WHEN zif_dbbr_c_global=>c_function_codes-scroll_page_down.
             mo_selection_table->zif_uitb_page_scroller~scroll_page_down( ).
 
-          WHEN zif_dbbr_global_consts=>c_function_codes-scroll_to_bottom.
+          WHEN zif_dbbr_c_global=>c_function_codes-scroll_to_bottom.
             mo_selection_table->zif_uitb_page_scroller~scroll_page_bottom( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_aggregations.

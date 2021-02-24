@@ -92,7 +92,7 @@ CLASS zcl_dbbr_multi_or_table IMPLEMENTATION.
            cs_selfield-option,
            cs_selfield-push.
 
-    cs_selfield-sign = zif_dbbr_global_consts=>c_options-i.
+    cs_selfield-sign = zif_dbbr_c_global=>c_options-i.
 
     " delete possible multi values
     DELETE mr_multi_or_multi->* WHERE tabname   = cs_selfield-tabname AND

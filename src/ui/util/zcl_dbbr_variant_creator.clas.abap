@@ -107,7 +107,7 @@ CLASS zcl_dbbr_variant_creator IMPLEMENTATION.
     IF iv_layout_data_high IS SUPPLIED.
       cs_layout_data-high_val = iv_layout_data_high.
     ENDIF.
-    cs_layout_data-sign_val = zif_dbbr_global_consts=>c_options-i.
+    cs_layout_data-sign_val = zif_dbbr_c_global=>c_options-i.
     cs_layout_data-data_type = iv_layout_data_type.
     APPEND cs_layout_data TO ct_layout_data.
 
@@ -197,7 +197,7 @@ CLASS zcl_dbbr_variant_creator IMPLEMENTATION.
       " group by?
       IF <ls_selection_field>-group_by = abap_true.
         add_special_variant_data(
-          EXPORTING iv_layout_data_type = zif_dbbr_global_consts=>c_variant_datatypes-group_by
+          EXPORTING iv_layout_data_type = zif_dbbr_c_global=>c_variant_datatypes-group_by
           CHANGING  cs_layout_data      = ls_vardata_entry
                     ct_layout_data      = rs_variant-variant_data
                     cv_line_counter     = lv_counter              ).
@@ -206,7 +206,7 @@ CLASS zcl_dbbr_variant_creator IMPLEMENTATION.
       " aggregation ?
       IF <ls_selection_field>-aggregation <> space.
         add_special_variant_data(
-          EXPORTING iv_layout_data_type = zif_dbbr_global_consts=>c_variant_datatypes-aggregation
+          EXPORTING iv_layout_data_type = zif_dbbr_c_global=>c_variant_datatypes-aggregation
                     iv_layout_data_low  = <ls_selection_field>-aggregation
           CHANGING  cs_layout_data      = ls_vardata_entry
                     ct_layout_data      = rs_variant-variant_data
@@ -217,7 +217,7 @@ CLASS zcl_dbbr_variant_creator IMPLEMENTATION.
       " totals ?
       IF <ls_selection_field>-totals = abap_true.
         add_special_variant_data(
-          EXPORTING iv_layout_data_type = zif_dbbr_global_consts=>c_variant_datatypes-totals
+          EXPORTING iv_layout_data_type = zif_dbbr_c_global=>c_variant_datatypes-totals
           CHANGING  cs_layout_data      = ls_vardata_entry
                     ct_layout_data      = rs_variant-variant_data
                     cv_line_counter     = lv_counter

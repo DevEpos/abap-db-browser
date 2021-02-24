@@ -528,7 +528,7 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
 
   METHOD start_with_default_variant.
     DATA: lv_entity_id   TYPE ZSAT_ENTITY_ID,
-          lv_variant     TYPE zdbbr_variant_id VALUE zif_dbbr_global_consts=>c_dummy_variant,
+          lv_variant     TYPE zdbbr_variant_id VALUE zif_dbbr_c_global=>c_dummy_variant,
           lv_entity_type TYPE ZSAT_ENTITY_TYPE.
 
     DATA(lo_node) = mo_tree->get_nodes( )->get_node( iv_node_key ).

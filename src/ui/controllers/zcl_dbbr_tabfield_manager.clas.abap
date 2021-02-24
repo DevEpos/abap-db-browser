@@ -148,7 +148,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
     mo_original_fields = io_original_fields.
 
 *... set starting parameters before screen is initially called
-    IF mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-output AND
+    IF mv_mode = zif_dbbr_c_global=>c_field_chooser_modes-output AND
        mf_field_aggregation = abap_true.
       mr_active_tab->* =
       mr_tree_tab_control->activetab = zcl_dbbr_tabfield_manager=>c_tabs-filter_fields_tab.
@@ -159,7 +159,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
       mr_tree_screen->* = zcl_dbbr_tabfield_manager=>c_screens-all_fields_screen.
     ENDIF.
 
-    IF mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-selection AND
+    IF mv_mode = zif_dbbr_c_global=>c_field_chooser_modes-selection AND
        is_join_def-tables IS NOT INITIAL.
 
       mf_single_table_mode = abap_true.
@@ -175,7 +175,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
     ENDIF.
 
     mo_output_field_tree = COND #(
-       WHEN mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-selection THEN
+       WHEN mv_mode = zif_dbbr_c_global=>c_field_chooser_modes-selection THEN
          NEW zcl_dbbr_field_output_tree(
             io_fields            = mo_fields
             io_original_fields   = mo_original_fields
@@ -253,7 +253,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
   METHOD create_table_overview.
 
-    CHECK: mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-selection,
+    CHECK: mv_mode = zif_dbbr_c_global=>c_field_chooser_modes-selection,
            mf_single_table_mode = abap_true,
            mr_overview_dock IS INITIAL.
 
@@ -280,7 +280,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
     LOOP AT mt_tableoverview ASSIGNING FIELD-SYMBOL(<ls_table>).
       IF <ls_table>-is_primary = abap_true.
-        <ls_table>-x_color = zif_dbbr_global_consts=>c_alv_colors-light_green.
+        <ls_table>-x_color = zif_dbbr_c_global=>c_alv_colors-light_green.
         EXIT.
       ENDIF.
     ENDLOOP.
@@ -385,7 +385,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 *... set primary table as active table
         LOOP AT mt_tableoverview ASSIGNING FIELD-SYMBOL(<ls_overview_table>).
           IF to_upper( <ls_overview_table>-tabname_alias ) = mr_global_data->primary_table.
-            <ls_overview_table>-x_color = zif_dbbr_global_consts=>c_alv_colors-light_green.
+            <ls_overview_table>-x_color = zif_dbbr_c_global=>c_alv_colors-light_green.
           ENDIF.
         ENDLOOP.
 
@@ -421,7 +421,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
       IF mv_current_table <> lr_current_line->tabname_alias.
         CLEAR mt_tableoverview[ tabname_alias = mv_current_table ]-x_color.
-        lr_current_line->x_color = zif_dbbr_global_consts=>c_alv_colors-light_green.
+        lr_current_line->x_color = zif_dbbr_c_global=>c_alv_colors-light_green.
 
         mv_current_table = lr_current_line->tabname_alias.
         mo_fields->add_fields( mo_fields_cache ).
@@ -454,7 +454,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
     ENDIF.
 
     " update sort fields -> sorting will be removed if field is not longer an output field
-    IF mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-output.
+    IF mv_mode = zif_dbbr_c_global=>c_field_chooser_modes-output.
       mo_fields->initialize_iterator( ).
       WHILE mo_fields->has_more_lines( ).
         DATA(lr_current_field) = mo_fields->get_next_entry( ).
@@ -502,7 +502,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
     DATA: lv_end_line TYPE i,
           lv_end_col  TYPE i.
 
-    IF mv_mode <> zif_dbbr_global_consts=>c_field_chooser_modes-output.
+    IF mv_mode <> zif_dbbr_c_global=>c_field_chooser_modes-output.
       lv_end_line = COND #( WHEN mf_single_table_mode = abap_true THEN  31 ).
       lv_end_col = 110.
     ENDIF.
@@ -527,9 +527,9 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
   METHOD zif_uitb_screen_controller~cancel.
 
     CASE iv_function_code.
-      WHEN zif_dbbr_global_consts=>c_function_codes-leave_screen OR
-           zif_dbbr_global_consts=>c_function_codes-quit_program OR
-           zif_dbbr_global_consts=>c_function_codes-cancel_screen.
+      WHEN zif_dbbr_c_global=>c_function_codes-leave_screen OR
+           zif_dbbr_c_global=>c_function_codes-quit_program OR
+           zif_dbbr_c_global=>c_function_codes-cancel_screen.
 
         zcl_dbbr_screen_helper=>leave_screen( ).
 
@@ -569,7 +569,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
 
     IF sy-dynnr = c_screens-main_screen.
       CASE cv_function_code.
-        WHEN zif_dbbr_global_consts=>c_function_codes-cancel.
+        WHEN zif_dbbr_c_global=>c_function_codes-cancel.
           zcl_dbbr_screen_helper=>leave_screen( ).
 
         WHEN 'FINISH'.
@@ -636,10 +636,10 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
       WHEN c_fcode-page_bottom.
         get_current_tab_controller( )->scroll_page_bottom( ).
 
-      WHEN zif_dbbr_global_consts=>c_function_codes-search.
+      WHEN zif_dbbr_c_global=>c_function_codes-search.
         get_current_content_searcher( )->search( ).
 
-      WHEN zif_dbbr_global_consts=>c_function_codes-search_further.
+      WHEN zif_dbbr_c_global=>c_function_codes-search_further.
         get_current_content_searcher( )->search_next( ).
 
     ENDCASE.
@@ -666,7 +666,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
     ELSE.
       LOOP AT SCREEN INTO DATA(ls_screen).
         IF ls_screen-name = c_tabs-all_fields_tab.
-          IF mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-output AND
+          IF mv_mode = zif_dbbr_c_global=>c_field_chooser_modes-output AND
              mf_field_aggregation = abap_true.
             ls_screen-invisible = 1.
             MODIFY SCREEN FROM ls_screen.
@@ -698,7 +698,7 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
                                   ( c_fcode-select_text_fields )
                                   ( c_fcode-deselect_text_fields )
                                   ( c_fcode-insert_association ) ).
-*        IF mv_mode = zif_dbbr_global_consts=>gc_field_chooser_modes-output AND
+*        IF mv_mode = zif_dbbr_c_global=>gc_field_chooser_modes-output AND
 *           mf_field_aggregation = abap_true.
 *          lt_exclude_tab = VALUE #( BASE lt_exclude_tab
 *            ( mc_functions-delete_selected )
@@ -707,13 +707,13 @@ CLASS zcl_dbbr_tabfield_manager IMPLEMENTATION.
       ENDIF.
 
       CASE mv_mode.
-        WHEN zif_dbbr_global_consts=>c_field_chooser_modes-selection.
+        WHEN zif_dbbr_c_global=>c_field_chooser_modes-selection.
           APPEND c_fcode-select_text_fields TO lt_exclude_tab.
           APPEND c_fcode-deselect_text_fields TO lt_exclude_tab.
       ENDCASE.
 
       SET PF-STATUS '0800' OF PROGRAM zif_dbbr_c_report_id=>main  EXCLUDING lt_exclude_tab.
-      DATA(lv_mode_text) = COND string( WHEN mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-output THEN
+      DATA(lv_mode_text) = COND string( WHEN mv_mode = zif_dbbr_c_global=>c_field_chooser_modes-output THEN
                                           'Output'
                                         ELSE
                                           'Selection' ).

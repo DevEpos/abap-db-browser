@@ -63,7 +63,7 @@ MODULE user_command_0101 INPUT.
 ENDMODULE.
 
 MODULE search_table_f4 INPUT.
-  IF sy-dynnr = zif_dbbr_global_consts=>c_dynpro_code-custom_built_in_f4_create.
+  IF sy-dynnr = zif_dbbr_c_global=>c_dynpro_code-custom_built_in_f4_create.
     gr_selscreen_controller->call_table_f4(
       EXPORTING iv_dynp_field_name = 'GS_BUILT_IN_F4-SEARCH_TABLE'
       CHANGING  cv_table           = gs_built_in_f4-search_table ).
@@ -75,7 +75,7 @@ MODULE search_table_f4 INPUT.
 ENDMODULE.
 
 MODULE search_field_f4 INPUT.
-  IF sy-dynnr = zif_dbbr_global_consts=>c_dynpro_code-custom_built_in_f4_create.
+  IF sy-dynnr = zif_dbbr_c_global=>c_dynpro_code-custom_built_in_f4_create.
     zcl_dbbr_ddic_util=>call_table_field_f4(
       EXPORTING
         iv_repid              = sy-repid
@@ -97,7 +97,7 @@ MODULE search_field_f4 INPUT.
 ENDMODULE.
 
 MODULE check_search_table INPUT.
-  IF sy-dynnr = zif_dbbr_global_consts=>c_dynpro_code-custom_built_in_f4_create.
+  IF sy-dynnr = zif_dbbr_c_global=>c_dynpro_code-custom_built_in_f4_create.
     TRY.
         zcl_dbbr_ddic_util=>validate_table_name(
             iv_table_name               = gs_built_in_f4-search_table
@@ -112,7 +112,7 @@ MODULE check_search_table INPUT.
 ENDMODULE.
 
 MODULE check_search_field INPUT.
-  IF sy-dynnr = zif_dbbr_global_consts=>c_dynpro_code-custom_built_in_f4_create.
+  IF sy-dynnr = zif_dbbr_c_global=>c_dynpro_code-custom_built_in_f4_create.
     TRY.
         zcl_dbbr_ddic_util=>validate_table_field( iv_table_field = gs_built_in_f4-search_field
                                                            iv_table_name  = gs_built_in_f4-search_table ).

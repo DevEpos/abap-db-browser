@@ -104,7 +104,7 @@ CLASS zcl_dbbr_field_sorter_ctrl IMPLEMENTATION.
   METHOD constructor.
 
     mr_fields = ir_fields->copy( ).
-    mr_fields->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-output ).
+    mr_fields->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-output ).
 
     mr_fields->sort( ).
     mr_fields->initialize_iterator( if_for_active = abap_true ).
@@ -127,12 +127,12 @@ CLASS zcl_dbbr_field_sorter_ctrl IMPLEMENTATION.
             scrtext_l       = lr_current_entry->field_ddtext
             sort_direction  = lr_current_entry->sort_direction
             sort_order      = lr_current_entry->sort_order
-            sort_ascending  = COND #( WHEN lr_current_entry->sort_direction = zif_dbbr_global_consts=>c_sort_direction-ascending THEN
+            sort_ascending  = COND #( WHEN lr_current_entry->sort_direction = zif_dbbr_c_global=>c_sort_direction-ascending THEN
                                         zif_dbbr_c_icon=>radio_button
                                       ELSE
                                         zif_dbbr_c_icon=>radio_button_empty
                                     )
-            sort_descending = COND #( WHEN lr_current_entry->sort_direction = zif_dbbr_global_consts=>c_sort_direction-descending THEN
+            sort_descending = COND #( WHEN lr_current_entry->sort_direction = zif_dbbr_c_global=>c_sort_direction-descending THEN
                                         zif_dbbr_c_icon=>radio_button
                                       ELSE
                                         zif_dbbr_c_icon=>radio_button_empty
@@ -299,7 +299,7 @@ CLASS zcl_dbbr_field_sorter_ctrl IMPLEMENTATION.
     """ get selected lines of `availabe fields` alv
     LOOP AT mt_sorted_fields ASSIGNING FIELD-SYMBOL(<ls_sorted_fields>) WHERE drop_handled = abap_false.
       <ls_sorted_fields>-sort_descending = zif_dbbr_c_icon=>radio_button_empty.
-      <ls_sorted_fields>-sort_direction = zif_dbbr_global_consts=>c_sort_direction-ascending.
+      <ls_sorted_fields>-sort_direction = zif_dbbr_c_global=>c_sort_direction-ascending.
       <ls_sorted_fields>-sort_ascending = zif_dbbr_c_icon=>radio_button.
       <ls_sorted_fields>-drop_handled = abap_true.
       DATA(lf_updated) = abap_true.
@@ -329,19 +329,19 @@ CLASS zcl_dbbr_field_sorter_ctrl IMPLEMENTATION.
 
     CASE e_column_id.
       WHEN 'SORT_ASCENDING'.
-        IF lr_sort_field->sort_direction = zif_dbbr_global_consts=>c_sort_direction-ascending.
+        IF lr_sort_field->sort_direction = zif_dbbr_c_global=>c_sort_direction-ascending.
           RETURN.
         ENDIF.
 
-        lr_sort_field->sort_direction = zif_dbbr_global_consts=>c_sort_direction-ascending.
+        lr_sort_field->sort_direction = zif_dbbr_c_global=>c_sort_direction-ascending.
         lr_sort_field->sort_ascending = zif_dbbr_c_icon=>radio_button.
         lr_sort_field->sort_descending = zif_dbbr_c_icon=>radio_button_empty.
 
       WHEN 'SORT_DESCENDING'.
-        IF lr_sort_field->sort_direction = zif_dbbr_global_consts=>c_sort_direction-descending.
+        IF lr_sort_field->sort_direction = zif_dbbr_c_global=>c_sort_direction-descending.
           RETURN.
         ENDIF.
-        lr_sort_field->sort_direction = zif_dbbr_global_consts=>c_sort_direction-descending.
+        lr_sort_field->sort_direction = zif_dbbr_c_global=>c_sort_direction-descending.
         lr_sort_field->sort_descending = zif_dbbr_c_icon=>radio_button.
         lr_sort_field->sort_ascending = zif_dbbr_c_icon=>radio_button_empty.
     ENDCASE.
@@ -438,10 +438,10 @@ CLASS zcl_dbbr_field_sorter_ctrl IMPLEMENTATION.
   METHOD zif_uitb_screen_controller~cancel.
 
     CASE iv_function_code.
-      WHEN zif_dbbr_global_consts=>c_function_codes-leave_screen OR
-           zif_dbbr_global_consts=>c_function_codes-quit_program OR
-           zif_dbbr_global_consts=>c_function_codes-cancel_screen OR
-           zif_dbbr_global_consts=>c_function_codes-cancel.
+      WHEN zif_dbbr_c_global=>c_function_codes-leave_screen OR
+           zif_dbbr_c_global=>c_function_codes-quit_program OR
+           zif_dbbr_c_global=>c_function_codes-cancel_screen OR
+           zif_dbbr_c_global=>c_function_codes-cancel.
 
         zcl_dbbr_screen_helper=>leave_screen( ).
 

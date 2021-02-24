@@ -62,7 +62,7 @@ CLASS zcl_dbbr_date_time_util IMPLEMENTATION.
       ENDTRY.
 
 
-      IF iv_domain = zif_dbbr_global_consts=>c_domain_names-timestamp.
+      IF iv_domain = zif_dbbr_c_global=>c_domain_names-timestamp.
         CONVERT DATE lv_date TIME lv_time INTO TIME STAMP lv_timestamp TIME ZONE iv_time_zone.
         IF sy-subrc = 0 OR sy-subrc = 4.
           rv_value = lv_timestamp.
@@ -72,7 +72,7 @@ CLASS zcl_dbbr_date_time_util IMPLEMENTATION.
           lx_exception = ZCX_SAT_CONVERSION_EXC=>create_from_sy( ).
           RAISE EXCEPTION lx_exception.
         ENDIF.
-      ELSEIF iv_domain = zif_dbbr_global_consts=>c_domain_names-timestamp_long.
+      ELSEIF iv_domain = zif_dbbr_c_global=>c_domain_names-timestamp_long.
         CONVERT DATE lv_date TIME lv_time INTO TIME STAMP lv_timestampl TIME ZONE iv_time_zone.
         IF sy-subrc = 0 OR sy-subrc = 4.
           rv_value = lv_timestampl.

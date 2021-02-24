@@ -95,7 +95,7 @@ CLASS zcl_dbbr_output_tab_builder IMPLEMENTATION.
 
 *...create fieldcatalog / `select`-part from output fields
 *...1) update mode of tabfield list to `output`.
-    ir_tabfields->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-output ).
+    ir_tabfields->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-output ).
     ir_tabfields->sort( ).
 
     ir_tabfields->initialize_iterator( ).

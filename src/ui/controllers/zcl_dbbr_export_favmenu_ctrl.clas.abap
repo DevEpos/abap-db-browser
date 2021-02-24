@@ -71,7 +71,7 @@ CLASS ZCL_DBBR_EXPORT_FAVMENU_CTRL IMPLEMENTATION.
     CLEAR cv_function_code.
 
     CASE lv_function.
-      WHEN ZIF_DBBR_global_consts=>c_function_codes-cancel.
+      WHEN zif_dbbr_c_global=>c_function_codes-cancel.
         ZCL_DBBR_screen_helper=>leave_screen( ).
 
       WHEN 'OK'.

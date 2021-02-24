@@ -98,7 +98,7 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
         ).
       ENDLOOP.
     ELSE.
-      mo_tabfields->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-output ).
+      mo_tabfields->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-output ).
       lr_iterator = mo_tabfields->get_iterator( if_for_active = abap_true ).
 
       WHILE lr_iterator->has_next( ).

@@ -228,7 +228,7 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
 
   METHOD create_table_header.
     " check if table is special parameter table
-    IF iv_tabname = zif_dbbr_global_consts=>c_parameter_dummy_table.
+    IF iv_tabname = zif_dbbr_c_global=>c_parameter_dummy_table.
       rs_table_header = VALUE zdbbr_selfield(
           tabname              = iv_tabname
           is_table_header      = abap_true

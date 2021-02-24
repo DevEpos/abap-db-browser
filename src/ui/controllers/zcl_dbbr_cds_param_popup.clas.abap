@@ -178,7 +178,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
   METHOD convert_params_to_internal.
     LOOP AT mt_parameters ASSIGNING FIELD-SYMBOL(<ls_param>).
       DATA(lr_s_field) = mo_tabfields->get_field_ref(
-           iv_tabname_alias                = zif_dbbr_global_consts=>c_parameter_dummy_table
+           iv_tabname_alias                = zif_dbbr_c_global=>c_parameter_dummy_table
            iv_fieldname              = <ls_param>-name
       ).
 
@@ -305,7 +305,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
       DATA(lr_s_param_value) = REF #( mt_parameters[ <ls_mod_cell>-row_id ] ).
 
       DATA(ls_param_field) = mo_tabfields->get_field(
-        iv_tabname   = zif_dbbr_global_consts=>c_parameter_dummy_table
+        iv_tabname   = zif_dbbr_c_global=>c_parameter_dummy_table
         iv_fieldname = mt_parameters[ <ls_mod_cell>-row_id ]-name
       ).
 
@@ -367,7 +367,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
 *.. Retrieve param information for current field
     DATA(lr_s_param) = REF #( mt_parameters[ es_row_no-row_id ] ).
     DATA(ls_param_field) = mo_tabfields->get_field(
-        iv_tabname = zif_dbbr_global_consts=>c_parameter_dummy_table
+        iv_tabname = zif_dbbr_c_global=>c_parameter_dummy_table
         iv_fieldname = lr_s_param->name
     ).
     IF lr_s_param->has_custom_f4 = abap_true AND mo_custom_f4_map IS BOUND.

@@ -13,7 +13,7 @@ CLASS zcl_dbbr_custom_f4_sc DEFINITION
       IMPORTING
         iv_f4_id        TYPE zdbbr_f4_id OPTIONAL
         is_join_def     TYPE zdbbr_join_def OPTIONAL
-        iv_display_mode TYPE zdbbr_display_mode DEFAULT zif_dbbr_global_consts=>c_display_modes-create
+        iv_display_mode TYPE zdbbr_display_mode DEFAULT zif_dbbr_c_global=>c_display_modes-create
         io_tabfields    TYPE REF TO zcl_dbbr_tabfield_list OPTIONAL
         it_fieldcat     TYPE lvc_t_fcat OPTIONAL.
   PROTECTED SECTION.
@@ -166,7 +166,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
     mo_search_fields_alv = zcl_uitb_alv=>create_alv(
         ir_container = mo_splitter->get_container( 1 )
         ir_data      = REF #( mt_search_fields )
-        if_editable  = xsdbool( mv_display_mode <> zif_dbbr_global_consts=>c_display_modes-view AND ms_f4_def-is_built_in = abap_false )
+        if_editable  = xsdbool( mv_display_mode <> zif_dbbr_c_global=>c_display_modes-view AND ms_f4_def-is_built_in = abap_false )
     ).
 
     DATA(lo_functions) = mo_search_fields_alv->get_functions( ).
@@ -176,7 +176,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
     lo_functions->set_function( zif_uitb_c_alv_functions=>find_more ).
     lo_functions->set_function( zif_uitb_c_alv_functions=>column_optimze ).
 
-    IF mv_display_mode = zif_dbbr_global_consts=>c_display_modes-edit.
+    IF mv_display_mode = zif_dbbr_c_global=>c_display_modes-edit.
       lo_functions->add_function(
           iv_name    = 'ADDFIELD'
           iv_type    = zcl_uitb_alv_functions=>button
@@ -188,7 +188,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
     DATA(lo_columns) = mo_search_fields_alv->get_columns( ).
     lo_columns->set_optimized( ).
 
-    IF mv_display_mode = zif_dbbr_global_consts=>c_display_modes-create.
+    IF mv_display_mode = zif_dbbr_c_global=>c_display_modes-create.
       SET HANDLER:
         on_link_click FOR mo_search_fields_alv->get_events( ),
         on_search_field_alv_action FOR mo_search_fields_alv->get_events( ).
@@ -202,7 +202,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
       CASE lo_column->get_name( ).
 
         WHEN c_field_names-fieldname.
-          IF mv_display_mode = zif_dbbr_global_consts=>c_display_modes-create.
+          IF mv_display_mode = zif_dbbr_c_global=>c_display_modes-create.
             lo_column->set_hotspot( ).
             lo_column->set_style( zif_uitb_c_alv_cell_style=>color_total ).
           ENDIF.
@@ -258,7 +258,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
     mo_assigned_fields_alv = zcl_uitb_alv=>create_alv(
        ir_data      = REF #( mt_assignments )
        ir_container = mo_splitter->get_container( 2 )
-       if_editable  = xsdbool( mv_display_mode <> zif_dbbr_global_consts=>c_display_modes-view )
+       if_editable  = xsdbool( mv_display_mode <> zif_dbbr_c_global=>c_display_modes-view )
     ).
 
 
@@ -542,7 +542,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    IF mv_display_mode = zif_dbbr_global_consts=>c_display_modes-create.
+    IF mv_display_mode = zif_dbbr_c_global=>c_display_modes-create.
       " fill structures for search help
       ms_f4_def-created_by = sy-uname.
       ms_f4_def-description = mr_ui_custom_search_help->description.
@@ -590,7 +590,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
     rf_save = abap_true.
 
     CHECK: ms_f4_def-f4_id IS INITIAL,
-           mv_display_mode = zif_dbbr_global_consts=>c_display_modes-create.
+           mv_display_mode = zif_dbbr_c_global=>c_display_modes-create.
 
     " --- check if there is already a search help with the given search field/search table
     IF zcl_dbbr_custom_f4_factory=>exists_f4_for_search_field( iv_search_tab   = mr_ui_custom_search_help->search_table
@@ -674,7 +674,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
     super->zif_uitb_screen_controller~pbo( ).
 
     CASE mv_display_mode.
-      WHEN zif_dbbr_global_consts=>c_display_modes-view.
+      WHEN zif_dbbr_c_global=>c_display_modes-view.
 
         LOOP AT SCREEN INTO ls_screen.
           IF ls_screen-group1 = 'INP'.
@@ -689,7 +689,7 @@ CLASS zcl_dbbr_custom_f4_sc IMPLEMENTATION.
     mo_alv_container = NEW cl_gui_custom_container( container_name = c_container_name ).
     mo_splitter = NEW zcl_uitb_gui_splitter_cont(
       iv_elements = 2
-      iv_size     = COND #( WHEN mv_display_mode = zif_dbbr_global_consts=>c_display_modes-create THEN '70:30' ELSE '50:50' )
+      iv_size     = COND #( WHEN mv_display_mode = zif_dbbr_c_global=>c_display_modes-create THEN '70:30' ELSE '50:50' )
       io_parent   = mo_alv_container
     ).
     create_alv( ).

@@ -69,7 +69,7 @@ CLASS zcl_dbbr_table_var_starter IMPLEMENTATION.
     fill_primary_entity( ).
     load_variant( ).
 
-    IF mv_variant_id <> zif_dbbr_global_consts=>c_dummy_variant OR
+    IF mv_variant_id <> zif_dbbr_c_global=>c_dummy_variant OR
        ms_global_data-called_from_adt = abap_true.
 
       IF ms_global_data-called_from_adt = abap_true.

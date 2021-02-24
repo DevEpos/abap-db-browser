@@ -1683,7 +1683,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     zcl_dbbr_selscr_nav_events=>raise_variant_entry_chosen(
         iv_entity_id    = CONV #( lv_fav_id )
         iv_entity_type  = ls_favmenu_data-favtype
-        iv_variant_id   = zif_dbbr_global_consts=>c_dummy_variant
+        iv_variant_id   = zif_dbbr_c_global=>c_dummy_variant
         if_go_to_result = abap_true
     ).
   ENDMETHOD.

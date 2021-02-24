@@ -54,9 +54,9 @@ CLASS zcl_dbbr_formula_helper IMPLEMENTATION.
 
     DATA(ls_tabfield) = CORRESPONDING zdbbr_tabfield_info_ui( ls_dfies ).
     ls_tabfield-tabname = ls_tabfield-tabname_alias
-                        = zif_dbbr_global_consts=>c_formula_dummy_table.
+                        = zif_dbbr_c_global=>c_formula_dummy_table.
     ls_tabfield-fieldname = is_form_field-field.
-    ls_tabfield-alias = zif_dbbr_global_consts=>c_formula_alias.
+    ls_tabfield-alias = zif_dbbr_c_global=>c_formula_alias.
     ls_tabfield-is_formula_field = abap_true.
     ls_tabfield-field_ddtext = COND #( WHEN is_form_field-long_description IS NOT INITIAL THEN
                                         is_form_field-long_description
@@ -150,7 +150,7 @@ CLASS zcl_dbbr_formula_helper IMPLEMENTATION.
 
     ir_tabfields->delete_formula_fields( ).
     ir_tabfields->clear_calculation_flag( ).
-    ir_tabfields->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-output ).
+    ir_tabfields->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-output ).
 
     determine_calculation_fields(
       ir_formula   = ir_formula
@@ -180,7 +180,7 @@ CLASS zcl_dbbr_formula_helper IMPLEMENTATION.
         ls_tabfield_control = CORRESPONDING #(
           VALUE #( it_form_selfields[
                         is_formula_field = abap_true
-                        tabname          = zif_dbbr_global_consts=>c_formula_dummy_table
+                        tabname          = zif_dbbr_c_global=>c_formula_dummy_table
                         fieldname        = <ls_form_field>-field ] OPTIONAL )
         ).
       ENDIF.
@@ -199,9 +199,9 @@ CLASS zcl_dbbr_formula_helper IMPLEMENTATION.
       ir_tabfields->add_table(
         VALUE zdbbr_entity_info(
           active_selection     = abap_false
-          tabname              = zif_dbbr_global_consts=>c_formula_dummy_table
-          tabname_alias        = zif_dbbr_global_consts=>c_formula_dummy_table
-          alias                = zif_dbbr_global_consts=>c_formula_alias
+          tabname              = zif_dbbr_c_global=>c_formula_dummy_table
+          tabname_alias        = zif_dbbr_c_global=>c_formula_dummy_table
+          alias                = zif_dbbr_c_global=>c_formula_alias
 *        type                 =
           no_selection_allowed = abap_true
           description          = 'Formula Fields'

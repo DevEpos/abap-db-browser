@@ -87,7 +87,7 @@ CLASS zcl_dbbr_f4_manager IMPLEMENTATION.
 
 
   METHOD change_f4.
-    manage_f4( zif_dbbr_global_consts=>c_display_modes-edit ).
+    manage_f4( zif_dbbr_c_global=>c_display_modes-edit ).
   ENDMETHOD.
 
 
@@ -118,7 +118,7 @@ CLASS zcl_dbbr_f4_manager IMPLEMENTATION.
 
   METHOD create_built_in_value_help.
     DATA(lo_built_in_f4_controller) = NEW zcl_dbbr_built_in_f4_sc(
-      iv_display_mode  = zif_dbbr_global_consts=>c_display_modes-create
+      iv_display_mode  = zif_dbbr_c_global=>c_display_modes-create
     ).
     lo_built_in_f4_controller->zif_uitb_screen_controller~call_screen( ).
   ENDMETHOD.
@@ -409,7 +409,7 @@ CLASS zcl_dbbr_f4_manager IMPLEMENTATION.
 
 
   METHOD show_f4_help.
-    manage_f4( zif_dbbr_global_consts=>c_display_modes-view ).
+    manage_f4( zif_dbbr_c_global=>c_display_modes-view ).
   ENDMETHOD.
 
 

@@ -25,7 +25,7 @@ CLASS zcl_dbbr_fe_set_icon_stb IMPLEMENTATION.
 
     IF lv_tooltip = 'SPACE' OR lv_tooltip = ''.
       lv_stringform = |{ lv_ffname } = { lv_icon }.|.
-      lv_stringform_subroutine = |<{ zif_dbbr_global_consts=>c_formula_alias }_{ lv_ffname }> = { lv_icon }.|.
+      lv_stringform_subroutine = |<{ zif_dbbr_c_global=>c_formula_alias }_{ lv_ffname }> = { lv_icon }.|.
     ELSE.
       lv_tooltip = replace( val = lv_tooltip regex = |'(.+)'| with = '$1' ).
       " |@{ icon_delete+1(2) }\\QLöschmodus ist aktiv@|
@@ -39,7 +39,7 @@ CLASS zcl_dbbr_fe_set_icon_stb IMPLEMENTATION.
       ).
 
       lv_stringform = |{ lv_ffname } = '{ lv_icon }'.|.
-      lv_stringform_subroutine = |<{ zif_dbbr_global_consts=>c_formula_alias }_{ lv_ffname }> = '{ lv_icon }'.|.
+      lv_stringform_subroutine = |<{ zif_dbbr_c_global=>c_formula_alias }_{ lv_ffname }> = '{ lv_icon }'.|.
     ENDIF.
 
     cs_statement-stringform = lv_stringform.

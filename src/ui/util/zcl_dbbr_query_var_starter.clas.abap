@@ -68,7 +68,7 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD load_variant.
-    IF mv_variant_id = zif_dbbr_global_consts=>c_dummy_variant.
+    IF mv_variant_id = zif_dbbr_c_global=>c_dummy_variant.
 *.... Check if there is a default variant for the query
       DATA(lv_default_variant_id) = zcl_dbbr_variant_factory=>find_default_query_variant( iv_query_id = ms_query-query_id ).
       IF lv_default_variant_id IS NOT INITIAL.
@@ -153,7 +153,7 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
   METHOD load_query.
 
 *.. load query from database
-    ms_query = COND #( WHEN mv_variant_id = zif_dbbr_global_consts=>c_dummy_variant THEN
+    ms_query = COND #( WHEN mv_variant_id = zif_dbbr_c_global=>c_dummy_variant THEN
                                     mr_query_f->get_query( iv_query_name = CONV #( mv_query_id ) )
                                  ELSE
                                     mr_query_f->get_query_by_id( CONV #( mv_query_id ) ) ).
@@ -206,7 +206,7 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
     fill_secondary_data( ).
     load_variant( ).
 
-    IF mv_variant_id <> zif_dbbr_global_consts=>c_dummy_variant OR
+    IF mv_variant_id <> zif_dbbr_c_global=>c_dummy_variant OR
        ms_global_data-called_from_adt = abap_true.
 
       IF ms_global_data-called_from_adt = abap_true.

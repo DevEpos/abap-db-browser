@@ -35,7 +35,7 @@ FUNCTION ZDBBR_SHOW_SELSCREEN.
 
   IF if_skip_selscreen = abap_true.
     DATA(lr_variant_starter) = zcl_dbbr_variant_starter_fac=>create_variant_starter(
-        iv_variant_id        = COND #( WHEN iv_variant_id IS NOT INITIAL THEN iv_variant_id ELSE zif_dbbr_global_consts=>c_dummy_variant )
+        iv_variant_id        = COND #( WHEN iv_variant_id IS NOT INITIAL THEN iv_variant_id ELSE zif_dbbr_c_global=>c_dummy_variant )
         iv_entity_type       = lv_entity_type
         iv_variant_entity_id = CONV #( lv_entity_id )
     ).

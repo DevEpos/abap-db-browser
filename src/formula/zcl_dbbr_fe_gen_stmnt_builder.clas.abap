@@ -31,7 +31,7 @@ CLASS zcl_dbbr_fe_gen_stmnt_builder IMPLEMENTATION.
         lv_stringform = |{ lv_stringform } { lv_token }|.
 
         IF <ls_token>-is_formula_field = abap_true.
-          lv_token = |<{ zif_dbbr_global_consts=>c_formula_alias }_{ lv_token }>|.
+          lv_token = |<{ zif_dbbr_c_global=>c_formula_alias }_{ lv_token }>|.
         ELSEIF <ls_token>-is_row_field = abap_true.
           lv_token = |<{ zcl_dbbr_formula_helper=>get_raw_row_field( lv_token ) }>|.
         ENDIF.

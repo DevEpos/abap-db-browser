@@ -250,7 +250,7 @@ CLASS zcl_dbbr_selopt_util IMPLEMENTATION.
   METHOD create_option_icon.
     DATA(lv_icon_name) = get_option_icon(
         iv_sign   = COND #( WHEN iv_sign IS INITIAL THEN zif_sat_c_options=>including ELSE iv_sign )
-        iv_option = COND #( WHEN iv_option IS INITIAL THEN zif_dbbr_global_consts=>c_options-default ELSE iv_option )
+        iv_option = COND #( WHEN iv_option IS INITIAL THEN zif_dbbr_c_global=>c_options-default ELSE iv_option )
     ).
 
     zcl_dbbr_icon_handler=>create_icon(
@@ -261,7 +261,7 @@ CLASS zcl_dbbr_selopt_util IMPLEMENTATION.
 
   METHOD get_opt_icon_info.
     rs_icon-sign = COND #( WHEN iv_sign IS INITIAL THEN zif_sat_c_options=>including ELSE iv_sign ).
-    rs_icon-option = COND #( WHEN iv_option IS INITIAL THEN zif_dbbr_global_consts=>c_options-default ELSE iv_option ).
+    rs_icon-option = COND #( WHEN iv_option IS INITIAL THEN zif_dbbr_c_global=>c_options-default ELSE iv_option ).
     DATA(lv_icon_name) = get_option_icon(
       iv_sign   = rs_icon-sign
       iv_option = rs_icon-option

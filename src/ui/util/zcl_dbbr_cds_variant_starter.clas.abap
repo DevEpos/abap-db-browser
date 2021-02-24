@@ -87,7 +87,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
     fill_primary_entity( ).
     load_variant( ).
 
-    IF mv_variant_id <> zif_dbbr_global_consts=>c_dummy_variant OR
+    IF mv_variant_id <> zif_dbbr_c_global=>c_dummy_variant OR
        ms_global_data-called_from_adt = abap_true.
 
       DATA(ls_header) = mo_cds_view->get_header( ).
@@ -111,7 +111,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
   METHOD fill_data_from_variant.
     DATA: lt_param_values TYPE ZIF_SAT_TY_GLOBAL=>ty_t_cds_param_value.
 
-    IF mv_variant_id = zif_dbbr_global_consts=>c_dummy_variant.
+    IF mv_variant_id = zif_dbbr_c_global=>c_dummy_variant.
 *.... Fill parameters if the cds view has any
       IF mo_cds_view->has_parameters( if_exclude_system_params = abap_true ).
 *...... Read parameter values if automatic variant exists
@@ -137,8 +137,8 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
             FOR param IN lt_param_values
             ( is_parameter  = abap_true
               fieldname     = param-name
-              tabname       = zif_dbbr_global_consts=>c_parameter_dummy_table
-              tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table
+              tabname       = zif_dbbr_c_global=>c_parameter_dummy_table
+              tabname_alias = zif_dbbr_c_global=>c_parameter_dummy_table
               sign          = ZIF_SAT_C_OPTIONS=>including
               option        = ZIF_SAT_C_OPTIONS=>equals
               low           = param-value )
@@ -196,7 +196,7 @@ CLASS zcl_dbbr_cds_variant_starter IMPLEMENTATION.
 
   METHOD get_parameter_values_from_var.
 
-    LOOP AT it_vardata ASSIGNING FIELD-SYMBOL(<ls_vardata>) WHERE tabname = zif_dbbr_global_consts=>c_parameter_dummy_table.
+    LOOP AT it_vardata ASSIGNING FIELD-SYMBOL(<ls_vardata>) WHERE tabname = zif_dbbr_c_global=>c_parameter_dummy_table.
 
 *...... find the table field to get general information about selfield
       TRY.

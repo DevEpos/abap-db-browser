@@ -109,7 +109,7 @@ CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
 
   METHOD prepare_text_fields.
     " get all active text fields from tabfields
-    ir_fields->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-output ).
+    ir_fields->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-output ).
     ir_fields->initialize_iterator( if_for_active = abap_true ).
 
     WHILE ir_fields->has_more_lines( ).

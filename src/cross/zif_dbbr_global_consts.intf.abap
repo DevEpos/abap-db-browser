@@ -1,4 +1,4 @@
-INTERFACE zif_dbbr_global_consts
+INTERFACE zif_dbbr_c_global
   PUBLIC .
 
   CONSTANTS:

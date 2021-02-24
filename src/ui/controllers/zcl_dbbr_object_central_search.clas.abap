@@ -223,7 +223,7 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
 
     ELSE.
       DATA(lo_variant_starter) = zcl_dbbr_variant_starter_fac=>create_variant_starter(
-          iv_variant_id        = zif_dbbr_global_consts=>c_dummy_variant
+          iv_variant_id        = zif_dbbr_c_global=>c_dummy_variant
           iv_entity_type       = iv_entity_type
           iv_variant_entity_id = |{ iv_entity_id }|
       ).

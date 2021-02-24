@@ -45,7 +45,7 @@ CLASS ZCL_DBBR_ADDTEXT_MANAGER IMPLEMENTATION.
     DATA(lr_addtextfield_controller) = NEW zcl_dbbr_addtextfield_ctrl(
       is_addtext_data = ls_addtext_entry
       it_id_tables    = mt_tabinfo
-      iv_mode         = zif_dbbr_global_consts=>c_display_modes-create
+      iv_mode         = zif_dbbr_c_global=>c_display_modes-create
     ).
 
     lr_addtextfield_controller->zif_uitb_screen_controller~call_screen( ).
@@ -204,7 +204,7 @@ CLASS ZCL_DBBR_ADDTEXT_MANAGER IMPLEMENTATION.
     DATA(lr_addtextfield_controller) = NEW zcl_dbbr_addtextfield_ctrl(
       is_addtext_data = ls_current_line
       it_id_tables    = mt_tabinfo
-      iv_mode         = zif_dbbr_global_consts=>c_display_modes-edit
+      iv_mode         = zif_dbbr_c_global=>c_display_modes-edit
     ).
 
     lr_addtextfield_controller->zif_uitb_screen_controller~call_screen( ).

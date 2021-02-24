@@ -64,7 +64,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
       ).
 
       DATA(ls_tabfield) = VALUE zdbbr_tabfield_info_ui(
-        tabname          = zif_dbbr_global_consts=>c_parameter_dummy_table
+        tabname          = zif_dbbr_c_global=>c_parameter_dummy_table
         fieldname        = <ls_param>-parametername
         fieldname_raw    = <ls_param>-parametername_raw
         is_parameter     = abap_true
@@ -115,8 +115,8 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
 *.. add cds view to list of tables
     rs_entity = VALUE zdbbr_entity_info(
        active_selection     = abap_true
-       tabname              = zif_dbbr_global_consts=>c_parameter_dummy_table
-       tabname_alias        = zif_dbbr_global_consts=>c_parameter_dummy_table
+       tabname              = zif_dbbr_c_global=>c_parameter_dummy_table
+       tabname_alias        = zif_dbbr_c_global=>c_parameter_dummy_table
        type                 = zif_sat_c_entity_type=>table
        description          = 'Parameters'
        no_output            = abap_true

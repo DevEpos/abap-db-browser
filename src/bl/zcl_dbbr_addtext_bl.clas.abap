@@ -143,8 +143,8 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
   METHOD create_addtext_from_f4_data.
 *.. add field to global list of possible additional text columns
     CASE is_f4_infos-type.
-      WHEN zif_dbbr_global_consts=>c_searchhelp_types-domain_fix_values.
-      WHEN zif_dbbr_global_consts=>c_searchhelp_types-search_help.
+      WHEN zif_dbbr_c_global=>c_searchhelp_types-domain_fix_values.
+      WHEN zif_dbbr_c_global=>c_searchhelp_types-search_help.
         IF is_f4_infos-unique_text_field = abap_false.
           RETURN.
         ENDIF.
@@ -157,7 +157,7 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
 *.. determine selection type
     CASE is_f4_infos-type.
 
-      WHEN zif_dbbr_global_consts=>c_searchhelp_types-search_help.
+      WHEN zif_dbbr_c_global=>c_searchhelp_types-search_help.
 
         CASE is_f4_infos-sel_method_type.
 
@@ -180,7 +180,7 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
 *...... fill name of internal text field
         ls_add_text-text_field = is_f4_infos-text_field.
 
-      WHEN zif_dbbr_global_consts=>c_searchhelp_types-domain_fix_values.
+      WHEN zif_dbbr_c_global=>c_searchhelp_types-domain_fix_values.
         ls_add_text-selection_type = zif_dbbr_c_text_selection_type=>domain_value.
         ls_add_text-key_field = ms_dtel_info-fieldname.
         ls_add_text-id_field_rollname = ms_dtel_info-rollname.
@@ -285,7 +285,7 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
 
       create_addtext_from_f4_data(
         VALUE zdbbr_sh_infos(
-          type              = zif_dbbr_global_consts=>c_searchhelp_types-search_help
+          type              = zif_dbbr_c_global=>c_searchhelp_types-search_help
           is_simple         = abap_true
           sel_method_type   = zif_dbbr_c_sh_selmethod_type=>with_text_table_selection
           sel_method        = zif_dbbr_c_text_selection_type=>text_table

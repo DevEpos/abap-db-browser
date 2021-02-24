@@ -48,7 +48,7 @@ CLASS zcl_dbbr_start IMPLEMENTATION.
       io_tabfield_list = lr_tabfields
 *      ir_join_def_stru = NEW zdbbr_join_data( )
       is_join_def      = VALUE zdbbr_join_def( )
-      iv_display_mode  = zif_dbbr_global_consts=>c_display_modes-edit
+      iv_display_mode  = zif_dbbr_c_global=>c_display_modes-edit
       iv_formula       = `* Meine Formel` && cl_abap_char_utilities=>cr_lf &&
                          `$DEF my_form type wtgxxx.`  && cl_abap_char_utilities=>cr_lf &&
                          `my_form = row-wtgbtr + 4.`

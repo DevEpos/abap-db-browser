@@ -67,8 +67,8 @@ CLASS zcl_dbbr_base_select_tc IMPLEMENTATION.
   METHOD is_custom_timest_conv.
 
     rf_custom_timst_conv = xsdbool(
-       ( mr_selfield_line->domname = zif_dbbr_global_consts=>c_domain_names-timestamp OR
-         mr_selfield_line->domname = zif_dbbr_global_consts=>c_domain_names-timestamp_long ) AND
+       ( mr_selfield_line->domname = zif_dbbr_c_global=>c_domain_names-timestamp OR
+         mr_selfield_line->domname = zif_dbbr_c_global=>c_domain_names-timestamp_long ) AND
        get_util( )->mo_data->mr_s_global_data->settings-disable_date_to_times_conv = abap_false
     ).
 
@@ -158,7 +158,7 @@ CLASS zcl_dbbr_base_select_tc IMPLEMENTATION.
   METHOD fill_selopt_sign.
 
     IF mr_selfield_line->sign = space.
-      mr_selfield_line->sign = zif_dbbr_global_consts=>c_options-i.
+      mr_selfield_line->sign = zif_dbbr_c_global=>c_options-i.
     ENDIF.
 
   ENDMETHOD.
@@ -195,8 +195,8 @@ CLASS zcl_dbbr_base_select_tc IMPLEMENTATION.
 
 *.. was sy-datum entered?
     IF ( is_selfield-datatype = 'DATS' OR
-       ( is_selfield-domname = zif_dbbr_global_consts=>c_domain_names-timestamp OR
-         is_selfield-domname = zif_dbbr_global_consts=>c_domain_names-timestamp_long ) AND
+       ( is_selfield-domname = zif_dbbr_c_global=>c_domain_names-timestamp OR
+         is_selfield-domname = zif_dbbr_c_global=>c_domain_names-timestamp_long ) AND
        get_util( )->mo_data->mr_s_global_data->settings-disable_date_to_times_conv = abap_false )
          AND cv_value = 'SY-DATUM'.
       cv_value = |{ sy-datum DATE = USER }|.

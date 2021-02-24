@@ -58,7 +58,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
       IMPORTING
         !it_fields      TYPE zdbbr_tabfield_info_ui_itab OPTIONAL
         !it_tables      TYPE zdbbr_entity_info_t OPTIONAL
-        !iv_mode        TYPE zdbbr_field_chooser_mode DEFAULT zif_dbbr_global_consts=>c_field_chooser_modes-output
+        !iv_mode        TYPE zdbbr_field_chooser_mode DEFAULT zif_dbbr_c_global=>c_field_chooser_modes-output
         !iv_entity_type TYPE zsat_entity_type DEFAULT zif_sat_c_entity_type=>table .
     "! <p class="shorttext synchronized" lang="en">Converts list to deep structure</p>
     METHODS convert_to_structure
@@ -349,16 +349,16 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
   METHOD active_field_exists.
     CASE mv_mode.
-      WHEN zif_dbbr_global_consts=>c_field_chooser_modes-output.
+      WHEN zif_dbbr_c_global=>c_field_chooser_modes-output.
         rf_exists = xsdbool( line_exists( mt_fields[ KEY unique tabname_alias    = iv_tabname
                                                                 fieldname        = iv_fieldname
                                                                 output_active    = abap_true
                                                                 is_text_field    = if_is_text_field ] ) ).
-      WHEN zif_dbbr_global_consts=>c_field_chooser_modes-sort.
+      WHEN zif_dbbr_c_global=>c_field_chooser_modes-sort.
         rf_exists = xsdbool( line_exists( mt_fields[ KEY unique tabname_alias    = iv_tabname
                                                                 fieldname        = iv_fieldname
                                                                 sort_active      = abap_true ] ) ).
-      WHEN zif_dbbr_global_consts=>c_field_chooser_modes-selection.
+      WHEN zif_dbbr_c_global=>c_field_chooser_modes-selection.
         rf_exists = xsdbool( line_exists( mt_fields[ KEY unique tabname_alias    = iv_tabname
                                                                 fieldname        = iv_fieldname
                                                                 selection_active = abap_true ] ) ).
@@ -390,14 +390,14 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
       ls_entity_info-selection_order = lines( mt_tables ) + 1.
     ENDIF.
 
-    IF ls_entity_info-tabname = zif_dbbr_global_consts=>c_parameter_dummy_table.
+    IF ls_entity_info-tabname = zif_dbbr_c_global=>c_parameter_dummy_table.
       ls_entity_info-is_custom = abap_true.
       DATA(lf_insert_first) = abap_true.
     ENDIF.
 
-    IF ls_entity_info-tabname = zif_dbbr_global_consts=>c_formula_dummy_table.
+    IF ls_entity_info-tabname = zif_dbbr_c_global=>c_formula_dummy_table.
       ls_entity_info-is_custom = abap_true.
-      ls_entity_info-alias = zif_dbbr_global_consts=>c_formula_alias.
+      ls_entity_info-alias = zif_dbbr_c_global=>c_formula_alias.
     ENDIF.
 
     TRY.
@@ -458,8 +458,8 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     ELSE.
       DATA(lv_table_counter) = 1.
 
-      LOOP AT mt_tables ASSIGNING <ls_table> WHERE tabname <> zif_dbbr_global_consts=>c_formula_dummy_table
-                                               AND tabname <> zif_dbbr_global_consts=>c_parameter_dummy_table.
+      LOOP AT mt_tables ASSIGNING <ls_table> WHERE tabname <> zif_dbbr_c_global=>c_formula_dummy_table
+                                               AND tabname <> zif_dbbr_c_global=>c_parameter_dummy_table.
         INSERT VALUE #(
             tabname = <ls_table>-tabname_alias
             alias   = zcl_dbbr_alias_map=>get_alias( lv_table_counter )
@@ -645,14 +645,14 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
 
     IF if_delete_formfields = abap_true.
-      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>c_formula_dummy_table ) ).
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'I' option = 'EQ' low = zif_dbbr_c_global=>c_formula_dummy_table ) ).
     ENDIF.
 
     IF if_delete_params = abap_true.
-      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ).
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'I' option = 'EQ' low = zif_dbbr_c_global=>c_parameter_dummy_table ) ).
     ELSE.
 *.. Exclude parameters from being deleted until it is clear that no entity exists any more that needs them
-      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'E' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ).
+      lt_tabname_range = VALUE #( BASE lt_tabname_range ( sign = 'E' option = 'EQ' low = zif_dbbr_c_global=>c_parameter_dummy_table ) ).
     ENDIF.
 
     IF if_keep_primary = abap_true AND line_exists( mt_tables[ is_primary = abap_true ] ).
@@ -666,8 +666,8 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
     IF if_delete_params = abap_false AND
        NOT line_exists( mt_tables[ has_params = abap_true ] ).
-      DELETE mt_fields WHERE tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table.
-      DELETE mt_tables WHERE tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table.
+      DELETE mt_fields WHERE tabname_alias = zif_dbbr_c_global=>c_parameter_dummy_table.
+      DELETE mt_tables WHERE tabname_alias = zif_dbbr_c_global=>c_parameter_dummy_table.
     ENDIF.
   ENDMETHOD.
 
@@ -694,7 +694,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
   METHOD delete_formula_fields.
     DELETE mt_fields WHERE is_formula_field = abap_true.
-    DELETE mt_tables WHERE tabname = zif_dbbr_global_consts=>c_formula_dummy_table.
+    DELETE mt_tables WHERE tabname = zif_dbbr_c_global=>c_formula_dummy_table.
   ENDMETHOD.
 
 
@@ -939,7 +939,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     ENDIF.
 
     IF if_exclude_parameters = abap_true.
-      DELETE rt_tables WHERE tabname = zif_dbbr_global_consts=>c_parameter_dummy_table.
+      DELETE rt_tables WHERE tabname = zif_dbbr_c_global=>c_parameter_dummy_table.
     ENDIF.
 
     IF if_exclude_fields_not_loaded = abap_true.
@@ -980,7 +980,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     IF if_count_form_fields = abap_true.
       result = xsdbool( lines( mt_tables ) > 1 ).
     ELSE.
-      LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE tabname <> zif_dbbr_global_consts=>c_formula_dummy_table.
+      LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE tabname <> zif_dbbr_c_global=>c_formula_dummy_table.
         lv_table_count = lv_table_count + 1.
       ENDLOOP.
       result = xsdbool( lv_table_count > 1 ).
@@ -1103,13 +1103,13 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
   METHOD sort_in_custom_order.
     CASE mv_mode.
-      WHEN zif_dbbr_global_consts=>c_field_chooser_modes-output.
+      WHEN zif_dbbr_c_global=>c_field_chooser_modes-output.
         SORT mt_fields BY output_active DESCENDING output_order ASCENDING.
 
-      WHEN zif_dbbr_global_consts=>c_field_chooser_modes-selection.
+      WHEN zif_dbbr_c_global=>c_field_chooser_modes-selection.
         SORT mt_fields BY alias selection_active DESCENDING selection_order ASCENDING.
 
-      WHEN zif_dbbr_global_consts=>c_field_chooser_modes-sort.
+      WHEN zif_dbbr_c_global=>c_field_chooser_modes-sort.
         SORT mt_fields BY sort_active DESCENDING sort_order ASCENDING.
     ENDCASE.
   ENDMETHOD.
@@ -1123,7 +1123,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   METHOD sort_tables_by_active.
     SORT mt_tables BY active_selection DESCENDING selection_order ASCENDING.
 
-    DATA(lv_param_table_index) = line_index( mt_tables[ tabname = zif_dbbr_global_consts=>c_parameter_dummy_table ] ).
+    DATA(lv_param_table_index) = line_index( mt_tables[ tabname = zif_dbbr_c_global=>c_parameter_dummy_table ] ).
     IF lv_param_table_index > 0.
       DATA(ls_param_table) = mt_tables[ lv_param_table_index ].
       DELETE mt_tables INDEX lv_param_table_index.
@@ -1148,7 +1148,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
       LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE tabname_alias = <ls_table>-tabname_alias.
         IF <ls_field>-is_formula_field = abap_true.
           " nothing to do.
-          <ls_field>-alias = zif_dbbr_global_consts=>c_formula_alias.
+          <ls_field>-alias = zif_dbbr_c_global=>c_formula_alias.
         ELSE.
           <ls_field>-alias = <ls_table>-alias.
         ENDIF.
@@ -1162,21 +1162,21 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   METHOD update_mode.
 
     CASE mv_mode.
-      WHEN zif_dbbr_global_consts=>c_field_chooser_modes-output.
+      WHEN zif_dbbr_c_global=>c_field_chooser_modes-output.
         ms_where-custom_order_exists = mc_dynamic_where-output_order.
         ms_where-field_is_active = mc_dynamic_where-output_active.
         ms_where-field_is_inactive = mc_dynamic_where-output_inactive.
         ms_fieldnames-active_field = 'OUTPUT_ACTIVE'.
         ms_fieldnames-order_field = 'OUTPUT_ORDER'.
 
-      WHEN zif_dbbr_global_consts=>c_field_chooser_modes-selection.
+      WHEN zif_dbbr_c_global=>c_field_chooser_modes-selection.
         ms_where-custom_order_exists = mc_dynamic_where-selection_order.
         ms_where-field_is_active = mc_dynamic_where-selection_active.
         ms_where-field_is_inactive = mc_dynamic_where-selection_inactive.
         ms_fieldnames-active_field = 'SELECTION_ACTIVE'.
         ms_fieldnames-order_field = 'SELECTION_ORDER'.
 
-      WHEN zif_dbbr_global_consts=>c_field_chooser_modes-sort.
+      WHEN zif_dbbr_c_global=>c_field_chooser_modes-sort.
         ms_where-custom_order_exists = mc_dynamic_where-sort_order.
         ms_where-field_is_active = mc_dynamic_where-sort_active.
         ms_where-field_is_inactive = mc_dynamic_where-sort_inactive.
@@ -1198,10 +1198,10 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE tabname <> zif_dbbr_global_consts=>c_parameter_dummy_table.
+    LOOP AT mt_tables ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE tabname <> zif_dbbr_c_global=>c_parameter_dummy_table.
       <ls_table>-index = sy-tabix.
-      IF <ls_table>-tabname = zif_dbbr_global_consts=>c_formula_dummy_table.
-        <ls_table>-alias = zif_dbbr_global_consts=>c_formula_alias.
+      IF <ls_table>-tabname = zif_dbbr_c_global=>c_formula_dummy_table.
+        <ls_table>-alias = zif_dbbr_c_global=>c_formula_alias.
       ELSE.
         IF lines( mt_tables ) > 1.
           <ls_table>-alias = zcl_dbbr_alias_map=>get_alias( lv_index ).

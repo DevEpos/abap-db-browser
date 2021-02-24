@@ -76,7 +76,7 @@ CLASS zcl_dbbr_design_studio_util IMPLEMENTATION.
 
 *.. Fill the values from the CDS parameters. Those are mandatory in any case
     LOOP AT lt_cds_params ASSIGNING FIELD-SYMBOL(<ls_param>).
-      ASSIGN mo_selscreen_data->mr_t_table_data->*[ tabname_alias = zif_dbbr_global_consts=>c_parameter_dummy_table
+      ASSIGN mo_selscreen_data->mr_t_table_data->*[ tabname_alias = zif_dbbr_c_global=>c_parameter_dummy_table
                                                     fieldname     = <ls_param>-parametername ] TO FIELD-SYMBOL(<ls_param_value>).
       CHECK <ls_param_value>-low IS NOT INITIAL.
       mv_url_params = |{ mv_url_params }&{ <ls_param>-parametername_raw }={ <ls_param_value>-low }|.

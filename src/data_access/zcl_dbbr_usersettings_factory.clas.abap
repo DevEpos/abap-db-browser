@@ -77,10 +77,10 @@ CLASS zcl_dbbr_usersettings_factory IMPLEMENTATION.
       result = VALUE #(
           color_sort_columns    = abap_true
           zero_val_as_blank     = abap_true
-          max_lines             = zif_dbbr_global_consts=>c_default_max_lines
+          max_lines             = zif_dbbr_c_global=>c_default_max_lines
           emphasize_text_fields = abap_true
-          fav_user_mode         = zif_dbbr_global_consts=>c_fav_user_modes-global
-          last_used_count       = zif_dbbr_global_consts=>c_default_last_used_favs
+          fav_user_mode         = zif_dbbr_c_global=>c_fav_user_modes-global
+          last_used_count       = zif_dbbr_c_global=>c_default_last_used_favs
           color_formula_fields  = abap_true
           object_navigator_open = abap_true
           initial_obj_nav_mode = zif_dbbr_c_obj_navigator_mode=>object_browser

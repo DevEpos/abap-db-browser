@@ -310,8 +310,8 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
         DATA(lf_is_numeric) = zcl_dbbr_ddic_util=>is_type_numeric( <ls_field>-inttype ).
 *...... Reset numeric type to non numeric if domain is timestamp
         IF lf_is_numeric = abap_true AND
-           ( <ls_field>-domname = zif_dbbr_global_consts=>c_domain_names-timestamp OR
-             <ls_field>-domname = zif_dbbr_global_consts=>c_domain_names-timestamp_long ).
+           ( <ls_field>-domname = zif_dbbr_c_global=>c_domain_names-timestamp OR
+             <ls_field>-domname = zif_dbbr_c_global=>c_domain_names-timestamp_long ).
           lf_is_numeric = abap_false.
         ENDIF.
 
@@ -323,7 +323,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
             ( fieldname  = <ls_field>-fieldname
               up         = abap_true )
           ).
-          <ls_field>-emphasize = zif_dbbr_global_consts=>c_alv_colors-light_green.
+          <ls_field>-emphasize = zif_dbbr_c_global=>c_alv_colors-light_green.
         ENDIF.
         lt_field_compare = VALUE #( BASE lt_field_compare
           ( fieldname  = <ls_field>-fieldname

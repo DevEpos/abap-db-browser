@@ -62,7 +62,7 @@ CLASS zcl_dbbr_custom_f4_map IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD read_custom_f4_definition.
-    IF iv_tablename = zif_dbbr_global_consts=>c_parameter_dummy_table.
+    IF iv_tablename = zif_dbbr_c_global=>c_parameter_dummy_table.
       ASSIGN mt_custom_f4_map[ fieldname = iv_fieldname ] TO FIELD-SYMBOL(<ls_custom_f4_map>).
     ELSE.
       ASSIGN mt_custom_f4_map[ tabname   = iv_tablename

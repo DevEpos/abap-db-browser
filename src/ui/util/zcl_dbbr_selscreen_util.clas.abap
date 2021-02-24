@@ -341,7 +341,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
   METHOD check_mandatory_fields.
 
-    IF mo_data->mo_tabfield_list->has_table( zif_dbbr_global_consts=>c_parameter_dummy_table ).
+    IF mo_data->mo_tabfield_list->has_table( zif_dbbr_c_global=>c_parameter_dummy_table ).
       LOOP AT mo_data->mr_t_table_data->* ASSIGNING FIELD-SYMBOL(<ls_param>) WHERE is_parameter   =  abap_true
                                                                                AND is_range_param =  abap_false
                                                                                AND low            IS INITIAL.
@@ -436,7 +436,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     FIELD-SYMBOLS: <lo_tabfields> TYPE REF TO zcl_dbbr_tabfield_list.
 
     DATA(lf_field_aggr_active) = mo_data->mo_selection_table->aggregation_is_active( ).
-    IF lf_field_aggr_active = abap_true AND iv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-output.
+    IF lf_field_aggr_active = abap_true AND iv_mode = zif_dbbr_c_global=>c_field_chooser_modes-output.
       ASSIGN mo_data->mo_tabfield_aggr_list TO <lo_tabfields>.
     ELSE.
       ASSIGN mo_data->mo_tabfield_list TO <lo_tabfields>.
@@ -448,7 +448,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     DATA(lo_fields) = <lo_tabfields>->copy( ).
 
 *... delete parameter fields from list if there are any
-    lo_fields->delete_where_in_tablist( VALUE #( ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ) ).
+    lo_fields->delete_where_in_tablist( VALUE #( ( sign = 'I' option = 'EQ' low = zif_dbbr_c_global=>c_parameter_dummy_table ) ) ).
 
     DATA(lr_tabfield_manager) = NEW zcl_dbbr_tabfield_manager(
       io_fields            = lo_fields
@@ -467,7 +467,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       rf_fields_updated = abap_true.
 *.... Extract paramaters before they are overridden
       IF lf_field_aggr_active = abap_false.
-        DATA(lo_params) = <lo_tabfields>->extract_fields( VALUE #( ( sign = 'I' option = 'EQ' low = zif_dbbr_global_consts=>c_parameter_dummy_table ) ) ).
+        DATA(lo_params) = <lo_tabfields>->extract_fields( VALUE #( ( sign = 'I' option = 'EQ' low = zif_dbbr_c_global=>c_parameter_dummy_table ) ) ).
       ENDIF.
       <lo_tabfields>->overwrite( lr_tabfield_manager->retrieve_current_data( ) ).
 
@@ -476,7 +476,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
-    IF iv_mode <> zif_dbbr_global_consts=>c_field_chooser_modes-selection OR
+    IF iv_mode <> zif_dbbr_c_global=>c_field_chooser_modes-selection OR
        rf_fields_updated = abap_false.
       RETURN.
     ENDIF.
@@ -714,7 +714,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
                                   is_field-scrtext_l )
       is_key                = xsdbool( is_field-keyflag = abap_true )
 *...... default sign is inclusive
-      default_sign          = zif_dbbr_global_consts=>c_options-i
+      default_sign          = zif_dbbr_c_global=>c_options-i
       is_virtual_join_field = is_entity-virtual_join_table
       is_foreign_key        = xsdbool( is_field-checktable IS NOT INITIAL )
       std_short_text        = is_field-scrtext_s
@@ -1042,8 +1042,8 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
     DATA(lt_add_tables_selopt) = VALUE zdbbr_tabname_range_itab(
       FOR add_table IN <ls_join_definition>-tables
-      ( sign   = zif_dbbr_global_consts=>c_options-i
-        option = zif_dbbr_global_consts=>c_options-eq
+      ( sign   = zif_dbbr_c_global=>c_options-i
+        option = zif_dbbr_c_global=>c_options-eq
         low    = add_table-add_table_alias             )
     ).
 
@@ -1106,7 +1106,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     DATA: lt_current_table_list TYPE RANGE OF tabname.
 
 *... set `selection mode` for tabfield list to prevent unwanted behaviour
-    mo_data->mo_tabfield_list->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-selection ).
+    mo_data->mo_tabfield_list->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-selection ).
 
 *... first get all active selection tables
     DATA(lt_tables) = mo_data->mo_tabfield_list->get_table_list( ).
@@ -1116,7 +1116,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     SORT lt_tables BY selection_order.
 
 *.. Always show parameter table at first position
-    LOOP AT lt_tables INTO DATA(ls_param_table) WHERE tabname = zif_dbbr_global_consts=>c_parameter_dummy_table.
+    LOOP AT lt_tables INTO DATA(ls_param_table) WHERE tabname = zif_dbbr_c_global=>c_parameter_dummy_table.
       CHECK sy-tabix <> 1.
       DELETE lt_tables.
       DATA(lf_insert_params_at_start) = abap_true.
@@ -1192,7 +1192,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
   METHOD update_selection_mask.
 *... set `selection mode` for tabfield list to prevent unwanted behaviour
-    mo_data->mo_tabfield_list->switch_mode( zif_dbbr_global_consts=>c_field_chooser_modes-selection ).
+    mo_data->mo_tabfield_list->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-selection ).
 
     mo_data->mo_tabfield_list->sort( ).
 

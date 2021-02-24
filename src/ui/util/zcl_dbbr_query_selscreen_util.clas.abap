@@ -111,7 +111,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
 
   METHOD create_table_header.
     " check if table is special parameter table
-    IF iv_tabname = zif_dbbr_global_consts=>c_parameter_dummy_table.
+    IF iv_tabname = zif_dbbr_c_global=>c_parameter_dummy_table.
       rs_table_header = VALUE zdbbr_selfield(
           tabname              = iv_tabname
           is_table_header      = abap_true
@@ -585,7 +585,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
              ls_datel.
 
       DATA(ls_tabfield) = VALUE zdbbr_tabfield_info_ui(
-        tabname          = zif_dbbr_global_consts=>c_parameter_dummy_table
+        tabname          = zif_dbbr_c_global=>c_parameter_dummy_table
         fieldname        = <ls_param>-name
         fieldname_raw    = <ls_param>-name
         is_parameter     = abap_true
@@ -645,8 +645,8 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
 *.. add cds view to list of tables
     DATA(ls_entity) = VALUE zdbbr_entity_info(
        active_selection     = abap_true
-       tabname              = zif_dbbr_global_consts=>c_parameter_dummy_table
-       tabname_alias        = zif_dbbr_global_consts=>c_parameter_dummy_table
+       tabname              = zif_dbbr_c_global=>c_parameter_dummy_table
+       tabname_alias        = zif_dbbr_c_global=>c_parameter_dummy_table
        type                 = zif_sat_c_entity_type=>table
        description          = 'Parameters'
        no_output            = abap_true

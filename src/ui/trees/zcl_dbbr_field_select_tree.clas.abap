@@ -166,7 +166,7 @@ CLASS zcl_dbbr_field_select_tree IMPLEMENTATION.
         header_tooltip = 'Key Field'
     ).
 
-    IF mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-output.
+    IF mv_mode = zif_dbbr_c_global=>c_field_chooser_modes-output.
       mo_tree_model->add_column(
           name           = c_column_names-text_field_column
           width          = 7
@@ -208,9 +208,9 @@ CLASS zcl_dbbr_field_select_tree IMPLEMENTATION.
 
 
     LOOP AT lt_table_list ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE no_output = abap_false
-                                                               AND tabname <> zif_dbbr_global_consts=>c_parameter_dummy_table
+                                                               AND tabname <> zif_dbbr_c_global=>c_parameter_dummy_table
                                                                AND fields_are_loaded = abap_true.
-      IF <ls_table>-tabname = zif_dbbr_global_consts=>c_formula_dummy_table.
+      IF <ls_table>-tabname = zif_dbbr_c_global=>c_formula_dummy_table.
         create_table_node(
             iv_tablename  = <ls_table>-tabname_alias
             iv_alias      = <ls_table>-alias
@@ -260,9 +260,9 @@ CLASS zcl_dbbr_field_select_tree IMPLEMENTATION.
         editable   = abap_true
         chosen     = SWITCH #(
           mv_mode
-          WHEN zif_dbbr_global_consts=>c_field_chooser_modes-output THEN
+          WHEN zif_dbbr_c_global=>c_field_chooser_modes-output THEN
             ir_tabfield_info->output_active
-          WHEN zif_dbbr_global_consts=>c_field_chooser_modes-selection THEN
+          WHEN zif_dbbr_c_global=>c_field_chooser_modes-selection THEN
              ir_tabfield_info->selection_active
         )
       )
@@ -279,7 +279,7 @@ CLASS zcl_dbbr_field_select_tree IMPLEMENTATION.
     ).
 
     " check if item for additional text field has to be added
-    IF mv_mode = zif_dbbr_global_consts=>c_field_chooser_modes-output AND
+    IF mv_mode = zif_dbbr_c_global=>c_field_chooser_modes-output AND
        ir_tabfield_info->has_text_field = abap_true.
 
       APPEND VALUE #(
@@ -635,7 +635,7 @@ CLASS zcl_dbbr_field_select_tree IMPLEMENTATION.
         " get user object information
         DATA(ls_tabfield_info) = CAST zcl_dbbr_tabfield( lr_user_object )->get_tabfield_info( ).
         CASE mv_mode.
-          WHEN zif_dbbr_global_consts=>c_field_chooser_modes-output.
+          WHEN zif_dbbr_c_global=>c_field_chooser_modes-output.
             lf_checked = ls_tabfield_info-output_active.
             " update text select column
             IF ls_tabfield_info-has_text_field = abap_true.
@@ -650,7 +650,7 @@ CLASS zcl_dbbr_field_select_tree IMPLEMENTATION.
                 chosen    = lr_textfield_ref->output_active
               ).
             ENDIF.
-          WHEN zif_dbbr_global_consts=>c_field_chooser_modes-selection.
+          WHEN zif_dbbr_c_global=>c_field_chooser_modes-selection.
             lf_checked = ls_tabfield_info-selection_active.
         ENDCASE.
 

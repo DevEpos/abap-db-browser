@@ -366,7 +366,7 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
     ).
     TRY.
         mo_favorites_tree->show(
-            if_global = xsdbool( lo_s_global_data->fav_user_mode = zif_dbbr_global_consts=>c_fav_user_modes-global )
+            if_global = xsdbool( lo_s_global_data->fav_user_mode = zif_dbbr_c_global=>c_fav_user_modes-global )
         ).
       CATCH zcx_uitb_tree_error INTO DATA(lx_tree_error).
         MESSAGE s055(zdbbr_exception) DISPLAY LIKE 'E'.
