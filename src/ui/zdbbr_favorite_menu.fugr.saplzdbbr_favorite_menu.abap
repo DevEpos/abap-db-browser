@@ -10,5 +10,4 @@
   INCLUDE zuitb_data_cache.
   INCLUDE zuitb_screen_util.
 
-  INCLUDE lzdbbr_favorite_menui01.
   INCLUDE lzdbbr_favorite_menus01.

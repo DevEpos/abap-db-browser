@@ -6,7 +6,6 @@ CLASS zcl_dbbr_formula_editor DEFINITION
 
   PUBLIC SECTION.
 
-    CLASS-METHODS class_constructor.
     METHODS constructor
       IMPORTING
         io_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list
@@ -44,7 +43,6 @@ CLASS zcl_dbbr_formula_editor DEFINITION
         insert_col_texts TYPE ui_func VALUE 'INSERT_COL_TEXT',
         insert_icon      TYPE ui_func VALUE 'INSERT_ICON',
       END OF c_functions.
-    CLASS-DATA sv_dummy_form_text TYPE string.
 
     DATA mf_formula_deleted TYPE abap_bool.
     DATA mo_template_tm TYPE REF TO zcl_dbbr_fe_dnd_tree_model.
@@ -84,12 +82,6 @@ ENDCLASS.
 
 
 CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
-
-
-  METHOD class_constructor.
-    sv_dummy_form_text = `* Define your Formula here` && cl_abap_char_utilities=>cr_lf.
-  ENDMETHOD.
-
 
   METHOD constructor.
     super->constructor( |{ TEXT-t01 }| ).
