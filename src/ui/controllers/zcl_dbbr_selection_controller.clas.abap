@@ -1219,7 +1219,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         ctab_fname = zif_dbbr_c_special_out_columns=>cell_col_row_color
         grid_title = mo_util->build_simple_alv_title( )
         no_keyfix  = mo_util->ms_technical_info-key_cols_not_fixed
-
     ).
 
     mo_util->read_entity_infos( ).
@@ -1985,6 +1984,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
   METHOD refresh.
     mo_util->refresh_selection( ).
     create_alv_header( ).
+    mo_alv_grid->optimize_columns( ).
   ENDMETHOD.
 
 
