@@ -142,7 +142,7 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
       check_syntax
         RAISING
           zcx_dbbr_sql_query_error,
-      "! <p class="shorttext synchronized" lang="en">Insert INTO TABLE clause into select stmnt,</p>
+      "! <p class="shorttext synchronized" lang="en">Insert INTO TABLE clause into select stmnt</p>
       insert_into_table_clause
         CHANGING
           ct_query_lines TYPE string_table
