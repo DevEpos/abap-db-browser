@@ -55,11 +55,9 @@ CLASS lcl_executor IMPLEMENTATION.
 
     FIELD-SYMBOLS: <lt_result> TYPE table.
 
-    CHECK: ms_query_result IS NOT INITIAL,
-*........ No column data exists for a count query
-           mo_query->ms_data-is_single_result_query = abap_false.
+    CHECK: ms_query_result IS NOT INITIAL.
 
-*.. Check if an error occurred
+    " Check if an error occurred
     IF ms_query_result-message IS NOT INITIAL.
       RETURN.
     ELSE.

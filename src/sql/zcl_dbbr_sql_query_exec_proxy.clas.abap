@@ -87,21 +87,21 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
     DATA(lo_timer) = NEW zcl_dbbr_timer( ).
     DATA(lv_class) = |\\PROGRAM={ lv_program }\\CLASS=MAIN|.
     lo_timer->start( ).
-    IF ms_query-is_single_result_query = abap_true.
-      CALL METHOD (lv_class)=>execute RECEIVING rv_count = rs_table_result-line_count.
-    ELSE.
-      CALL METHOD (lv_class)=>execute RECEIVING rr_result = lr_query_result .
-    ENDIF.
+**    IF ms_query-is_single_result_query = abap_true.
+**      CALL METHOD (lv_class)=>execute RECEIVING rv_count = rs_table_result-line_count.
+**    ELSE.
+    CALL METHOD (lv_class)=>execute RECEIVING rr_result = lr_query_result .
+**    ENDIF.
     lo_timer->stop( ).
 
     rs_table_result-query_execution_time = lo_timer->get_duration_string( ).
 
-    IF ms_query-is_single_result_query = abap_false.
-      check_and_correct_result(
-        EXPORTING ir_query_result = lr_query_result
-        CHANGING  cs_result       = rs_table_result
-      ).
-    ENDIF.
+**    IF ms_query-is_single_result_query = abap_false.
+    check_and_correct_result(
+      EXPORTING ir_query_result = lr_query_result
+      CHANGING  cs_result       = rs_table_result
+    ).
+**    ENDIF.
   ENDMETHOD.
 
   METHOD create_subroutine_code.
@@ -109,31 +109,21 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
           lt_lines_temp TYPE string_table.
 
     lt_lines = VALUE #(
-        ( |REPORT ZSQL_QUERY.| )
-        ( )
-        ( |CLASS main DEFINITION.| )
-        ( |  PUBLIC SECTION.| )
-        ( |    CLASS-METHODS execute| )
-        ( |      RETURNING| )
-    ).
-    IF ms_query-is_single_result_query = abap_true.
-      lt_lines = VALUE #( BASE lt_lines
-          ( |        VALUE(rv_count) TYPE ZDBBR_NO_OF_LINES| )
-      ).
-    ELSE.
-      lt_lines = VALUE #( BASE lt_lines
-          ( |        VALUE(rr_result) TYPE REF TO data| )
-      ).
-    ENDIF.
-    lt_lines = VALUE #( BASE lt_lines
-        ( |      RAISING| )
-        ( |        ZCX_DBBR_SQL_QUERY_ERROR.| )
-        ( |ENDCLASS.| )
-        ( )
-        ( |CLASS main IMPLEMENTATION.| )
-        ( |  METHOD execute.| )
-        ( )
-    ).
+      ( |REPORT ZSQL_QUERY.| )
+      ( )
+      ( |CLASS main DEFINITION.| )
+      ( |  PUBLIC SECTION.| )
+      ( |    CLASS-METHODS execute| )
+      ( |      RETURNING| )
+      ( |        VALUE(rr_result) TYPE REF TO data| )
+      ( |      RAISING| )
+      ( |        ZCX_DBBR_SQL_QUERY_ERROR.| )
+      ( |ENDCLASS.| )
+      ( )
+      ( |CLASS main IMPLEMENTATION.| )
+      ( |  METHOD execute.| )
+      ( |    FIELD-SYMBOLS: <lt_result> TYPE TABLE.| )
+      ( ) ).
 
 *.. Add parameters with their chosen values
     LOOP AT mt_parameter ASSIGNING FIELD-SYMBOL(<ls_parameter>).
@@ -193,7 +183,7 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
 
     ASSIGN lt_lines_temp[ ms_query-last_row_in_select_stmnt ] TO FIELD-SYMBOL(<lv_last_query_line>).
     IF ms_query-is_single_result_query = abap_true.
-      <lv_last_query_line> = |{ <lv_last_query_line>(ms_query-last_row_offset) } INTO @rv_count|.
+      <lv_last_query_line> = |{ <lv_last_query_line>(ms_query-last_row_offset) } INTO @DATA(result)|.
     ELSE.
       <lv_last_query_line> = |{ <lv_last_query_line>(ms_query-last_row_offset) } INTO TABLE @DATA(result)|.
     ENDIF.
@@ -209,28 +199,36 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
     DATA: lr_result TYPE REF TO data.
 
     lt_lines = VALUE #( BASE lt_lines
-       ( |    TRY.| )
-       ( LINES OF lt_lines_temp )
-    ).
-    IF ms_query-is_single_result_query = abap_false.
+      ( |    TRY.| )
+      ( LINES OF lt_lines_temp ) ).
+
+    IF ms_query-is_single_result_query = abap_true.
       lt_lines = VALUE #( BASE lt_lines
-         ( |        CREATE DATA rr_result LIKE result.| )
-         ( |        ASSIGN rr_result->* to FIELD-SYMBOL(<lt_result>).| )
-         ( |        <lt_result> = result.| )
-      ).
+       ( |        CREATE DATA rr_result LIKE TABLE OF result.| ) ).
+    ELSE.
+      lt_lines = VALUE #( BASE lt_lines
+       ( |        CREATE DATA rr_result LIKE result.| ) ).
     ENDIF.
-    lt_lines = VALUE #( BASE lt_lines
-       ( |      CATCH cx_root INTO DATA(lx_root).| )
-       ( |        RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error| )
-       ( |          EXPORTING| )
-       ( |            previous = lx_root.| )
-       ( |    ENDTRY.| )
-    ).
 
     lt_lines = VALUE #( BASE lt_lines
-        ( |  ENDMETHOD.| )
-        ( |ENDCLASS.| )
-    ).
+      ( |        ASSIGN rr_result->* to <lt_result>.| ) ).
+
+    IF ms_query-is_single_result_query = abap_true.
+      lt_lines = VALUE #( BASE lt_lines
+        ( |      INSERT result INTO TABLE <lt_result>.| ) ).
+    ELSE.
+      lt_lines = VALUE #( BASE lt_lines
+        ( |      <lt_result> = result.| ) ).
+    ENDIF.
+
+    lt_lines = VALUE #( BASE lt_lines
+      ( |      CATCH cx_root INTO DATA(lx_root).| )
+      ( |        RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error| )
+      ( |          EXPORTING| )
+      ( |            previous = lx_root.| )
+      ( |    ENDTRY.| )
+      ( |  ENDMETHOD.| )
+      ( |ENDCLASS.| ) ).
 
 *.. Generate the subroutine
     GENERATE SUBROUTINE POOL lt_lines
@@ -262,15 +260,15 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
           ls_table_field_details TYPE abap_compdescr,
           lt_data_fields         TYPE abap_compdescr_tab,
           ls_data_field          TYPE abap_compdescr,
-
+          lf_is_elementary_table TYPE abap_bool,
           lv_col_value           TYPE string,
           lv_data_cell_col_val   TYPE string,
 
           lt_types               TYPE RANGE OF abap_typekind.
 
     FIELD-SYMBOLS: <lt_dyn_table>         TYPE ANY TABLE,
-                   <ls_dyn_table_row>     TYPE any,
-                   <ls_column_value>      TYPE any,
+                   <la_dyn_table_row>     TYPE any,
+                   <la_column_value>      TYPE any,
                    <ls_data_cell_col_val> TYPE any,
                    <ls_table_col>         TYPE zdbbr_dp_column.
 
@@ -284,12 +282,21 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
 
     lo_ref_table_des ?=  cl_abap_typedescr=>describe_by_data_ref( p_data_ref = ir_query_result ).
 
-    TRY.
-        lo_ref_table_line_des  ?=  lo_ref_table_des->get_table_line_type( ).
-        lt_table_field_details =  lo_ref_table_line_des->components.
-      CATCH cx_sy_move_cast_error INTO DATA(lx_sy_move_cast_error).
-        RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error.
-    ENDTRY.
+    DATA(lo_line_descr) = lo_ref_table_des->get_table_line_type( ).
+
+    IF lo_line_descr->kind = cl_abap_typedescr=>kind_elem.
+      lf_is_elementary_table = abap_true.
+      lt_table_field_details = VALUE #(
+        ( name      = 'VALUE'
+          decimals  = lo_line_descr->decimals
+          length    = lo_line_descr->length
+          type_kind = lo_line_descr->type_kind ) ).
+    ELSEIF lo_line_descr->kind = cl_abap_typedescr=>kind_struct.
+      lt_table_field_details = CAST cl_abap_structdescr( lo_line_descr )->components.
+      lo_ref_table_line_des ?= lo_line_descr.
+    ELSE.
+      RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error.
+    ENDIF.
 
     LOOP AT lt_table_field_details INTO ls_table_field_details.
       DATA(lv_rollname) = VALUE rollname( ).
@@ -299,9 +306,12 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
       DATA(lv_decimals) = VALUE decimals( ).
       DATA(lv_description) = VALUE ddtext( ).
 
-      DATA(lr_comp_type) = lo_ref_table_line_des->get_component_type( p_name = ls_table_field_details-name ).
-      IF lr_comp_type->is_ddic_type( ) AND lr_comp_type->kind <> lr_comp_type->kind_struct.
-        DATA(ls_ddic_header) = CAST cl_abap_elemdescr( lr_comp_type )->get_ddic_field( ).
+      DATA(lo_comp_type) = SWITCH #( lf_is_elementary_table
+       WHEN abap_true THEN lo_line_descr
+                      ELSE lo_ref_table_line_des->get_component_type( p_name = ls_table_field_details-name ) ).
+
+      IF lo_comp_type->is_ddic_type( ) AND lo_comp_type->kind <> lo_comp_type->kind_struct.
+        DATA(ls_ddic_header) = CAST cl_abap_elemdescr( lo_comp_type )->get_ddic_field( ).
         lv_rollname = ls_ddic_header-rollname.
         lv_domname = ls_ddic_header-domname.
         lv_decimals = ls_ddic_header-decimals.
@@ -315,10 +325,10 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
           ELSE ls_ddic_header-fieldname
         ).
       ELSE.
-        lv_decimals = lr_comp_type->decimals.
+        lv_decimals = lo_comp_type->decimals.
         lv_description = ls_table_field_details-name.
-        lv_length = lr_comp_type->length.
-        lv_int_length = lr_comp_type->length.
+        lv_length = lo_comp_type->length.
+        lv_int_length = lo_comp_type->length.
       ENDIF.
 
 *.... add metadata
@@ -341,29 +351,34 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
     cs_result-line_count = lines( <lt_dyn_table> ).
 
 *.. Fill the data sets of the columns
-    LOOP AT <lt_dyn_table> ASSIGNING <ls_dyn_table_row>.
+    LOOP AT <lt_dyn_table> ASSIGNING <la_dyn_table_row>.
 
       LOOP AT lt_table_field_details INTO ls_table_field_details.
 
         CLEAR  lv_col_value .
-        UNASSIGN <ls_column_value>.
+        UNASSIGN <la_column_value>.
 
-        ASSIGN COMPONENT ls_table_field_details-name OF STRUCTURE <ls_dyn_table_row> TO <ls_column_value>.
+        IF lf_is_elementary_table = abap_true.
+          ASSIGN <la_dyn_table_row> TO <la_column_value>.
+        ELSE.
+          ASSIGN COMPONENT ls_table_field_details-name OF STRUCTURE <la_dyn_table_row> TO <la_column_value>.
+        ENDIF.
+
         ASSIGN cs_result-columns[ metadata-name = ls_table_field_details-name ] TO <ls_table_col>.
 
         IF <ls_table_col>  IS ASSIGNED.
 
-          IF <ls_column_value> IS ASSIGNED.
+          IF <la_column_value> IS ASSIGNED.
 
             IF ls_table_field_details-type_kind EQ cl_abap_typedescr=>typekind_struct1 OR
                ls_table_field_details-type_kind EQ cl_abap_typedescr=>typekind_struct2.
               TRY.
-                  lo_data_ref ?= cl_abap_typedescr=>describe_by_data( p_data = <ls_column_value>  ).
+                  lo_data_ref ?= cl_abap_typedescr=>describe_by_data( p_data = <la_column_value>  ).
                   lt_data_fields = lo_data_ref->components.
 
                   LOOP AT lt_data_fields INTO ls_data_field.
                     CLEAR lv_data_cell_col_val.
-                    ASSIGN COMPONENT ls_data_field-name OF STRUCTURE <ls_column_value>  TO <ls_data_cell_col_val>.
+                    ASSIGN COMPONENT ls_data_field-name OF STRUCTURE <la_column_value>  TO <ls_data_cell_col_val>.
 
                     IF <ls_data_cell_col_val> IS ASSIGNED.
                       lv_data_cell_col_val = <ls_data_cell_col_val>.
@@ -384,7 +399,7 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
 
               ENDTRY.
             ELSE.
-              lv_col_value = <ls_column_value>.
+              lv_col_value = <la_column_value>.
 
             ENDIF.
           ENDIF.

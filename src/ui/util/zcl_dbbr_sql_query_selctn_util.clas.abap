@@ -60,12 +60,6 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
 
     CHECK select_data( ).
 
-    IF mo_query->ms_data-is_single_result_query = abap_true.
-      DATA(lv_number_of_lines) = |{ ms_control_info-number NUMBER = USER }|.
-      MESSAGE i024(zdbbr_info) WITH lv_number_of_lines.
-      RETURN.
-    ENDIF.
-
     IF mr_query_result IS NOT BOUND.
       raise_no_data_event( ).
       RETURN.
@@ -73,7 +67,6 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
 
     ASSIGN mr_query_result->* TO <lt_data>.
     ms_control_info-number = lines( <lt_data> ).
-
 
 *.. only count lines for current selection and display result
     IF mf_count_lines = abap_true.
