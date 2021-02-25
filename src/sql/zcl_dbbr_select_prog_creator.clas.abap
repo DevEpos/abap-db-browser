@@ -376,9 +376,14 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
         ev_message        = DATA(lv_message)
         ev_message_type   = DATA(lv_message_type)
         er_data           = DATA(lr_t_result)
-        ev_line_count     = DATA(lv_line_count)
     ).
-    rv_size = lv_line_count.
+
+    zcl_dbbr_sql_query_exec=>get_single_value_from_result(
+      EXPORTING
+        it_result_info = lt_data_info
+        ir_t_data      = lr_t_result
+      IMPORTING
+        ev_value       = rv_size ).
   ENDMETHOD.
 
 ENDCLASS.

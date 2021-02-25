@@ -18,6 +18,12 @@
      <LANGU>E</LANGU>
      <DESCRIPT>Execute the entered query and display the results</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC</CLSNAME>
+     <CMPNAME>GET_SINGLE_VALUE_FROM_RESULT</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Retrieves single column value from result</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>
