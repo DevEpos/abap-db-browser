@@ -26,9 +26,12 @@
   - Perform Row Grouping - Like SQL Group By
   - Quick Filter via Keybinding `F9` - Currently selected Cells are converted into ALV Filter
   - Hide/Discard Rows which are not relevant 
-  - Compare one or several rows - The rows should sorted
-  - Show additional text columns for columns whoose data type has domain fixed values or an assigned text table
+  - Compare one or several rows - The rows should be sorted
+  - Show additional text columns for columns whose data type has domain fixed values or an assigned text table
   - Show the cell content in a popup code editor
+  - Easy search and navigation to columns 
+  - Total calculation for arbitrary selected cells
+  - Direct navigation to SQL Console defaulted with the current select statement 
 - Advanced Features for CDS View
   - Support for Parameters
   - Follow Defined Associations (like ADT Data Output) up to 8 Levels deep
