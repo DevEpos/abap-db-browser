@@ -71,11 +71,10 @@ CLASS lcl_executor IMPLEMENTATION.
           lr_type = CAST #( cl_abap_typedescr=>describe_by_name( ls_metadata-rollname ) ).
         ELSE.
           TRY.
-              lr_type = cl_abap_elemdescr=>get_by_kind(
-                  p_type_kind = ls_metadata-typekind
-                  p_length    = ls_metadata-length
-                  p_decimals  = CONV #( ls_metadata-decimals )
-              ).
+              lr_type = zcl_uitb_rtti_util=>get_elemdescr_by_kind(
+                iv_type_kind = ls_metadata-typekind
+                iv_length    = ls_metadata-length
+                iv_decimals  = CONV #( ls_metadata-decimals ) ).
             CATCH cx_parameter_invalid_range.
               CASE ls_metadata-typekind.
                 WHEN cl_abap_typedescr=>typekind_struct1.

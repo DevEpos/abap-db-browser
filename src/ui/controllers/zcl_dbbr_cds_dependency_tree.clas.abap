@@ -26,6 +26,7 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     METHODS do_before_dynpro_output
         REDEFINITION.
   PRIVATE SECTION.
+    TYPES ty_bitmask TYPE x LENGTH 32.
     CONSTANTS:
       BEGIN OF c_dbl_click_action,
         function_prefix            TYPE string VALUE 'DBL_CLICK_ACTION_',
@@ -49,8 +50,18 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     CONSTANTS c_object_type_col TYPE tv_itmname VALUE 'OBJTYPE' ##NO_TEXT.
     CONSTANTS c_hierarchy_node2 TYPE tv_itmname VALUE 'HIER2' ##NO_TEXT.
     CONSTANTS c_fill_text_func TYPE sy-ucomm VALUE 'FILLTXT' ##no_text.
+    CONSTANTS c_metrics_provider_class TYPE classname VALUE 'CL_DD_DDL_META_NUM_COLLECTOR' ##NO_TEXT.
 
+    CONSTANTS:
+      BEGIN OF c_check_mask,
+        incl_associations TYPE ty_bitmask VALUE '00000004',
+      END OF c_check_mask.
 
+    CLASS-DATA:
+      BEGIN OF gs_metrics_settings,
+        settings_loaded   TYPE abap_bool,
+        has_bitmask_param TYPE abap_bool,
+      END OF gs_metrics_settings.
     DATA mv_dbl_click_action TYPE char1.
     DATA mf_tree_mode TYPE abap_bool VALUE abap_true.
     DATA mf_opened_from_adt TYPE abap_bool.
@@ -59,13 +70,16 @@ CLASS zcl_dbbr_cds_dependency_tree DEFINITION
     DATA mo_tree TYPE REF TO zcl_uitb_column_tree_model .
     DATA mv_view_name TYPE zsat_cds_view_name .
     DATA mt_node_map TYPE STANDARD TABLE OF ty_node_map WITH KEY node_key.
-    DATA ms_dependencies TYPE cl_ddls_dependency_visitor=>ty_s_dependency_graph_node.
+    DATA ms_dependencies TYPE zcl_sat_cds_dep_analyzer=>ty_s_dependency_graph_node.
     DATA ms_metrics_map TYPE cl_dd_ddl_meta_num_collector=>entity2number_map.
     DATA: mo_code_view TYPE REF TO zcl_uitb_abap_code_view,
           mo_splitter  TYPE REF TO zcl_uitb_gui_splitter_cont,
           mv_theme     TYPE zuitb_code_viewer_theme,
           mo_switch    TYPE REF TO zcl_uitb_gui_switch_container.
 
+    METHODS get_metrics_calculator
+      RETURNING
+        VALUE(ro_metrics_calculator) TYPE REF TO cl_dd_ddl_meta_num_collector.
     "! <p class="shorttext synchronized" lang="en">Add new node to the tree</p>
     METHODS add_node
       IMPORTING
@@ -193,13 +207,13 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
   METHOD add_node.
     DATA: lv_entity_type TYPE zsat_entity_type.
 
-    IF is_node-type = cl_ddls_dependency_visitor=>co_node_type-cds_view OR
-       is_node-type = cl_ddls_dependency_visitor=>co_node_type-cds_table_function OR
-       is_node-type = cl_ddls_dependency_visitor=>co_node_type-cds_db_view.
+    IF is_node-type = zcl_sat_cds_dep_analyzer=>c_node_type-cds_view OR
+         is_node-type = zcl_sat_cds_dep_analyzer=>c_node_type-cds_table_function OR
+         is_node-type = zcl_sat_cds_dep_analyzer=>c_node_type-cds_db_view.
       lv_entity_type = zif_sat_c_entity_type=>cds_view.
-    ELSEIF is_node-type = cl_ddls_dependency_visitor=>co_node_type-table.
+    ELSEIF is_node-type = zcl_sat_cds_dep_analyzer=>c_node_type-table.
       lv_entity_type = zif_sat_c_entity_type=>table.
-    ELSEIF is_node-type = cl_ddls_dependency_visitor=>co_node_type-view.
+    ELSEIF is_node-type = zcl_sat_cds_dep_analyzer=>c_node_type-view.
       lv_entity_type = zif_sat_c_entity_type=>view.
     ENDIF.
 
@@ -212,7 +226,9 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
           ( item_name = mo_tree->c_hierarchy_column
             font      = cl_item_tree_model=>item_font_prop
             class     = cl_item_tree_model=>item_class_text
-            text      = |{ COND #( WHEN is_node-user_defined_entity_name IS NOT INITIAL THEN is_node-user_defined_entity_name ELSE is_node-name ) }| )
+            text      = |{ COND #(
+              WHEN is_node-user_defined_entity_name IS NOT INITIAL THEN is_node-user_defined_entity_name
+              ELSE is_node-name ) }| )
           ( item_name = c_hierarchy_node2
             font      = cl_item_tree_model=>item_font_prop
             class     = cl_item_tree_model=>item_class_text
@@ -516,34 +532,33 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
   METHOD get_icon_for_node.
     rv_icon = SWITCH #(
       iv_type
-      WHEN cl_ddls_dependency_visitor=>co_node_type-table THEN zif_dbbr_c_icon=>database_table
-      WHEN cl_ddls_dependency_visitor=>co_node_type-cds_view THEN zif_dbbr_c_icon=>cds_view
-      WHEN cl_ddls_dependency_visitor=>co_node_type-cds_db_view THEN zif_dbbr_c_icon=>cds_view
-      WHEN cl_ddls_dependency_visitor=>co_node_type-view THEN zif_dbbr_c_icon=>database_view
-      WHEN cl_ddls_dependency_visitor=>co_node_type-cds_table_function THEN zif_dbbr_c_icon=>table_settings
-      WHEN cl_ddls_dependency_visitor=>co_node_type-external_view THEN zif_dbbr_c_icon=>external_source
-      WHEN cl_ddls_dependency_visitor=>co_node_type-select THEN ''
-      WHEN cl_ddls_dependency_visitor=>co_node_type-union THEN zif_dbbr_c_icon=>union
-      WHEN cl_ddls_dependency_visitor=>co_node_type-union_all THEN zif_dbbr_c_icon=>union
-      WHEN cl_ddls_dependency_visitor=>co_node_type-result THEN zif_dbbr_c_icon=>sql_result
-    ).
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-table THEN zif_dbbr_c_icon=>database_table
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-cds_view THEN zif_dbbr_c_icon=>cds_view
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-cds_db_view THEN zif_dbbr_c_icon=>cds_view
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-view THEN zif_dbbr_c_icon=>database_view
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-cds_table_function THEN zif_dbbr_c_icon=>table_settings
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-external_view THEN zif_dbbr_c_icon=>external_source
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-select THEN ''
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-union THEN zif_dbbr_c_icon=>union
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-union_all THEN zif_dbbr_c_icon=>union
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-result THEN zif_dbbr_c_icon=>sql_result ).
   ENDMETHOD.
 
 
   METHOD get_object_type_text.
     CASE iv_constant.
 
-      WHEN cl_ddls_dependency_visitor=>co_node_type-table.
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-table.
         rv_text = |{ 'Database Table (TABL)'(005) }|.
-      WHEN cl_ddls_dependency_visitor=>co_node_type-cds_view.
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-cds_view.
         rv_text = |{ 'CDS View (STOB)'(006) }|.
-      WHEN cl_ddls_dependency_visitor=>co_node_type-cds_db_view.
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-cds_db_view.
         rv_text = |{ 'CDS Database View (VIEW)'(007) }|.
-      WHEN cl_ddls_dependency_visitor=>co_node_type-view.
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-view.
         rv_text = |{ 'View (VIEW)'(008) }|.
-      WHEN cl_ddls_dependency_visitor=>co_node_type-cds_table_function.
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-cds_table_function.
         rv_text = |{ 'CDS Table Function'(009) }|.
-      WHEN cl_ddls_dependency_visitor=>co_node_type-external_view.
+      WHEN zcl_sat_cds_dep_analyzer=>c_node_type-external_view.
         rv_text = |{ 'External View'(010) }|.
 
     ENDCASE.
@@ -552,19 +567,19 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
   METHOD get_relation_text.
     CASE iv_constant.
-      WHEN cl_ddls_dependency_visitor=>co_relation_type-from.
+      WHEN zcl_sat_cds_dep_analyzer=>c_relation_type-from.
         rv_text = |{ 'From'(014) }|.
-      WHEN cl_ddls_dependency_visitor=>co_relation_type-inner_join.
+      WHEN zcl_sat_cds_dep_analyzer=>c_relation_type-inner_join.
         rv_text = |{ 'Inner Join'(015) }|.
-      WHEN cl_ddls_dependency_visitor=>co_relation_type-left_outer_join.
+      WHEN zcl_sat_cds_dep_analyzer=>c_relation_type-left_outer_join.
         rv_text = |{ 'Left Outer Join'(016) }|.
-      WHEN cl_ddls_dependency_visitor=>co_relation_type-right_outer_join.
+      WHEN zcl_sat_cds_dep_analyzer=>c_relation_type-right_outer_join.
         rv_text = |{ 'Right Outer Join'(017) }|.
-      WHEN cl_ddls_dependency_visitor=>co_relation_type-select.
+      WHEN zcl_sat_cds_dep_analyzer=>c_relation_type-select.
         rv_text = |{ 'Select'(011) }|.
-      WHEN cl_ddls_dependency_visitor=>co_relation_type-union.
+      WHEN zcl_sat_cds_dep_analyzer=>c_relation_type-union.
         rv_text = |{ 'Union'(012) }|.
-      WHEN cl_ddls_dependency_visitor=>co_relation_type-union_all.
+      WHEN zcl_sat_cds_dep_analyzer=>c_relation_type-union_all.
         rv_text = |{ 'Union All'(013) }|.
     ENDCASE.
   ENDMETHOD.
@@ -728,12 +743,11 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
   METHOD show_complexity_metrics.
     IF ms_metrics_map IS INITIAL.
-      zcl_uitb_screen_util=>show_progress( iv_progress = 1 iv_text = |{ 'Calculating Metrics...'(038) }| ).
+      zcl_uitb_screen_util=>show_progress(
+        iv_progress = 1
+        iv_text = |{ 'Calculating Metrics...'(038) }| ).
 
-      DATA(lo_metrics_calculator) = NEW cl_dd_ddl_meta_num_collector(
-        descend = abap_true
-        bitmask = cl_dd_ddl_meta_num_collector=>c_check_mask-incl_associations
-      ).
+      DATA(lo_metrics_calculator) = get_metrics_calculator( ).
       lo_metrics_calculator->visitddlsource( iv_dsname = to_upper( mv_view_name ) ).
       ms_metrics_map = lo_metrics_calculator->getnumbermap( ).
     ENDIF.
@@ -743,7 +757,8 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
     zcl_uitb_popup_help_viewer=>create(
       iv_title        = |{ 'Complexity Metrics for'(018) } { mv_view_name }|
-      iv_style        = |td:first-child \{ width: 200px; \} td:nth-child(2) \{ color: Gray; width: 50px; text-align: right; \}|
+      iv_style        = |td:first-child \{ width: 200px; \} td:nth-child(2) | &&
+                        |\{ color: Gray; width: 50px; text-align: right; \}|
       ir_html_content = NEW zcl_uitb_html_content(
         )->add_heading(
           iv_text = |{ 'Used Data Sources'(019) }|
@@ -1062,4 +1077,27 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
         if_load_parameters = abap_true.
   ENDMETHOD.
 
+
+  METHOD get_metrics_calculator.
+    IF gs_metrics_settings-settings_loaded = abap_false.
+      DATA(lo_metrics_coll_typeref) = CAST cl_abap_classdescr(
+        cl_abap_typedescr=>describe_by_name( c_metrics_provider_class ) ).
+      gs_metrics_settings-has_bitmask_param =
+        xsdbool( line_exists( lo_metrics_coll_typeref->methods[
+          name = 'CONSTRUCTOR' ]-parameters[
+            name = 'BITMASK' ] ) ).
+      gs_metrics_settings-settings_loaded = abap_true.
+    ENDIF.
+
+    IF gs_metrics_settings-has_bitmask_param = abap_true.
+      CREATE OBJECT ro_metrics_calculator TYPE (c_metrics_provider_class)
+        EXPORTING
+          descend = abap_true
+          bitmask = c_check_mask-incl_associations.
+    ELSE.
+      CREATE OBJECT ro_metrics_calculator TYPE (c_metrics_provider_class)
+        EXPORTING
+          descend = abap_true.
+    ENDIF.
+  ENDMETHOD.
 ENDCLASS.
