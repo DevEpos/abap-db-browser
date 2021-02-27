@@ -4827,9 +4827,8 @@
       <TEXT_TYPE>S</TEXT_TYPE>
       <TEXT_NAME>ICON_EXECUTE_OBJECT</TEXT_NAME>
       <ICON_ID>@15@</ICON_ID>
-      <FUN_TEXT>Execute without Groupting</FUN_TEXT>
+      <FUN_TEXT>Execute without Grouping</FUN_TEXT>
       <ICON_TEXT>Without Grouping</ICON_TEXT>
-      <USAGE>D</USAGE>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>EXECSCRIPT</CODE>
