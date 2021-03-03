@@ -39,5 +39,6 @@ INTERFACE zif_dbbr_ty_global
       navigation_info            TYPE zsat_cds_association,
       source_entity_id           TYPE zsat_entity_id,
       source_entity_where_cond   TYPE string_table,
+      source_entity_param_values type zif_sat_ty_global=>ty_t_cds_param_value,
     END OF ty_sel_ctrl_serialized.
 ENDINTERFACE.

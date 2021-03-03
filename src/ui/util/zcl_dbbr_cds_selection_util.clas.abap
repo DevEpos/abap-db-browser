@@ -62,7 +62,7 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
     "! @parameter EV_CHOSEN_ENTITY_TYPE | <p class="shorttext synchronized" lang="en"></p>
     "! @parameter ES_CHOSEN_ASSOCIATION | <p class="shorttext synchronized" lang="en"></p>
     METHODS on_association_chosen
-        FOR EVENT entity_chosen OF zcl_dbbr_cds_sub_entity_sel
+      FOR EVENT entity_chosen OF zcl_dbbr_cds_sub_entity_sel
       IMPORTING
         !ev_chosen_entity_id
         !ev_chosen_entity_type
@@ -196,17 +196,32 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       lv_entity = mv_cds_view.
     ENDIF.
 
-    IF mo_cds_view->has_parameters( ).
+*..if we have a source entity it means we also have to use it´s parameters
+*... e.g when following associations
+    IF mv_source_entity_id IS NOT INITIAL
+        AND mt_source_param_values IS NOT INITIAL.
+
+      DATA(lt_param_values) = mt_source_param_values.
+
+    ELSEIF mo_cds_view->has_parameters( ).
+
+      lt_param_values = VALUE zif_sat_ty_global=>ty_t_cds_param_value( FOR ls_param_value IN mt_param_values WHERE ( is_parameter = abap_true )
+                                                                              ( name  = ls_param_value-fieldname
+                                                                                value = ls_param_value-low ) ).
+
+    ENDIF.
+
+    IF lt_param_values IS NOT INITIAL.
 *...from clause has to be single line for the parameters select to work
       DATA(lv_from_line) = |{ lv_entity }( |.
 
-      DATA(lv_param_count) = lines( mo_cds_view->get_parameters( if_exclude_system_params = abap_true ) ).
+      DATA(lv_param_count) = lines( lt_param_values ).
 
 *...fill parameter values
-      LOOP AT mt_param_values ASSIGNING FIELD-SYMBOL(<ls_param>) WHERE is_parameter = abap_true.
+      LOOP AT lt_param_values ASSIGNING FIELD-SYMBOL(<ls_param>).
         ADD 1 TO lv_handled_params.
 
-        lv_from_line = |{ lv_from_line }{ <ls_param>-fieldname } = { cl_abap_dyn_prg=>quote( <ls_param>-low ) }|.
+        lv_from_line = |{ lv_from_line }{ <ls_param>-name } = { cl_abap_dyn_prg=>quote( <ls_param>-value ) }|.
 
         IF lv_handled_params <> lv_param_count.
           lv_from_line = |{ lv_from_line }, |.
@@ -226,6 +241,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     ELSE.
       mt_from = VALUE #( ( lv_entity && lv_from_alias_text ) ).
     ENDIF.
+
   ENDMETHOD.
 
 
