@@ -18,7 +18,7 @@ ENDCLASS.
 CLASS zcl_dbbr_app_starter IMPLEMENTATION.
 
   METHOD start_selection_from_memory.
-    DATA: ls_controller_data TYPE zdbbr_sel_ctrl_serialized,
+    DATA: ls_controller_data TYPE zif_dbbr_ty_global=>ty_sel_ctrl_serialized,
           lr_t_for_all_data  TYPE REF TO data,
           lv_mem_id          TYPE char32.
 

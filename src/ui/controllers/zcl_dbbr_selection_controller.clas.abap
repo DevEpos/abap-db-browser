@@ -55,7 +55,7 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     "! <p class="shorttext synchronized" lang="en">Create new controller instance from memory</p>
     CLASS-METHODS create_controller_from_data
       IMPORTING
-        !is_controller_serialized TYPE zdbbr_sel_ctrl_serialized
+        !is_controller_serialized TYPE zif_dbbr_ty_global=>ty_sel_ctrl_serialized
         !ir_t_for_all_data        TYPE REF TO data OPTIONAL
         !if_not_first_screen_call TYPE abap_bool
       RETURNING
@@ -190,46 +190,46 @@ CLASS zcl_dbbr_selection_controller DEFINITION
     "! <p class="shorttext synchronized" lang="en">Discard all non selected rows</p>
     METHODS keep_selected_rows .
     METHODS on_after_user_command
-        FOR EVENT after_user_command OF cl_gui_alv_grid
+      FOR EVENT after_user_command OF cl_gui_alv_grid
       IMPORTING
         !e_not_processed
         !e_saved
         !e_ucomm .
     METHODS on_before_user_command
-        FOR EVENT before_user_command OF cl_gui_alv_grid
+      FOR EVENT before_user_command OF cl_gui_alv_grid
       IMPORTING
         !e_ucomm .
     METHODS on_context_menu_request
-        FOR EVENT context_menu_request OF cl_gui_alv_grid
+      FOR EVENT context_menu_request OF cl_gui_alv_grid
       IMPORTING
         !e_object .
     METHODS on_double_click
-        FOR EVENT double_click OF cl_gui_alv_grid
+      FOR EVENT double_click OF cl_gui_alv_grid
       IMPORTING
         !e_row
         !e_column
         !es_row_no .
     METHODS on_hotspot_click
-        FOR EVENT hotspot_click OF cl_gui_alv_grid
+      FOR EVENT hotspot_click OF cl_gui_alv_grid
       IMPORTING
         !e_column_id
         !e_row_id
         !es_row_no .
     METHODS on_no_data
-        FOR EVENT no_data OF zcl_dbbr_selection_util
+      FOR EVENT no_data OF zcl_dbbr_selection_util
       IMPORTING
         ef_criteria_exist.
     METHODS on_selection_finish
-        FOR EVENT selection_finished OF zcl_dbbr_selection_util
+      FOR EVENT selection_finished OF zcl_dbbr_selection_util
       IMPORTING
         ef_first_select
         ef_reset_alv_table.
     METHODS on_toolbar_clicked
-        FOR EVENT function_selected OF cl_gui_toolbar
+      FOR EVENT function_selected OF cl_gui_toolbar
       IMPORTING
         !fcode .
     METHODS on_user_command
-        FOR EVENT user_command OF cl_gui_alv_grid
+      FOR EVENT user_command OF cl_gui_alv_grid
       IMPORTING
         !e_ucomm .
     "! <p class="shorttext synchronized" lang="en">Performs a quick filter</p>
