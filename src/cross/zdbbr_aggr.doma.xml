@@ -40,40 +40,6 @@
      <DDTEXT>Average</DDTEXT>
     </DD07V>
    </DD07V_TAB>
-   <I18N_LANGS>
-    <LANGU>D</LANGU>
-   </I18N_LANGS>
-   <DD01_TEXTS>
-    <item>
-     <DDLANGUAGE>D</DDLANGUAGE>
-     <DDTEXT>DB Browser: Aggregation functions</DDTEXT>
-    </item>
-   </DD01_TEXTS>
-   <DD07_TEXTS>
-    <item>
-     <VALPOS>0001</VALPOS>
-     <DDLANGUAGE>D</DDLANGUAGE>
-     <DDTEXT>Keine Aggregation</DDTEXT>
-    </item>
-    <item>
-     <VALPOS>0002</VALPOS>
-     <DDLANGUAGE>D</DDLANGUAGE>
-     <DOMVALUE_L>MAX</DOMVALUE_L>
-     <DDTEXT>Maximum</DDTEXT>
-    </item>
-    <item>
-     <VALPOS>0003</VALPOS>
-     <DDLANGUAGE>D</DDLANGUAGE>
-     <DOMVALUE_L>MIN</DOMVALUE_L>
-     <DDTEXT>Minimum</DDTEXT>
-    </item>
-    <item>
-     <VALPOS>0004</VALPOS>
-     <DDLANGUAGE>D</DDLANGUAGE>
-     <DOMVALUE_L>AVG</DOMVALUE_L>
-     <DDTEXT>Durchschnitt</DDTEXT>
-    </item>
-   </DD07_TEXTS>
   </asx:values>
  </asx:abap>
 </abapGit>

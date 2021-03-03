@@ -26,29 +26,6 @@
      <DOMVALUE_L>OR</DOMVALUE_L>
     </DD07V>
    </DD07V_TAB>
-   <I18N_LANGS>
-    <LANGU>D</LANGU>
-   </I18N_LANGS>
-   <DD01_TEXTS>
-    <item>
-     <DDLANGUAGE>D</DDLANGUAGE>
-     <DDTEXT>AND/OR Verknüpfung in einer Selektionsbedingung</DDTEXT>
-    </item>
-   </DD01_TEXTS>
-   <DD07_TEXTS>
-    <item>
-     <VALPOS>0001</VALPOS>
-     <DDLANGUAGE>D</DDLANGUAGE>
-     <DOMVALUE_L>AND</DOMVALUE_L>
-     <DDTEXT>&quot;Und&quot;-Verknüpfung</DDTEXT>
-    </item>
-    <item>
-     <VALPOS>0002</VALPOS>
-     <DDLANGUAGE>D</DDLANGUAGE>
-     <DOMVALUE_L>OR</DOMVALUE_L>
-     <DDTEXT>&quot;Oder&quot;-Verknüpfung</DDTEXT>
-    </item>
-   </DD07_TEXTS>
   </asx:values>
  </asx:abap>
 </abapGit>

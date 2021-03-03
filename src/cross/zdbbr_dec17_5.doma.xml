@@ -13,15 +13,6 @@
     <CONVEXIT>NUM</CONVEXIT>
     <DDTEXT>Decimal number with 17 digits and 5 decimal places</DDTEXT>
    </DD01V>
-   <I18N_LANGS>
-    <LANGU>D</LANGU>
-   </I18N_LANGS>
-   <DD01_TEXTS>
-    <item>
-     <DDLANGUAGE>D</DDLANGUAGE>
-     <DDTEXT>Decimal number with 17 digits and 5 decimal places</DDTEXT>
-    </item>
-   </DD01_TEXTS>
   </asx:values>
  </asx:abap>
 </abapGit>
