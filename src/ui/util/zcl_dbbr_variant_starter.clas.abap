@@ -431,12 +431,7 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
       ).
     ENDIF.
 
-    " read global data from current global data.
-    DATA(lr_s_global_data) = CAST zdbbr_global_data( zcl_uitb_data_cache=>get_instance(
-      zif_dbbr_c_report_id=>main
-    )->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_data ) ).
-
-    ms_global_data = lr_s_global_data->*.
+    ms_global_data-settings = zcl_dbbr_usersettings_factory=>get_settings( ).
     ms_global_data-primary_table = lv_tabname.
   ENDMETHOD.
 
