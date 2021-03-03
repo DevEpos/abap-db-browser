@@ -128,6 +128,7 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
         navigation_count           = mv_nav_count + 1
         source_entity_id           = mr_source_cds_view->get_header( )-entityname
         source_entity_where_cond   = mt_where
+        source_entity_param_values = mt_param_values
     ).
 
     lv_mem_id = zif_dbbr_c_report_id=>main && sy-uname.
