@@ -117,17 +117,17 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
       ( |{ ms_association-ref_cds_view_raw }| )
     ).
 
-    DATA(ls_controller_data) = VALUE zdbbr_sel_ctrl_serialized(
-        entity_id                = ms_association-ref_cds_view
-        entity_type              = mv_entity_type
-        technical_info           = ms_tech_info
-        tabfields_data           = ls_tabfield_data
-        tabfields_all_data       = ls_tabfield_data
-        navigation_info          = ms_association
-        navigation_breadcrumbs   = mt_nav_breadcrumbs
-        navigation_count         = mv_nav_count + 1
-        source_entity_id         = mr_source_cds_view->get_header( )-entityname
-        source_entity_where_cond = mt_where
+    DATA(ls_controller_data) = VALUE zif_dbbr_ty_global=>ty_sel_ctrl_serialized(
+        entity_id                  = ms_association-ref_cds_view
+        entity_type                = mv_entity_type
+        technical_info             = ms_tech_info
+        tabfields_data             = ls_tabfield_data
+        tabfields_all_data         = ls_tabfield_data
+        navigation_info            = ms_association
+        navigation_breadcrumbs     = mt_nav_breadcrumbs
+        navigation_count           = mv_nav_count + 1
+        source_entity_id           = mr_source_cds_view->get_header( )-entityname
+        source_entity_where_cond   = mt_where
     ).
 
     lv_mem_id = zif_dbbr_c_report_id=>main && sy-uname.
