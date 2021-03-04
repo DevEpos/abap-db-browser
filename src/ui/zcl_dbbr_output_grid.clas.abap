@@ -256,9 +256,6 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f11
         mapped_function = zif_dbbr_c_selection_functions=>save_selection_as_f4
         text            = |{ 'Save as Value Help'(047) }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f10
-        mapped_function = zif_dbbr_c_selection_functions=>show_cds_source
-        text            = |{ 'Show CDS Source Code'(052) }| )
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f12
         mapped_function = zif_dbbr_c_selection_functions=>show_sql_of_select
         text            = |{ 'Show SQL of current Selection'(048) }| )
