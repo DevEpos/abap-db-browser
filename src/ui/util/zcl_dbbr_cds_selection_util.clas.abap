@@ -181,9 +181,9 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
 
   METHOD create_from_clause.
-    DATA: lv_handled_params  TYPE i,
-          lv_from_alias_text TYPE string,
-          lv_entity          TYPE tabname.
+    DATA: lv_from_alias_text TYPE string,
+          lv_entity          TYPE string,
+          lt_param_values    TYPE zif_sat_ty_global=>ty_t_cds_param_value.
 
     DATA(ls_header) = mo_cds_view->get_header( ).
     IF mv_source_entity_id IS NOT INITIAL.
@@ -200,44 +200,30 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 *... e.g when following associations
     IF mv_source_entity_id IS NOT INITIAL
         AND mt_source_param_values IS NOT INITIAL.
-
-      DATA(lt_param_values) = mt_source_param_values.
-
+      lt_param_values = mt_source_param_values.
     ELSEIF mo_cds_view->has_parameters( ).
-
-      lt_param_values = VALUE zif_sat_ty_global=>ty_t_cds_param_value( FOR ls_param_value IN mt_param_values WHERE ( is_parameter = abap_true )
-                                                                              ( name  = ls_param_value-fieldname
-                                                                                value = ls_param_value-low ) ).
-
+      lt_param_values = VALUE zif_sat_ty_global=>ty_t_cds_param_value(
+        FOR ls_param_value IN mt_param_values
+        WHERE ( is_parameter = abap_true )
+        ( name  = ls_param_value-fieldname
+          value = ls_param_value-low ) ).
     ENDIF.
 
     IF lt_param_values IS NOT INITIAL.
-*...from clause has to be single line for the parameters select to work
-      DATA(lv_from_line) = |{ lv_entity }( |.
+      lv_entity = |{ lv_entity }( |.
+      DATA(lv_spaces) = ``.
+      DO strlen( lv_entity ) TIMES.
+        lv_spaces = lv_spaces && ` `.
+      ENDDO.
 
-      DATA(lv_param_count) = lines( lt_param_values ).
+      DATA(lv_from_with_params) = REDUCE string(
+        INIT value = lv_entity sep = ``
+        FOR param IN lt_param_values
+        NEXT value = |{ value }{ sep }{ param-name } = { cl_abap_dyn_prg=>quote( param-value ) }|
+             sep = `,` && cl_abap_char_utilities=>cr_lf && lv_spaces ).
+      lv_from_with_params = lv_from_alias_text && ` )`.
 
-*...fill parameter values
-      LOOP AT lt_param_values ASSIGNING FIELD-SYMBOL(<ls_param>).
-        ADD 1 TO lv_handled_params.
-
-        lv_from_line = |{ lv_from_line }{ <ls_param>-name } = { cl_abap_dyn_prg=>quote( <ls_param>-value ) }|.
-
-        IF lv_handled_params <> lv_param_count.
-          lv_from_line = |{ lv_from_line }, |.
-        ELSE.
-          lv_from_line = |{ lv_from_line } ){ lv_from_alias_text }|.
-        ENDIF.
-
-        mt_from = VALUE #( BASE mt_from ( lv_from_line ) ).
-        CLEAR: lv_from_line.
-      ENDLOOP.
-
-*... no parameter was added, so just add the name of the cds view
-      IF sy-subrc <> 0.
-        mt_from = VALUE #( ( lv_entity && lv_from_alias_text ) ).
-      ENDIF.
-
+      SPLIT lv_from_with_params AT cl_abap_char_utilities=>cr_lf INTO TABLE mt_from.
     ELSE.
       mt_from = VALUE #( ( lv_entity && lv_from_alias_text ) ).
     ENDIF.
