@@ -121,6 +121,11 @@ CLASS zcl_dbbr_selection_util DEFINITION
         !cs_fieldcat TYPE lvc_s_fcat .
     "! <p class="shorttext synchronized" lang="en">Update where condition from ALV Filter</p>
     METHODS update_selection_for_filter .
+    METHODS get_sel_count_text
+      IMPORTING
+        iv_filtered_line_count TYPE sy-tabix
+      RETURNING
+        VALUE(rv_result)       TYPE string.
   PROTECTED SECTION.
 
     TYPES:
@@ -1647,7 +1652,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
                                     lv_alias_prefix && lv_scrtext_m && lv_textfield_suffix
                                   WHEN lv_scrtext_l IS NOT INITIAL THEN
                                     lv_alias_prefix && lv_scrtext_l && lv_textfield_suffix
-                                  when lv_scrtext_s is not INITIAL then
+                                  WHEN lv_scrtext_s IS NOT INITIAL THEN
                                     lv_alias_prefix && lv_scrtext_s && lv_textfield_suffix
                                   WHEN lv_ddtext IS NOT INITIAL THEN
                                     lv_alias_prefix && lv_ddtext && lv_textfield_suffix
@@ -1844,6 +1849,14 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD get_sel_count_text.
+    IF sy-dbsys <> 'HDB' OR mf_custom_query_active = abap_true.
+      rv_result = |{ iv_filtered_line_count NUMBER = USER } Entries|.
+    ELSE.
+      rv_result = |{ iv_filtered_line_count NUMBER = USER } of | &&
+        |{ mv_max_lines_existing NUMBER = USER } Entries|.
+    ENDIF.
+  ENDMETHOD.
 
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
     result = mt_exclude_function.

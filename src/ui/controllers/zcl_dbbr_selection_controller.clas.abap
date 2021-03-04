@@ -2571,11 +2571,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
                                            ELSE
                                              current_line_count( ) - lv_alv_filtered_entries ).
 
-    IF sy-dbsys <> 'HDB' OR mo_util->mf_custom_query_active = abap_true.
-      DATA(lv_selection_count_text) = |{ lv_filtered_line_count NUMBER = USER } Entries|.
-    ELSE.
-      lv_selection_count_text = |{ lv_filtered_line_count NUMBER = USER } of { mo_util->mv_max_lines_existing NUMBER = USER } Entries|.
-    ENDIF.
+    data(lv_selection_count_text) = mo_util->get_sel_count_text( exporting iv_filtered_line_count = lv_filtered_line_count ).
 
     SET TITLEBAR 'OUTPUT_TITLE' OF PROGRAM zif_dbbr_c_report_id=>output WITH lv_select_type_text lv_selection_count_text.
   ENDMETHOD.
