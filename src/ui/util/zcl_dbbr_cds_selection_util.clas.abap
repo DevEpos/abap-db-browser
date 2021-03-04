@@ -538,33 +538,15 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>change_cds_parameters.
     ENDIF.
 
-    DATA(lf_disable_assocs) = abap_true.
-
     IF mo_cds_view->has_associations( ).
-*.... Check if there any key fields (apart from the client field) otherwise an association cannot
-*.... be followed via sql path expresssions
-      LOOP AT mo_cds_view->get_columns( ) ASSIGNING FIELD-SYMBOL(<ls_col>) WHERE keyflag = abap_true
-                                                                             AND datatype <> 'CLNT'.
-        EXIT.
-      ENDLOOP.
-
-      IF sy-subrc = 0.
-        CLEAR lf_disable_assocs.
-
-        IF ms_technical_info-assoc_sel_mode <> zif_dbbr_c_assoc_select_mode=>docked.
-          result = VALUE #( BASE result
-            ( zif_dbbr_c_selection_functions=>set_focus_to_assoc_list )
-          ).
-        ENDIF.
+      IF ms_technical_info-assoc_sel_mode <> zif_dbbr_c_assoc_select_mode=>docked.
+        result = VALUE #( BASE result
+          ( zif_dbbr_c_selection_functions=>set_focus_to_assoc_list ) ).
       ENDIF.
-
-    ENDIF.
-
-    IF lf_disable_assocs = abap_true.
+    ELSE.
       result = VALUE #( BASE result
         ( zif_dbbr_c_selection_functions=>navigate_association )
-        ( zif_dbbr_c_selection_functions=>set_focus_to_assoc_list )
-      ).
+        ( zif_dbbr_c_selection_functions=>set_focus_to_assoc_list ) ).
     ENDIF.
   ENDMETHOD.
 
