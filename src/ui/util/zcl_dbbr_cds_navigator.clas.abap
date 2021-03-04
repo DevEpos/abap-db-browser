@@ -171,7 +171,7 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
         ).
       ENDLOOP.
 
-      IF lines( lt_key_fields ) = lines( lt_cond_tab ).
+      IF lt_cond_tab IS NOT INITIAL AND lines( lt_key_fields ) = lines( lt_cond_tab ).
         lt_or_tab = VALUE #( BASE lt_or_tab ( values = lt_cond_tab ) ).
       ENDIF.
     ENDLOOP.
@@ -189,9 +189,12 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
     DATA(lt_not_null_cond) = VALUE zif_sat_ty_global=>ty_t_or_seltab_sql( ( values = lt_cond_tab ) ).
 
     lt_and_tab = VALUE #(
-      ( lt_not_null_cond )
-      ( lt_or_tab )
-    ).
+      ( lt_not_null_cond ) ).
+
+    IF lt_or_tab IS NOT INITIAL.
+      APPEND lt_or_tab TO lt_and_tab.
+    ENDIF.
+
     mt_where = zcl_sat_where_clause_builder=>create_and_condition( lt_and_tab ).
 
   ENDMETHOD.
