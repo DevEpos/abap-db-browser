@@ -1647,6 +1647,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
                                     lv_alias_prefix && lv_scrtext_m && lv_textfield_suffix
                                   WHEN lv_scrtext_l IS NOT INITIAL THEN
                                     lv_alias_prefix && lv_scrtext_l && lv_textfield_suffix
+                                  when lv_scrtext_s is not INITIAL then
+                                    lv_alias_prefix && lv_scrtext_s && lv_textfield_suffix
                                   WHEN lv_ddtext IS NOT INITIAL THEN
                                     lv_alias_prefix && lv_ddtext && lv_textfield_suffix
                                   ELSE
