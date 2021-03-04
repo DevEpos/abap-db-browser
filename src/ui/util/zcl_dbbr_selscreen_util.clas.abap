@@ -393,7 +393,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
 *.. Load automatic variant
     IF mo_data->mr_s_global_data->auto_sel_filter_saving = abap_true.
-      zcl_dbbr_variant_loader=>create_auto_variant_loader(
+      DATA(ls_auto_variant) = zcl_dbbr_variant_loader=>create_auto_variant_loader(
         iv_entity_type       = lv_entity_type
         iv_entity_id         = lv_entity_id
         ir_t_multi_or        = mo_data->get_multi_or_all( )
@@ -403,6 +403,10 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         ir_tabfields         = mo_data->mo_tabfield_list
         ir_tabfields_grouped = mo_data->mo_tabfield_aggr_list
       )->load( ).
+      IF ls_auto_variant IS INITIAL.
+        mo_data->mr_s_global_data->max_lines = zcl_dbbr_usersettings_factory=>get_settings( )-max_lines.
+        CLEAR: mo_data->mr_s_global_data->grouping_minimum.
+      ENDIF.
     ENDIF.
   ENDMETHOD.
 
