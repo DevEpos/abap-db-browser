@@ -221,7 +221,8 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
         FOR param IN lt_param_values
         NEXT value = |{ value }{ sep }{ param-name } = { cl_abap_dyn_prg=>quote( param-value ) }|
              sep = `,` && cl_abap_char_utilities=>cr_lf && lv_spaces ).
-      lv_from_with_params = lv_from_alias_text && ` )`.
+*      lv_from_with_params = lv_from_with_params && lv_from_alias_text && ` )`.
+      lv_from_with_params = lv_from_with_params && ` )` && lv_from_alias_text .
 
       SPLIT lv_from_with_params AT cl_abap_char_utilities=>cr_lf INTO TABLE mt_from.
     ELSE.
