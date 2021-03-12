@@ -22,8 +22,9 @@ CLASS zcl_dbbr_cds_navigator DEFINITION
     DATA mr_t_for_all_data TYPE REF TO data .
     DATA mt_nav_breadcrumbs TYPE string_table .
     DATA mv_nav_count TYPE i .
-    DATA mt_param_values TYPE zif_sat_ty_global=>ty_t_cds_param_value.
-    DATA: mt_where TYPE string_table.
+    DATA mv_source_params TYPE string.
+    DATA mv_params TYPE string.
+    DATA mt_where TYPE string_table.
 
     METHODS create_output_fields .
     METHODS export_data_to_memory .
@@ -39,7 +40,32 @@ CLASS zcl_dbbr_cds_navigator DEFINITION
         !it_nav_breadcrumbs  TYPE string_table
         it_param_values      TYPE zif_sat_ty_global=>ty_t_cds_param_value OPTIONAL
         !iv_nav_count        TYPE i .
-    METHODS handle_messages .
+    METHODS handle_messages.
+
+    "! <p class="shorttext synchronized" lang="en">Determine Parameter String</p>
+    "!
+    "! @parameter it_params | <p class="shorttext synchronized" lang="en">List of CDS parameters</p>
+    "! @parameter iv_cds_view_name | <p class="shorttext synchronized" lang="en">CDS view name</p>
+    "! @parameter io_tabfields | <p class="shorttext synchronized" lang="en">Table fields</p>
+    METHODS determine_param_string
+      IMPORTING
+        it_params        TYPE zif_sat_ty_global=>ty_t_cds_parameter
+        iv_cds_view_name TYPE zsat_cds_view_name
+        io_tabfields     TYPE REF TO zcl_dbbr_tabfield_list.
+
+    "! <p class="shorttext synchronized" lang="en">Request parameter value input</p>
+    "!
+    "! @parameter it_params | <p class="shorttext synchronized" lang="en">List of parameters</p>
+    "! @parameter iv_cds_view_name | <p class="shorttext synchronized" lang="en">CDS view name</p>
+    "! @parameter io_tabfields | <p class="shorttext synchronized" lang="en">Table fields</p>
+    "! @parameter rt_param_values | <p class="shorttext synchronized" lang="en">List of parameter/value</p>
+    METHODS request_param_values
+      IMPORTING
+        it_params              TYPE zif_sat_ty_global=>ty_t_cds_parameter
+        iv_cds_view_name       TYPE zsat_cds_view_name
+        io_tabfields           TYPE REF TO zcl_dbbr_tabfield_list
+      RETURNING
+        VALUE(rt_param_values) TYPE zif_sat_ty_global=>ty_t_cds_param_value.
 ENDCLASS.
 
 
@@ -54,7 +80,9 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
     mr_source_cds_view = ir_source_cds_view.
     mr_source_tabfields = ir_source_tabfields.
     mt_nav_breadcrumbs = it_nav_breadcrumbs.
-    mt_param_values = it_param_values.
+    mv_source_params = zcl_dbbr_cds_param_util=>build_param_string(
+     iv_param_indentation = strlen( ir_source_cds_view->mv_view_name )
+     it_param_values      = it_param_values ).
     ms_tech_info = is_tech_info.
     mv_nav_count = iv_nav_count.
   ENDMETHOD.
@@ -84,6 +112,12 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
             iv_description   = ls_target_cds_header-description
             if_is_primary    = abap_true
         ).
+
+        IF lr_target_cds->has_parameters( ).
+          determine_param_string( iv_cds_view_name = ms_association-ref_cds_view
+                                  io_tabfields = mr_tabfields
+                                  it_params = lr_target_cds->get_parameters( ) ).
+        ENDIF.
 
       WHEN zif_sat_c_cds_assoc_type=>table OR
            zif_sat_c_cds_assoc_type=>view.
@@ -120,6 +154,7 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
     DATA(ls_controller_data) = VALUE zif_dbbr_ty_global=>ty_sel_ctrl_serialized(
         entity_id                  = ms_association-ref_cds_view
         entity_type                = mv_entity_type
+        entity_params              = mv_params
         technical_info             = ms_tech_info
         tabfields_data             = ls_tabfield_data
         tabfields_all_data         = ls_tabfield_data
@@ -128,7 +163,8 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
         navigation_count           = mv_nav_count + 1
         source_entity_id           = mr_source_cds_view->get_header( )-entityname
         source_entity_where_cond   = mt_where
-        source_entity_param_values = mt_param_values
+        source_entity_params       = mv_source_params
+
     ).
 
     lv_mem_id = zif_dbbr_c_report_id=>main && sy-uname.
@@ -184,7 +220,7 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
     CHECK <ls_target_key_field> IS ASSIGNED.
 
     lt_cond_tab = VALUE #(
-      ( sign = 'I' option = zif_sat_c_options=>is_not_null sqlfieldname = |\\{ ms_association-raw_name }-{ <ls_target_key_field>-fieldname_raw }| )
+      ( sign = 'I' option = zif_sat_c_options=>is_not_null sqlfieldname = |\\{ ms_association-raw_name }{ mv_params }-{ <ls_target_key_field>-fieldname_raw }| )
     ).
     DATA(lt_not_null_cond) = VALUE zif_sat_ty_global=>ty_t_or_seltab_sql( ( values = lt_cond_tab ) ).
 
@@ -247,4 +283,39 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
 *... check if there was an error message
     handle_messages( ).
   ENDMETHOD.
+
+  METHOD request_param_values.
+
+    DATA(lo_custom_f4_map) = NEW zcl_dbbr_custom_f4_map( ).
+
+    lo_custom_f4_map->read_custom_f4_definitions( iv_cds_view_name ).
+    lo_custom_f4_map->read_same_type_custom_f4_defs( ).
+
+*... create parameters
+    zcl_dbbr_cds_tabfield_util=>add_parameters(
+      ir_tabfield_list = io_tabfields
+      io_custom_f4_map = lo_custom_f4_map
+      it_parameters    = it_params ).
+
+    DATA(lo_param_popup) = NEW zcl_dbbr_cds_param_popup(
+      io_tabfields     = io_tabfields
+      iv_cds_view_name = iv_cds_view_name ).
+
+    lo_param_popup->show( ).
+    rt_param_values = lo_param_popup->get_param_values( ).
+
+  ENDMETHOD.
+
+  METHOD determine_param_string.
+
+    mv_params = zcl_dbbr_cds_param_util=>build_param_string(
+      iv_param_indentation    = strlen( iv_cds_view_name )
+      if_sep_param_by_newline = abap_false
+      it_param_values         = request_param_values(
+        it_params        = it_params
+        iv_cds_view_name = iv_cds_view_name
+        io_tabfields     = io_tabfields ) ).
+
+  ENDMETHOD.
+
 ENDCLASS.

@@ -29,6 +29,7 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
         REDEFINITION .
     METHODS zif_dbbr_screen_util~handle_pbo
         REDEFINITION .
+
   PROTECTED SECTION.
 
     METHODS create_from_clause
@@ -199,32 +200,20 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 *..if we have a source entity it means we also have to use it´s parameters
 *... e.g when following associations
     IF mv_source_entity_id IS NOT INITIAL
-        AND mt_source_param_values IS NOT INITIAL.
-      lt_param_values = mt_source_param_values.
+        AND mv_source_params IS NOT INITIAL.
+      DATA(lv_params) = mv_source_params.
     ELSEIF mo_cds_view->has_parameters( ).
-      lt_param_values = VALUE zif_sat_ty_global=>ty_t_cds_param_value(
-        FOR ls_param_value IN mt_param_values
-        WHERE ( is_parameter = abap_true )
-        ( name  = ls_param_value-fieldname
-          value = ls_param_value-low ) ).
+      lv_params = zcl_dbbr_cds_param_util=>build_param_string(
+       iv_param_indentation = strlen( lv_entity )
+       it_param_values      = VALUE zif_sat_ty_global=>ty_t_cds_param_value(
+         FOR ls_param_value IN mt_param_values
+         WHERE ( is_parameter = abap_true )
+         ( name  = ls_param_value-fieldname
+           value = ls_param_value-low ) ) ).
     ENDIF.
 
-    IF lt_param_values IS NOT INITIAL.
-      lv_entity = |{ lv_entity }( |.
-      DATA(lv_spaces) = ``.
-      DO strlen( lv_entity ) TIMES.
-        lv_spaces = lv_spaces && ` `.
-      ENDDO.
-
-      DATA(lv_from_with_params) = REDUCE string(
-        INIT value = lv_entity sep = ``
-        FOR param IN lt_param_values
-        NEXT value = |{ value }{ sep }{ param-name } = { cl_abap_dyn_prg=>quote( param-value ) }|
-             sep = `,` && cl_abap_char_utilities=>cr_lf && lv_spaces ).
-*      lv_from_with_params = lv_from_with_params && lv_from_alias_text && ` )`.
-      lv_from_with_params = lv_from_with_params && ` )` && lv_from_alias_text .
-
-      SPLIT lv_from_with_params AT cl_abap_char_utilities=>cr_lf INTO TABLE mt_from.
+    IF lv_params IS NOT INITIAL.
+      SPLIT |{ lv_entity }{ lv_params }{ lv_from_alias_text }| AT cl_abap_char_utilities=>cr_lf INTO TABLE mt_from.
     ELSE.
       mt_from = VALUE #( ( lv_entity && lv_from_alias_text ) ).
     ENDIF.
@@ -535,8 +524,9 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     result = super->get_deactivated_functions( ).
     DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>show_cds_source.
 
-    IF mo_cds_view->has_parameters( if_exclude_system_params = abap_true ).
-      DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>change_cds_parameters.
+    IF mo_cds_view->has_parameters( if_exclude_system_params = abap_true )
+      AND mv_source_entity_id IS INITIAL.
+        DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>change_cds_parameters.
     ENDIF.
 
     IF mo_cds_view->has_associations( ).
@@ -590,4 +580,5 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     ENDCASE.
 
   ENDMETHOD.
+
 ENDCLASS.
