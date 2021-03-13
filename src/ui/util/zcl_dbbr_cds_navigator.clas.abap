@@ -26,7 +26,9 @@ CLASS zcl_dbbr_cds_navigator DEFINITION
     DATA mv_params TYPE string.
     DATA mt_where TYPE string_table.
 
-    METHODS create_output_fields .
+    METHODS create_output_fields
+      RAISING
+        zcx_dbbr_association_nav_error .
     METHODS export_data_to_memory .
     METHODS fill_selection_fields .
     METHODS constructor
@@ -51,7 +53,9 @@ CLASS zcl_dbbr_cds_navigator DEFINITION
       IMPORTING
         it_params        TYPE zif_sat_ty_global=>ty_t_cds_parameter
         iv_cds_view_name TYPE zsat_cds_view_name
-        io_tabfields     TYPE REF TO zcl_dbbr_tabfield_list.
+        io_tabfields     TYPE REF TO zcl_dbbr_tabfield_list
+      RAISING
+        zcx_dbbr_association_nav_error .
 
     "! <p class="shorttext synchronized" lang="en">Request parameter value input</p>
     "!
@@ -65,7 +69,9 @@ CLASS zcl_dbbr_cds_navigator DEFINITION
         iv_cds_view_name       TYPE zsat_cds_view_name
         io_tabfields           TYPE REF TO zcl_dbbr_tabfield_list
       RETURNING
-        VALUE(rt_param_values) TYPE zif_sat_ty_global=>ty_t_cds_param_value.
+        VALUE(rt_param_values) TYPE zif_sat_ty_global=>ty_t_cds_param_value
+      RAISING
+        zcx_dbbr_association_nav_error.
 ENDCLASS.
 
 
@@ -163,9 +169,7 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
         navigation_count           = mv_nav_count + 1
         source_entity_id           = mr_source_cds_view->get_header( )-entityname
         source_entity_where_cond   = mt_where
-        source_entity_params       = mv_source_params
-
-    ).
+        source_entity_params       = mv_source_params ).
 
     lv_mem_id = zif_dbbr_c_report_id=>main && sy-uname.
 
@@ -303,6 +307,12 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
 
     lo_param_popup->show( ).
     rt_param_values = lo_param_popup->get_param_values( ).
+
+    IF rt_param_values IS INITIAL.
+      RAISE EXCEPTION TYPE zcx_dbbr_association_nav_error
+        EXPORTING
+          textid = zcx_dbbr_association_nav_error=>assoc_param_not_available.
+    ENDIF.
 
   ENDMETHOD.
 

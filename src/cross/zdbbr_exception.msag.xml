@@ -434,6 +434,12 @@
      <MSGNR>070</MSGNR>
      <TEXT>Package &apos;&amp;1&apos; could not be found</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
+     <MSGNR>071</MSGNR>
+     <TEXT>Navigation not possible without parameters</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>
