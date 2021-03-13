@@ -204,12 +204,12 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       DATA(lv_params) = mv_source_params.
     ELSEIF mo_cds_view->has_parameters( ).
       lv_params = zcl_dbbr_cds_param_util=>build_param_string(
-       iv_param_indentation = strlen( lv_entity )
-       it_param_values      = VALUE zif_sat_ty_global=>ty_t_cds_param_value(
-         FOR ls_param_value IN mt_param_values
-         WHERE ( is_parameter = abap_true )
-         ( name  = ls_param_value-fieldname
-           value = ls_param_value-low ) ) ).
+        iv_param_indentation = strlen( lv_entity )
+        it_param_values      = VALUE zif_sat_ty_global=>ty_t_cds_param_value(
+          FOR ls_param_value IN mt_param_values
+          WHERE ( is_parameter = abap_true )
+          ( name  = ls_param_value-fieldname
+            value = ls_param_value-low ) ) ).
     ENDIF.
 
     IF lv_params IS NOT INITIAL.

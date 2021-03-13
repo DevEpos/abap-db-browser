@@ -87,8 +87,8 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
     mr_source_tabfields = ir_source_tabfields.
     mt_nav_breadcrumbs = it_nav_breadcrumbs.
     mv_source_params = zcl_dbbr_cds_param_util=>build_param_string(
-     iv_param_indentation = strlen( ir_source_cds_view->mv_view_name )
-     it_param_values      = it_param_values ).
+      iv_param_indentation = strlen( ir_source_cds_view->mv_view_name )
+      it_param_values      = it_param_values ).
     ms_tech_info = is_tech_info.
     mv_nav_count = iv_nav_count.
   ENDMETHOD.
