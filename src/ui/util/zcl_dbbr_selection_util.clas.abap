@@ -20,31 +20,32 @@ CLASS zcl_dbbr_selection_util DEFINITION
 
     TYPES:
       BEGIN OF ty_s_selection_data,
-        entity_type                TYPE zsat_entity_type,
-        entity_id                  TYPE zsat_entity_id,
-        query_string               TYPE string,
-        for_all_entries_data       TYPE REF TO data,
-        association_target         TYPE zsat_cds_association,
-        selection_fields           TYPE zdbbr_selfield_itab,
-        technical_infos            TYPE zdbbr_tech_info,
-        no_grouping                TYPE abap_bool,
-        grouping_minimum           TYPE zdbbr_grouping_minimum,
-        multi_or                   TYPE zdbbr_or_seltab_itab,
-        edit_mode                  TYPE abap_bool,
-        delete_mode_active         TYPE abap_bool,
-        selfields_multi            TYPE zdbbr_selfield_itab,
-        tabfields                  TYPE REF TO zcl_dbbr_tabfield_list,
-        tabfields_all              TYPE REF TO zcl_dbbr_tabfield_list,
-        table_to_alias_map         TYPE zsat_table_to_alias_map_itab,
-        join_definition            TYPE zdbbr_join_data,
-        join_def                   TYPE zdbbr_join_def,
-        exclude_function           TYPE ui_functions,
-        formula                    TYPE REF TO zcl_dbbr_formula,
-        nav_breadcrumbs            TYPE string_table,
-        navigation_count           TYPE i,
-        source_entity_id           TYPE zsat_entity_id,
-        source_entity_where_cond   TYPE string_table,
-        source_entity_param_values TYPE zif_sat_ty_global=>ty_t_cds_param_value,
+        entity_type              TYPE zsat_entity_type,
+        entity_id                TYPE zsat_entity_id,
+        entity_params            TYPE string,
+        query_string             TYPE string,
+        for_all_entries_data     TYPE REF TO data,
+        association_target       TYPE zsat_cds_association,
+        selection_fields         TYPE zdbbr_selfield_itab,
+        technical_infos          TYPE zdbbr_tech_info,
+        no_grouping              TYPE abap_bool,
+        grouping_minimum         TYPE zdbbr_grouping_minimum,
+        multi_or                 TYPE zdbbr_or_seltab_itab,
+        edit_mode                TYPE abap_bool,
+        delete_mode_active       TYPE abap_bool,
+        selfields_multi          TYPE zdbbr_selfield_itab,
+        tabfields                TYPE REF TO zcl_dbbr_tabfield_list,
+        tabfields_all            TYPE REF TO zcl_dbbr_tabfield_list,
+        table_to_alias_map       TYPE zsat_table_to_alias_map_itab,
+        join_definition          TYPE zdbbr_join_data,
+        join_def                 TYPE zdbbr_join_def,
+        exclude_function         TYPE ui_functions,
+        formula                  TYPE REF TO zcl_dbbr_formula,
+        nav_breadcrumbs          TYPE string_table,
+        navigation_count         TYPE i,
+        source_entity_id         TYPE zsat_entity_id,
+        source_entity_where_cond TYPE string_table,
+        source_entity_params     TYPE string,
       END OF ty_s_selection_data .
 
     "! <p class="shorttext synchronized" lang="en">Selection did finish</p>
@@ -150,6 +151,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mv_entity_id TYPE zsat_entity_id .
     "! <p class="shorttext synchronized" lang="en">Type of Entity</p>
     DATA mv_entity_type TYPE zsat_entity_type .
+    DATA mv_entity_params TYPE string.
     DATA mr_s_global_data TYPE REF TO zdbbr_global_data .
     DATA mf_navigation_select TYPE abap_bool.
     DATA ms_association_target TYPE zsat_cds_association .
@@ -229,7 +231,8 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mr_alv_util TYPE REF TO zcl_dbbr_output_alv_util .
     DATA mv_source_entity_id TYPE zsat_entity_id.
     DATA mt_source_where_cond TYPE string_table.
-    DATA mt_source_param_values TYPE zif_sat_ty_global=>ty_t_cds_param_value.
+*    DATA mt_source_param_values TYPE zif_sat_ty_global=>ty_t_cds_param_value.
+    DATA mv_source_params TYPE string.
 
     "! <p class="shorttext synchronized" lang="en">Adds column for hiding rows</p>
     METHODS add_hide_flag_column .
@@ -486,12 +489,12 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     mv_navigation_count = is_selection_data-navigation_count.
     mv_source_entity_id = is_selection_data-source_entity_id.
     mt_source_where_cond = is_selection_data-source_entity_where_cond.
-    mt_source_param_values = is_selection_data-source_entity_param_values.
-
+    mv_source_params      = is_selection_data-source_entity_params.
     mo_formula            = is_selection_data-formula.
     ms_join_def           = is_selection_data-join_def.
     mv_entity_id          = is_selection_data-entity_id.
     mv_entity_type        = is_selection_data-entity_type.
+    mv_entity_params      = is_selection_data-entity_params.
     mr_t_for_all_data     = is_selection_data-for_all_entries_data.
     ms_association_target = is_selection_data-association_target.
     ms_technical_info     = is_selection_data-technical_infos.
@@ -1104,7 +1107,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         ).
         APPEND |{ lv_aggr_function }( { lr_current_entry->sql_fieldname_long } ){ lv_alias_clause }, | TO mt_select.
       ELSEIF ms_association_target IS NOT INITIAL.
-        APPEND |\\{ ms_association_target-raw_name }-{ lr_current_entry->sql_fieldname_long }{ lv_alias_clause }, | TO mt_select.
+        APPEND |\\{ ms_association_target-raw_name }{ mv_entity_params }-{ lr_current_entry->sql_fieldname_long }{ lv_alias_clause }, | TO mt_select.
       ELSE.
         APPEND |{ lr_current_entry->sql_fieldname_long }{ lv_alias_clause }, | TO mt_select.
       ENDIF.

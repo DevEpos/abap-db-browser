@@ -16,6 +16,16 @@ public section.
       attr4 type scx_attrname value '',
     end of MAX_NAVIGATION_LEVEL_REACHED .
 
+constants:
+    begin of ASSOC_PARAM_NOT_AVAILABLE,
+      msgid type symsgid value 'ZDBBR_EXCEPTION',
+      msgno type symsgno value '071',
+      attr1 type scx_attrname value '',
+      attr2 type scx_attrname value '',
+      attr3 type scx_attrname value '',
+      attr4 type scx_attrname value '',
+    end of ASSOC_PARAM_NOT_AVAILABLE .
+
   methods CONSTRUCTOR
     importing
       !TEXTID like IF_T100_MESSAGE=>T100KEY optional
@@ -38,7 +48,7 @@ ENDCLASS.
 CLASS ZCX_DBBR_ASSOCIATION_NAV_ERROR IMPLEMENTATION.
 
 
-  method CONSTRUCTOR.
+  method CONSTRUCTOR ##ADT_SUPPRESS_GENERATION.
 CALL METHOD SUPER->CONSTRUCTOR
 EXPORTING
 PREVIOUS = PREVIOUS
