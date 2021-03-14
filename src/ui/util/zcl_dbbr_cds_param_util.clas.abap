@@ -29,6 +29,8 @@ CLASS zcl_dbbr_cds_param_util IMPLEMENTATION.
 
   METHOD build_param_string.
 
+    CHECK it_param_values IS NOT INITIAL.
+
     DATA(lv_spaces) = `  `.
     DO iv_param_indentation TIMES.
       lv_spaces = lv_spaces && ` `.
