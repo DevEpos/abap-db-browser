@@ -969,7 +969,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   METHOD create_from_clause.
     IF mv_source_entity_id IS NOT INITIAL.
-      mt_from = VALUE #( ( |{ mv_source_entity_id }| ) ).
+      mt_from = VALUE #( ( |{ mv_source_entity_id }{ mv_source_params }| ) ).
     ELSE.
       mt_from = VALUE #( ( |{ ms_control_info-primary_table }| ) ).
     ENDIF.
