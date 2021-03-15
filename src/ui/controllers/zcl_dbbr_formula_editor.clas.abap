@@ -324,11 +324,15 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
   METHOD save_formula.
     DATA(lv_formula) = mo_editor->get_text( ).
 
-    DATA(lv_formula_descr) = zcl_dbbr_appl_util=>popup_get_value(
-      EXPORTING
-        is_field = VALUE #( tabname = 'DD01T' fieldname = 'DDTEXT' field_obl = abap_true fieldtext = 'Formula Description'(007) )
+    DATA(lv_formula_descr) = zcl_uitb_pgv_factory=>create_single_field_popup(
         iv_title = |{ 'Enter Formula name'(008) }|
-    ).
+        is_field = VALUE #(
+          tabname   = 'dd01t'
+          fieldname = 'ddtext'
+          fieldtext = 'Formula Description'(007)
+          field_obl = abap_true )
+      )->show(
+      )->get_first_field_value( ).
 
     IF lv_formula_descr IS INITIAL.
       MESSAGE |{ 'Formula has not been saved'(009) }| TYPE 'S'.
@@ -349,24 +353,18 @@ CLASS zcl_dbbr_formula_editor IMPLEMENTATION.
 
 
   METHOD set_field_coltexts.
-
-    DATA(lt_fields) = VALUE zcl_dbbr_appl_util=>tt_input_val(
+    DATA(lo_popup) = zcl_uitb_pgv_factory=>create_popup(
+        iv_title = 'Go to Page (1.200 of 2000)'
+      )->add_fields( VALUE #(
         ( tabname = 'DD03L' fieldname = 'FIELDNAME' field_obl = abap_true fieldtext = 'Formula Field Name'(011) )
         ( tabname = 'DD04T' fieldname = 'SCRTEXT_M' field_obl = abap_true fieldtext = 'Short Description'(012) )
-        ( tabname = 'DD04T' fieldname = 'SCRTEXT_L' fieldtext = 'Long Text (Tooltip)'(013) )
-    ).
+        ( tabname = 'DD04T' fieldname = 'SCRTEXT_L' fieldtext = 'Long Text (Tooltip)'(013) ) )
+      )->show( ).
 
-    DATA(lf_cancelled) = zcl_dbbr_appl_util=>popup_get_values(
-      EXPORTING
-        iv_title     = |{ 'Define Column texts for formula Field'(014) }|
-      CHANGING
-        ct_fields    = lt_fields
-    ).
-
-    IF lf_cancelled = abap_false.
-      DATA(lv_form_field) = lt_fields[ fieldname = 'FIELDNAME' ]-value.
-      DATA(lv_shorttext) = lt_fields[ fieldname = 'SCRTEXT_M' ]-value.
-      DATA(lv_longtext) = lt_fields[ fieldname = 'SCRTEXT_L' ]-value.
+    IF NOT lo_popup->cancelled( ).
+      DATA(lv_form_field) = lo_popup->get_field_val_by_index( 1 ).
+      DATA(lv_shorttext) = lo_popup->get_field_val_by_index( 2 ).
+      DATA(lv_longtext) = lo_popup->get_field_val_by_index( 3 ).
       DATA(lv_coltexts) = |$TEXT { lv_form_field } '{ lv_shorttext }'|.
       IF lv_longtext IS NOT INITIAL.
         lv_coltexts = |{ lv_coltexts } '{ lv_longtext }'|.

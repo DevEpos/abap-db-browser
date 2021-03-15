@@ -48,27 +48,27 @@ CLASS zcl_dbbr_association_manager DEFINITION
         ir_nodes        TYPE REF TO zcl_uitb_ctm_nodes.
     METHODS add_new_table.
     METHODS on_exit
-        FOR EVENT exit OF zif_uitb_view_callback
+      FOR EVENT exit OF zif_uitb_view_callback
       IMPORTING
         er_callback.
 
 
     METHODS on_toolbar_function
-        FOR EVENT function_selected OF zif_uitb_toolbar_events
+      FOR EVENT function_selected OF zif_uitb_toolbar_events
       IMPORTING
         ev_fcode.
     METHODS on_context_menu_request
-        FOR EVENT node_context_menu_request OF zcl_uitb_ctm_events
+      FOR EVENT node_context_menu_request OF zcl_uitb_ctm_events
       IMPORTING
         er_menu
         ev_node_key.
     METHODS on_context_menu_select
-        FOR EVENT node_context_menu_select OF zcl_uitb_ctm_events
+      FOR EVENT node_context_menu_select OF zcl_uitb_ctm_events
       IMPORTING
         ev_fcode
         ev_node_key.
     METHODS on_db_tree_nd_dbl_click
-        FOR EVENT node_double_click OF zcl_uitb_ctm_events
+      FOR EVENT node_double_click OF zcl_uitb_ctm_events
       IMPORTING
         ev_node_key
         sender.
@@ -129,10 +129,16 @@ CLASS zcl_dbbr_association_manager IMPLEMENTATION.
 
 
   METHOD add_new_table.
-    DATA(lv_table) = CONV tabname( zcl_dbbr_appl_util=>popup_get_value(
-      is_field = VALUE #( tabname = 'ZDBBR_BROWSER_MODE_DATA' fieldname = 'TAB_NAME'  field_obl = abap_true fieldtext = 'Table' )
-      iv_title  = 'Enter name of Table' )
-    ).
+    DATA(lo_popup) = zcl_uitb_pgv_factory=>create_single_field_popup(
+        iv_title = 'Enter name of Table'
+        is_field = VALUE #(
+          tabname   =  'zdbbr_browser_mode_data'
+          fieldname = 'tab_name'
+          fieldtext = 'Table'
+          field_obl = abap_true )
+      )->show( ).
+
+    DATA(lv_table) = CONV tabname( lo_popup->get_first_field_value( ) ).
     IF lv_table IS NOT INITIAL.
       TRY.
           zcl_dbbr_ddic_util=>validate_table_name( iv_table_name = lv_table ).

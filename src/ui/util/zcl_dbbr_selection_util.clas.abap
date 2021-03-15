@@ -1892,19 +1892,23 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       WHEN zif_dbbr_c_selection_functions=>change_max_row_count.
         CLEAR cv_function.
 
-        DATA(lv_max_rows) = zcl_dbbr_appl_util=>popup_get_value(
-          EXPORTING
-            is_field  = VALUE #( fieldname = 'TABIX' tabname = 'SYST' fieldtext = |{ 'Max Entries'(009) }| value = ms_technical_info-max_lines )
-            iv_title  = |{ 'Set Max Number of Rows'(008) }|
-        ).
+        DATA(lv_max_rows) = CONV sy-tabix(
+          zcl_uitb_pgv_factory=>create_single_field_popup(
+              iv_title  = |{ 'Set Max Number of Rows'(008) }|
+              is_field  = VALUE #(
+                fieldname = 'TABIX'
+                tabname   = 'SYST'
+                fieldtext = |{ 'Max Entries'(009) }|
+                value     = ms_technical_info-max_lines )
+            )->show(
+            )->get_first_field_value( ) ).
 
-        DATA(lv_max_rows_number) = CONV sy-tabix( lv_max_rows ).
-        IF lv_max_rows_number = ms_technical_info-max_lines.
+        IF lv_max_rows = ms_technical_info-max_lines.
           RETURN.
         ENDIF.
 
 *...... Update max row count and trigger reselection
-        ms_technical_info-max_lines = lv_max_rows_number.
+        ms_technical_info-max_lines = lv_max_rows.
         zcl_uitb_screen_util=>set_function_code( zif_dbbr_c_selection_functions=>refresh ).
 
       WHEN zif_dbbr_c_selection_functions=>show_sql_of_select.

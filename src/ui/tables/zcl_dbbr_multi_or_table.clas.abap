@@ -114,32 +114,18 @@ CLASS zcl_dbbr_multi_or_table IMPLEMENTATION.
 
   METHOD query_for_search_criteria.
 
-    DATA: lt_fields     TYPE TABLE OF sval,
-          lv_returncode TYPE char1.
+    DATA(lo_popup) = zcl_uitb_pgv_factory=>create_single_field_popup(
+        iv_title = 'Search'
+        is_field = value #(
+          tabname   = 'dd03l'
+          fieldname = 'fieldname' )
+      )->show( ).
 
-    APPEND VALUE #(
-        fieldname = 'FIELDNAME'
-        tabname   = 'DD03L'
-    ) TO lt_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
-
-    CALL FUNCTION 'POPUP_GET_VALUES'
-      EXPORTING
-        popup_title = 'Search'
-      IMPORTING
-        returncode  = lv_returncode
-      TABLES
-        fields      = lt_fields
-      EXCEPTIONS
-        OTHERS      = 1.
-
-    IF lv_returncode <> space OR sy-subrc <> 0.
+    IF lo_popup->cancelled( ).
       CLEAR mv_search_value.
-      RETURN.
+    ELSE.
+      mv_search_value = lo_popup->get_first_field_value( ).
     ENDIF.
-
-    " set the current fieldname
-    mv_search_value = <ls_field>-value.
-
 
   ENDMETHOD.
 

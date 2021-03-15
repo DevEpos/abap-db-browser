@@ -22,9 +22,6 @@ CLASS zcl_dbbr_object_history_tree DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    ALIASES mo_control
-      FOR zif_uitb_gui_control~mr_control .
-
     TYPES:
       BEGIN OF ty_fav_info,
         type         TYPE ZSAT_FAVMENU_TYPE,

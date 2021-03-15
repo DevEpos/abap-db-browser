@@ -60,9 +60,9 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Create new favorite</p>
     METHODS create_new_favorite
       IMPORTING
-        !iv_fav_type    TYPE ZSAT_FAVMENU_TYPE OPTIONAL
+        !iv_fav_type    TYPE zsat_favmenu_type OPTIONAL
         !iv_favorite    TYPE tabname OPTIONAL
-        iv_favorite_raw TYPE ZSAT_ENTITY_ID_raw OPTIONAL
+        iv_favorite_raw TYPE zsat_entity_id_raw OPTIONAL
         !iv_description TYPE ddtext OPTIONAL .
     "! <p class="shorttext synchronized" lang="en">Create new folder</p>
     METHODS create_new_fav_folder .
@@ -92,22 +92,19 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    ALIASES mo_control
-      FOR zif_uitb_gui_control~mr_control .
-
     TYPES:
       BEGIN OF ty_fav_info,
-        type         TYPE ZSAT_FAVMENU_TYPE,
+        type         TYPE zsat_favmenu_type,
         favorite     TYPE tabname,
-        favorite_raw TYPE ZSAT_ENTITY_ID_raw,
+        favorite_raw TYPE zsat_entity_id_raw,
         description  TYPE ddtext,
       END OF ty_fav_info.
     TYPES: tt_fav_info TYPE STANDARD TABLE OF ty_fav_info WITH EMPTY KEY.
     TYPES:
       BEGIN OF ty_node_map,
         node_key    TYPE tm_nodekey,
-        entity_id   TYPE ZSAT_ENTITY_ID,
-        entity_type TYPE ZSAT_ENTITY_TYPE,
+        entity_id   TYPE zsat_entity_id,
+        entity_type TYPE zsat_entity_type,
       END OF ty_node_map .
     TYPES:
       BEGIN OF mty_node_data.
@@ -118,8 +115,8 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
     TYPES:
       BEGIN OF ty_s_variant_data,
         variant_id  TYPE zdbbr_variant_id,
-        entity_id   TYPE ZSAT_ENTITY_ID,
-        entity_type TYPE ZSAT_ENTITY_TYPE,
+        entity_id   TYPE zsat_entity_id,
+        entity_type TYPE zsat_entity_type,
       END OF ty_s_variant_data.
 
     CONSTANTS c_hierarchy_node2 TYPE tv_itmname VALUE 'HIER2' ##no_text.
@@ -191,82 +188,82 @@ CLASS zcl_dbbr_favorites_tree DEFINITION
         zcx_uitb_tree_error.
     "! <p class="shorttext synchronized" lang="en">Handler for when drop completed</p>
     METHODS on_drop_complete
-          FOR EVENT drop_complete OF zif_uitb_tree_model_events
+      FOR EVENT drop_complete OF zif_uitb_tree_model_events
       IMPORTING
-          !er_drag_drop_object
-          !ev_item_name
-          !ev_node_key .
+        !er_drag_drop_object
+        !ev_item_name
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for deleted entity -&gt; remove invalid nodes</p>
     METHODS on_entity_deleted
-          FOR EVENT entity_deleted OF zcl_dbbr_selscreen_util
+      FOR EVENT entity_deleted OF zcl_dbbr_selscreen_util
       IMPORTING
-          !ev_entity_id
-          !ev_entity_type .
+        !ev_entity_id
+        !ev_entity_type .
     "! <p class="shorttext synchronized" lang="en">Handler for when children are to be loaded lazily</p>
     METHODS on_expand_no_children
-          FOR EVENT expand_no_children OF zif_uitb_tree_model_events
+      FOR EVENT expand_no_children OF zif_uitb_tree_model_events
       IMPORTING
-          !ev_node_key .
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for requesting a context menu for a node</p>
     METHODS on_node_context_menu_request
-          FOR EVENT node_context_menu_request OF zif_uitb_tree_model_events
+      FOR EVENT node_context_menu_request OF zif_uitb_tree_model_events
       IMPORTING
-          !er_menu
-          !ev_node_key .
+        !er_menu
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for when the context menu entry was chosen</p>
     METHODS on_node_context_menu_select
-          FOR EVENT node_context_menu_select OF zif_uitb_tree_model_events
+      FOR EVENT node_context_menu_select OF zif_uitb_tree_model_events
       IMPORTING
-          !ev_fcode
-          !ev_node_key .
+        !ev_fcode
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for double click on node</p>
     METHODS on_node_double_click
-          FOR EVENT node_double_click OF zif_uitb_tree_model_events
+      FOR EVENT node_double_click OF zif_uitb_tree_model_events
       IMPORTING
-          !ev_node_key .
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for ENTER key press on node</p>
     METHODS on_node_enter_key
-          FOR EVENT node_keypress OF zif_uitb_tree_model_events
+      FOR EVENT node_keypress OF zif_uitb_tree_model_events
       IMPORTING
-          !ev_key
-          !ev_node_key .
+        !ev_key
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for pressed toolbar button</p>
     METHODS on_toolbar_button
-          FOR EVENT function_selected OF zif_uitb_toolbar_events
+      FOR EVENT function_selected OF zif_uitb_toolbar_events
       IMPORTING
-          !ev_fcode .
+        !ev_fcode .
     "! <p class="shorttext synchronized" lang="en">Handler for Tree drag was started</p>
     METHODS on_tree_drag
-          FOR EVENT drag OF zif_uitb_tree_model_events
+      FOR EVENT drag OF zif_uitb_tree_model_events
       IMPORTING
-          !er_drag_drop_object
-          !ev_item_name
-          !ev_node_key .
+        !er_drag_drop_object
+        !ev_item_name
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler fro Multiple Tree drag was started</p>
     METHODS on_tree_drag_multiple
-          FOR EVENT drag_multiple OF zif_uitb_tree_model_events
+      FOR EVENT drag_multiple OF zif_uitb_tree_model_events
       IMPORTING
-          !er_drag_drop_object
-          !et_node_key_table
-          !ev_item_name .
+        !er_drag_drop_object
+        !et_node_key_table
+        !ev_item_name .
     "! <p class="shorttext synchronized" lang="en">Handler for a single drop</p>
     METHODS on_tree_drop
-          FOR EVENT drop OF zif_uitb_tree_model_events
+      FOR EVENT drop OF zif_uitb_tree_model_events
       IMPORTING
-          !er_drag_drop_object
-          !ev_node_key .
+        !er_drag_drop_object
+        !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for multiple drops completed</p>
     METHODS on_tree_drop_complete_multiple
-          FOR EVENT drop_complete_multiple OF zif_uitb_tree_model_events
+      FOR EVENT drop_complete_multiple OF zif_uitb_tree_model_events
       IMPORTING
-          !er_drag_drop_object
-          !et_node_key_table
-          !ev_item_name .
+        !er_drag_drop_object
+        !et_node_key_table
+        !ev_item_name .
 
     "! <p class="shorttext synchronized" lang="en">Checks if node should be displayed as folder</p>
     METHODS should_display_as_folder
       IMPORTING
-        !iv_fav_type     TYPE ZSAT_FAVMENU_TYPE
+        !iv_fav_type     TYPE zsat_favmenu_type
         !if_has_variants TYPE abap_bool
       RETURNING
         VALUE(result)    TYPE abap_bool .
@@ -472,8 +469,8 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
   METHOD create_new_favorite.
     DATA: lv_node_description  TYPE ddtext,
           lv_favorite_name     TYPE tabname,
-          lv_favorite_name_raw TYPE ZSAT_ENTITY_ID_raw,
-          lv_favorite_type     TYPE ZSAT_FAVMENU_TYPE.
+          lv_favorite_name_raw TYPE zsat_entity_id_raw,
+          lv_favorite_type     TYPE zsat_favmenu_type.
 
     DATA(lo_selected_node) = mo_tree_model->get_selections( )->get_selected_node( ).
 
@@ -531,7 +528,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
           lv_favorite_name_raw = lv_favorite_name.
 
         WHEN zif_dbbr_c_favmenu_type=>cds_view.
-          DATA(ls_cds_header) = ZCL_SAT_CDS_VIEW_FACTORY=>read_cds_view_header( lv_favorite_name ).
+          DATA(ls_cds_header) = zcl_sat_cds_view_factory=>read_cds_view_header( lv_favorite_name ).
           lv_node_description = ls_cds_header-description.
           lv_favorite_name_raw = ls_cds_header-entityname_raw.
 
@@ -622,10 +619,15 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    DATA(lv_folder_name) = zcl_dbbr_appl_util=>popup_get_value(
-         is_field  = VALUE #( tabname = 'DD03T' fieldname = 'DDTEXT'  field_obl = abap_true fieldtext = 'Folder name' )
-         iv_title  = 'Enter name of folder'
-     ).
+    DATA(lv_folder_name) = zcl_uitb_pgv_factory=>create_single_field_popup(
+        iv_title = 'Enter name of folder'
+        is_field = VALUE #(
+          tabname   = 'dd03t'
+          fieldname = 'ddtext'
+          fieldtext = 'Folder name'
+          field_obl = abap_true )
+      )->show(
+      )->get_first_field_value( ).
 
     IF lv_folder_name IS INITIAL.
       RETURN.
@@ -849,8 +851,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
 
   METHOD edit_favorite.
-    DATA: lv_rcode(1),
-          lt_fields TYPE TABLE OF sval.
+    DATA: lv_rcode(1).
 
     DATA(lo_selected_node) = mo_tree_model->get_selections( )->get_selected_node( ).
 
@@ -867,13 +868,18 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
 
     DATA(ls_favmenu_data) = get_node_favmenu_data( lo_selected_node ).
 
-    lt_fields = VALUE #( ( tabname = 'DD03T' fieldname = 'DDTEXT'  field_obl = abap_true fieldtext = 'Text' value = ls_favmenu_data-text ) ).
+    DATA(lo_popup) = zcl_uitb_pgv_factory=>create_single_field_popup(
+        iv_title = 'Edit Text'
+        is_field = VALUE #(
+          tabname   = 'dd03t'
+          fieldname = 'ddtext'
+          fieldtext = 'Text'
+          field_obl = abap_true
+          value     = ls_favmenu_data-text )
+      )->show( ).
 
-    IF zcl_uitb_appl_util=>popup_get_values(
-         EXPORTING iv_title  = 'Edit Text'
-         CHANGING  ct_fields = lt_fields   ).
-
-      DATA(lv_new_favorite_text) = CONV string( lt_fields[ 1 ]-value ).
+    IF NOT lo_popup->cancelled( ).
+      DATA(lv_new_favorite_text) = lo_popup->get_first_field_value( ).
       IF lv_new_favorite_text = ls_favmenu_data-text.
         RETURN. " no changes needed
       ENDIF.
@@ -1611,7 +1617,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
                                               ls_favmenu_target_parent-object_id ).
       ls_favmenu_source-menu_level = lv_menulevel.
       mo_favmenu_f->update_favorite( ls_favmenu_source ).
-      lo_source_node->set_user_data( new zdbbr_favmenu( ls_favmenu_source ) ).
+      lo_source_node->set_user_data( NEW zdbbr_favmenu( ls_favmenu_source ) ).
 
 *.... update menu levels of node
       update_menulevel_of_children( lv_source_node ).
@@ -1659,7 +1665,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
     IF mo_parent_view IS BOUND.
       mo_parent_view->execute_command( NEW zcl_uitb_gui_simple_command(
         iv_function = zcl_dbbr_object_navigator=>c_command_id-show_object_list
-        ir_params   = NEW ZSAT_ENTITY( entity_id     = ls_favmenu_data-fav_entry
+        ir_params   = NEW zsat_entity( entity_id     = ls_favmenu_data-fav_entry
                                         entity_type   = ls_favmenu_data-favtype   ) )
       ).
     ENDIF.
@@ -1702,7 +1708,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
       ls_favmenu_data = get_node_favmenu_data( <lo_child> ).
       ls_favmenu_data-menu_level = lv_menulevel.
       mo_favmenu_f->update_favorite( ls_favmenu_data ).
-      <lo_child>->set_user_data( new zdbbr_favmenu( ls_favmenu_data ) ).
+      <lo_child>->set_user_data( NEW zdbbr_favmenu( ls_favmenu_data ) ).
 
 *.... also update child nodes
       IF <lo_child>->is_folder( ).
@@ -1724,7 +1730,7 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
       ls_favmenu_data-sort_order = lv_sortorder.
 
       lo_favmenu_f->update_favorite( ls_favmenu_data ).
-      <lo_child>->set_user_data( new zdbbr_favmenu( ls_favmenu_data ) ).
+      <lo_child>->set_user_data( NEW zdbbr_favmenu( ls_favmenu_data ) ).
 
       ADD 10 TO lv_sortorder.
     ENDLOOP.

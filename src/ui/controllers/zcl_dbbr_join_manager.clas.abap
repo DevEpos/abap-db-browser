@@ -199,45 +199,45 @@ CLASS zcl_dbbr_join_manager DEFINITION
 
     "! <p class="shorttext synchronized" lang="en">Handler for when join field condition was created</p>
     METHODS on_created_field_condition
-        FOR EVENT created_field_condition OF zcl_dbbr_edit_join_cond_view
+      FOR EVENT created_field_condition OF zcl_dbbr_edit_join_cond_view
       IMPORTING
         !es_field .
     "! <p class="shorttext synchronized" lang="en">Handler for when join filter condition was created</p>
     METHODS on_created_filter_condition
-        FOR EVENT created_filter_condition OF zcl_dbbr_edit_join_cond_view
+      FOR EVENT created_filter_condition OF zcl_dbbr_edit_join_cond_view
       IMPORTING
         !es_filter .
     "! <p class="shorttext synchronized" lang="en">Handler for when join table was created</p>
     METHODS on_created_join_table
-        FOR EVENT created OF zcl_dbbr_edit_join_table_ctrl
+      FOR EVENT created OF zcl_dbbr_edit_join_table_ctrl
       IMPORTING
         !es_join_table .
     "! <p class="shorttext synchronized" lang="en">Handler for when join requests node deletion</p>
     METHODS on_delete_request_from_join
-        FOR EVENT request_deletion OF lif_tree_node_events
+      FOR EVENT request_deletion OF lif_tree_node_events
       IMPORTING
         !ev_node_key .
 
     "! <p class="shorttext synchronized" lang="en">Handler for node context menu request</p>
     METHODS on_node_ctx_menu_request
-        FOR EVENT node_context_menu_request OF zcl_uitb_ctm_events
+      FOR EVENT node_context_menu_request OF zcl_uitb_ctm_events
       IMPORTING
         !ev_node_key
         !er_menu .
     "! <p class="shorttext synchronized" lang="en">Handler for menu node selection</p>
     METHODS on_node_ctx_menu_select
-        FOR EVENT node_context_menu_select OF zcl_uitb_ctm_events
+      FOR EVENT node_context_menu_select OF zcl_uitb_ctm_events
       IMPORTING
         !ev_node_key
         !ev_fcode .
     "! <p class="shorttext synchronized" lang="en">Handler for tree node double click</p>
     METHODS on_node_double_click
-        FOR EVENT node_double_click OF zcl_uitb_ctm_events
+      FOR EVENT node_double_click OF zcl_uitb_ctm_events
       IMPORTING
         !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for key press on node</p>
     METHODS on_node_keypress
-        FOR EVENT node_keypress OF zcl_uitb_ctm_events
+      FOR EVENT node_keypress OF zcl_uitb_ctm_events
       IMPORTING
         !ev_node_key
         !ev_key .
@@ -600,10 +600,16 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
 
 
   METHOD change_primary_table_alias.
-    DATA(lv_new_alias) = zcl_dbbr_appl_util=>popup_get_value(
-        is_field = VALUE #( tabname = 'ZDBBR_JOINT' fieldname = 'ADD_TABLE_ALIAS' fieldtext = |{ 'Alias' }| field_obl = abap_true value = mo_join->mv_primary_entity_alias )
+    DATA(lv_new_alias) = zcl_uitb_pgv_factory=>create_single_field_popup(
         iv_title = |{ 'Change Alias of Primary Table'(023) }|
-    ).
+        is_field = VALUE #(
+          tabname   = 'zdbbr_joint'
+          fieldname = 'add_table_alias'
+          fieldtext = 'Alias'
+          field_obl = abap_true
+          value     = mo_join->mv_primary_entity_alias )
+      )->show(
+      )->get_first_field_value( ).
 
     IF lv_new_alias IS NOT INITIAL AND
        mo_join->mv_primary_entity_alias <> lv_new_alias.

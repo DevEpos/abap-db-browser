@@ -31,9 +31,6 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    ALIASES mo_control
-      FOR zif_uitb_gui_control~mr_control .
-
     TYPES:
       BEGIN OF ty_s_user_data,
         entity_id     TYPE zsat_entity_id,
@@ -292,20 +289,20 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Handler for DISPLAY_OBJECT_LIST event</p>
     "!
     METHODS on_display_object_list
-        FOR EVENT display_object_list OF zcl_dbbr_selscr_nav_events
+      FOR EVENT display_object_list OF zcl_dbbr_selscr_nav_events
       IMPORTING
         !ev_entity_id
         !ev_entity_type .
     "! <p class="shorttext synchronized" lang="en">Handler for when children are to be loaded lazily</p>
     "!
     METHODS on_expand_no_children
-        FOR EVENT expand_no_children OF zif_uitb_tree_model_events
+      FOR EVENT expand_no_children OF zif_uitb_tree_model_events
       IMPORTING
         !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for External object search request</p>
     "!
     METHODS on_external_object_search_req
-        FOR EVENT object_search OF zcl_dbbr_selscr_nav_events
+      FOR EVENT object_search OF zcl_dbbr_selscr_nav_events
       IMPORTING
         ev_object_type
         ev_search_query
@@ -313,27 +310,27 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Handler for requesting a context menu for a node</p>
     "!
     METHODS on_node_context_menu_request
-        FOR EVENT node_context_menu_request OF zif_uitb_tree_model_events
+      FOR EVENT node_context_menu_request OF zif_uitb_tree_model_events
       IMPORTING
         !er_menu
         !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for when the context menu entry was chosen</p>
     "!
     METHODS on_node_context_menu_select
-        FOR EVENT node_context_menu_select OF zif_uitb_tree_model_events
+      FOR EVENT node_context_menu_select OF zif_uitb_tree_model_events
       IMPORTING
         !ev_fcode
         !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for double click on node</p>
     "!
     METHODS on_node_double_click
-        FOR EVENT node_double_click OF zif_uitb_tree_model_events
+      FOR EVENT node_double_click OF zif_uitb_tree_model_events
       IMPORTING
         !ev_node_key .
     "! <p class="shorttext synchronized" lang="en">Handler for ENTER key press on node</p>
     "!
     METHODS on_node_enter_key
-        FOR EVENT node_keypress OF zif_uitb_tree_model_events
+      FOR EVENT node_keypress OF zif_uitb_tree_model_events
       IMPORTING
         !ev_key
         !ev_node_key .
@@ -352,7 +349,7 @@ CLASS zcl_dbbr_object_browser_tree DEFINITION
     "! <p class="shorttext synchronized" lang="en">Handler for pressed toolbar button</p>
     "!
     METHODS on_toolbar_button
-        FOR EVENT function_selected OF cl_gui_toolbar
+      FOR EVENT function_selected OF cl_gui_toolbar
       IMPORTING
         fcode.
     "! <p class="shorttext synchronized" lang="en">Show superordinate tree of current object</p>
@@ -2771,26 +2768,29 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
         RETURN.
     ENDTRY.
 
-    DATA(lv_result) = zcl_dbbr_appl_util=>popup_get_value(
-      EXPORTING
-        is_field = VALUE #( tabname = 'ZDBBR_OBJBRSFAV' fieldname = 'FAVORITE_NAME' field_obl = abap_true value = mo_search_input->value )
+    DATA(lo_popup) = zcl_uitb_pgv_factory=>create_single_field_popup(
         iv_title = |{ 'Enter name for storing the favorite' }|
-      IMPORTING
-        ef_cancelled = lf_cancelled
-    ).
+        is_field = VALUE #(
+          tabname   = 'ZDBBR_OBJBRSFAV'
+          fieldname = 'FAVORITE_NAME'
+          field_obl = abap_true
+          value     = mo_search_input->value )
+      )->show( ).
 
-    CHECK: lv_result <> space,
-           lf_cancelled = abap_false.
+    IF NOT lo_popup->cancelled( ).
+      DATA(lv_result) = lo_popup->get_first_field_value( ).
 
-    CHECK zcl_dbbr_ob_fav_factory=>create_favorite(
-        iv_query = |{ mo_search_input->value }|
-        iv_type  = mv_current_search_type
-        iv_name  = CONV #( lv_result )
-    ).
+      IF zcl_dbbr_ob_fav_factory=>create_favorite(
+          iv_query = |{ mo_search_input->value }|
+          iv_type  = mv_current_search_type
+          iv_name  = CONV #( lv_result ) ).
 *.. Refill favorite menu as a new entry exists now
-    fill_favorite_dd_menu( ).
+        fill_favorite_dd_menu( ).
 
-    MESSAGE s090(zdbbr_info) WITH lv_result.
+        MESSAGE s090(zdbbr_info) WITH lv_result.
+      ENDIF.
+
+    ENDIF.
   ENDMETHOD.
 
 

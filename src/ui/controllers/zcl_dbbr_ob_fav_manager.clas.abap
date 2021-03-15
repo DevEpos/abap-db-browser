@@ -43,9 +43,9 @@ CLASS zcl_dbbr_ob_fav_manager DEFINITION
 
     "! <p class="shorttext synchronized" lang="en">Event handler for node double click</p>
     METHODS on_node_double_click
-          FOR EVENT node_double_click OF zcl_uitb_ctm_events
+      FOR EVENT node_double_click OF zcl_uitb_ctm_events
       IMPORTING
-          ev_node_key.
+        ev_node_key.
 ENDCLASS.
 
 
@@ -175,32 +175,42 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
     DATA: lf_cancelled TYPE abap_bool.
 
     DATA(lo_selected_node) = mo_tree->get_selections( )->get_selected_node( ).
-    CHECK lo_selected_node IS BOUND.
+    IF lo_selected_node IS INITIAL.
+      RETURN.
+    ENDIF.
 
     DATA(lr_user_data) = CAST zdbbr_objbrsfav( lo_selected_node->get_user_data( ) ).
-    CHECK lr_user_data IS BOUND.
+    IF lr_user_data IS INITIAL.
+      RETURN.
+    ENDIF.
 
-    DATA(lv_result) = zcl_dbbr_appl_util=>popup_get_value(
-      EXPORTING
-        is_field = VALUE #( tabname = 'ZDBBR_OBJBRSFAV' fieldname = 'FAVORITE_NAME' field_obl = abap_true value = lr_user_data->favorite_name )
+    DATA(lo_popup) = zcl_uitb_pgv_factory=>create_single_field_popup(
+        is_field = VALUE #(
+          tabname   = 'ZDBBR_OBJBRSFAV'
+          fieldname = 'FAVORITE_NAME'
+          field_obl = abap_true
+          value     = lr_user_data->favorite_name )
         iv_title = |{ 'Enter new name for the favorite'(001) }|
-      IMPORTING
-        ef_cancelled = lf_cancelled
-    ).
+      )->show( ).
 
-    CHECK: lv_result <> space,
-           lf_cancelled = abap_false,
-           lv_result <> lr_user_data->favorite_name.
+    IF lo_popup->cancelled( ).
+      RETURN.
+    ENDIF.
 
-    CHECK zcl_dbbr_ob_fav_factory=>change_favorite_name(
-      iv_id   = lr_user_data->id
-      iv_name = CONV #( lv_result )
-    ).
+    DATA(lv_result) = lo_popup->get_first_field_value( ).
+    IF lv_result <> lr_user_data->favorite_name.
 
-    lo_selected_node->get_item( c_cols-description )->set_text( |{ lv_result }| ).
-    lr_user_data->favorite_name = lv_result.
+      IF zcl_dbbr_ob_fav_factory=>change_favorite_name(
+        iv_id   = lr_user_data->id
+        iv_name = CONV #( lv_result ) ).
 
-    MESSAGE s091(zdbbr_info).
+        lo_selected_node->get_item( c_cols-description )->set_text( |{ lv_result }| ).
+        lr_user_data->favorite_name = lv_result.
+
+        MESSAGE s091(zdbbr_info).
+      ENDIF.
+    ENDIF.
+
   ENDMETHOD.
 
 

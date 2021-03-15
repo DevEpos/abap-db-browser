@@ -119,7 +119,7 @@ CLASS ZCL_DBBR_SETTINGS_VIEW IMPLEMENTATION.
     lr_col->set_editable( ).
     lr_col->set_output_length( 20 ).
 
-    mr_alv->get_data_changes( )->set_change_event( cl_gui_alv_grid=>mc_evt_modified ).
+*    mr_alv->get_data_changes( )->set_change_event( cl_gui_alv_grid=>mc_evt_modified ).
 
     mr_alv->display( ).
 

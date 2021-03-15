@@ -5,9 +5,6 @@ CLASS zcl_dbbr_appl_util DEFINITION
 
   PUBLIC SECTION.
 
-    TYPES:
-      tt_input_val TYPE STANDARD TABLE OF sval WITH EMPTY KEY .
-
     CLASS-METHODS get_program_variables
       IMPORTING
         !iv_repid           TYPE sy-repid
@@ -59,22 +56,6 @@ CLASS zcl_dbbr_appl_util DEFINITION
         !iv_icon_type             TYPE iconname
       RETURNING
         VALUE(rv_result)          TYPE char1 .
-    CLASS-METHODS popup_get_value
-      IMPORTING
-        is_field      TYPE sval
-        !iv_title     TYPE string OPTIONAL
-      EXPORTING
-        ef_cancelled  TYPE abap_bool
-      RETURNING
-        VALUE(result) TYPE spo_value.
-    CLASS-METHODS popup_get_values
-      IMPORTING
-        !iv_title           TYPE string OPTIONAL
-      CHANGING
-        ct_fields           TYPE tt_input_val
-      RETURNING
-        VALUE(rf_cancelled) TYPE abap_bool.
-
     CLASS-METHODS translate_first_letter
       IMPORTING
         !iv_input  TYPE clike
@@ -225,57 +206,6 @@ CLASS zcl_dbbr_appl_util IMPLEMENTATION.
       CATCH  cx_sy_itab_dyn_loop.
         rv_line_count = -1.
     ENDTRY.
-  ENDMETHOD.
-
-  METHOD popup_get_value.
-    DATA: lv_rcode(1),
-          lt_fields TYPE TABLE OF sval.
-
-    result = is_field-value.
-
-    lt_fields = VALUE #( ( is_field ) ).
-
-    CALL FUNCTION 'POPUP_GET_VALUES'
-      EXPORTING
-        popup_title  = iv_title
-        start_column = '12'
-        start_row    = '5'
-      IMPORTING
-        returncode   = lv_rcode
-      TABLES
-        fields       = lt_fields
-      EXCEPTIONS
-        OTHERS       = 1.
-
-    IF sy-subrc <> 0 OR lv_rcode = 'A'.
-      ef_cancelled = abap_true.
-    ELSE.
-      result = CONV string( lt_fields[ 1 ]-value ).
-    ENDIF.
-
-  ENDMETHOD.
-
-
-  METHOD popup_get_values.
-    DATA: lv_rcode(1).
-
-    CLEAR rf_cancelled.
-
-    CALL FUNCTION 'POPUP_GET_VALUES'
-      EXPORTING
-        popup_title  = iv_title
-        start_column = '12'
-        start_row    = '5'
-      IMPORTING
-        returncode   = lv_rcode
-      TABLES
-        fields       = ct_fields
-      EXCEPTIONS
-        OTHERS       = 1.
-
-    IF sy-subrc <> 0 OR lv_rcode = 'A'.
-      rf_cancelled = abap_true.
-    ENDIF.
   ENDMETHOD.
 
 
