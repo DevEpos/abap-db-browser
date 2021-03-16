@@ -60,7 +60,7 @@ CLASS zcl_dbbr_sqle_sidebar DEFINITION
         VALUE(ro_control) TYPE REF TO zif_uitb_content_searcher.
     "! <p class="shorttext synchronized" lang="en">Handler for toolbar button click event</p>
     METHODS on_toolbar_button
-        FOR EVENT function_selected OF cl_gui_toolbar
+      FOR EVENT function_selected OF cl_gui_toolbar
       IMPORTING
         fcode.
 ENDCLASS.
@@ -139,18 +139,18 @@ CLASS zcl_dbbr_sqle_sidebar IMPLEMENTATION.
   METHOD init_layout.
     zcl_uitb_gui_helper=>create_control_toolbar(
       EXPORTING io_parent       = mo_container
-                iv_toolbar_size = 60
+                iv_toolbar_size = cl_gui_cfw=>compute_metric_from_dynp(
+                  metric = cl_gui_control=>metric_pixel
+                  x_or_y = 'Y'
+                  in = 2 ) + 10 "10px margin
                 iv_mode         = cl_gui_toolbar=>m_mode_vertical
                 it_button       = CORRESPONDING #( mt_views )
       IMPORTING eo_toolbar      = mo_toolbar
-                eo_client       = DATA(lo_client)
-    ).
+                eo_client       = DATA(lo_client) ).
     SET HANDLER:
       on_toolbar_button FOR mo_toolbar.
 
-    mo_switch = NEW #(
-      io_parent = lo_client
-    ).
+    mo_switch = NEW #( io_parent = lo_client ).
     toggle_control( iv_view = c_views-data_source_browser ).
   ENDMETHOD.
 
