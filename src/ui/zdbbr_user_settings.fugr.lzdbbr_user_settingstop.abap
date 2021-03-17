@@ -328,7 +328,7 @@ SELECTION-SCREEN END OF SCREEN 104.
 SELECTION-SCREEN BEGIN OF SCREEN 200 TITLE TEXT-s02 AS WINDOW.
 
 SELECTION-SCREEN BEGIN OF BLOCK search_settings WITH FRAME TITLE TEXT-b03.
-PARAMETERS p_ebensf TYPE zdbbr_obj_browser_mode AS LISTBOX VISIBLE LENGTH 20 OBLIGATORY DEFAULT zif_dbbr_c_object_browser_mode=>cds_view.
+PARAMETERS p_ebensf TYPE zdbbr_obj_browser_mode AS LISTBOX VISIBLE LENGTH 35 OBLIGATORY DEFAULT zif_dbbr_c_object_browser_mode=>cds_view.
 PARAMETERS p_eblimo TYPE zdbbr_entity_browser_link_mode AS LISTBOX VISIBLE LENGTH 35 OBLIGATORY DEFAULT zif_sat_c_entity_type=>table.
 PARAMETERS p_ebbmax TYPE int2 DEFAULT 500.
 SELECTION-SCREEN END OF BLOCK search_settings.
