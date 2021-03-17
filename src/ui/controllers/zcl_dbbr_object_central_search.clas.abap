@@ -28,7 +28,7 @@ CLASS zcl_dbbr_object_central_search DEFINITION
     TYPES: BEGIN OF ty_s_result.
     TYPES: type_icon TYPE char40.
            INCLUDE TYPE zsat_entity.
-           TYPES: END OF ty_s_result.
+    TYPES: END OF ty_s_result.
     CONSTANTS: BEGIN OF c_functions,
                  adt                         TYPE ui_func VALUE 'INADT',
                  show_cds_source             TYPE ui_func VALUE 'SHOWSOURCE',
@@ -114,20 +114,20 @@ CLASS zcl_dbbr_object_central_search DEFINITION
     "! <p class="shorttext synchronized" lang="en">User command handerl for ALV action</p>
     "!
     METHODS on_user_command
-        FOR EVENT function_chosen OF zcl_uitb_alv_events
+      FOR EVENT function_chosen OF zcl_uitb_alv_events
       IMPORTING
         !ev_function
         !ev_tag .
     "! <p class="shorttext synchronized" lang="en">Context menu handler for ALV</p>
     "!
     METHODS on_alv_context_menu
-        FOR EVENT context_menu OF zcl_uitb_alv_events
+      FOR EVENT context_menu OF zcl_uitb_alv_events
       IMPORTING
         er_menu.
     "! <p class="shorttext synchronized" lang="en">Link Click handler for ALV</p>
     "!
     METHODS on_link_click
-        FOR EVENT link_click OF zcl_uitb_alv_events
+      FOR EVENT link_click OF zcl_uitb_alv_events
       IMPORTING
         !ev_row
         !ev_column .
@@ -184,16 +184,15 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_content.
-    DATA(mo_splitter) = NEW zcl_uitb_gui_splitter_cont(
-      iv_elements = 2
-      iv_size     = '55:*'
-      io_parent   = io_container
-    ).
+    DATA(lo_splitter) = NEW zcl_uitb_gui_splitter_cont(
+        iv_elements = 2
+        iv_size     = '55:*'
+        io_parent   = io_container
+      )->set_all_sash_properties(
+        if_visible = abap_false ).
 
-    mo_splitter->set_sash_properties( iv_index = 1 if_movable = abap_false if_visible = abap_false ).
-
-    create_dd_input( EXPORTING io_container = mo_splitter->get_container( 1 ) ).
-    create_alv_output( EXPORTING io_container = mo_splitter->get_container( 2 ) ).
+    create_dd_input( EXPORTING io_container = lo_splitter->get_container( 1 ) ).
+    create_alv_output( EXPORTING io_container = lo_splitter->get_container( 2 ) ).
   ENDMETHOD.
 
   METHOD do_before_dynpro_output.
@@ -290,7 +289,7 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
               iv_entity_id   = iv_entity_id
               if_new_window  = abap_false
           ).
-        when zif_dbbr_c_eb_link_mode=>show_content_new_window.
+        WHEN zif_dbbr_c_eb_link_mode=>show_content_new_window.
           show_content(
               iv_entity_type = iv_entity_type
               iv_entity_id   = iv_entity_id

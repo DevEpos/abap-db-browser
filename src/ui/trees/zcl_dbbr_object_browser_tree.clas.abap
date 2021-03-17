@@ -997,15 +997,11 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
   METHOD create_splitter.
     mo_splitter = NEW zcl_uitb_gui_splitter_cont(
-      iv_elements = 2
-      iv_size     = '50:*'
-      io_parent   = mo_parent
-    ).
-    mo_splitter->set_sash_properties(
-        iv_index   = 1
-        if_visible = abap_false
-        if_movable = abap_false
-    ).
+        iv_elements = 2
+        iv_size     = '50:*'
+        io_parent   = mo_parent
+      )->set_all_sash_properties(
+        if_visible = abap_false ).
   ENDMETHOD.
 
 
