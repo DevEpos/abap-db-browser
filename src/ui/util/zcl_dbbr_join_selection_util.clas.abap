@@ -4,14 +4,10 @@ CLASS zcl_dbbr_join_selection_util DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    METHODS execute_selection
-        REDEFINITION.
     METHODS get_entity_name
         REDEFINITION.
 
     METHODS init
-        REDEFINITION.
-    METHODS refresh_selection
         REDEFINITION.
     METHODS zif_dbbr_screen_util~handle_ui_function
         REDEFINITION.
@@ -21,7 +17,10 @@ CLASS zcl_dbbr_join_selection_util DEFINITION
 
     METHODS create_from_clause
         REDEFINITION.
-
+    METHODS before_selection
+        REDEFINITION.
+    METHODS after_selection
+        REDEFINITION.
     "! <p class="shorttext synchronized" lang="en">Marks virtual join fields for later processing</p>
     "!
     METHODS mark_virt_join_selfields .
@@ -60,86 +59,6 @@ ENDCLASS.
 
 
 CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
-
-  METHOD execute_selection.
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
-
-    determine_group_by_state( ).
-    determine_aggregation_state( ).
-    mark_virt_join_selfields( ).
-
-    """ only count lines for current selection and display result
-    IF mf_count_lines = abap_true.
-      count_lines( ).
-      RETURN.
-    ENDIF.
-
-    read_entity_infos( ).
-
-    build_full_fieldnames( ).
-
-    IF mf_join_is_active = abap_true AND
-       line_exists( ms_join_def-tables[ is_virtual = abap_true ] ).
-      mo_post_join_helper = zcl_dbbr_virtual_join_helper=>create(
-        is_join_def   = ms_join_def
-        ir_fields     = mo_tabfields
-        ir_fields_all = mo_tabfields_all
-      ).
-    ENDIF.
-
-    mo_tabfields->update_text_field_status( ).
-
-    handle_reduced_memory( ).
-
-    zcl_dbbr_addtext_helper=>prepare_text_fields(
-      EXPORTING ir_fields    = mo_tabfields
-      CHANGING  ct_add_texts = mt_add_texts
-    ).
-
-    create_from_clause( ).
-
-    create_where_clause( ).
-
-    create_group_by_clause( ).
-
-    create_order_by_clause( ).
-
-    create_field_catalog( ).
-
-    create_select_clause( ).
-
-    create_dynamic_table( ).
-
-    IF mo_formula IS BOUND.
-      TRY.
-          mo_formula_calculator = zcl_dbbr_formula_calculator=>create(
-              ir_formula            = mo_formula
-              ir_tabfields          = mo_tabfields
-              it_tab_components     = mt_dyntab_components
-          ).
-        CATCH zcx_dbbr_exception INTO DATA(lr_exception).
-          lr_exception->zif_sat_exception_message~print( ).
-      ENDTRY.
-    ENDIF.
-
-    CHECK select_data( ).
-
-    " if no selection occurred, prevent screen visibility
-    IF ms_control_info-number <= 0.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
-
-    CHECK fill_virtual_join_fields( ).
-
-    execute_formula_for_lines( ).
-
-    set_miscinfo_for_selected_data( ).
-
-    RAISE EVENT selection_finished
-      EXPORTING
-         ef_first_select = abap_true.
-  ENDMETHOD.
 
   METHOD fill_virtual_join_fields.
     FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
@@ -230,26 +149,6 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
         is_join_def           = CORRESPONDING #( DEEP ms_join_def )
       ).
     ENDIF.
-  ENDMETHOD.
-
-
-  METHOD refresh_selection.
-    CHECK select_data( if_refresh_only = abap_true ).
-
-    IF ms_control_info-number = 0.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
-
-    CHECK fill_virtual_join_fields( ).
-
-    execute_formula_for_lines( ).
-
-    set_miscinfo_for_selected_data( ).
-
-    RAISE EVENT selection_finished
-      EXPORTING
-        ef_reset_alv_table = if_reset_table_in_alv.
   ENDMETHOD.
 
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
@@ -380,5 +279,30 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD before_selection.
+
+    super->before_selection( ).
+
+    mark_virt_join_selfields( ).
+
+    IF mf_join_is_active = abap_true AND
+       line_exists( ms_join_def-tables[ is_virtual = abap_true ] ).
+      mo_post_join_helper = zcl_dbbr_virtual_join_helper=>create(
+        is_join_def   = ms_join_def
+        ir_fields     = mo_tabfields
+        ir_fields_all = mo_tabfields_all
+      ).
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD after_selection.
+
+    CHECK fill_virtual_join_fields( ).
+
+    super->after_selection( ).
+
+  ENDMETHOD.
 
 ENDCLASS.

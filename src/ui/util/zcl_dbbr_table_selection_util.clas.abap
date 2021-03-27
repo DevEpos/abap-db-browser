@@ -6,14 +6,9 @@ CLASS zcl_dbbr_table_selection_util DEFINITION
 
   PUBLIC SECTION.
 
-    METHODS execute_selection
-        REDEFINITION .
     METHODS get_entity_name
         REDEFINITION .
-
     METHODS init
-        REDEFINITION .
-    METHODS refresh_selection
         REDEFINITION .
     METHODS zif_dbbr_screen_util~get_deactivated_functions
         REDEFINITION.
@@ -26,9 +21,10 @@ CLASS zcl_dbbr_table_selection_util DEFINITION
         if_called_from_output TYPE abap_bool OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Delete data for the given selection criteria</p>
     METHODS delete_data .
-
     METHODS read_entity_infos
         REDEFINITION .
+    METHODS before_selection
+        REDEFINITION.
   PRIVATE SECTION.
 ENDCLASS.
 
@@ -159,85 +155,6 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
   ENDMETHOD.
 
-
-  METHOD execute_selection.
-    determine_group_by_state( ).
-    determine_aggregation_state( ).
-
-    """ only count lines for current selection and display result
-    IF mf_count_lines = abap_true.
-      count_lines( ).
-      RETURN.
-    ENDIF.
-
-    build_full_fieldnames( ).
-
-    """ go into edit mode for given table - SE16N is used for this
-    IF ms_control_info-edit = abap_true.
-      edit_data( ).
-      RETURN.
-    ENDIF.
-
-    """ delete entries from database
-    IF ms_control_info-delete_mode = abap_true.
-      delete_data( ).
-      RETURN.
-    ENDIF.
-
-    read_entity_infos( ).
-
-    mo_tabfields->update_text_field_status( ).
-
-    handle_reduced_memory( ).
-
-    zcl_dbbr_addtext_helper=>prepare_text_fields(
-      EXPORTING ir_fields    = mo_tabfields
-      CHANGING  ct_add_texts = mt_add_texts
-    ).
-
-    create_from_clause( ).
-
-    create_where_clause( ).
-
-    create_group_by_clause( ).
-
-    create_order_by_clause( ).
-
-    create_field_catalog( ).
-
-    create_select_clause( ).
-
-    create_dynamic_table( ).
-
-    IF mo_formula IS BOUND.
-      TRY.
-          mo_formula_calculator = zcl_dbbr_formula_calculator=>create(
-              ir_formula            = mo_formula
-              ir_tabfields          = mo_tabfields
-              it_tab_components     = mt_dyntab_components
-          ).
-        CATCH zcx_dbbr_exception INTO DATA(lr_exception).
-          lr_exception->zif_sat_exception_message~print( ).
-      ENDTRY.
-    ENDIF.
-
-    CHECK select_data( ).
-
-    " if no selection occurred, prevent screen visibility
-    IF ms_control_info-number <= 0.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
-
-    execute_formula_for_lines( ).
-
-    set_miscinfo_for_selected_data( ).
-
-    RAISE EVENT selection_finished
-      EXPORTING
-         ef_first_select = abap_true.
-  ENDMETHOD.
-
   METHOD get_entity_name.
     result = mv_entity_id.
   ENDMETHOD.
@@ -255,23 +172,6 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD refresh_selection.
-    CHECK select_data( if_refresh_only = abap_true ).
-
-    IF ms_control_info-number = 0.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
-
-    execute_formula_for_lines( ).
-
-    set_miscinfo_for_selected_data( ).
-
-    RAISE EVENT selection_finished
-      EXPORTING
-        ef_reset_alv_table = if_reset_table_in_alv.
-  ENDMETHOD.
-
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
     result = VALUE #(
       ( LINES OF super->get_deactivated_functions( ) )
@@ -281,7 +181,7 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
     IF mf_group_by = abap_false AND
        mf_aggregation = abap_false AND
        ms_control_info-primary_table_tabclass = 'TRANSP' AND
-       ms_technical_info-advanced_mode = abap_true and
+       ms_technical_info-advanced_mode = abap_true AND
        zcl_dbbr_dep_feature_util=>is_se16n_available( ).
       DELETE result WHERE table_line = zif_dbbr_c_selection_functions=>edit_data.
     ENDIF.
@@ -299,6 +199,23 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
     IF cv_function IS NOT INITIAL.
       super->handle_ui_function( CHANGING cv_function = cv_function ).
     ENDIF.
+  ENDMETHOD.
+
+  METHOD before_selection.
+    super->before_selection( ).
+
+    """ go into edit mode for given table - SE16N is used for this
+    IF ms_control_info-edit = abap_true. "extra
+      edit_data( ).
+      RETURN.
+    ENDIF.
+
+    """ delete entries from database
+    IF ms_control_info-delete_mode = abap_true."extra
+      delete_data( ).
+      RETURN.
+    ENDIF.
+
   ENDMETHOD.
 
 ENDCLASS.

@@ -73,8 +73,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
       IMPORTING
         !is_selection_data TYPE ty_s_selection_data .
     "! <p class="shorttext synchronized" lang="en">Executes the selection for the entity</p>
-    METHODS execute_selection
-        ABSTRACT .
+    METHODS execute_selection.
     "! <p class="shorttext synchronized" lang="en">Fills the dynamic document header on top of the alv output</p>
     METHODS fill_header
       CHANGING
@@ -111,7 +110,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
       RETURNING
         VALUE(result) TYPE abap_bool .
     "! <p class="shorttext synchronized" lang="en">Refresh the selection</p>
-    METHODS refresh_selection ABSTRACT
+    METHODS refresh_selection
       IMPORTING
         if_reset_table_in_alv TYPE abap_bool OPTIONAL.
     "! <p class="shorttext synchronized" lang="en">Sets the column texts for the given field catalog entry</p>
@@ -358,6 +357,10 @@ CLASS zcl_dbbr_selection_util DEFINITION
     METHODS set_where_as_alv_filter .
     "! <p class="shorttext synchronized" lang="en">Raise</p>
     METHODS show_no_data_message .
+    "! <p class="shorttext synchronized" lang="en">Steps before selection</p>
+    METHODS before_selection.
+    "! <p class="shorttext synchronized" lang="en">Steps after selection</p>
+    METHODS after_selection.
   PRIVATE SECTION.
     DATA mo_text_field_util TYPE REF TO zcl_dbbr_text_field_ui_util.
 ENDCLASS.
@@ -1939,6 +1942,96 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         CLEAR cv_function.
         open_in_sql_console( ).
     ENDCASE.
+  ENDMETHOD.
+
+  METHOD after_selection.
+
+    " if no selection occurred, prevent screen visibility
+    IF ms_control_info-number <= 0.
+      raise_no_data_event( ).
+      RETURN.
+    ENDIF.
+
+    execute_formula_for_lines( ).
+
+    set_miscinfo_for_selected_data( ).
+
+  ENDMETHOD.
+
+  METHOD before_selection.
+
+    determine_group_by_state( ).
+    determine_aggregation_state( ).
+
+    """ only count lines for current selection and display result
+    IF mf_count_lines = abap_true.
+      count_lines( ).
+      RETURN.
+    ENDIF.
+
+    read_entity_infos( ).
+
+    build_full_fieldnames( ).
+
+    mo_tabfields->update_text_field_status( ).
+
+    handle_reduced_memory( ).
+
+    zcl_dbbr_addtext_helper=>prepare_text_fields(
+      EXPORTING ir_fields    = mo_tabfields
+      CHANGING  ct_add_texts = mt_add_texts
+    ).
+
+    create_where_clause( ).
+
+    create_from_clause( ).
+
+    create_group_by_clause( ).
+
+    create_order_by_clause( ).
+
+    create_field_catalog( ).
+
+    create_select_clause( ).
+
+    create_dynamic_table( ).
+
+    IF mo_formula IS BOUND.
+      TRY.
+          mo_formula_calculator = zcl_dbbr_formula_calculator=>create(
+              ir_formula            = mo_formula
+              ir_tabfields          = mo_tabfields
+              it_tab_components     = mt_dyntab_components
+          ).
+        CATCH zcx_dbbr_exception INTO DATA(lr_exception).
+          lr_exception->zif_sat_exception_message~print( ).
+      ENDTRY.
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD execute_selection.
+
+    before_selection( ).
+
+    CHECK select_data( ).
+
+    after_selection( ).
+
+    RAISE EVENT selection_finished
+      EXPORTING
+         ef_first_select = abap_true.
+  ENDMETHOD.
+
+  METHOD refresh_selection.
+
+    CHECK select_data( if_refresh_only = abap_true ).
+
+    after_selection( ).
+
+    RAISE EVENT selection_finished
+    EXPORTING
+      ef_reset_alv_table = if_reset_table_in_alv.
   ENDMETHOD.
 
 ENDCLASS.

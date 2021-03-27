@@ -9,8 +9,6 @@ CLASS zcl_dbbr_sql_query_selctn_util DEFINITION
     METHODS constructor
       IMPORTING
         is_selection_data TYPE ty_s_selection_data.
-    METHODS execute_selection
-        REDEFINITION.
     METHODS get_entity_name
         REDEFINITION.
 
@@ -33,6 +31,10 @@ CLASS zcl_dbbr_sql_query_selctn_util DEFINITION
         REDEFINITION.
     METHODS get_sql_query
         REDEFINITION.
+    METHODS before_selection
+        REDEFINITION.
+    METHODS after_selection
+        REDEFINITION.
   PRIVATE SECTION.
     DATA mv_query_string TYPE string .
     DATA mo_query TYPE REF TO zcl_dbbr_sql_query.
@@ -53,39 +55,6 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
   METHOD constructor.
     super->constructor( is_selection_data = is_selection_data ).
     mv_query_string = is_selection_data-query_string.
-  ENDMETHOD.
-
-  METHOD execute_selection.
-    FIELD-SYMBOLS: <lt_data> TYPE table.
-
-    CHECK select_data( ).
-
-    IF mr_query_result IS NOT BOUND.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
-
-    ASSIGN mr_query_result->* TO <lt_data>.
-    ms_control_info-number = lines( <lt_data> ).
-
-*.. only count lines for current selection and display result
-    IF mf_count_lines = abap_true.
-      RETURN.
-    ENDIF.
-
-    create_dynamic_table( ).
-
-    create_field_catalog( ).
-
-    " if no selection occurred, prevent screen visibility
-    IF ms_control_info-number <= 0.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
-
-    RAISE EVENT selection_finished
-      EXPORTING
-         ef_first_select = abap_true.
   ENDMETHOD.
 
   METHOD refresh_selection.
@@ -355,5 +324,40 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD after_selection.
+    FIELD-SYMBOLS: <lt_data> TYPE table.
+
+    IF mr_query_result IS NOT BOUND.
+      raise_no_data_event( ).
+      RETURN.
+    ENDIF.
+
+    ASSIGN mr_query_result->* TO <lt_data>.
+    ms_control_info-number = lines( <lt_data> ).
+
+*.. only count lines for current selection and display result
+    IF mf_count_lines = abap_true.
+      RETURN.
+    ENDIF.
+
+    create_dynamic_table( ).
+
+    create_field_catalog( ).
+
+    " if no selection occurred, prevent screen visibility
+    IF ms_control_info-number <= 0.
+      raise_no_data_event( ).
+      RETURN.
+    ENDIF.
+
+    RAISE EVENT selection_finished
+      EXPORTING
+         ef_first_select = abap_true.
+  ENDMETHOD.
+
+  METHOD before_selection.
+    "nothing needed
+  ENDMETHOD.
 
 ENDCLASS.
