@@ -704,7 +704,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       ASSIGN mo_util->mr_t_data->* TO <lt_table>.
       rv_current_line_count = lines( <lt_table> ).
     ELSE.
-      rv_current_line_count = mo_util->ms_control_info-number.
+      rv_current_line_count = mo_util->mv_selected_lines.
     ENDIF.
   ENDMETHOD.
 
@@ -1038,7 +1038,13 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     IF if_count_lines_only = abap_true.
       mo_util->count_lines( ).
     ELSE.
-      mo_util->execute_selection( ).
+      IF mo_util->ms_control_info-edit = abap_true.
+        mo_util->execute_function( zif_dbbr_c_selection_functions=>edit_data ).
+      ELSEIF mo_util->ms_control_info-delete_mode = abap_true.
+        mo_util->execute_function( zif_dbbr_c_selection_functions=>delete_data ).
+      ELSE.
+        mo_util->execute_selection( ).
+      ENDIF.
     ENDIF.
 
     rf_no_data = mf_no_data.
@@ -2571,7 +2577,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
                                            ELSE
                                              current_line_count( ) - lv_alv_filtered_entries ).
 
-    data(lv_selection_count_text) = mo_util->get_sel_count_text( exporting iv_filtered_line_count = lv_filtered_line_count ).
+    DATA(lv_selection_count_text) = mo_util->get_sel_count_text( EXPORTING iv_filtered_line_count = lv_filtered_line_count ).
 
     SET TITLEBAR 'OUTPUT_TITLE' OF PROGRAM zif_dbbr_c_report_id=>output WITH lv_select_type_text lv_selection_count_text.
   ENDMETHOD.

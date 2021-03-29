@@ -6,6 +6,8 @@ CLASS zcl_dbbr_table_selection_util DEFINITION
 
   PUBLIC SECTION.
 
+    METHODS execute_function
+        REDEFINITION .
     METHODS get_entity_name
         REDEFINITION .
     METHODS init
@@ -23,8 +25,6 @@ CLASS zcl_dbbr_table_selection_util DEFINITION
     METHODS delete_data .
     METHODS read_entity_infos
         REDEFINITION .
-    METHODS before_selection
-        REDEFINITION.
   PRIVATE SECTION.
 ENDCLASS.
 
@@ -41,10 +41,10 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
     CHECK select_data( if_count_lines = abap_true ).
 
     " if no selection occurred, prevent screen visibility
-    IF ms_control_info-number <= 0.
+    IF mv_selected_lines <= 0.
       MESSAGE i060(zdbbr_info).
     ELSE.
-      DATA(lv_number_of_lines) = |{ ms_control_info-number NUMBER = USER }|.
+      DATA(lv_number_of_lines) = |{ mv_selected_lines NUMBER = USER }|.
 
       DATA(lv_result) = zcl_dbbr_appl_util=>popup_to_confirm(
           iv_title                 = 'Delete Rows?'
@@ -201,21 +201,16 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-  METHOD before_selection.
-    super->before_selection( ).
+  METHOD execute_function.
+    CASE iv_function.
 
-    """ go into edit mode for given table - SE16N is used for this
-    IF ms_control_info-edit = abap_true. "extra
-      edit_data( ).
-      RETURN.
-    ENDIF.
+      WHEN zif_dbbr_c_selection_functions=>edit_data.
+        edit_data( ).
 
-    """ delete entries from database
-    IF ms_control_info-delete_mode = abap_true."extra
-      delete_data( ).
-      RETURN.
-    ENDIF.
+      WHEN zif_dbbr_c_selection_functions=>delete_data.
+        delete_data( ).
 
+    ENDCASE.
   ENDMETHOD.
 
 ENDCLASS.

@@ -282,9 +282,19 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
 
   METHOD before_selection.
 
-    super->before_selection( ).
-
+    determine_group_by_state( ).
+    determine_aggregation_state( ).
     mark_virt_join_selfields( ).
+
+    """ only count lines for current selection and display result
+    IF mf_count_lines = abap_true.
+      count_lines( ).
+      RETURN.
+    ENDIF.
+
+    read_entity_infos( ).
+
+    build_full_fieldnames( ).
 
     IF mf_join_is_active = abap_true AND
        line_exists( ms_join_def-tables[ is_virtual = abap_true ] ).
@@ -295,13 +305,58 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
       ).
     ENDIF.
 
+    mo_tabfields->update_text_field_status( ).
+
+    handle_reduced_memory( ).
+
+    zcl_dbbr_addtext_helper=>prepare_text_fields(
+      EXPORTING ir_fields    = mo_tabfields
+      CHANGING  ct_add_texts = mt_add_texts
+    ).
+
+    create_from_clause( ).
+
+    create_where_clause( ).
+
+    create_group_by_clause( ).
+
+    create_order_by_clause( ).
+
+    create_field_catalog( ).
+
+    create_select_clause( ).
+
+    create_dynamic_table( ).
+
+    IF mo_formula IS BOUND.
+      TRY.
+          mo_formula_calculator = zcl_dbbr_formula_calculator=>create(
+              ir_formula            = mo_formula
+              ir_tabfields          = mo_tabfields
+              it_tab_components     = mt_dyntab_components
+          ).
+        CATCH zcx_dbbr_exception INTO DATA(lr_exception).
+          lr_exception->zif_sat_exception_message~print( ).
+      ENDTRY.
+    ENDIF.
+
   ENDMETHOD.
 
   METHOD after_selection.
 
-    CHECK fill_virtual_join_fields( ).
+    " if no selection occurred, prevent screen visibility
+    IF mv_selected_lines <= 0.
+      raise_no_data_event( ).
+      RETURN.
+    ENDIF.
 
-    super->after_selection( ).
+    DATA(lf_result) = fill_virtual_join_fields( ).
+
+    IF lf_result = abap_true.
+      execute_formula_for_lines( ).
+
+      set_miscinfo_for_selected_data( ).
+    ENDIF.
 
   ENDMETHOD.
 

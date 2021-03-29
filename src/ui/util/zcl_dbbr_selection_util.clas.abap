@@ -74,6 +74,12 @@ CLASS zcl_dbbr_selection_util DEFINITION
         !is_selection_data TYPE ty_s_selection_data .
     "! <p class="shorttext synchronized" lang="en">Executes the selection for the entity</p>
     METHODS execute_selection.
+    "! <p class="shorttext synchronized" lang="en">Executes the given function</p>
+    "! <strong>Note:</strong> Default implementation is empty. <br/>
+    "! subclasses should redefine for custom logic
+    METHODS execute_function
+      IMPORTING
+        iv_function TYPE ui_func.
     "! <p class="shorttext synchronized" lang="en">Fills the dynamic document header on top of the alv output</p>
     METHODS fill_header
       CHANGING
@@ -200,9 +206,9 @@ CLASS zcl_dbbr_selection_util DEFINITION
         alv_varianttext        TYPE slis_varbz,
         edit                   TYPE abap_bool, " is table editable?
         client_dependent       TYPE abap_bool, "table itself is client dependent
-        number                 TYPE zdbbr_no_of_lines,
         delete_mode            TYPE sap_bool,
-      END OF ms_control_info .
+      END OF ms_control_info.
+    DATA mv_selected_lines TYPE zdbbr_no_of_lines.
     DATA ms_technical_info TYPE zdbbr_tech_info .
     DATA mo_tabfields_original TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mo_tabfields_all_original TYPE REF TO zcl_dbbr_tabfield_list .
@@ -567,10 +573,10 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     CHECK select_data( if_count_lines = abap_true ).
 
     " if no selection occurred, prevent screen visibility
-    IF ms_control_info-number <= 0.
+    IF mv_selected_lines <= 0.
       show_no_data_message( ).
     ELSE.
-      DATA(lv_number_of_lines) = |{ ms_control_info-number NUMBER = USER }|.
+      DATA(lv_number_of_lines) = |{ mv_selected_lines NUMBER = USER }|.
       MESSAGE i024(zdbbr_info) WITH lv_number_of_lines.
     ENDIF.
   ENDMETHOD.
@@ -585,10 +591,10 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     CHECK select_data( if_count_lines = abap_true ).
 
-    IF ms_control_info-number <= 0.
+    IF mv_selected_lines <= 0.
       show_no_data_message( ).
     ELSE.
-      DATA(lv_number_of_lines) = |{ ms_control_info-number NUMBER = USER }|.
+      DATA(lv_number_of_lines) = |{ mv_selected_lines NUMBER = USER }|.
       MESSAGE i024(zdbbr_info) WITH lv_number_of_lines.
     ENDIF.
   ENDMETHOD.
@@ -1600,10 +1606,10 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
             IMPORTING et_data      = <lt_table>
           ).
 
-          ms_control_info-number = lines( <lt_table> ).
+          mv_selected_lines = lines( <lt_table> ).
 
 **....... determine the maximum number of lines
-          IF sy-dbsys = 'HDB' AND ms_control_info-number = ms_technical_info-max_lines.
+          IF sy-dbsys = 'HDB' AND mv_selected_lines = ms_technical_info-max_lines.
 
             zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 
@@ -1613,16 +1619,16 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
               mv_max_lines_existing = mo_select_program->determine_size( mr_t_for_all_data ).
             ENDIF.
           ELSE.
-            mv_max_lines_existing = ms_control_info-number.
+            mv_max_lines_existing = mv_selected_lines.
           ENDIF.
         ELSE.
 *........ only count the number of lines that exist for the condition
           zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 
           IF mf_group_by = abap_true OR mf_aggregation = abap_true.
-            ms_control_info-number = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
+            mv_selected_lines = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
           ELSE.
-            ms_control_info-number = mo_select_program->determine_size( ).
+            mv_selected_lines = mo_select_program->determine_size( ).
           ENDIF.
         ENDIF.
 
@@ -1947,7 +1953,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD after_selection.
 
     " if no selection occurred, prevent screen visibility
-    IF ms_control_info-number <= 0.
+    IF mv_selected_lines <= 0.
       raise_no_data_event( ).
       RETURN.
     ENDIF.
@@ -1962,12 +1968,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     determine_group_by_state( ).
     determine_aggregation_state( ).
-
-    """ only count lines for current selection and display result
-    IF mf_count_lines = abap_true.
-      count_lines( ).
-      RETURN.
-    ENDIF.
 
     read_entity_infos( ).
 
@@ -2014,24 +2014,36 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     before_selection( ).
 
-    CHECK select_data( ).
+    DATA(lf_select_successful) = select_data( ).
 
-    after_selection( ).
+    IF lf_select_successful = abap_true.
+      after_selection( ).
 
-    RAISE EVENT selection_finished
-      EXPORTING
-         ef_first_select = abap_true.
+      IF mv_selected_lines > 0.
+        RAISE EVENT selection_finished
+          EXPORTING
+             ef_first_select = abap_true.
+      ENDIF.
+    ENDIF.
   ENDMETHOD.
 
   METHOD refresh_selection.
 
-    CHECK select_data( if_refresh_only = abap_true ).
+    DATA(lf_select_successful) = select_data( if_refresh_only = abap_true ).
 
-    after_selection( ).
+    IF lf_select_successful = abap_true.
+      after_selection( ).
 
-    RAISE EVENT selection_finished
-    EXPORTING
-      ef_reset_alv_table = if_reset_table_in_alv.
+      IF mv_selected_lines > 0.
+        RAISE EVENT selection_finished
+          EXPORTING
+            ef_reset_alv_table = if_reset_table_in_alv.
+      ENDIF.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD execute_function.
+    RETURN.
   ENDMETHOD.
 
 ENDCLASS.

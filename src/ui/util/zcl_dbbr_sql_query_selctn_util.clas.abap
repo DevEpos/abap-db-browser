@@ -85,9 +85,9 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
     ENDIF.
 
     ASSIGN mr_query_result->* TO <lt_data>.
-    ms_control_info-number = lines( <lt_data> ).
+    mv_selected_lines = lines( <lt_data> ).
 
-    IF ms_control_info-number = 0.
+    IF mv_selected_lines = 0.
       raise_no_data_event( ).
       RETURN.
     ENDIF.
@@ -201,7 +201,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
         ev_message        = DATA(lv_message)
         ev_message_type   = DATA(lv_message_type)
         er_data           = mr_query_result
-        ev_line_count     = ms_control_info-number
+        ev_line_count     = mv_selected_lines
     ).
     IF lv_message IS NOT INITIAL.
       MESSAGE |{ lv_message }| TYPE 'I' DISPLAY LIKE lv_message_type.
@@ -334,26 +334,18 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
     ENDIF.
 
     ASSIGN mr_query_result->* TO <lt_data>.
-    ms_control_info-number = lines( <lt_data> ).
-
-*.. only count lines for current selection and display result
-    IF mf_count_lines = abap_true.
-      RETURN.
-    ENDIF.
+    mv_selected_lines = lines( <lt_data> ).
 
     create_dynamic_table( ).
 
     create_field_catalog( ).
 
     " if no selection occurred, prevent screen visibility
-    IF ms_control_info-number <= 0.
+    IF mv_selected_lines <= 0.
       raise_no_data_event( ).
       RETURN.
     ENDIF.
 
-    RAISE EVENT selection_finished
-      EXPORTING
-         ef_first_select = abap_true.
   ENDMETHOD.
 
   METHOD before_selection.

@@ -11,6 +11,7 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS hide_cols_without_values TYPE sy-ucomm VALUE 'HIDECOLNVL' ##no_text.
   CONSTANTS display_db_browser_version TYPE sy-ucomm VALUE 'SHOWVERSIO' ##no_text.
   CONSTANTS edit_data TYPE sy-ucomm VALUE 'EDITDATA' ##no_text.
+  CONSTANTS delete_data type sy-ucomm value 'DELETEDATA' ##no_text.
   CONSTANTS change_cds_parameters TYPE sy-ucomm VALUE 'CHGPARAMS' ##no_text.
   CONSTANTS set_focus_to_list TYPE sy-ucomm VALUE 'FOCUSALV' ##no_text.
   CONSTANTS set_focus_to_assoc_list TYPE sy-ucomm VALUE 'FOCUSASSOC' ##no_text.

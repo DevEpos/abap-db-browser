@@ -261,7 +261,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     create_dynamic_table( ).
 
     " if no selection occurred, prevent screen visibility
-    IF ms_control_info-number <= 0.
+    IF mv_selected_lines <= 0.
       raise_no_data_event( ).
       RETURN.
     ENDIF.
@@ -480,15 +480,18 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   ENDMETHOD.
   METHOD after_selection.
 
-    super->after_selection( ).
-
     " if no selection occurred, prevent screen visibility
-    IF ms_control_info-number <= 0.
+    IF mv_selected_lines <= 0.
+      raise_no_data_event( ).
       IF NOT (     mr_s_global_data->called_from_adt = abap_true
                AND mo_cds_view->has_parameters( if_exclude_system_params = abap_true ) ).
         RETURN.
       ENDIF.
     ENDIF.
+
+    execute_formula_for_lines( ).
+
+    set_miscinfo_for_selected_data( ).
 
   ENDMETHOD.
 
