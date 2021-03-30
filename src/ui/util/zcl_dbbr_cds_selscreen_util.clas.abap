@@ -364,7 +364,7 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
                 iv_code  = lv_source
                 iv_theme = mo_data->mr_s_global_data->settings-code_viewer_theme
             ).
-          CATCH zcx_dbbr_application_exc INTO DATA(lx_app_error).
+          CATCH zcx_sat_application_exc INTO DATA(lx_app_error).
             lx_app_error->zif_sat_exception_message~print( ).
         ENDTRY.
         CLEAR: cv_function.
@@ -410,7 +410,7 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
         TRY.
             NEW zcl_dbbr_design_studio_util( io_cds_view = mo_cds_view io_selscreen_data = mo_data )->open_in_design_studio( ).
           CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_error).
-            lx_appl_error->show_message( ).
+            lx_appl_error->zif_sat_exception_message~print( ).
         ENDTRY.
     ENDCASE.
   ENDMETHOD.

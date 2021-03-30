@@ -73,7 +73,9 @@ CLASS zcl_dbbr_selection_util DEFINITION
       IMPORTING
         !is_selection_data TYPE ty_s_selection_data .
     "! <p class="shorttext synchronized" lang="en">Executes the selection for the entity</p>
-    METHODS execute_selection.
+    METHODS execute_selection
+      RAISING
+        zcx_dbbr_application_exc.
     "! <p class="shorttext synchronized" lang="en">Executes the given function</p>
     "! <strong>Note:</strong> Default implementation is empty. <br/>
     "! subclasses should redefine for custom logic
@@ -334,6 +336,11 @@ CLASS zcl_dbbr_selection_util DEFINITION
     METHODS init_navigation_breadcrumbs
       IMPORTING
         !ir_container TYPE REF TO cl_gui_container .
+    "! <p class="shorttext synchronized" lang="en">Functional check if empty result should be ignored</p>
+    "! Subclasses should redefine if custom handling for empty selection is needed
+    METHODS ignore_empty_result
+      RETURNING
+        VALUE(rf_ignore_empty) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Returns 'X' if saving as F4 is allowed</p>
     METHODS is_f4_saving_allowed
       RETURNING
@@ -348,10 +355,10 @@ CLASS zcl_dbbr_selection_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Select the actual data</p>
     METHODS select_data
       IMPORTING
-        !if_count_lines   TYPE abap_bool OPTIONAL
-        !if_refresh_only  TYPE abap_bool OPTIONAL
-      RETURNING
-        VALUE(rf_success) TYPE abap_bool .
+        if_count_lines  TYPE abap_bool OPTIONAL
+        if_refresh_only TYPE abap_bool OPTIONAL
+      RAISING
+        zcx_dbbr_application_exc.
     "! <p class="shorttext synchronized" lang="en">Set Texts for line index column</p>
     METHODS set_line_index_column_texts
       CHANGING
@@ -364,9 +371,16 @@ CLASS zcl_dbbr_selection_util DEFINITION
     "! <p class="shorttext synchronized" lang="en">Raise</p>
     METHODS show_no_data_message .
     "! <p class="shorttext synchronized" lang="en">Steps before selection</p>
-    METHODS before_selection.
+    METHODS before_selection
+      RAISING
+        zcx_dbbr_application_exc.
     "! <p class="shorttext synchronized" lang="en">Steps after selection</p>
-    METHODS after_selection.
+    METHODS after_selection
+      RAISING
+        zcx_dbbr_application_exc.
+    METHODS has_result
+      RETURNING
+        VALUE(rf_has_result) TYPE abap_bool.
   PRIVATE SECTION.
     DATA mo_text_field_util TYPE REF TO zcl_dbbr_text_field_ui_util.
 ENDCLASS.
@@ -570,7 +584,12 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     create_from_clause( ).
 
-    CHECK select_data( if_count_lines = abap_true ).
+    TRY.
+        select_data( if_count_lines = abap_true ).
+      CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_exc).
+        lx_appl_exc->zif_sat_exception_message~print( iv_msg_type = 'I' ).
+        RETURN.
+    ENDTRY.
 
     " if no selection occurred, prevent screen visibility
     IF mv_selected_lines <= 0.
@@ -589,7 +608,12 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     create_where_clause( ).
     create_dynamic_table( ).
 
-    CHECK select_data( if_count_lines = abap_true ).
+    TRY.
+        select_data( if_count_lines = abap_true ).
+      CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_exc).
+        lx_appl_exc->show_message( iv_message_type = 'I' ).
+        RETURN.
+    ENDTRY.
 
     IF mv_selected_lines <= 0.
       show_no_data_message( ).
@@ -988,7 +1012,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   METHOD create_group_by_clause.
     DATA(lt_virtual_join_tab_range) = mt_virtual_join_table_range.
     IF lt_virtual_join_tab_range IS INITIAL.
-      lt_virtual_join_tab_range = VALUE #( ( sign = 'I' option = 'EQ' ) ).
+      lt_virtual_join_tab_range = VALUE #( ( sign = 'I' option = 'EQ' low = space ) ).
     ENDIF.
 
     DATA(lt_group_by_fields) = VALUE zdbbr_selfield_itab(
@@ -1494,6 +1518,9 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
                             AND reference_alv_fieldname NOT IN lt_has_text_field.
   ENDMETHOD.
 
+  METHOD ignore_empty_result.
+    rf_ignore_empty = abap_false.
+  ENDMETHOD.
 
   METHOD init_navigation_breadcrumbs.
     CHECK ir_container IS BOUND.
@@ -1574,71 +1601,60 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     FIELD-SYMBOLS: <lt_table>     TYPE table,
                    <lt_selection> TYPE table.
 
-    rf_success = abap_true.
+    " generate the program to perform the data selection
+    IF ms_technical_info-activate_alv_live_filter = abap_true OR
+       if_refresh_only = abap_false.
+      mo_select_program = zcl_dbbr_select_prog_creator=>create_program(
+          if_only_create_count_logic = if_count_lines
+          is_association_target      = ms_association_target
+          it_select                  = mt_select
+          it_from                    = mt_from
+          it_where                   = mt_where
+          it_order_by                = mt_order_by
+          it_group_by                = mt_group_by
+          it_having                  = mt_having
+          iv_max_size                = ms_technical_info-max_lines
+      ).
+    ELSE.
+      mo_select_program->set_max_rows( ms_technical_info-max_lines ).
+    ENDIF.
 
-    TRY.
-*...... generate the program to perform the data selection
-        IF ms_technical_info-activate_alv_live_filter = abap_true OR
-           if_refresh_only = abap_false.
-          mo_select_program = zcl_dbbr_select_prog_creator=>create_program(
-              if_only_create_count_logic = if_count_lines
-              is_association_target      = ms_association_target
-              it_select                  = mt_select
-              it_from                    = mt_from
-              it_where                   = mt_where
-              it_order_by                = mt_order_by
-              it_group_by                = mt_group_by
-              it_having                  = mt_having
-              iv_max_size                = ms_technical_info-max_lines
-          ).
+    " either select the data or, only count the lines for the where clause
+    ASSIGN mr_t_data->* TO <lt_table>.
+    IF if_count_lines = abap_false.
+
+      zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-001 }| iv_progress = 1 ).
+
+      mo_select_program->select_data(
+        EXPORTING ir_t_for_all = mr_t_for_all_data
+        IMPORTING et_data      = <lt_table>
+      ).
+
+      mv_selected_lines = lines( <lt_table> ).
+
+      " determine the maximum number of lines
+      IF sy-dbsys = 'HDB' AND mv_selected_lines = ms_technical_info-max_lines.
+
+        zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
+
+        IF mf_group_by = abap_true OR mf_aggregation = abap_true.
+          mv_max_lines_existing = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
         ELSE.
-          mo_select_program->set_max_rows( ms_technical_info-max_lines ).
+          mv_max_lines_existing = mo_select_program->determine_size( mr_t_for_all_data ).
         ENDIF.
+      ELSE.
+        mv_max_lines_existing = mv_selected_lines.
+      ENDIF.
+    ELSE.
+      " only count the number of lines that exist for the condition
+      zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 
-*...... either select the data or, only count the lines for the where clause
-        ASSIGN mr_t_data->* TO <lt_table>.
-        IF if_count_lines = abap_false.
-
-          zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-001 }| iv_progress = 1 ).
-
-          mo_select_program->select_data(
-            EXPORTING ir_t_for_all = mr_t_for_all_data
-            IMPORTING et_data      = <lt_table>
-          ).
-
-          mv_selected_lines = lines( <lt_table> ).
-
-**....... determine the maximum number of lines
-          IF sy-dbsys = 'HDB' AND mv_selected_lines = ms_technical_info-max_lines.
-
-            zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
-
-            IF mf_group_by = abap_true OR mf_aggregation = abap_true.
-              mv_max_lines_existing = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
-            ELSE.
-              mv_max_lines_existing = mo_select_program->determine_size( mr_t_for_all_data ).
-            ENDIF.
-          ELSE.
-            mv_max_lines_existing = mv_selected_lines.
-          ENDIF.
-        ELSE.
-*........ only count the number of lines that exist for the condition
-          zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
-
-          IF mf_group_by = abap_true OR mf_aggregation = abap_true.
-            mv_selected_lines = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
-          ELSE.
-            mv_selected_lines = mo_select_program->determine_size( ).
-          ENDIF.
-        ENDIF.
-
-      CATCH zcx_dbbr_dyn_prog_generation INTO DATA(lx_dyn_generation).
-        CLEAR rf_success.
-        MESSAGE lx_dyn_generation->zif_sat_exception_message~get_message( ) TYPE 'I' DISPLAY LIKE 'E'.
-      CATCH zcx_dbbr_selection_common INTO DATA(lx_sql_error).
-        CLEAR rf_success.
-        MESSAGE lx_sql_error->zif_sat_exception_message~get_message( ) TYPE 'I' DISPLAY LIKE 'E'.
-    ENDTRY.
+      IF mf_group_by = abap_true OR mf_aggregation = abap_true.
+        mv_selected_lines = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
+      ELSE.
+        mv_selected_lines = mo_select_program->determine_size( ).
+      ENDIF.
+    ENDIF.
 
   ENDMETHOD.
 
@@ -1851,13 +1867,15 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   METHOD update_selection_for_filter.
     mr_alv_util->build_selection_criteria(
-      IMPORTING
-        et_criteria       = mt_selection_fields
-        et_criteria_multi = mt_selfields_multi
-    ).
+      IMPORTING et_criteria       = mt_selection_fields
+                et_criteria_multi = mt_selfields_multi ).
 
     create_where_clause( ).
-    refresh_selection( ).
+    TRY.
+        refresh_selection( ).
+      CATCH zcx_dbbr_application_exc ##NEEDED.
+        " normally in this case nothing should happen
+    ENDTRY.
 
   ENDMETHOD.
 
@@ -1884,7 +1902,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       result = VALUE #(
        BASE result
        ( zif_dbbr_c_selection_functions=>toggle_entity_info_header )
-       ( zif_dbbr_c_selection_functions=>group_by_selected_columns     )
+       ( zif_dbbr_c_selection_functions=>group_by_selected_columns )
       ).
     ENDIF.
 
@@ -1952,12 +1970,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   METHOD after_selection.
 
-    " if no selection occurred, prevent screen visibility
-    IF mv_selected_lines <= 0.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
-
     execute_formula_for_lines( ).
 
     set_miscinfo_for_selected_data( ).
@@ -2014,36 +2026,47 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     before_selection( ).
 
-    DATA(lf_select_successful) = select_data( ).
+    select_data( ).
 
-    IF lf_select_successful = abap_true.
-      after_selection( ).
-
-      IF mv_selected_lines > 0.
-        RAISE EVENT selection_finished
-          EXPORTING
-             ef_first_select = abap_true.
+    IF NOT has_result( ).
+      raise_no_data_event( ).
+      IF NOT ignore_empty_result( ).
+        RETURN.
       ENDIF.
     ENDIF.
+
+    after_selection( ).
+
+    RAISE EVENT selection_finished
+      EXPORTING
+        ef_first_select = abap_true.
   ENDMETHOD.
 
   METHOD refresh_selection.
+    TRY.
+        select_data( if_refresh_only = abap_true ).
 
-    DATA(lf_select_successful) = select_data( if_refresh_only = abap_true ).
+        IF NOT has_result( ).
+          raise_no_data_event( ).
+          RETURN.
+        ENDIF.
 
-    IF lf_select_successful = abap_true.
-      after_selection( ).
+        after_selection( ).
 
-      IF mv_selected_lines > 0.
         RAISE EVENT selection_finished
           EXPORTING
             ef_reset_alv_table = if_reset_table_in_alv.
-      ENDIF.
-    ENDIF.
+      CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_exc).
+        lx_appl_exc->zif_sat_exception_message~print( iv_msg_type = 'I' ).
+    ENDTRY.
   ENDMETHOD.
 
   METHOD execute_function.
     RETURN.
+  ENDMETHOD.
+
+  METHOD has_result.
+    rf_has_result = xsdbool( mv_selected_lines > 0 ).
   ENDMETHOD.
 
 ENDCLASS.

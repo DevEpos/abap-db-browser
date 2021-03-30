@@ -1,42 +1,37 @@
-class ZCX_DBBR_SELECTION_COMMON definition
-  public
-  inheriting from ZCX_DBBR_APPLICATION_EXC
-  final
-  create public .
+CLASS zcx_dbbr_selection_common DEFINITION
+  PUBLIC
+  INHERITING FROM zcx_dbbr_application_exc
+  FINAL
+  CREATE PUBLIC .
 
-public section.
+  PUBLIC SECTION.
 
-  methods CONSTRUCTOR
-    importing
-      !TEXTID like IF_T100_MESSAGE=>T100KEY optional
-      !PREVIOUS like PREVIOUS optional
-      !MSGV1 type SY-MSGV1 optional
-      !MSGV2 type SY-MSGV2 optional
-      !MSGV3 type SY-MSGV3 optional
-      !MSGV4 type SY-MSGV4 optional .
-protected section.
-private section.
+    METHODS constructor
+      IMPORTING
+        text     TYPE string OPTIONAL
+        textid   LIKE if_t100_message=>t100key OPTIONAL
+        previous LIKE previous OPTIONAL
+        msgv1    TYPE sy-msgv1 OPTIONAL
+        msgv2    TYPE sy-msgv2 OPTIONAL
+        msgv3    TYPE sy-msgv3 OPTIONAL
+        msgv4    TYPE sy-msgv4 OPTIONAL .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCX_DBBR_SELECTION_COMMON IMPLEMENTATION.
+CLASS zcx_dbbr_selection_common IMPLEMENTATION.
 
 
-  method CONSTRUCTOR.
-CALL METHOD SUPER->CONSTRUCTOR
-EXPORTING
-PREVIOUS = PREVIOUS
-MSGV1 = MSGV1
-MSGV2 = MSGV2
-MSGV3 = MSGV3
-MSGV4 = MSGV4
-.
-clear me->textid.
-if textid is initial.
-  IF_T100_MESSAGE~T100KEY = IF_T100_MESSAGE=>DEFAULT_TEXTID.
-else.
-  IF_T100_MESSAGE~T100KEY = TEXTID.
-endif.
-  endmethod.
+  METHOD constructor ##ADT_SUPPRESS_GENERATION.
+    CALL METHOD super->constructor
+      EXPORTING
+        text     = text
+        previous = previous
+        msgv1    = msgv1
+        msgv2    = msgv2
+        msgv3    = msgv3
+        msgv4    = msgv4.
+  ENDMETHOD.
 ENDCLASS.

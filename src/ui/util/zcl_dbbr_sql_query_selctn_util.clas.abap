@@ -11,7 +11,8 @@ CLASS zcl_dbbr_sql_query_selctn_util DEFINITION
         is_selection_data TYPE ty_s_selection_data.
     METHODS get_entity_name
         REDEFINITION.
-
+    METHODS execute_selection
+        REDEFINITION.
     METHODS init
         REDEFINITION.
     METHODS refresh_selection
@@ -35,6 +36,8 @@ CLASS zcl_dbbr_sql_query_selctn_util DEFINITION
         REDEFINITION.
     METHODS after_selection
         REDEFINITION.
+    METHODS has_result
+        REDEFINITION.
   PRIVATE SECTION.
     DATA mv_query_string TYPE string .
     DATA mo_query TYPE REF TO zcl_dbbr_sql_query.
@@ -55,6 +58,32 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
   METHOD constructor.
     super->constructor( is_selection_data = is_selection_data ).
     mv_query_string = is_selection_data-query_string.
+  ENDMETHOD.
+
+  METHOD execute_selection.
+    FIELD-SYMBOLS: <lt_data> TYPE table.
+
+    TRY.
+        select_data( ).
+
+        IF NOT has_result( ).
+          raise_no_data_event( ).
+          RETURN.
+        ENDIF.
+
+        ASSIGN mr_query_result->* TO <lt_data>.
+        mv_selected_lines = lines( <lt_data> ).
+
+        create_dynamic_table( ).
+
+        create_field_catalog( ).
+
+        RAISE EVENT selection_finished
+          EXPORTING
+             ef_first_select = abap_true.
+      CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_exc).
+        lx_appl_exc->show_message( iv_message_type = 'I' ).
+    ENDTRY.
   ENDMETHOD.
 
   METHOD refresh_selection.
@@ -79,18 +108,13 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
       ).
     ENDIF.
 
-    IF mr_query_result IS INITIAL.
+    IF NOT has_result( ).
       raise_no_data_event( ).
       RETURN.
     ENDIF.
 
     ASSIGN mr_query_result->* TO <lt_data>.
     mv_selected_lines = lines( <lt_data> ).
-
-    IF mv_selected_lines = 0.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
 
     ASSIGN mr_t_data->* TO <lt_output_data>.
     MOVE-CORRESPONDING <lt_data> TO <lt_output_data>.
@@ -101,14 +125,14 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD build_simple_alv_title.
-    result = COND #( WHEN mv_entity_id IS NOT INITIAL THEN |{ 'Result of'(001) } { mv_entity_id }| ELSE |Result of Querytest - { mv_execution_time_str }| ).
+    result = COND #(
+      WHEN mv_entity_id IS NOT INITIAL THEN |{ 'Result of'(001) } { mv_entity_id }|
+      ELSE |Result of Querytest - { mv_execution_time_str }| ).
   ENDMETHOD.
 
   METHOD get_entity_name.
 
   ENDMETHOD.
-
-
 
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
     result = VALUE #(
@@ -150,8 +174,6 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
 
   ENDMETHOD.
 
-
-
   METHOD set_parameters_in_query.
 
     LOOP AT mt_param_values ASSIGNING FIELD-SYMBOL(<ls_param>)
@@ -189,7 +211,6 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD select_data.
-    CLEAR rf_success.
     zcl_dbbr_sql_query_exec=>execute_query(
       EXPORTING
         io_query          = mo_query
@@ -201,20 +222,23 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
         ev_message        = DATA(lv_message)
         ev_message_type   = DATA(lv_message_type)
         er_data           = mr_query_result
-        ev_line_count     = mv_selected_lines
-    ).
+        ev_line_count     = mv_selected_lines ).
     IF lv_message IS NOT INITIAL.
-      MESSAGE |{ lv_message }| TYPE 'I' DISPLAY LIKE lv_message_type.
-      CHECK lv_message_type <> 'E'.
+
+      IF lv_message_type <> 'E'.
+        MESSAGE |{ lv_message }| TYPE 'I' DISPLAY LIKE lv_message_type.
+      ELSE.
+        RAISE EXCEPTION TYPE zcx_dbbr_selection_common
+          EXPORTING
+            text = lv_message.
+      ENDIF.
     ELSEIF mv_entity_id IS INITIAL.
-*.... Create history entry
+      " Create history entry
       mv_query_history_id = zcl_dbbr_sql_query_factory=>create_history_entry(
         iv_query_string = mo_query->ms_data-source
-        iv_exec_time    = CONV #( replace( val = mv_execution_time_str sub = ' ms' with = '' ) )
-      ).
+        iv_exec_time    = CONV #( replace( val = mv_execution_time_str sub = ' ms' with = '' ) ) ).
     ENDIF.
 
-    rf_success = abap_true.
   ENDMETHOD.
 
   METHOD create_dynamic_table.
@@ -244,38 +268,35 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
 
   METHOD create_field_catalog.
     DATA(lt_dfies) = zcl_uitb_alv_data_descr=>read_structdescr(
-        io_structdescr = mo_query_result_line_type
-        iv_language    = zcl_sat_system_helper=>get_system_language( )
-    ).
+      io_structdescr = mo_query_result_line_type
+      iv_language    = zcl_sat_system_helper=>get_system_language( ) ).
 
     LOOP AT lt_dfies ASSIGNING FIELD-SYMBOL(<ls_dfies>).
       DATA(lf_tech) = COND #(
         WHEN <ls_dfies>-fieldname = zif_dbbr_c_special_out_columns=>hide_flag OR
-             <ls_dfies>-fieldname = zif_dbbr_c_special_out_columns=>line_index THEN abap_true
-      ).
+             <ls_dfies>-fieldname = zif_dbbr_c_special_out_columns=>line_index THEN abap_true ).
       DATA(ls_field) = VALUE lvc_s_fcat(
-          fieldname    = <ls_dfies>-fieldname
-          ref_table    = <ls_dfies>-reftable
-          ref_field    = <ls_dfies>-reffield
-          rollname     = <ls_dfies>-rollname
-          dd_roll      = <ls_dfies>-rollname
-          datatype     = <ls_dfies>-datatype
-          inttype      = <ls_dfies>-inttype
-          intlen       = <ls_dfies>-leng
-          dd_outlen    = <ls_dfies>-outputlen
-          no_sign      = COND #( WHEN <ls_dfies>-sign = abap_false THEN abap_true )
-          key          = <ls_dfies>-keyflag
-          lowercase    = <ls_dfies>-lowercase
-          reptext      = <ls_dfies>-reptext
-          scrtext_s    = <ls_dfies>-scrtext_s
-          scrtext_m    = <ls_dfies>-scrtext_m
-          scrtext_l    = <ls_dfies>-scrtext_l
-          domname      = <ls_dfies>-domname
-          f4availabl   = <ls_dfies>-f4availabl
-          decimals     = <ls_dfies>-decimals
-          convexit     = <ls_dfies>-convexit
-          tech         = lf_tech
-      ).
+        fieldname    = <ls_dfies>-fieldname
+        ref_table    = <ls_dfies>-reftable
+        ref_field    = <ls_dfies>-reffield
+        rollname     = <ls_dfies>-rollname
+        dd_roll      = <ls_dfies>-rollname
+        datatype     = <ls_dfies>-datatype
+        inttype      = <ls_dfies>-inttype
+        intlen       = <ls_dfies>-leng
+        dd_outlen    = <ls_dfies>-outputlen
+        no_sign      = COND #( WHEN <ls_dfies>-sign = abap_false THEN abap_true )
+        key          = <ls_dfies>-keyflag
+        lowercase    = <ls_dfies>-lowercase
+        reptext      = <ls_dfies>-reptext
+        scrtext_s    = <ls_dfies>-scrtext_s
+        scrtext_m    = <ls_dfies>-scrtext_m
+        scrtext_l    = <ls_dfies>-scrtext_l
+        domname      = <ls_dfies>-domname
+        f4availabl   = <ls_dfies>-f4availabl
+        decimals     = <ls_dfies>-decimals
+        convexit     = <ls_dfies>-convexit
+        tech         = lf_tech ).
 
       DATA(ls_tabfield_info) = CORRESPONDING zdbbr_tabfield_info_ui(
         ls_field MAPPING tabname            = ref_table
@@ -285,8 +306,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
                          std_short_text     = scrtext_s
                          std_medium_text    = scrtext_m
                          std_long_text      = scrtext_l
-                         outputlen          = dd_outlen
-      ).
+                         outputlen          = dd_outlen ).
 
       mo_tabfields->add( ir_s_element = REF #( ls_tabfield_info ) ).
 
@@ -300,8 +320,7 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
 
       mt_fieldcat = VALUE #(
         BASE mt_fieldcat
-        ( ls_field )
-      ).
+        ( ls_field ) ).
     ENDLOOP.
   ENDMETHOD.
 
@@ -324,32 +343,23 @@ CLASS zcl_dbbr_sql_query_selctn_util IMPLEMENTATION.
 
   ENDMETHOD.
 
-
   METHOD after_selection.
+    RETURN.
+  ENDMETHOD.
+
+  METHOD before_selection.
+    RETURN.
+  ENDMETHOD.
+
+  METHOD has_result.
     FIELD-SYMBOLS: <lt_data> TYPE table.
 
     IF mr_query_result IS NOT BOUND.
-      raise_no_data_event( ).
       RETURN.
     ENDIF.
 
     ASSIGN mr_query_result->* TO <lt_data>.
-    mv_selected_lines = lines( <lt_data> ).
-
-    create_dynamic_table( ).
-
-    create_field_catalog( ).
-
-    " if no selection occurred, prevent screen visibility
-    IF mv_selected_lines <= 0.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
-
-  ENDMETHOD.
-
-  METHOD before_selection.
-    "nothing needed
+    rf_has_result = xsdbool( lines( <lt_data> ) > 0 ).
   ENDMETHOD.
 
 ENDCLASS.

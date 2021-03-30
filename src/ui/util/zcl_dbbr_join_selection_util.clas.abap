@@ -22,32 +22,25 @@ CLASS zcl_dbbr_join_selection_util DEFINITION
     METHODS after_selection
         REDEFINITION.
     "! <p class="shorttext synchronized" lang="en">Marks virtual join fields for later processing</p>
-    "!
     METHODS mark_virt_join_selfields .
     "! <p class="shorttext synchronized" lang="en">Fill virtual join field in the output table</p>
-    "!
     METHODS fill_virtual_join_fields
-      RETURNING
-        VALUE(result) TYPE abap_bool .
+      RAISING
+        zcx_dbbr_application_exc.
     "! <p class="shorttext synchronized" lang="en">Change CDS parameter values</p>
-    "!
     METHODS change_parameters .
     "! <p class="shorttext synchronized" lang="en">Update parameters of entities with the given parameter</p>
-    "!
     METHODS update_table_parameters
       IMPORTING
         is_param TYPE zsat_table_parameter.
-
   PRIVATE SECTION.
     "! <p class="shorttext synchronized" lang="en">Prefill cds view parameters</p>
-    "!
     METHODS prefill_parameters
       IMPORTING
         io_tabfields TYPE REF TO zcl_dbbr_tabfield_list
       CHANGING
         cs_join      TYPE zif_sat_ty_global=>ty_s_join_def.
     "! <p class="shorttext synchronized" lang="en">Fill parameters for a certain entity in the join</p>
-    "!
     METHODS fill_entity_params
       IMPORTING
         iv_entity       TYPE zsat_entity_id
@@ -63,20 +56,13 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
   METHOD fill_virtual_join_fields.
     FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
 
-    result = abap_true.
-
-*.. only continue if virtual join helper is bound
+    " only continue if virtual join helper is bound
     CHECK mo_post_join_helper IS BOUND.
 
     ASSIGN mr_t_data->* TO <lt_table>.
 
-    TRY.
-        mo_post_join_helper->fill_cache_tables( <lt_table> ).
-        result = mo_post_join_helper->process_table( mr_t_data ).
-      CATCH zcx_dbbr_selection_common INTO DATA(lx_sql_error).
-        CLEAR result.
-        MESSAGE lx_sql_error->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
-    ENDTRY.
+    mo_post_join_helper->fill_cache_tables( <lt_table> ).
+    mo_post_join_helper->process_table( mr_t_data ).
   ENDMETHOD.
 
   METHOD mark_virt_join_selfields.
@@ -286,12 +272,6 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
     determine_aggregation_state( ).
     mark_virt_join_selfields( ).
 
-    """ only count lines for current selection and display result
-    IF mf_count_lines = abap_true.
-      count_lines( ).
-      RETURN.
-    ENDIF.
-
     read_entity_infos( ).
 
     build_full_fieldnames( ).
@@ -344,19 +324,8 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
 
   METHOD after_selection.
 
-    " if no selection occurred, prevent screen visibility
-    IF mv_selected_lines <= 0.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
-
-    DATA(lf_result) = fill_virtual_join_fields( ).
-
-    IF lf_result = abap_true.
-      execute_formula_for_lines( ).
-
-      set_miscinfo_for_selected_data( ).
-    ENDIF.
+    fill_virtual_join_fields( ).
+    super->after_selection( ).
 
   ENDMETHOD.
 

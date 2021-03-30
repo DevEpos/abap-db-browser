@@ -25,16 +25,13 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
         REDEFINITION .
     METHODS zif_dbbr_screen_util~handle_pbo
         REDEFINITION .
-
   PROTECTED SECTION.
-
     METHODS create_from_clause
         REDEFINITION .
     METHODS read_entity_infos
         REDEFINITION .
-    METHODS after_selection
+    METHODS ignore_empty_result
         REDEFINITION.
-
   PRIVATE SECTION.
 
     "! Name of CDS view
@@ -53,8 +50,6 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
     METHODS navigate
       IMPORTING
         !is_assoc TYPE zsat_cds_association .
-    "! <p class="shorttext synchronized" lang="en">Rebuilds the output</p>
-    METHODS rebuild.
     "! <p class="shorttext synchronized" lang="en">Shows the Source Code of the CDS</p>
     METHODS show_cds_source.
     "! <p class="shorttext synchronized" lang="en">Event handler for when association gets chosen</p>
@@ -67,7 +62,6 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
         !ev_chosen_entity_id
         !ev_chosen_entity_type
         !es_chosen_association .
-
 ENDCLASS.
 
 
@@ -219,61 +213,6 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD rebuild.
-    init( ).
-
-    CLEAR: mt_from,
-           mt_where,
-           mt_group_by,
-           mt_fieldcat,
-           mt_sort_alv,
-           mt_selected_rows,
-           mt_select,
-           mt_dyntab_components,
-           mt_current_live_filter.
-
-    determine_group_by_state( ).
-    determine_aggregation_state( ).
-
-    read_entity_infos( ).
-
-    build_full_fieldnames( ).
-
-    mo_tabfields->update_text_field_status( ).
-
-    zcl_dbbr_addtext_helper=>prepare_text_fields(
-      EXPORTING ir_fields    = mo_tabfields
-      CHANGING  ct_add_texts = mt_add_texts
-    ).
-
-    create_where_clause( ).
-
-    create_from_clause( ).
-
-    create_group_by_clause( ).
-
-    create_order_by_clause( ).
-
-    create_field_catalog( ).
-
-    create_select_clause( ).
-
-    create_dynamic_table( ).
-
-    " if no selection occurred, prevent screen visibility
-    IF mv_selected_lines <= 0.
-      raise_no_data_event( ).
-      RETURN.
-    ENDIF.
-
-    set_miscinfo_for_selected_data( ).
-
-    RAISE EVENT selection_finished
-      EXPORTING
-         ef_first_select = abap_true.
-
-  ENDMETHOD.
-
 
   METHOD fill_header.
     cr_dd_doc->add_table(
@@ -353,12 +292,22 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD ignore_empty_result.
+    " If CDS is opened from ADT and has parameter the user should have the chance to
+    " enter correct parameters if no data was found
+    IF mr_s_global_data->called_from_adt = abap_true AND
+        mo_cds_view->has_parameters( if_exclude_system_params = abap_true ).
+      rf_ignore_empty = abap_true.
+    ENDIF.
+  ENDMETHOD.
+
+
   METHOD init.
     mv_cds_view = mv_entity_id.
     TRY.
         mo_cds_view = zcl_sat_cds_view_factory=>read_cds_view( mv_cds_view ).
       CATCH zcx_sat_data_read_error INTO DATA(lx_read_error).
-        MESSAGE lx_read_error->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
+        lx_read_error->zif_sat_exception_message~print( iv_msg_type = 'I' ).
     ENDTRY.
   ENDMETHOD.
 
@@ -476,22 +425,6 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
       WHEN OTHERS.
     ENDCASE.
-
-  ENDMETHOD.
-  METHOD after_selection.
-
-    " if no selection occurred, prevent screen visibility
-    IF mv_selected_lines <= 0.
-      raise_no_data_event( ).
-      IF NOT (     mr_s_global_data->called_from_adt = abap_true
-               AND mo_cds_view->has_parameters( if_exclude_system_params = abap_true ) ).
-        RETURN.
-      ENDIF.
-    ENDIF.
-
-    execute_formula_for_lines( ).
-
-    set_miscinfo_for_selected_data( ).
 
   ENDMETHOD.
 

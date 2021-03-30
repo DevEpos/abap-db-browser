@@ -34,11 +34,16 @@ CLASS zcl_dbbr_table_selection_util IMPLEMENTATION.
 
 
   METHOD delete_data.
+    build_full_fieldnames( ).
     create_where_clause( ).
-
     create_from_clause( ).
 
-    CHECK select_data( if_count_lines = abap_true ).
+    TRY.
+        select_data( if_count_lines = abap_true ).
+      CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_exc).
+        lx_appl_exc->show_message( iv_message_type = 'I' ).
+        RETURN.
+    ENDTRY.
 
     " if no selection occurred, prevent screen visibility
     IF mv_selected_lines <= 0.

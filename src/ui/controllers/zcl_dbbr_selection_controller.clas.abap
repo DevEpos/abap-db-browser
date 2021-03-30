@@ -1035,17 +1035,21 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
   METHOD execute_selection.
     CLEAR mf_no_data.
 
-    IF if_count_lines_only = abap_true.
-      mo_util->count_lines( ).
-    ELSE.
-      IF mo_util->ms_control_info-edit = abap_true.
-        mo_util->execute_function( zif_dbbr_c_selection_functions=>edit_data ).
-      ELSEIF mo_util->ms_control_info-delete_mode = abap_true.
-        mo_util->execute_function( zif_dbbr_c_selection_functions=>delete_data ).
-      ELSE.
-        mo_util->execute_selection( ).
-      ENDIF.
-    ENDIF.
+    TRY.
+        IF if_count_lines_only = abap_true.
+          mo_util->count_lines( ).
+        ELSE.
+          IF mo_util->ms_control_info-edit = abap_true.
+            mo_util->execute_function( zif_dbbr_c_selection_functions=>edit_data ).
+          ELSEIF mo_util->ms_control_info-delete_mode = abap_true.
+            mo_util->execute_function( zif_dbbr_c_selection_functions=>delete_data ).
+          ELSE.
+            mo_util->execute_selection( ).
+          ENDIF.
+        ENDIF.
+      CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_exc).
+        MESSAGE lx_appl_exc->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
+    ENDTRY.
 
     rf_no_data = mf_no_data.
   ENDMETHOD.

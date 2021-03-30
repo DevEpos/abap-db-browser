@@ -42,12 +42,13 @@ CLASS zcx_dbbr_application_exc DEFINITION
 
     METHODS constructor
       IMPORTING
-        !textid   LIKE if_t100_message=>t100key OPTIONAL
-        !previous LIKE previous OPTIONAL
-        !msgv1    TYPE sy-msgv1 OPTIONAL
-        !msgv2    TYPE sy-msgv2 OPTIONAL
-        !msgv3    TYPE sy-msgv3 OPTIONAL
-        !msgv4    TYPE sy-msgv4 OPTIONAL .
+        text     TYPE string OPTIONAL
+        textid   LIKE if_t100_message=>t100key OPTIONAL
+        previous LIKE previous OPTIONAL
+        msgv1    TYPE sy-msgv1 OPTIONAL
+        msgv2    TYPE sy-msgv2 OPTIONAL
+        msgv3    TYPE sy-msgv3 OPTIONAL
+        msgv4    TYPE sy-msgv4 OPTIONAL .
     METHODS show_message
       IMPORTING
         !iv_message_type LIKE sy-msgty DEFAULT 'E'
@@ -67,19 +68,43 @@ CLASS zcx_dbbr_application_exc IMPLEMENTATION.
 
 
   METHOD constructor ##ADT_SUPPRESS_GENERATION.
+    DATA: lf_fill_t100_from_sy TYPE abap_bool.
+
     CALL METHOD super->constructor
       EXPORTING
         previous = previous.
-    me->msgv1 = msgv1 .
-    me->msgv2 = msgv2 .
-    me->msgv3 = msgv3 .
-    me->msgv4 = msgv4 .
+
     CLEAR me->textid.
-    IF textid IS INITIAL.
-      if_t100_message~t100key = if_t100_message=>default_textid.
-    ELSE.
+
+    IF text IS NOT INITIAL.
+      lf_fill_t100_from_sy = abap_true.
+      zcl_dutils_message_util=>split_string_to_symsg( text ).
+    ELSEIF sy-msgid IS NOT INITIAL.
+      lf_fill_t100_from_sy = abap_true.
+    ELSEIF textid IS NOT INITIAL.
       if_t100_message~t100key = textid.
+      me->msgv1 = msgv1.
+      me->msgv2 = msgv2.
+      me->msgv3 = msgv3.
+      me->msgv4 = msgv4.
+    ELSE.
+      if_t100_message~t100key = if_t100_message=>default_textid.
     ENDIF.
+
+    IF lf_fill_t100_from_sy = abap_true.
+      me->msgv1 = sy-msgv1.
+      me->msgv2 = sy-msgv2.
+      me->msgv3 = sy-msgv3.
+      me->msgv4 = sy-msgv4.
+      if_t100_message~t100key = VALUE #(
+        msgid = sy-msgid
+        msgno = sy-msgno
+        attr1 = 'MSGV1'
+        attr2 = 'MSGV2'
+        attr3 = 'MSGV3'
+        attr4 = 'MSGV4' ).
+    ENDIF.
+
   ENDMETHOD.
 
 
