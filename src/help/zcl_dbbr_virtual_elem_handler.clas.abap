@@ -16,8 +16,8 @@ CLASS zcl_dbbr_virtual_elem_handler DEFINITION
         io_cds_view           TYPE REF TO zcl_sat_cds_view
         it_fields             TYPE zdbbr_tabfield_info_ui_itab
       EXPORTING
-        et_requested_elements TYPE fieldname_tab "stringtab
-        et_virtual_elements   TYPE fieldname_tab. "stringtab.
+        et_requested_elements TYPE stringtab
+        et_virtual_elements   TYPE stringtab.
 
     "! <p class="shorttext synchronized" lang="en">Determine if virtual element calculation is needed</p>
     "!
@@ -26,7 +26,7 @@ CLASS zcl_dbbr_virtual_elem_handler DEFINITION
     METHODS adjust_requested
       IMPORTING
         iv_entity_name TYPE zsat_cds_view_name
-        it_fields      TYPE fieldname_tab
+        it_fields      TYPE zdbbr_tabfield_info_ui_itab
       RAISING
         zcx_dbbr_application_exc.
 
@@ -45,12 +45,11 @@ CLASS zcl_dbbr_virtual_elem_handler DEFINITION
     TYPES ty_t_sorted_string TYPE SORTED TABLE OF string WITH UNIQUE DEFAULT KEY.
 
     DATA mo_sadl_exit_handler TYPE REF TO object.
-    DATA mr_entity_load       TYPE REF TO data.
 
     "! <p class="shorttext synchronized" lang="en">Constructor</p>
     "!
     "! @parameter iv_entity_name | <p class="shorttext synchronized" lang="en">CDS view name</p>
-    METHODS instantiate_sadl_exit_handler
+    METHODS init_sadl_exit_handler
       IMPORTING
         iv_entity_name TYPE zsat_cds_view_name
       RAISING
@@ -62,9 +61,10 @@ ENDCLASS.
 
 CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
 
-  METHOD instantiate_sadl_exit_handler.
-    DATA: lv_uuid TYPE char255,
-          lr_mdp  TYPE REF TO data.
+  METHOD init_sadl_exit_handler.
+    DATA: lv_uuid        TYPE char255,
+          lr_mdp         TYPE REF TO data,
+          lr_entity_load TYPE REF TO data.
 
     TRY.
         CALL METHOD ('CL_SADL_MDP_EXPOSURE')=>('GET_EXPOSURE_LOAD_ID')
@@ -88,9 +88,9 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
           EXPORTING
             iv_entity_id   = lv_uuid
           RECEIVING
-            rr_entity_load = mr_entity_load.
+            rr_entity_load = lr_entity_load.
 
-        ASSIGN mr_entity_load->* TO FIELD-SYMBOL(<ls_entity_load>).
+        ASSIGN lr_entity_load->* TO FIELD-SYMBOL(<ls_entity_load>).
         ASSIGN COMPONENT 'ENTITY_ID' OF STRUCTURE <ls_entity_load> TO FIELD-SYMBOL(<lv_entity_id>).
         IF sy-subrc = 0.
           CREATE OBJECT mo_sadl_exit_handler TYPE ('CL_SADL_EXIT_HANDLER')
@@ -123,7 +123,7 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
 
     LOOP AT lt_annotation ASSIGNING FIELD-SYMBOL(<ls_annotation>).
       IF line_exists( it_fields[ fieldname = <ls_annotation>-fieldname ] ).
-        et_virtual_elements = VALUE #( BASE et_virtual_elements ( <ls_annotation>-fieldname ) ).
+        et_virtual_elements = VALUE #( BASE et_virtual_elements ( CONV #( <ls_annotation>-fieldname ) ) ).
         lt_exit_class = VALUE #( BASE lt_exit_class ( CONV #( <ls_annotation>-value+5 ) ) ).
       ENDIF.
     ENDLOOP.
@@ -150,8 +150,7 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
         cx_sy_dyn_call_error.
       ENDTRY.
 
-*      et_requested_fields = value #( ( lines of lt_requested_fields ) ).
-      APPEND LINES OF lt_requested_elements TO et_requested_elements.
+      et_requested_elements = VALUE #( BASE et_requested_elements ( LINES OF lt_requested_elements ) ).
     ENDLOOP.
 
   ENDMETHOD.
@@ -181,9 +180,9 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
 
   METHOD adjust_requested.
 
-    instantiate_sadl_exit_handler( iv_entity_name ).
+    init_sadl_exit_handler( iv_entity_name ).
 
-    DATA(lt_requested) = VALUE stringtab( FOR ls_field IN it_fields ( CONV #( ls_field ) ) ).
+    DATA(lt_requested) = VALUE stringtab( FOR ls_field IN it_fields ( CONV #( ls_field-fieldname ) ) ).
     TRY.
         CALL METHOD mo_sadl_exit_handler->('ADJUST_REQUESTED')
           CHANGING

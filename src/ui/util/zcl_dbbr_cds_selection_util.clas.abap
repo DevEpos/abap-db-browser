@@ -488,12 +488,11 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
       LOOP AT lt_requested_elements ASSIGNING FIELD-SYMBOL(<lv_requested_element>).
         TRY.
-            DATA(lr_s_field) = mo_tabfields->get_field_ref(
-              iv_fieldname = <lv_requested_element> ).
+            DATA(lr_s_field) = mo_tabfields->get_field_ref( iv_fieldname = CONV #( <lv_requested_element> ) ).
             lr_s_field->needed_for_virtual_elem = abap_true.
 
           CATCH cx_sy_itab_line_not_found.
-            DATA(ls_new_field) = mo_tabfields_all->get_field( iv_fieldname = <lv_requested_element> ) .
+            DATA(ls_new_field) = mo_tabfields_all->get_field( iv_fieldname = CONV #( <lv_requested_element> ) ) .
             ls_new_field-needed_for_virtual_elem = abap_true.
             mo_tabfields->append_tabfield_info( is_tabfield = ls_new_field ).
         ENDTRY.
@@ -501,9 +500,8 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       ENDLOOP.
 
       mo_virtual_elem_handler->adjust_requested(
-        EXPORTING
-          iv_entity_name = mo_cds_view->mv_view_name
-          it_fields      = lt_virtual_elements ).
+        iv_entity_name = mo_cds_view->mv_view_name
+        it_fields      = lt_fields ).
     ENDIF.
 
   ENDMETHOD.
