@@ -62,17 +62,39 @@ ENDCLASS.
 CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
 
   METHOD init_sadl_exit_handler.
-    DATA: lv_uuid        TYPE char255,
-          lr_mdp         TYPE REF TO data,
-          lr_entity_load TYPE REF TO data.
+    DATA:
+      lr_mdp             TYPE REF TO data,
+      lr_entity_load     TYPE REF TO data,
+      lr_param_entity_id TYPE REF TO data,
+      lr_param_id        TYPE REF TO data,
+      lo_class_descr     TYPE REF TO cl_abap_classdescr.
+
+    FIELD-SYMBOLS: <lv_param_id>        TYPE any,
+                   <lv_param_entity_id> TYPE any.
 
     TRY.
+        lo_class_descr ?= cl_abap_typedescr=>describe_by_name( '\CLASS=CL_SADL_MDP_EXPOSURE' ).
+
+        DATA(lo_param_entity_id_type) = lo_class_descr->get_method_parameter_type(
+          p_method_name       = 'GET_EXPOSURE_LOAD_ID'
+          p_parameter_name    = 'IV_ENTITY_ID' ).
+        CREATE DATA lr_param_entity_id TYPE HANDLE lo_param_entity_id_type.
+        ASSIGN lr_param_entity_id->* TO <lv_param_entity_id>.
+
+        <lv_param_entity_id> = CONV #( iv_entity_name ).
+
+        DATA(lo_param_id_type) = lo_class_descr->get_method_parameter_type(
+          p_method_name       = 'GET_EXPOSURE_LOAD_ID'
+          p_parameter_name    = 'RV_ID' ).
+        CREATE DATA lr_param_id TYPE HANDLE lo_param_id_type.
+        ASSIGN lr_param_id->* TO <lv_param_id>.
+
         CALL METHOD ('CL_SADL_MDP_EXPOSURE')=>('GET_EXPOSURE_LOAD_ID')
           EXPORTING
             iv_entity_type = 'CDS'
-            iv_entity_id   = CONV char255( iv_entity_name )
+            iv_entity_id   = <lv_param_entity_id>
           RECEIVING
-            rv_id          = lv_uuid.
+            rv_id          = <lv_param_id>.
 
         DATA(lo_mdp_type) = cl_abap_refdescr=>get_by_name( 'IF_SADL_METADATA_PROVIDER' ).
         CREATE DATA lr_mdp TYPE HANDLE lo_mdp_type.
@@ -80,27 +102,41 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
 
         CALL METHOD ('CL_SADL_MDP_FACTORY')=>('GET_MDP_FOR_ID')
           EXPORTING
-            iv_sadl_id = lv_uuid
+            iv_sadl_id = <lv_param_id>
           RECEIVING
             ro_mdp     = <lo_mdp>.
 
         CALL METHOD ('CL_SADL_MDP_FACTORY')=>('GET_ENTITY_LOAD_BY_ID')
           EXPORTING
-            iv_entity_id   = lv_uuid
+            iv_entity_id   = <lv_param_id>
           RECEIVING
             rr_entity_load = lr_entity_load.
 
         ASSIGN lr_entity_load->* TO FIELD-SYMBOL(<ls_entity_load>).
         ASSIGN COMPONENT 'ENTITY_ID' OF STRUCTURE <ls_entity_load> TO FIELD-SYMBOL(<lv_entity_id>).
         IF sy-subrc = 0.
+
+          CLEAR: lo_class_descr, lo_param_entity_id_type, lr_param_entity_id.
+          UNASSIGN <lv_param_entity_id>.
+
+          lo_class_descr ?= cl_abap_typedescr=>describe_by_name( '\CLASS=CL_SADL_EXIT_HANDLER' ).
+
+          lo_param_entity_id_type = lo_class_descr->get_method_parameter_type(
+            p_method_name       = 'CONSTRUCTOR'
+            p_parameter_name    = 'IV_ENTITY_ID' ).
+          CREATE DATA lr_param_entity_id TYPE HANDLE lo_param_entity_id_type.
+          ASSIGN lr_param_entity_id->* TO <lv_param_entity_id>.
+
+          <lv_param_entity_id> = CONV #( <lv_entity_id> ).
+
           CREATE OBJECT mo_sadl_exit_handler TYPE ('CL_SADL_EXIT_HANDLER')
             EXPORTING
               io_mdp       = <lo_mdp>
-              iv_entity_id = CONV char255( <lv_entity_id> ).
+              iv_entity_id = <lv_param_entity_id>.
         ENDIF.
       CATCH cx_sy_create_object_error
-          cx_sy_ref_is_initial
-          cx_sy_dyn_call_error.
+            cx_sy_ref_is_initial
+            cx_sy_dyn_call_error.
         " no SADL classes available
 
       CATCH BEFORE UNWIND cx_root INTO DATA(lx_sadl_error) . "SADL exception raised
@@ -146,8 +182,8 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
             IMPORTING
               et_requested_orig_elements = lt_requested_elements.
         CATCH cx_sy_create_object_error
-        cx_sy_ref_is_initial
-        cx_sy_dyn_call_error.
+              cx_sy_ref_is_initial
+              cx_sy_dyn_call_error.
       ENDTRY.
 
       et_requested_elements = VALUE #( BASE et_requested_elements ( LINES OF lt_requested_elements ) ).
@@ -181,6 +217,10 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
   METHOD adjust_requested.
 
     init_sadl_exit_handler( iv_entity_name ).
+
+    IF mo_sadl_exit_handler IS INITIAL.
+      RETURN.
+    ENDIF.
 
     DATA(lt_requested) = VALUE stringtab( FOR ls_field IN it_fields ( CONV #( ls_field-fieldname ) ) ).
     TRY.

@@ -481,14 +481,19 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       LOOP AT lt_virtual_elements ASSIGNING FIELD-SYMBOL(<ls_virtual_element>).
         TRY.
             mt_selection_fields[ fieldname = <ls_virtual_element> ]-virtual_element = abap_true.
+
+            DATA(lr_s_field) = mo_tabfields_all->get_field_ref( iv_fieldname = CONV #( <ls_virtual_element> ) ).
+            lr_s_field->is_virtual_element = abap_true.
           CATCH cx_sy_itab_line_not_found.
             "field not in selection field list
         ENDTRY.
       ENDLOOP.
 
+      CLEAR lr_s_field.
+
       LOOP AT lt_requested_elements ASSIGNING FIELD-SYMBOL(<lv_requested_element>).
         TRY.
-            DATA(lr_s_field) = mo_tabfields->get_field_ref( iv_fieldname = CONV #( <lv_requested_element> ) ).
+            lr_s_field = mo_tabfields->get_field_ref( iv_fieldname = CONV #( <lv_requested_element> ) ).
             lr_s_field->needed_for_virtual_elem = abap_true.
 
           CATCH cx_sy_itab_line_not_found.
