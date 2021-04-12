@@ -5,16 +5,41 @@
 CONSTANTS:
   BEGIN OF c_cls,
     BEGIN OF sadl_mpd_exposure,
-      name TYPE string VALUE '',
+      name TYPE string VALUE 'CL_SADL_MDP_EXPOSURE',
       BEGIN OF meth,
         BEGIN OF get_exposure,
-          name TYPE string VALUE '',
+          name TYPE string VALUE 'GET_EXPOSURE_LOAD_ID',
           BEGIN OF param,
-            rv_id TYPE string VALUE '',
+            rv_id        TYPE string VALUE 'RV_ID',
+            iv_entity_id TYPE string VALUE 'IV_ENTITY_ID',
           END OF param,
         END OF get_exposure,
       END OF meth,
     END OF sadl_mpd_exposure,
+
+    BEGIN OF sadl_mdp_factory,
+      name TYPE string VALUE 'CL_SADL_MDP_FACTORY',
+      BEGIN OF meth,
+        BEGIN OF get_mdp_for_id,
+          name TYPE string VALUE 'GET_MDP_FOR_ID',
+        END OF get_mdp_for_id,
+        BEGIN OF get_entity_load_by_id,
+          name TYPE string VALUE 'GET_ENTITY_LOAD_BY_ID',
+        END OF get_entity_load_by_id,
+      END OF meth,
+    END OF sadl_mdp_factory,
+
+    BEGIN OF sadl_exit_handler,
+      name TYPE string VALUE 'CL_SADL_EXIT_HANDLER',
+      BEGIN OF meth,
+        BEGIN OF execute_calculation,
+          name TYPE string VALUE 'EXECUTE_CALCULATION',
+        END OF execute_calculation,
+        BEGIN OF adjust_requested,
+          name TYPE string VALUE 'ADJUST_REQUESTED',
+        END OF adjust_requested,
+      END OF meth,
+    END OF sadl_exit_handler,
   END OF c_cls.
 
 CLASS lcl_sadl_mdp_exposure DEFINITION.
@@ -25,38 +50,56 @@ CLASS lcl_sadl_mdp_exposure DEFINITION.
         IMPORTING
           iv_entity_name    TYPE zsat_cds_view_name
         RETURNING
-          VALUE(rr_load_id) TYPE REF TO data.
+          VALUE(rr_load_id) TYPE REF TO data
+        RAISING
+          cx_sy_dyn_call_error.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    CONSTANTS:
-      c_class TYPE string VALUE 'CL_SADL_MDP_EXPOSURE',
-      BEGIN OF c_methods,
-        get_exposure_load_id TYPE string VALUE 'GET_EXPOSURE_LOAD_ID',
-      END OF c_methods,
-      BEGIN OF c_params,
-        rv_id        TYPE string VALUE 'RV_ID',
-        iv_entity_id TYPE string VALUE 'IV_ENTITY_ID',
-      END OF c_params.
+
 ENDCLASS.
 
 CLASS lcl_sadl_mdp_factory DEFINITION.
 
   PUBLIC SECTION.
+    METHODS:
+      constructor
+        IMPORTING
+          iv_entity_name TYPE zsat_cds_view_name
+        RAISING
+          cx_sy_dyn_call_error,
+      get_mdp_for_id
+        RETURNING
+          VALUE(rr_mdp) TYPE REF TO data,
+      get_entity_load_by_id
+        RETURNING
+          VALUE(rr_entity_load) TYPE REF TO data.
   PROTECTED SECTION.
   PRIVATE SECTION.
+    DATA:
+      mr_load_id TYPE REF TO data.
     METHODS:
-      create_metadata_provider_ref,
-      get_mdp_for_id,
-      get_entity_load_by_id.
+      create_metadata_provider_ref
+        RETURNING
+          VALUE(rr_mdp) TYPE REF TO data.
 ENDCLASS.
 
 CLASS lcl_sadl_exit_handler DEFINITION.
 
   PUBLIC SECTION.
     METHODS:
-      constructor,
-      calculate_elements.
+      constructor
+        IMPORTING
+          iv_entity_name TYPE zsat_cds_view_name,
+      adjust_requested
+        CHANGING
+          ct_requested_element TYPE stringtab,
+      calculate_elements
+        CHANGING
+          ct_data TYPE REF TO data
+        RAISING
+          zcx_dbbr_application_exc.
   PROTECTED SECTION.
   PRIVATE SECTION.
+    DATA mo_sadl_exit_handler TYPE REF TO object.
 
 ENDCLASS.

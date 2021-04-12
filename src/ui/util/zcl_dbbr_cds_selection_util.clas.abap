@@ -57,9 +57,14 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
         !is_assoc TYPE zsat_cds_association .
     "! <p class="shorttext synchronized" lang="en">Shows the Source Code of the CDS</p>
     METHODS show_cds_source.
-    METHODS mark_virtelem_dependent_fields
-      RAISING
-        zcx_dbbr_application_exc.
+    METHODS get_virtual_elem_handler
+      RETURNING
+        VALUE(ro_virtual_elem_handler) TYPE REF TO zcl_dbbr_virtual_elem_handler.
+
+    METHODS mark_virtual_elem_requested.
+    "! <p class="shorttext synchronized" lang="en">Mark virtual element fields</p>
+    "!
+    METHODS mark_virtual_elem_fields.
     "! <p class="shorttext synchronized" lang="en">Event handler for when association gets chosen</p>
     "! @parameter EV_CHOSEN_ENTITY_ID | <p class="shorttext synchronized" lang="en"></p>
     "! @parameter EV_CHOSEN_ENTITY_TYPE | <p class="shorttext synchronized" lang="en"></p>
@@ -438,9 +443,10 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   METHOD after_selection.
 
-    IF mo_virtual_elem_handler IS BOUND
-      AND mv_handle_virtual_elem = abap_true.
-      mo_virtual_elem_handler->calculate_elements(
+    IF mv_handle_virtual_elem = abap_true.
+      get_virtual_elem_handler( )->calculate_elements(
+        EXPORTING
+          iv_entity_name = mo_cds_view->mv_view_name
         CHANGING
           ct_data = mr_t_data ).
     ENDIF.
@@ -451,64 +457,90 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   METHOD before_selection.
 
-    mark_virtelem_dependent_fields( ).
+    mark_virtual_elem_fields( ).
+    mark_virtual_elem_requested( ).
 
     super->before_selection( ).
 
   ENDMETHOD.
 
-  METHOD mark_virtelem_dependent_fields.
+  METHOD mark_virtual_elem_requested.
 
-    mo_virtual_elem_handler = NEW #( ).
     mo_tabfields->get_fields(
-      EXPORTING
-        if_include_only_checked = abap_true
-        if_consider_output = abap_true
-      IMPORTING
-        et_fields = DATA(lt_fields) ).
+       EXPORTING
+         if_include_only_checked = abap_true
+         if_consider_output = abap_true
+       IMPORTING
+         et_fields = DATA(lt_fields) ).
 
-    mo_virtual_elem_handler->determine_relevant_elements(
+    get_virtual_elem_handler( )->determine_requested_elements(
       EXPORTING
         io_cds_view = mo_cds_view
         it_fields   = lt_fields
       IMPORTING
-        et_requested_elements = DATA(lt_requested_elements)
+        et_requested_elements = DATA(lt_requested_elements) ).
+
+    LOOP AT lt_requested_elements ASSIGNING FIELD-SYMBOL(<lv_requested_element>).
+      TRY.
+          DATA(lr_s_field) = mo_tabfields->get_field_ref( iv_fieldname = CONV #( <lv_requested_element> ) ).
+          lr_s_field->needed_for_virtual_elem = abap_true.
+
+        CATCH cx_sy_itab_line_not_found.
+          DATA(ls_new_field) = mo_tabfields_all->get_field( iv_fieldname = CONV #( <lv_requested_element> ) ) .
+          ls_new_field-needed_for_virtual_elem = abap_true.
+          mo_tabfields->append_tabfield_info( is_tabfield = ls_new_field ).
+      ENDTRY.
+
+    ENDLOOP.
+
+    IF lt_requested_elements IS NOT INITIAL.
+      mv_handle_virtual_elem = abap_true.
+    ENDIF.
+
+    get_virtual_elem_handler( )->adjust_requested(
+      iv_entity_name = mo_cds_view->mv_view_name
+      it_fields      = lt_fields ).
+
+  ENDMETHOD.
+
+  METHOD mark_virtual_elem_fields.
+
+    mo_tabfields->get_fields(
+      EXPORTING
+        if_include_only_checked = abap_true
+        if_consider_selected = abap_true
+      IMPORTING
+        et_fields = DATA(lt_fields) ).
+
+    get_virtual_elem_handler( )->determine_virtual_elements(
+      EXPORTING
+        io_cds_view = mo_cds_view
+        it_fields   = lt_fields
+      IMPORTING
         et_virtual_elements   = DATA(lt_virtual_elements) ).
 
     IF lt_virtual_elements IS NOT INITIAL.
-
       mv_handle_virtual_elem = abap_true.
-      LOOP AT lt_virtual_elements ASSIGNING FIELD-SYMBOL(<ls_virtual_element>).
-        TRY.
-            mt_selection_fields[ fieldname = <ls_virtual_element> ]-virtual_element = abap_true.
-
-            DATA(lr_s_field) = mo_tabfields_all->get_field_ref( iv_fieldname = CONV #( <ls_virtual_element> ) ).
-            lr_s_field->is_virtual_element = abap_true.
-          CATCH cx_sy_itab_line_not_found.
-            "field not in selection field list
-        ENDTRY.
-      ENDLOOP.
-
-      CLEAR lr_s_field.
-
-      LOOP AT lt_requested_elements ASSIGNING FIELD-SYMBOL(<lv_requested_element>).
-        TRY.
-            lr_s_field = mo_tabfields->get_field_ref( iv_fieldname = CONV #( <lv_requested_element> ) ).
-            lr_s_field->needed_for_virtual_elem = abap_true.
-
-          CATCH cx_sy_itab_line_not_found.
-            DATA(ls_new_field) = mo_tabfields_all->get_field( iv_fieldname = CONV #( <lv_requested_element> ) ) .
-            ls_new_field-needed_for_virtual_elem = abap_true.
-            mo_tabfields->append_tabfield_info( is_tabfield = ls_new_field ).
-        ENDTRY.
-
-      ENDLOOP.
-
-      mo_virtual_elem_handler->adjust_requested(
-        iv_entity_name = mo_cds_view->mv_view_name
-        it_fields      = lt_fields ).
     ENDIF.
 
+    LOOP AT lt_virtual_elements ASSIGNING FIELD-SYMBOL(<ls_virtual_element>).
+      TRY.
+          mt_selection_fields[ fieldname = <ls_virtual_element> ]-virtual_element = abap_true.
+
+          DATA(lr_s_field) = mo_tabfields_all->get_field_ref( iv_fieldname = CONV #( <ls_virtual_element> ) ).
+          lr_s_field->is_virtual_element = abap_true.
+        CATCH cx_sy_itab_line_not_found.
+          "field not in selection field list
+      ENDTRY.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD get_virtual_elem_handler.
+    IF mo_virtual_elem_handler IS INITIAL.
+      mo_virtual_elem_handler = NEW #( ).
+    ENDIF.
+    ro_virtual_elem_handler = mo_virtual_elem_handler.
   ENDMETHOD.
 
 ENDCLASS.
