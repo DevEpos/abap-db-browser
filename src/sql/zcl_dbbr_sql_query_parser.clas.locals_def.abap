@@ -38,6 +38,32 @@ INTERFACE lif_statement_parser.
       VALUE(rr_data) TYPE REF TO data.
 ENDINTERFACE.
 
+CLASS lcl_star_count_query_builder DEFINITION.
+
+  PUBLIC SECTION.
+    METHODS:
+      constructor
+        IMPORTING
+          it_query_lines TYPE string_table
+          it_stmnt       TYPE zcl_dbbr_sql_query_parser=>ty_t_statement,
+      build
+        RETURNING
+          VALUE(rv_query) TYPE string.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+    DATA:
+      mt_query_lines TYPE string_table,
+      mt_stmnt       TYPE zcl_dbbr_sql_query_parser=>ty_t_statement,
+      ms_check_prog  TYPE trdir.
+
+    METHODS:
+      check_syntax
+        IMPORTING
+          it_code TYPE string_table,
+      build_cte_query,
+      build_query.
+ENDCLASS.
+
 CLASS lcl_token_parser DEFINITION
  ABSTRACT.
 
@@ -68,7 +94,7 @@ CLASS lcl_token_parser DEFINITION
     METHODS get_token
       IMPORTING
         iv_token         TYPE string
-        if_from_current  TYPE abap_bool optional
+        if_from_current  TYPE abap_bool OPTIONAL
       RETURNING
         VALUE(rf_exists) TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Checks if there is another token after the current one</p>

@@ -126,20 +126,20 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
       ( ) ).
 
 *.. Add parameters with their chosen values
-    LOOP AT mt_parameter ASSIGNING FIELD-SYMBOL(<ls_parameter>).
+    LOOP AT mt_parameter ASSIGNING FIELD-SYMBOL(<ls_parameter>) WHERE type IS NOT INITIAL.
       DATA(lv_param_line) = |    DATA { <ls_parameter>-name } TYPE|.
 
-      IF <ls_parameter>-type IS NOT INITIAL.
-        IF <ls_parameter>-is_range = abap_true.
-          lv_param_line = |{ lv_param_line } RANGE OF { <ls_parameter>-type }|.
-        ELSE.
-          lv_param_line = |{ lv_param_line } { <ls_parameter>-type }|.
-        ENDIF.
+      IF <ls_parameter>-is_range = abap_true.
+        lv_param_line = |{ lv_param_line } RANGE OF { <ls_parameter>-type }|.
       ELSE.
-        lv_param_line = |{ lv_param_line } { <ls_parameter>-inttype } LENGTH { <ls_parameter>-length }|.
-        IF <ls_parameter>-decimals > 0.
-          lv_param_line = |{ lv_param_line } DECIMALS { <ls_parameter>-decimals }|.
-        ENDIF.
+        lv_param_line = |{ lv_param_line } { <ls_parameter>-type }|.
+      ENDIF.
+
+      IF <ls_parameter>-length IS NOT INITIAL.
+        lv_param_line = |{ lv_param_line } LENGTH { <ls_parameter>-length }|.
+      ENDIF.
+      IF <ls_parameter>-decimals > 0.
+        lv_param_line = |{ lv_param_line } DECIMALS { <ls_parameter>-decimals }|.
       ENDIF.
 
 *.... Fill the value for the parameter

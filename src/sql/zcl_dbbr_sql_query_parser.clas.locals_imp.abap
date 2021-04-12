@@ -175,19 +175,16 @@ CLASS lcl_query_param_parser IMPLEMENTATION.
     next_token( ).
 
     mr_parameter->decimals = ms_current_token-value.
-
-    data(lv_val) = sana_tok_alias_def.
-
   ENDMETHOD.
 
   METHOD parse_length.
-    CHECK mr_parameter->length IS NOT INITIAL.
+    CHECK mr_parameter->length IS INITIAL.
 
     IF get_token( 'LENGTH' ).
       next_token( ).
       mr_parameter->length = ms_current_token-value.
     ELSEIF mr_parameter->length IS INITIAL AND
-           mr_parameter->type = cl_abap_typedescr=>typekind_char.
+           mr_parameter->type CA 'CNXP'.
       mr_parameter->length = 1.
     ENDIF.
 
@@ -323,6 +320,51 @@ CLASS lcl_query_token_simplifier IMPLEMENTATION.
 
       ENDIF.
     ENDWHILE.
+  ENDMETHOD.
+
+ENDCLASS.
+
+CLASS lcl_star_count_query_builder IMPLEMENTATION.
+
+  METHOD constructor.
+    mt_query_lines = it_query_lines.
+    mt_stmnt = it_stmnt.
+  ENDMETHOD.
+
+  METHOD build.
+    "1) find select clause:
+    " e.g.: (select clause is between pipe (|) symbols
+    " - ...  SELECT |<field1>, <field2>| FROM ...
+    " - ... SELECT FROM <table> FIELDS |*| [WHERE|GROUP BY|HAVING|ORDER BY]
+
+    "2) replace select clause with 'COUNT(*)'
+
+    "3) check syntax of query
+
+    "4) if successful --- END
+
+    "5) if syntax check fails (maybe because of used cds associations in where-clause)
+    " a) in case of normal query, try to build query inside CTE (i.e. WITH) (NW >= 751)
+    " b) in case of CTE move the main query into another subquery and build
+    "    a star count query as the main CTE query
+
+    "5) check syntax again
+
+    "6) if successful --- END
+    "7) raise exception
+
+  ENDMETHOD.
+
+  METHOD build_cte_query.
+
+  ENDMETHOD.
+
+  METHOD build_query.
+
+  ENDMETHOD.
+
+  METHOD check_syntax.
+
   ENDMETHOD.
 
 ENDCLASS.

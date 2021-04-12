@@ -581,6 +581,7 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
     CHECK mt_parameters IS NOT INITIAL.
 
     LOOP AT mt_parameters ASSIGNING FIELD-SYMBOL(<ls_param>).
+
       CLEAR: lv_rollname,
              ls_datel.
 
@@ -617,8 +618,10 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
         ELSE.
           ls_tabfield-inttype = lo_elem_type->type_kind.
           ls_tabfield-length = lo_elem_type->output_length.
-          ls_tabfield-outputlen = lo_elem_type->length.
-          ls_tabfield-decimals = lo_elem_type->decimals.
+          ls_tabfield-outputlen = COND #(
+            WHEN <ls_param>-length IS NOT INITIAL THEN <ls_param>-length ELSE lo_elem_type->length ).
+          ls_tabfield-decimals = COND #(
+            WHEN <ls_param>-decimals IS NOT INITIAL THEN <ls_param>-decimals ELSE lo_elem_type->decimals ).
         ENDIF.
       ELSE.
         ls_tabfield-decimals = <ls_param>-decimals.

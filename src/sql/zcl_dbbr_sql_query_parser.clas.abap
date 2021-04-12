@@ -29,6 +29,8 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
         terminator    TYPE stmnt_term,
         type          TYPE stmnt_type,
         tokens        TYPE ty_t_token,
+        start_row     TYPE i,
+        end_row       TYPE i,
       END OF ty_s_statement.
     TYPES: ty_t_statement TYPE STANDARD TABLE OF ty_s_statement WITH EMPTY KEY.
 
@@ -99,24 +101,28 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
       gt_single_result_keywords TYPE RANGE OF string.
 
     DATA:
-      mv_raw_query               TYPE string,
-      mv_query_type              TYPE string,
-      mv_executable_query        TYPE string,
-      mv_select_query_end_offset TYPE i,
-      mo_sql_query               TYPE REF TO zcl_dbbr_sql_query,
-      mt_stmnt                   TYPE ty_t_statement,
-      ms_select_stmnt            TYPE ty_s_statement,
-      mt_parameter               TYPE ty_t_parameter,
-      mf_union                   TYPE abap_bool,
-      mt_param_range             TYPE RANGE OF string,
-      mt_query_entities          TYPE zdbbr_tabname_range_itab,
-      mv_select_stmnt_index      TYPE i,
-      mt_stmnt_raw               TYPE sstmnt_tab,
-      mt_token_raw               TYPE stokesx_tab,
-      mt_query_lines             TYPE STANDARD TABLE OF string,
-      mv_select_query_end_row    TYPE i,
-      mf_single_result           TYPE abap_bool,
-      mf_fill_log_for_msg        TYPE abap_bool.
+      mv_raw_query        TYPE string,
+      mv_query_type       TYPE string,
+      mv_executable_query TYPE string,
+      mo_sql_query        TYPE REF TO zcl_dbbr_sql_query,
+      mt_stmnt            TYPE ty_t_statement,
+      mt_parameter        TYPE ty_t_parameter,
+      mf_union            TYPE abap_bool,
+      mt_param_range      TYPE RANGE OF string,
+      mt_query_entities   TYPE zdbbr_tabname_range_itab,
+      mt_stmnt_raw        TYPE sstmnt_tab,
+      mt_token_raw        TYPE stokesx_tab,
+      mt_query_lines      TYPE STANDARD TABLE OF string,
+      mf_single_result    TYPE abap_bool,
+      mf_fill_log_for_msg TYPE abap_bool,
+
+      BEGIN OF ms_select_query,
+        stmnt_row    TYPE i,
+        stmnt        TYPE ty_s_statement,
+        start_offset TYPE i,
+        end_row      TYPE i,
+        end_offset   TYPE i,
+      END OF ms_select_query.
 
     METHODS:
       "! <p class="shorttext synchronized" lang="en">Tokenize the query statement</p>
@@ -150,6 +156,8 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
           zcx_dbbr_sql_query_error,
       "! <p class="shorttext synchronized" lang="en">Extract parameters from query string</p>
       extract_parameters,
+      "! <p class="shorttext synchronized" lang="en">Determines main query rows and offsets</p>
+      determine_query_offsets,
       "! <p class="shorttext synchronized" lang="en">Check if all parameters are used in query</p>
       check_parameters_where_used,
       "! <p class="shorttext synchronized" lang="en">Simplifation of some tokens</p>
@@ -161,7 +169,9 @@ CLASS zcl_dbbr_sql_query_parser DEFINITION
       "! <p class="shorttext synchronized" lang="en">Determines the properties of the main statement in the query</p>
       "! This are needed to properly create the subroutine program for the data
       "! selection
-      determine_main_stmnt_props.
+      determine_main_stmnt_props,
+      build_count_query,
+      build_executable_query.
 ENDCLASS.
 
 
@@ -228,8 +238,9 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
 
 *.. Check the type of the query
     determine_main_stmnt_props( ).
-
     check_syntax( ).
+    build_executable_query( ).
+    build_count_query( ).
 
     extract_parameters( ).
     check_parameters_where_used( ).
@@ -237,7 +248,7 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
 *.. Syntax check is done, now the actual parsing/tokenization
 *.. of the query is performed
     IF lines( mt_stmnt ) = 1.
-      ms_select_stmnt = mt_stmnt[ 1 ].
+      ms_select_query-stmnt = mt_stmnt[ 1 ].
       CLEAR mt_stmnt.
 
       simplify_tokens( ).
@@ -253,8 +264,8 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
       is_query      = VALUE zdbbr_sql_query(
         source                   = mv_raw_query
         select_source            = mv_executable_query
-        last_row_in_select_stmnt = mv_select_query_end_row
-        last_row_offset          = mv_select_query_end_offset
+        last_row_in_select_stmnt = ms_select_query-end_row
+        last_row_offset          = ms_select_query-end_offset
         main_select_stmnt_type   = mv_query_type
         is_single_result_query   = mf_single_result
         db_entities              = mt_query_entities
@@ -310,6 +321,7 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
 
     DATA(lt_query_lines) = mt_query_lines.
 
+    determine_query_offsets( ).
     insert_into_table_clause( CHANGING ct_query_lines = lt_query_lines  ).
 
     DATA(lt_source_code) = VALUE string_table(
@@ -328,15 +340,27 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
           iv_line_number = lv_line - 1
       ).
     ENDIF.
+  ENDMETHOD.
 
-*.. Remove all lines but the select statement
-    IF mv_select_stmnt_index > 1.
-      DELETE mt_query_lines FROM 1 TO mv_select_stmnt_index - 1.
-      mv_select_query_end_row = mv_select_query_end_row - mv_select_stmnt_index + 1.
+  METHOD build_executable_query.
+    " Remove all lines but the select statement
+    IF ms_select_query-stmnt_row > 1.
+      DELETE mt_query_lines FROM 1 TO ms_select_query-stmnt_row - 1.
+      ms_select_query-end_row = ms_select_query-end_row - ms_select_query-stmnt_row + 1.
     ENDIF.
 
-    CONCATENATE LINES OF mt_query_lines INTO mv_executable_query SEPARATED BY cl_abap_char_utilities=>cr_lf.
+    " remove all tokens until start of select statement
+    IF ms_select_query-start_offset > 1.
+      ASSIGN mt_query_lines[ 1 ] TO FIELD-SYMBOL(<lv_first_line>).
+      <lv_first_line> = <lv_first_line>+ms_select_query-start_offset.
 
+      IF ms_select_query-stmnt-start_row = ms_select_query-stmnt-end_row.
+        ms_select_query-end_offset = ms_select_query-end_offset - ms_select_query-start_offset.
+      ENDIF.
+    ENDIF.
+
+    " Remove statements until select statement
+    CONCATENATE LINES OF mt_query_lines INTO mv_executable_query SEPARATED BY cl_abap_char_utilities=>cr_lf.
   ENDMETHOD.
 
   METHOD combine_stmnt_with_tokens.
@@ -356,6 +380,8 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
       ).
 
       ls_statement-first_token = ls_statement-tokens[ 1 ]-value.
+      ls_statement-start_row = ls_statement-tokens[ 1 ]-row.
+      ls_statement-end_row = ls_statement-tokens[ lines( ls_statement-tokens ) ]-row.
       ls_statement-is_main_query = xsdbool( ls_statement-first_token = c_keywords-select OR
                                             ls_statement-first_token = c_keywords-with ).
 
@@ -424,23 +450,25 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-
-  METHOD insert_into_table_clause.
+  METHOD determine_query_offsets.
 *.. Find select/with statement
     ASSIGN mt_stmnt[ is_main_query = abap_true ] TO FIELD-SYMBOL(<ls_select_stmnt>).
     CHECK sy-subrc = 0.
 
     DATA(ls_last_token) = <ls_select_stmnt>-tokens[ lines( <ls_select_stmnt>-tokens ) ].
 
-*.. find position in query lines
-    ASSIGN ct_query_lines[ ls_last_token-row ] TO FIELD-SYMBOL(<lv_query_line>).
+    ms_select_query-start_offset = <ls_select_stmnt>-tokens[ 1 ]-col.
+    ms_select_query-end_offset = ls_last_token-col + strlen( ls_last_token-value ).
+    ms_select_query-end_row = ls_last_token-row.
+  ENDMETHOD.
 
-    mv_select_query_end_offset = ls_last_token-col + strlen( ls_last_token-value ).
-    mv_select_query_end_row = ls_last_token-row.
+
+  METHOD insert_into_table_clause.
+    ASSIGN ct_query_lines[ ms_select_query-end_row ] TO FIELD-SYMBOL(<lv_query_line>).
     IF mf_single_result = abap_true.
-      <lv_query_line> = |{ <lv_query_line>(mv_select_query_end_offset) } INTO @DATA(result).|.
+      <lv_query_line> = |{ <lv_query_line>(ms_select_query-end_offset) } INTO @DATA(result).|.
     ELSE.
-      <lv_query_line> = |{ <lv_query_line>(mv_select_query_end_offset) } INTO TABLE @DATA(result).|.
+      <lv_query_line> = |{ <lv_query_line>(ms_select_query-end_offset) } INTO TABLE @DATA(result).|.
     ENDIF.
   ENDMETHOD.
 
@@ -466,7 +494,8 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
       IF <ls_first_token>-str = c_keywords-select OR
          <ls_first_token>-str = c_keywords-with.
         ADD 1 TO lv_select_stmnt_count.
-        mv_select_stmnt_index = <ls_first_token>-row.
+        ms_select_query-stmnt_row = <ls_first_token>-row.
+        ms_select_query-start_offset = <ls_first_token>-col.
       ELSEIF <ls_first_token>-str = c_keywords-data.
         LOOP AT mt_token_raw ASSIGNING <ls_token> FROM <ls_stmnt>-from TO <ls_stmnt>-to WHERE str = 'LIKE' OR
                                                                                               str = 'TABLE'.
@@ -525,7 +554,7 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
 
 
   METHOD simplify_tokens.
-    ms_select_stmnt-tokens = NEW lcl_query_token_simplifier( ms_select_stmnt-tokens )->simplify( ).
+    ms_select_query-stmnt-tokens = NEW lcl_query_token_simplifier( ms_select_query-stmnt-tokens )->simplify( ).
   ENDMETHOD.
 
 
@@ -583,6 +612,18 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
       mt_query_entities = VALUE #( FOR entity IN lt_db_entities ( sign = 'I' option = 'EQ' low = entity ) ).
     ENDIF.
 
+  ENDMETHOD.
+
+
+  METHOD build_count_query.
+    " 1) find select clause
+    TRY.
+        DATA(lv_star_count_query) = NEW lcl_star_count_query_builder(
+            it_query_lines = mt_query_lines
+            it_stmnt       = mt_stmnt
+          )->build( ).
+      CATCH cx_root.
+    ENDTRY.
   ENDMETHOD.
 
 ENDCLASS.
