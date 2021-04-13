@@ -519,10 +519,6 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       IMPORTING
         et_virtual_elements   = DATA(lt_virtual_elements) ).
 
-    IF lt_virtual_elements IS NOT INITIAL.
-      mv_handle_virtual_elem = abap_true.
-    ENDIF.
-
     LOOP AT lt_virtual_elements ASSIGNING FIELD-SYMBOL(<ls_virtual_element>).
       TRY.
           mt_selection_fields[ fieldname = <ls_virtual_element> ]-virtual_element = abap_true.
@@ -533,6 +529,10 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
           "field not in selection field list
       ENDTRY.
     ENDLOOP.
+
+    IF lt_virtual_elements IS NOT INITIAL.
+      mv_handle_virtual_elem = abap_true.
+    ENDIF.
 
   ENDMETHOD.
 

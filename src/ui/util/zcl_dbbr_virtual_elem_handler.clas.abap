@@ -56,11 +56,11 @@ CLASS zcl_dbbr_virtual_elem_handler DEFINITION
     TYPES ty_t_sorted_string TYPE SORTED TABLE OF string WITH UNIQUE DEFAULT KEY.
 
     CONSTANTS:
-      BEGIN OF gc_annotation_objectmodel,
+      BEGIN OF c_annotation_objectmodel,
         virtual_element      TYPE string VALUE 'OBJECTMODEL.VIRTUALELEMENT',
         virtual_elem_calc_by TYPE string VALUE 'OBJECTMODEL.VIRTUALELEMENTCALCULATEDBY',
-      END OF gc_annotation_objectmodel,
-      gc_meth_get_calculation_info TYPE string VALUE 'IF_SADL_EXIT_CALC_ELEMENT_READ~GET_CALCULATION_INFO'.
+      END OF c_annotation_objectmodel,
+      c_meth_get_calculation_info TYPE string VALUE 'IF_SADL_EXIT_CALC_ELEMENT_READ~GET_CALCULATION_INFO'.
 
     DATA mo_sadl_exit_handler TYPE REF TO lcl_sadl_exit_handler.
 
@@ -88,7 +88,7 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
   METHOD determine_virtual_elements.
 
     DATA(lt_annotation) = io_cds_view->get_annotations(
-      it_annotation_name = VALUE #( ( sign = 'I' option = 'EQ' low = gc_annotation_objectmodel-virtual_element ) ) ).
+      it_annotation_name = VALUE #( ( sign = 'I' option = 'EQ' low = c_annotation_objectmodel-virtual_element ) ) ).
 
     LOOP AT lt_annotation ASSIGNING FIELD-SYMBOL(<ls_annotation>).
       IF line_exists( it_fields[ fieldname = <ls_annotation>-fieldname ] ).
@@ -105,7 +105,7 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
           lt_requested_elements TYPE ty_t_sorted_string.
 
     DATA(lt_annotation) = io_cds_view->get_annotations(
-      it_annotation_name = VALUE #( ( sign = 'I' option = 'EQ' low = gc_annotation_objectmodel-virtual_elem_calc_by ) ) ).
+      it_annotation_name = VALUE #( ( sign = 'I' option = 'EQ' low = c_annotation_objectmodel-virtual_elem_calc_by ) ) ).
 
     LOOP AT lt_annotation ASSIGNING FIELD-SYMBOL(<ls_annotation>).
       IF line_exists( it_fields[ fieldname = <ls_annotation>-fieldname ] ).
@@ -124,7 +124,7 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
       TRY.
           CREATE OBJECT lo_exit_class TYPE (<lv_exit_class>).
 
-          CALL METHOD lo_exit_class->(gc_meth_get_calculation_info)
+          CALL METHOD lo_exit_class->(c_meth_get_calculation_info)
             EXPORTING
               it_requested_calc_elements = lt_calc_elements
               iv_entity                  = CONV string( io_cds_view->mv_view_name )
