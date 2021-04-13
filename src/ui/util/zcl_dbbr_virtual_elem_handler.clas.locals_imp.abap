@@ -4,43 +4,31 @@
 CLASS lcl_sadl_mdp_exposure IMPLEMENTATION.
 
   METHOD get_exposure_load_id.
-    DATA: lr_param_id        TYPE REF TO data,
-          lr_param_entity_id TYPE REF TO data.
+    DATA: lo_class_descr     TYPE REF TO cl_abap_classdescr.
 
-    DATA(lo_class_descr) = CAST cl_abap_classdescr( cl_abap_typedescr=>describe_by_name( c_cls-sadl_mpd_exposure-name ) ).
-
-    lo_class_descr->get_method_parameter_type(
-      EXPORTING
-        p_method_name       = c_cls-sadl_mpd_exposure-meth-get_exposure-name
-        p_parameter_name    = c_cls-sadl_mpd_exposure-meth-get_exposure-param-iv_entity_id
-      RECEIVING
-        p_descr_ref = DATA(lo_param_entity_id_type)
-      EXCEPTIONS
-        parameter_not_found = 1
-        method_not_found    = 2 ).
-    IF sy-subrc = 0.
-      CREATE DATA lr_param_entity_id TYPE HANDLE lo_param_entity_id_type.
-      ASSIGN lr_param_entity_id->* TO FIELD-SYMBOL(<lv_param_entity_id>).
-      <lv_param_entity_id> = CONV #( iv_entity_name ).
+    cl_abap_typedescr=>describe_by_name(
+      EXPORTING p_name          = c_cls-sadl_mpd_exposure-name
+      RECEIVING p_descr_ref     = DATA(lo_type_descr)
+      EXCEPTIONS type_not_found = 1 ).
+    IF sy-subrc = 0 AND lo_type_descr->kind = cl_abap_typedescr=>kind_class.
+      lo_class_descr ?= lo_type_descr.
     ELSE.
-      RAISE EXCEPTION TYPE cx_sy_dyn_call_param_not_found.
+      RAISE EXCEPTION TYPE cx_sy_dyn_call_excp_not_found.
     ENDIF.
 
-    lo_class_descr->get_method_parameter_type(
-      EXPORTING
-        p_method_name       = c_cls-sadl_mpd_exposure-meth-get_exposure-name
-        p_parameter_name    = c_cls-sadl_mpd_exposure-meth-get_exposure-param-rv_id
-      RECEIVING
-        p_descr_ref = DATA(lo_param_id_type)
-      EXCEPTIONS
-        parameter_not_found = 1
-        method_not_found    = 2 ).
-    IF sy-subrc = 0.
-      CREATE DATA lr_param_id TYPE HANDLE lo_param_id_type.
-      ASSIGN lr_param_id->* TO FIELD-SYMBOL(<lv_param_id>).
-    ELSE.
-      RAISE EXCEPTION TYPE cx_sy_dyn_call_param_not_found.
-    ENDIF.
+    DATA(lr_param_entity_id) = create_method_param_data(
+      io_class_descr = lo_class_descr
+      iv_method_name = c_cls-sadl_mpd_exposure-meth-get_exposure-name
+      iv_param_name  = c_cls-sadl_mpd_exposure-meth-get_exposure-param-iv_entity_id ).
+    ASSIGN lr_param_entity_id->* TO FIELD-SYMBOL(<lv_param_entity_id>).
+    <lv_param_entity_id> = CONV #( iv_entity_name ).
+
+    DATA(lr_param_id) = create_method_param_data(
+      io_class_descr = lo_class_descr
+      iv_method_name = c_cls-sadl_mpd_exposure-meth-get_exposure-name
+      iv_param_name  = c_cls-sadl_mpd_exposure-meth-get_exposure-param-rv_id ).
+    ASSIGN lr_param_id->* TO FIELD-SYMBOL(<lv_param_id>).
+
     CALL METHOD (c_cls-sadl_mpd_exposure-name)=>(c_cls-sadl_mpd_exposure-meth-get_exposure-name)
       EXPORTING
         iv_entity_type = 'CDS'
@@ -49,6 +37,24 @@ CLASS lcl_sadl_mdp_exposure IMPLEMENTATION.
         rv_id          = <lv_param_id>.
 
     rr_load_id = REF #( <lv_param_id> ).
+
+  ENDMETHOD.
+
+  METHOD create_method_param_data.
+    io_class_descr->get_method_parameter_type(
+      EXPORTING
+        p_method_name       = iv_method_name
+        p_parameter_name    = iv_param_name
+      RECEIVING
+        p_descr_ref = DATA(lo_param_entity_id_type)
+      EXCEPTIONS
+        parameter_not_found = 1
+        method_not_found    = 2 ).
+    IF sy-subrc = 0.
+      CREATE DATA rr_param_data TYPE HANDLE lo_param_entity_id_type.
+    ELSE.
+      RAISE EXCEPTION TYPE cx_sy_dyn_call_param_not_found.
+    ENDIF.
 
   ENDMETHOD.
 

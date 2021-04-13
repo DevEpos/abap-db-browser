@@ -52,7 +52,17 @@ CLASS lcl_sadl_mdp_exposure DEFINITION.
         RETURNING
           VALUE(rr_load_id) TYPE REF TO data
         RAISING
-          cx_sy_dyn_call_error.
+          cx_sy_dyn_call_error,
+      create_method_param_data
+        IMPORTING
+          io_class_descr       TYPE REF TO cl_abap_classdescr
+          iv_method_name       TYPE string
+          iv_param_name        TYPE string
+        RETURNING
+          VALUE(rr_param_data) TYPE REF TO data
+        RAISING
+          cx_sy_dyn_call_excp_not_found.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 

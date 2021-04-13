@@ -112,12 +112,8 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
         zcl_dbbr_cds_tabfield_util=>add_view_colums(
             ir_tabfield_list = mr_tabfields
             if_selection     = abap_false
-            it_columns       = lr_target_cds->get_columns( )
-            iv_name          = ms_association-ref_cds_view
-            iv_raw_name      = lr_target_cds->get_header( )-entityname_raw
-            iv_description   = ls_target_cds_header-description
-            if_is_primary    = abap_true
-        ).
+            io_cds_view      = lr_target_cds
+            if_is_primary    = abap_true ).
 
         IF lr_target_cds->has_parameters( ).
           determine_param_string( iv_cds_view_name = ms_association-ref_cds_view

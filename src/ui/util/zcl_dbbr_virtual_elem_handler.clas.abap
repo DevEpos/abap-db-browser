@@ -5,29 +5,17 @@ CLASS zcl_dbbr_virtual_elem_handler DEFINITION
 
   PUBLIC SECTION.
 
-    "! <p class="shorttext synchronized" lang="en">Determine virtual elements</p>
-    "!
-    "! @parameter it_fields | <p class="shorttext synchronized" lang="en">Field list</p>
-    "! @parameter io_cds_view | <p class="shorttext synchronized" lang="en">CDS view name</p>
-    "! @parameter et_virtual_elements | <p class="shorttext synchronized" lang="en">List of virtual elements</p>
-    METHODS determine_virtual_elements
-      IMPORTING
-        io_cds_view         TYPE REF TO zcl_sat_cds_view
-        it_fields           TYPE zdbbr_tabfield_info_ui_itab
-      EXPORTING
-        et_virtual_elements TYPE stringtab.
-
     "! <p class="shorttext synchronized" lang="en">Determine fields needed for virtual element calculation</p>
     "!
     "! @parameter it_fields | <p class="shorttext synchronized" lang="en">Field list</p>
     "! @parameter io_cds_view | <p class="shorttext synchronized" lang="en">CDS view name</p>
-    "! @parameter et_requested_elements | <p class="shorttext synchronized" lang="en">List of requested elements</p>
+    "! @parameter rt_requested_elements | <p class="shorttext synchronized" lang="en">List of requested elements</p>
     METHODS determine_requested_elements
       IMPORTING
-        io_cds_view           TYPE REF TO zcl_sat_cds_view
-        it_fields             TYPE zdbbr_tabfield_info_ui_itab
-      EXPORTING
-        et_requested_elements TYPE stringtab.
+        io_cds_view                  TYPE REF TO zcl_sat_cds_view
+        it_fields                    TYPE zdbbr_tabfield_info_ui_itab
+      RETURNING
+        VALUE(rt_requested_elements) TYPE stringtab.
 
     "! <p class="shorttext synchronized" lang="en">Determine if virtual element calculation is needed</p>
     "!
@@ -57,7 +45,6 @@ CLASS zcl_dbbr_virtual_elem_handler DEFINITION
 
     CONSTANTS:
       BEGIN OF c_annotation_objectmodel,
-        virtual_element      TYPE string VALUE 'OBJECTMODEL.VIRTUALELEMENT',
         virtual_elem_calc_by TYPE string VALUE 'OBJECTMODEL.VIRTUALELEMENTCALCULATEDBY',
       END OF c_annotation_objectmodel,
       c_meth_get_calculation_info TYPE string VALUE 'IF_SADL_EXIT_CALC_ELEMENT_READ~GET_CALCULATION_INFO'.
@@ -83,19 +70,6 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
       mo_sadl_exit_handler = NEW #( iv_entity_name ).
     ENDIF.
     ro_sadl_exit_handler = mo_sadl_exit_handler.
-  ENDMETHOD.
-
-  METHOD determine_virtual_elements.
-
-    DATA(lt_annotation) = io_cds_view->get_annotations(
-      it_annotation_name = VALUE #( ( sign = 'I' option = 'EQ' low = c_annotation_objectmodel-virtual_element ) ) ).
-
-    LOOP AT lt_annotation ASSIGNING FIELD-SYMBOL(<ls_annotation>).
-      IF line_exists( it_fields[ fieldname = <ls_annotation>-fieldname ] ).
-        et_virtual_elements = VALUE #( BASE et_virtual_elements ( CONV #( <ls_annotation>-fieldname ) ) ).
-      ENDIF.
-    ENDLOOP.
-
   ENDMETHOD.
 
   METHOD determine_requested_elements.
@@ -135,7 +109,7 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
               cx_sy_dyn_call_error.
       ENDTRY.
 
-      et_requested_elements = VALUE #( BASE et_requested_elements ( LINES OF lt_requested_elements ) ).
+      rt_requested_elements = VALUE #( BASE rt_requested_elements ( LINES OF lt_requested_elements ) ).
     ENDLOOP.
 
   ENDMETHOD.
@@ -143,17 +117,15 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
 
   METHOD calculate_elements.
 
-    DATA(lo_sadl_exit_handler) = get_sadl_exit_handler( iv_entity_name ).
-    lo_sadl_exit_handler->calculate_elements( CHANGING ct_data = ct_data ).
+    get_sadl_exit_handler( iv_entity_name )->calculate_elements( CHANGING ct_data = ct_data ).
 
   ENDMETHOD.
 
   METHOD adjust_requested.
 
-    DATA(lo_sadl_exit_handler) = get_sadl_exit_handler( iv_entity_name ).
-
     DATA(lt_requested) = VALUE stringtab( FOR ls_field IN it_fields ( CONV #( ls_field-fieldname ) ) ).
-    lo_sadl_exit_handler->adjust_requested( CHANGING ct_requested_element = lt_requested ).
+    get_sadl_exit_handler( iv_entity_name )->adjust_requested( CHANGING ct_requested_element = lt_requested ).
+
   ENDMETHOD.
 
 ENDCLASS.

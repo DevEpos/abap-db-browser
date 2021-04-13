@@ -167,13 +167,9 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
 
         rs_entity_info = zcl_dbbr_cds_tabfield_util=>add_view_colums(
             ir_tabfield_list = mo_tabfield_list
-            it_columns       = lo_cds_view->get_columns( )
-            iv_name          = is_entity_info-tabname
+            io_cds_view      = lo_cds_view
             iv_alias         = is_entity_info-tabname_alias
-            iv_raw_name      = ls_header-entityname_raw
-            iv_description   = ls_header-description
-            if_is_primary    = is_entity_info-is_primary
-        ).
+            if_is_primary    = is_entity_info-is_primary ).
       CATCH zcx_sat_data_read_error.
         "handle exception
     ENDTRY.

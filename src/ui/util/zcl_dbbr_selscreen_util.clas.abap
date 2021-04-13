@@ -668,14 +668,9 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         rs_entity_info = zcl_dbbr_cds_tabfield_util=>add_view_colums(
             ir_tabfield_list = mo_data->mo_tabfield_list
             io_custom_f4_map = mo_data->mo_custom_f4_map
-            it_columns       = lo_cds_view->get_columns( )
-            iv_name          = is_entity_info-tabname
-            if_has_params    = lo_cds_view->has_parameters( )
+            io_cds_view      = lo_cds_view
             iv_alias         = is_entity_info-tabname_alias
-            iv_raw_name      = ls_header-entityname_raw
-            iv_description   = ls_header-description
-            if_is_primary    = is_entity_info-is_primary
-        ).
+            if_is_primary    = is_entity_info-is_primary ).
       CATCH zcx_sat_data_read_error.
         "handle exception
     ENDTRY.

@@ -45,7 +45,7 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
     "! Utilities for screen
     DATA mr_assoc_selector TYPE REF TO zcl_dbbr_cds_sub_entity_sel .
     DATA mo_virtual_elem_handler TYPE REF TO zcl_dbbr_virtual_elem_handler.
-    DATA mv_handle_virtual_elem TYPE abap_bool.
+    DATA mf_handle_virtual_elem TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Change CDS parameter values</p>
     METHODS change_parameters .
     "! <p class="shorttext synchronized" lang="en">Choose Association for navigation</p>
@@ -443,7 +443,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   METHOD after_selection.
 
-    IF mv_handle_virtual_elem = abap_true.
+    IF mf_handle_virtual_elem = abap_true.
       get_virtual_elem_handler( )->calculate_elements(
         EXPORTING
           iv_entity_name = mo_cds_view->mv_view_name
@@ -473,33 +473,31 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
        IMPORTING
          et_fields = DATA(lt_fields) ).
 
-    get_virtual_elem_handler( )->determine_requested_elements(
-      EXPORTING
-        io_cds_view = mo_cds_view
-        it_fields   = lt_fields
-      IMPORTING
-        et_requested_elements = DATA(lt_requested_elements) ).
+    IF ms_technical_info-use_reduced_memory = abap_true.
+      DATA(lt_requested_elements) = get_virtual_elem_handler( )->determine_requested_elements(
+        EXPORTING
+          io_cds_view = mo_cds_view
+          it_fields   = lt_fields ).
 
-    LOOP AT lt_requested_elements ASSIGNING FIELD-SYMBOL(<lv_requested_element>).
-      TRY.
-          DATA(lr_s_field) = mo_tabfields->get_field_ref( iv_fieldname = CONV #( <lv_requested_element> ) ).
-          lr_s_field->needed_for_virtual_elem = abap_true.
+      LOOP AT lt_requested_elements ASSIGNING FIELD-SYMBOL(<lv_requested_element>).
+        TRY.
+            DATA(lr_s_field) = mo_tabfields->get_field_ref( iv_fieldname = CONV #( <lv_requested_element> ) ).
+            lr_s_field->needed_for_virtual_elem = abap_true.
 
-        CATCH cx_sy_itab_line_not_found.
-          DATA(ls_new_field) = mo_tabfields_all->get_field( iv_fieldname = CONV #( <lv_requested_element> ) ) .
-          ls_new_field-needed_for_virtual_elem = abap_true.
-          mo_tabfields->append_tabfield_info( is_tabfield = ls_new_field ).
-      ENDTRY.
+          CATCH cx_sy_itab_line_not_found.
+            DATA(ls_new_field) = mo_tabfields_all->get_field( iv_fieldname = CONV #( <lv_requested_element> ) ) .
+            ls_new_field-needed_for_virtual_elem = abap_true.
+            mo_tabfields->append_tabfield_info( is_tabfield = ls_new_field ).
+        ENDTRY.
 
-    ENDLOOP.
-
-    IF lt_requested_elements IS NOT INITIAL.
-      mv_handle_virtual_elem = abap_true.
+      ENDLOOP.
     ENDIF.
 
     get_virtual_elem_handler( )->adjust_requested(
       iv_entity_name = mo_cds_view->mv_view_name
       it_fields      = lt_fields ).
+
+    mf_handle_virtual_elem = xsdbool( line_exists( lt_fields[ is_virtual_element = abap_true ] ) ).
 
   ENDMETHOD.
 
@@ -512,27 +510,13 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       IMPORTING
         et_fields = DATA(lt_fields) ).
 
-    get_virtual_elem_handler( )->determine_virtual_elements(
-      EXPORTING
-        io_cds_view = mo_cds_view
-        it_fields   = lt_fields
-      IMPORTING
-        et_virtual_elements   = DATA(lt_virtual_elements) ).
-
-    LOOP AT lt_virtual_elements ASSIGNING FIELD-SYMBOL(<ls_virtual_element>).
+    LOOP AT lt_fields ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE is_virtual_element = abap_true.
       TRY.
-          mt_selection_fields[ fieldname = <ls_virtual_element> ]-virtual_element = abap_true.
-
-          DATA(lr_s_field) = mo_tabfields_all->get_field_ref( iv_fieldname = CONV #( <ls_virtual_element> ) ).
-          lr_s_field->is_virtual_element = abap_true.
+          mt_selection_fields[ fieldname = <ls_field>-fieldname ]-virtual_element = abap_true.
         CATCH cx_sy_itab_line_not_found.
           "field not in selection field list
       ENDTRY.
     ENDLOOP.
-
-    IF lt_virtual_elements IS NOT INITIAL.
-      mv_handle_virtual_elem = abap_true.
-    ENDIF.
 
   ENDMETHOD.
 
