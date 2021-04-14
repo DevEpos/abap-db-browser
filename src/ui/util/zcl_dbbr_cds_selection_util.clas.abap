@@ -57,14 +57,15 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
         !is_assoc TYPE zsat_cds_association .
     "! <p class="shorttext synchronized" lang="en">Shows the Source Code of the CDS</p>
     METHODS show_cds_source.
+    "! <p class="shorttext synchronized" lang="en">Get virtual element handler instance</p>
+    "!
+    "! @parameter ro_virtual_elem_handler | <p class="shorttext synchronized" lang="en">Instance of virtual element handler</p>
     METHODS get_virtual_elem_handler
       RETURNING
         VALUE(ro_virtual_elem_handler) TYPE REF TO zcl_dbbr_virtual_elem_handler.
 
+    "! <p class="shorttext synchronized" lang="en">Mark fields that are needed for virtual element calculation</p>
     METHODS mark_virtual_elem_requested.
-    "! <p class="shorttext synchronized" lang="en">Mark virtual element fields</p>
-    "!
-    METHODS mark_virtual_elem_fields.
     "! <p class="shorttext synchronized" lang="en">Event handler for when association gets chosen</p>
     "! @parameter EV_CHOSEN_ENTITY_ID | <p class="shorttext synchronized" lang="en"></p>
     "! @parameter EV_CHOSEN_ENTITY_TYPE | <p class="shorttext synchronized" lang="en"></p>
@@ -457,9 +458,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   METHOD before_selection.
 
-    mark_virtual_elem_fields( ).
     mark_virtual_elem_requested( ).
-
     super->before_selection( ).
 
   ENDMETHOD.
@@ -498,25 +497,6 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       it_fields      = lt_fields ).
 
     mf_handle_virtual_elem = xsdbool( line_exists( lt_fields[ is_virtual_element = abap_true ] ) ).
-
-  ENDMETHOD.
-
-  METHOD mark_virtual_elem_fields.
-
-    mo_tabfields->get_fields(
-      EXPORTING
-        if_include_only_checked = abap_true
-        if_consider_selected = abap_true
-      IMPORTING
-        et_fields = DATA(lt_fields) ).
-
-    LOOP AT lt_fields ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE is_virtual_element = abap_true.
-      TRY.
-          mt_selection_fields[ fieldname = <ls_field>-fieldname ]-virtual_element = abap_true.
-        CATCH cx_sy_itab_line_not_found.
-          "field not in selection field list
-      ENDTRY.
-    ENDLOOP.
 
   ENDMETHOD.
 

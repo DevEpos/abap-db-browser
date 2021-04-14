@@ -135,7 +135,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
     DATA(lo_altcoltext_f) = NEW zcl_dbbr_altcoltext_factory( ).
 
     DATA(lt_annotation) = io_cds_view->get_annotations(
-          it_annotation_name = VALUE #( ( sign = 'I' option = 'EQ' low = c_annotation_objectmodel-virtual_element ) ) ).
+      it_annotation_name = VALUE #( ( sign = 'I' option = 'EQ' low = c_annotation_objectmodel-virtual_element ) ) ).
 
     LOOP AT io_cds_view->get_columns( ) ASSIGNING FIELD-SYMBOL(<ls_column>).
       CLEAR: lv_rollname,
