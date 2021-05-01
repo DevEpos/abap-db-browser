@@ -102,7 +102,9 @@ CLASS lcl_sadl_exit_handler DEFINITION.
           iv_entity_name TYPE zsat_cds_view_name,
       adjust_requested
         CHANGING
-          ct_requested_element TYPE stringtab,
+          ct_requested_element TYPE stringtab
+        RAISING
+          zcx_dbbr_application_exc,
       calculate_elements
         CHANGING
           ct_data TYPE REF TO data
@@ -111,5 +113,5 @@ CLASS lcl_sadl_exit_handler DEFINITION.
   PROTECTED SECTION.
   PRIVATE SECTION.
     DATA mo_sadl_exit_handler TYPE REF TO object.
-
+    DATA mv_entity_name TYPE zsat_cds_view_name.
 ENDCLASS.

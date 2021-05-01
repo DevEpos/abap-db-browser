@@ -65,7 +65,9 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
         VALUE(ro_virtual_elem_handler) TYPE REF TO zcl_dbbr_virtual_elem_handler.
 
     "! <p class="shorttext synchronized" lang="en">Mark fields that are needed for virtual element calculation</p>
-    METHODS mark_virtual_elem_requested.
+    METHODS mark_virtual_elem_requested
+      RAISING
+        zcx_dbbr_application_exc.
     "! <p class="shorttext synchronized" lang="en">Event handler for when association gets chosen</p>
     "! @parameter EV_CHOSEN_ENTITY_ID | <p class="shorttext synchronized" lang="en"></p>
     "! @parameter EV_CHOSEN_ENTITY_TYPE | <p class="shorttext synchronized" lang="en"></p>

@@ -108,7 +108,7 @@ ENDCLASS.
 CLASS lcl_sadl_exit_handler IMPLEMENTATION.
 
   METHOD constructor.
-
+    mv_entity_name = iv_entity_name.
     TRY.
         DATA(lo_sadl_mdp_factory) = NEW lcl_sadl_mdp_factory( iv_entity_name ).
 
@@ -142,12 +142,11 @@ CLASS lcl_sadl_exit_handler IMPLEMENTATION.
           CHANGING
             ct_data_rows = <lt_data>.
       CATCH cx_sy_ref_is_initial
-            cx_sy_dyn_call_error.
+            cx_sy_dyn_call_error ##needed.
         " no SADL classes available
-      CATCH BEFORE UNWIND cx_root INTO DATA(lx_sadl_error) . "SADL exception raised
-        RAISE EXCEPTION TYPE zcx_dbbr_application_exc
-          EXPORTING
-            previous = lx_sadl_error.
+      CATCH cx_root INTO DATA(lx_sadl_error) . "SADL exception raised
+        MESSAGE e072(zdbbr_exception) WITH mv_entity_name INTO DATA(lv_err_msg) ##needed.
+        RAISE EXCEPTION TYPE zcx_dbbr_application_exc.
     ENDTRY.
 
   ENDMETHOD.
@@ -158,8 +157,11 @@ CLASS lcl_sadl_exit_handler IMPLEMENTATION.
           CHANGING
             ct_requested_element = ct_requested_element.
       CATCH cx_sy_ref_is_initial
-            cx_sy_dyn_call_error.
+            cx_sy_dyn_call_error ##needed.
         " no SADL classes available
+      CATCH cx_root INTO DATA(lx_sadl_error) . "SADL exception raised
+        MESSAGE e072(zdbbr_exception) WITH mv_entity_name INTO DATA(lv_err_msg) ##needed.
+        RAISE EXCEPTION TYPE zcx_dbbr_application_exc.
     ENDTRY.
   ENDMETHOD.
 
