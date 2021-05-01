@@ -112,14 +112,16 @@ CLASS zcl_dbbr_design_studio_util IMPLEMENTATION.
     IF sy-subrc <> 0.
       MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
         WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4 INTO DATA(lv_msg).
-      zcx_dbbr_application_exc=>raise_application_exc( ).
+      RAISE EXCEPTION TYPE zcx_dbbr_application_exc.
     ENDIF.
 
     ASSIGN lt_server_list[ protocol = c_https ] TO FIELD-SYMBOL(<ls_server>).
     IF sy-subrc <> 0.
       ASSIGN lt_server_list[ protocol = c_http ] TO <ls_server>.
       IF sy-subrc <> 0.
-        zcx_dbbr_application_exc=>raise_application_exc( 'Error during protocol determination' ).
+        RAISE EXCEPTION TYPE zcx_dbbr_application_exc
+          EXPORTING
+            text = 'Error during protocol determination'.
       ENDIF.
     ENDIF.
 
