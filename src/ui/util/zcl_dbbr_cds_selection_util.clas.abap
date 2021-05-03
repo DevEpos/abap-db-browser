@@ -447,11 +447,17 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   METHOD after_selection.
 
     IF mf_handle_virtual_elem = abap_true.
-      get_virtual_elem_handler( )->calculate_elements(
-        EXPORTING
-          iv_entity_name = mo_cds_view->mv_view_name
-        CHANGING
-          ct_data = mr_t_data ).
+      TRY.
+          get_virtual_elem_handler( )->calculate_elements(
+            EXPORTING
+              iv_entity_name = mo_cds_view->mv_view_name
+            CHANGING
+              ct_data = mr_t_data ).
+        CATCH zcx_dbbr_application_exc INTO DATA(lo_exception).
+          IF ms_technical_info-ignore_error_virt_elem_calc = abap_false.
+            RAISE EXCEPTION lo_exception.
+          ENDIF.
+      ENDTRY.
     ENDIF.
 
     super->after_selection( ).
@@ -460,7 +466,9 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   METHOD before_selection.
 
-    mark_virtual_elem_requested( ).
+    IF ms_technical_info-calculate_virtual_element = abap_true.
+      mark_virtual_elem_requested( ).
+    ENDIF.
     super->before_selection( ).
 
   ENDMETHOD.
@@ -494,9 +502,15 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       ENDLOOP.
     ENDIF.
 
-    get_virtual_elem_handler( )->adjust_requested(
-      iv_entity_name = mo_cds_view->mv_view_name
-      it_fields      = lt_fields ).
+    TRY.
+        get_virtual_elem_handler( )->adjust_requested(
+          iv_entity_name = mo_cds_view->mv_view_name
+          it_fields      = lt_fields ).
+      CATCH zcx_dbbr_application_exc INTO DATA(lo_exception).
+        IF ms_technical_info-ignore_error_virt_elem_calc = abap_false.
+          RAISE EXCEPTION lo_exception.
+        ENDIF.
+    ENDTRY.
 
     mf_handle_virtual_elem = xsdbool( line_exists( lt_fields[ is_virtual_element = abap_true ] ) ).
 

@@ -14,6 +14,7 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
         data_selection_tab TYPE string VALUE 'DSEL',
         favorites_tab      TYPE string VALUE 'FAVS',
         output_tab         TYPE string VALUE 'ALV',
+        cds_view_tab       TYPE string VALUE 'CDS',
       END OF c_tab_ids.
 
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
@@ -86,6 +87,8 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
         dock_obj_nav_on_right         TYPE REF TO zdbbr_user_settings_a-dock_obj_nav_on_right,
         selscr_compact_col_widths     TYPE REF TO zdbbr_user_settings_a-selscr_compact_col_widths,
         auto_hide_empty_cols          TYPE REF TO zdbbr_user_settings_a-auto_hide_empty_cols,
+        calculate_virtual_element     TYPE REF TO zdbbr_user_settings_a-calculate_virtual_element,
+        ignore_error_virt_elem_calc   TYPE REF TO zdbbr_user_settings_a-ignore_error_virt_elem_calc,
       END OF ms_user_settings_refs .
     DATA mf_data_changed TYPE abap_bool .
 
@@ -151,7 +154,9 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
         always_load_def_variant_first c_always_load_def_var_first,
         dock_obj_nav_on_right         c_dock_obj_nav_on_right,
         selscr_compact_col_widths     c_selscr_compact_col_widths,
-        auto_hide_empty_cols          c_auto_hide_empty_cols.
+        auto_hide_empty_cols          c_auto_hide_empty_cols,
+        calculate_virtual_element     c_calculate_virtual_elements,
+        ignore_error_virt_elem_calc   c_ignore_error_virt_elem_calc.
   ENDMETHOD.
 
   METHOD initialize_screen.
@@ -267,7 +272,8 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
 *           screen-name = 'BTN_INTR' OR
            screen-name = 'BTN_DSEL' OR
            screen-name = 'BTN_FAV' OR
-           screen-name = 'BTN_SEL' ).
+           screen-name = 'BTN_SEL' OR
+           screen-name = 'BTN_CDS' ).
         screen-active = 0.
         MODIFY SCREEN.
       ENDIF.

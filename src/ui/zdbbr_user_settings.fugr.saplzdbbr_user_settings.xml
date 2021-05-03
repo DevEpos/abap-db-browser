@@ -327,6 +327,18 @@
      <LENGTH>84</LENGTH>
     </item>
     <item>
+     <ID>I</ID>
+     <KEY>T41</KEY>
+     <ENTRY>Calculate Virtual Elements</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T42</KEY>
+     <ENTRY>Ignore errors during Virtual Element Calculation</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
      <ID>S</ID>
      <KEY>P_ASNVMO</KEY>
      <ENTRY>Selection Mode for Association</ENTRY>
