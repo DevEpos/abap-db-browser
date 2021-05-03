@@ -21,10 +21,13 @@ CLASS zcl_dbbr_virtual_elem_handler DEFINITION
     "!
     "! @parameter iv_entity_name | <p class="shorttext synchronized" lang="en">CDS view name</p>
     "! @parameter it_fields | <p class="shorttext synchronized" lang="en">Field list</p>
+    "! @raising zcx_dbbr_application_exc | <p class="shorttext synchronized" lang="en">DB browser exception</p>
     METHODS adjust_requested
       IMPORTING
         iv_entity_name TYPE zsat_cds_view_name
-        it_fields      TYPE zdbbr_tabfield_info_ui_itab.
+        it_fields      TYPE zdbbr_tabfield_info_ui_itab
+      RAISING
+        zcx_dbbr_application_exc.
 
     "! <p class="shorttext synchronized" lang="en">Calculate virtual elements</p>
     "!
