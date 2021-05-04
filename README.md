@@ -42,6 +42,7 @@
     - Open in Analysis for Office (Excel)
     - Open in Transaction `RSRT` (i.e. Query Monitor)
     - Open the Query in the **SAP UI5 App** *Design Studio*
+  - Calculation of virtual elements
 - Create Custom Queries (Non-SQL)
   - Create Joins (Inner, Left/Right Outer) to DB-Table, DB-View or CDS View
   - Create custom selection mask for your Query
