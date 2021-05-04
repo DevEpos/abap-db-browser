@@ -1008,24 +1008,21 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
           DATA(ls_sorted) = it_sort[ fieldname = <ls_fieldcat>-fieldname ].
           <ls_fieldcat>-emphasize = zif_dbbr_c_global=>c_alv_colors-light_green.
         CATCH cx_sy_itab_line_not_found.
-          " is this a formula field
-          IF <ls_fieldcat>-parameter2 = 'F'.
+          CASE <ls_fieldcat>-parameter2.
 
-            <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-color_formula_fields = abap_true THEN
-                                                zif_dbbr_c_global=>c_alv_colors-light_yellow ).
-            CONTINUE.
-          ENDIF.
+            WHEN 'F'. "Formula Field
+              <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-color_formula_fields = abap_true THEN
+                                                  zif_dbbr_c_global=>c_alv_colors-light_yellow ).
+            WHEN 'K'. " Key field
+              <ls_fieldcat>-emphasize = zif_dbbr_c_global=>c_alv_emphasize-key_color.
 
-          IF <ls_fieldcat>-parameter2 = 'K'.
-            <ls_fieldcat>-emphasize = zif_dbbr_c_global=>c_alv_emphasize-key_color.
-            CONTINUE.
-          ENDIF.
-
-*          IF line_exists( mt_add_texts[ text_field_alv_int = <ls_fieldcat>-fieldname ] ).
-          IF <ls_fieldcat>-parameter2 = 'T'.
-            <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-emphasize_text_fields = abap_true THEN
-                                                zif_dbbr_c_global=>c_alv_emphasize-text_field_color  ).
-          ENDIF.
+            WHEN 'T'. " Additional Text Field
+              <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-emphasize_text_fields = abap_true THEN
+                                                  zif_dbbr_c_global=>c_alv_emphasize-text_field_color  ).
+            WHEN 'C'. " Calculated Field in CDS
+              <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-color_cds_calculated_fields = abap_true THEN
+                                                  zif_dbbr_c_global=>c_alv_emphasize-cds_calculated_fields_color ).
+          ENDCASE.
       ENDTRY.
     ENDLOOP.
 

@@ -117,10 +117,12 @@ INTERFACE zif_dbbr_c_global
 
     "! Emphasize colors in ALV
     BEGIN OF c_alv_emphasize,
-      key_color         TYPE char4 VALUE 'C11' ##NO_TEXT,
-      foreign_key_color TYPE char4 VALUE 'C30' ##NO_TEXT,
-      join_table_color  TYPE char4 VALUE 'C10' ##NO_TEXT,
-      text_field_color  TYPE char4 VALUE 'C70' ##NO_TEXT,
+      key_color                   TYPE char4 VALUE 'C11' ##NO_TEXT,
+      foreign_key_color           TYPE char4 VALUE 'C30' ##NO_TEXT,
+      join_table_color            TYPE char4 VALUE 'C10' ##NO_TEXT,
+      text_field_color            TYPE char4 VALUE 'C70' ##NO_TEXT,
+      formula_fields_color        TYPE char4 VALUE 'C300' ##NO_TEXT,
+      cds_calculated_fields_color TYPE char4 VALUE 'C400' ##NO_TEXT,
     END OF c_alv_emphasize ,
 
     "! Colors in ALV

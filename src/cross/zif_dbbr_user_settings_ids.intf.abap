@@ -81,5 +81,5 @@ INTERFACE zif_dbbr_user_settings_ids
   CONSTANTS c_r_user_settings_controller TYPE string VALUE 'GR_USER_SETTINGS_CONTROLLER' ##NO_TEXT.
   CONSTANTS c_calculate_virtual_elements TYPE string VALUE 'P_CALCVE' ##NO_TEXT.
   CONSTANTS c_ignore_error_virt_elem_calc TYPE string VALUE 'P_IGEVEC' ##NO_TEXT.
-
+  CONSTANTS c_color_cds_calculated_fields type string value 'P_COLCF' ##NO_TEXT.
 ENDINTERFACE.
