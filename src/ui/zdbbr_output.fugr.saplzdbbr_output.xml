@@ -44,60 +44,6 @@
      <ENTRY>DB Browser - Load ECATT data</ENTRY>
      <LENGTH>68</LENGTH>
     </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_DESCR</KEY>
-     <ENTRY>Short description</ENTRY>
-     <LENGTH>25</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_DISTCT</KEY>
-     <ENTRY>DISTINCT</ENTRY>
-     <LENGTH>16</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_ECCON</KEY>
-     <ENTRY>Test container</ENTRY>
-     <LENGTH>22</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_ECDBN</KEY>
-     <ENTRY>DB table for parameter</ENTRY>
-     <LENGTH>31</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_ECPAR</KEY>
-     <ENTRY>Parameter</ENTRY>
-     <LENGTH>17</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_ECVAR</KEY>
-     <ENTRY>Variant</ENTRY>
-     <LENGTH>16</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_QUERYN</KEY>
-     <ENTRY>Name of query</ENTRY>
-     <LENGTH>24</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_RETFLD</KEY>
-     <ENTRY>Return field</ENTRY>
-     <LENGTH>20</LENGTH>
-    </item>
-    <item>
-     <ID>S</ID>
-     <KEY>P_RETTAB</KEY>
-     <ENTRY>Return table</ENTRY>
-     <LENGTH>23</LENGTH>
-    </item>
    </TPOOL>
   </asx:values>
  </asx:abap>
