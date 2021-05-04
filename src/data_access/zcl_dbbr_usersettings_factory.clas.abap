@@ -85,7 +85,8 @@ CLASS zcl_dbbr_usersettings_factory IMPLEMENTATION.
           object_navigator_open = abap_true
           initial_obj_nav_mode = zif_dbbr_c_obj_navigator_mode=>object_browser
           initial_obj_brws_mode = zif_dbbr_c_object_browser_mode=>cds_view
-      ).
+          calculate_virtual_element = abap_true
+          color_cds_calculated_fields = abap_true ).
     ENDIF.
   ENDMETHOD.
 

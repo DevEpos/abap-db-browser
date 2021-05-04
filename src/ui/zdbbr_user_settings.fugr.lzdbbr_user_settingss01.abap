@@ -29,7 +29,8 @@ AT SELECTION-SCREEN OUTPUT.
          zif_dbbr_screen_ids=>c_user_settings-favorites_tab OR
          zif_dbbr_screen_ids=>c_user_settings-selscreen_tab OR
          zif_dbbr_screen_ids=>c_user_settings-data_selection_tab OR
-         zif_dbbr_screen_ids=>c_user_settings-output_tab.
+         zif_dbbr_screen_ids=>c_user_settings-output_tab OR
+         zif_dbbr_screen_ids=>c_user_settings-cds_view_settings.
 *.... set button texts here because of some reason not every system
 *.... returns the tab buttons from program source code analysing
       btn_intr = 'General'(005).
@@ -37,6 +38,7 @@ AT SELECTION-SCREEN OUTPUT.
       btn_alv = 'Data Output'(003).
       btn_sel = 'Selection screen'(001).
       btn_dsel = 'Data Selection'(004).
+      btn_cds = 'CDS View Settings'(006).
 
 *.... Perform some initialization for the first call
       gr_user_settings_controller->initialize_screen(

@@ -232,13 +232,8 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
     zcl_dbbr_cds_tabfield_util=>add_view_colums(
         io_custom_f4_map = mo_data->mo_custom_f4_map
         ir_tabfield_list = mo_data->mo_tabfield_list
-        it_columns       = mo_cds_view->get_columns( )
-        iv_name          = mv_cds_view
-        if_has_params    = mo_cds_view->has_parameters( )
-        iv_raw_name      = ls_header-entityname_raw
-        iv_description   = mv_cds_view_description
-        if_is_primary    = abap_true
-    ).
+        io_cds_view      = mo_cds_view
+        if_is_primary    = abap_true ).
 
     mo_data->mo_tabfield_list->update_alias_names( ).
   ENDMETHOD.

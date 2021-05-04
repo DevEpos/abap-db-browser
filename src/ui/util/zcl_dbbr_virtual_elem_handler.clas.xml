@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_CLAS" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOCLASS>
+    <CLSNAME>ZCL_DBBR_VIRTUAL_ELEM_HANDLER</CLSNAME>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Virtual Element Handler</DESCRIPT>
+    <STATE>1</STATE>
+    <CLSCCINCL>X</CLSCCINCL>
+    <FIXPT>X</FIXPT>
+    <UNICODE>X</UNICODE>
+   </VSEOCLASS>
+   <DESCRIPTIONS>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_VIRTUAL_ELEM_HANDLER</CLSNAME>
+     <CMPNAME>ADJUST_REQUESTED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Determine if virtual element calculation is needed</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_VIRTUAL_ELEM_HANDLER</CLSNAME>
+     <CMPNAME>CALCULATE_ELEMENTS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Calculate virtual elements</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_VIRTUAL_ELEM_HANDLER</CLSNAME>
+     <CMPNAME>DETERMINE_REQUESTED_ELEMENTS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Determine fields needed for virtual element calculation</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCL_DBBR_VIRTUAL_ELEM_HANDLER</CLSNAME>
+     <CMPNAME>GET_SADL_EXIT_HANDLER</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Get sadl exit handler instance</DESCRIPT>
+    </SEOCOMPOTX>
+   </DESCRIPTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

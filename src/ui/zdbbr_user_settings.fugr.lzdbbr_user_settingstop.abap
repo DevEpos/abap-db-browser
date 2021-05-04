@@ -28,6 +28,9 @@ SELECTION-SCREEN TAB (30) btn_dsel USER-COMMAND dsel
 " settings for alv list output
 SELECTION-SCREEN TAB (30) btn_alv USER-COMMAND alv
                  DEFAULT SCREEN 104.
+" settings for cds view
+SELECTION-SCREEN TAB (30) btn_cds USER-COMMAND cds
+                 DEFAULT SCREEN 106.
 
 SELECTION-SCREEN END OF BLOCK setting_type.
 
@@ -319,9 +322,35 @@ SELECTION-SCREEN BEGIN OF LINE.
 PARAMETERS p_colat TYPE abap_bool AS CHECKBOX.
 SELECTION-SCREEN COMMENT 3(50) TEXT-t17 FOR FIELD p_colat.
 SELECTION-SCREEN END OF LINE.
+
+" coloring of calculated fields of CDS Views
+SELECTION-SCREEN BEGIN OF LINE.
+PARAMETERS p_colcf TYPE abap_bool AS CHECKBOX.
+SELECTION-SCREEN COMMENT 3(50) TEXT-t43 FOR FIELD p_colcf.
+SELECTION-SCREEN END OF LINE.
+
 SELECTION-SCREEN END OF BLOCK colors.
 SELECTION-SCREEN END OF SCREEN 104.
 ******************************************************
+
+*** SETTINGS FOR CDS VIEW
+**********************************************************************
+" use reduced memory consumption
+SELECTION-SCREEN BEGIN OF SCREEN 106 AS SUBSCREEN.
+
+SELECTION-SCREEN BEGIN OF LINE.
+PARAMETERS p_calcve TYPE abap_bool AS CHECKBOX.
+SELECTION-SCREEN COMMENT 3(50) TEXT-t41 FOR FIELD p_calcve.
+SELECTION-SCREEN END OF LINE.
+
+" Use ddl view instead of cds view for data selection
+SELECTION-SCREEN BEGIN OF LINE.
+PARAMETERS p_igevec TYPE abap_bool AS CHECKBOX.
+SELECTION-SCREEN COMMENT 3(50) TEXT-t42 FOR FIELD p_igevec.
+SELECTION-SCREEN END OF LINE.
+
+SELECTION-SCREEN END OF SCREEN 106.
+**********************************************************************
 
 *... Screen for user settings of entity browser
 ******************************************************

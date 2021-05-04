@@ -674,6 +674,7 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
             IF lr_field->is_text_field = abap_true OR
                lr_field->is_formula_field = abap_true OR
                lr_field->is_virtual_join_field = abap_true OR
+               lr_field->is_virtual_element = abap_true OR
                lr_field->inttype = cl_abap_typedescr=>typekind_string OR
                lr_field->datatype = 'LCHR'.
               ASSIGN ms_new_filters-ui_filter TO <lt_filters>.

@@ -636,6 +636,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     LOOP AT mt_selection_fields ASSIGNING <ls_selfield>
        WHERE virtual_join_field = abap_false AND
+             virtual_element    = abap_false AND
              is_parameter       = abap_false AND
              ( low IS NOT INITIAL OR
                high IS NOT INITIAL OR
@@ -902,10 +903,17 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
       IF lr_current_field->is_formula_field = abap_true.
         ls_field-emphasize = COND #( WHEN ms_technical_info-color_formula_fields = abap_true THEN
-                                              zif_dbbr_c_global=>c_alv_colors-light_yellow ).
+                                              zif_dbbr_c_global=>c_alv_emphasize-formula_fields_color ).
         ls_field-parameter2 = 'F'.
         ls_field-icon = zcl_dbbr_formula_helper=>is_icon_field( lr_current_field ).
       ENDIF.
+
+      IF lr_current_field->is_virtual_element = abap_true.
+        ls_field-emphasize = COND #( WHEN ms_technical_info-color_cds_calculated_fields = abap_true THEN
+                                              zif_dbbr_c_global=>c_alv_emphasize-cds_calculated_fields_color ).
+        ls_field-parameter2 = 'C'.
+      ENDIF.
+
 
 *.... Special settings for numerical fields
       IF lr_current_field->is_numeric = abap_true.
@@ -1121,7 +1129,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         IF lr_current_entry->output_active = abap_false AND
            lr_current_entry->has_active_text_field = abap_false AND
            lr_current_entry->is_key = abap_false AND
-           lr_current_entry->needed_for_virtual_join = abap_false.
+           lr_current_entry->needed_for_virtual_join = abap_false AND
+           lr_current_entry->needed_for_virtual_elem = abap_false.
           CONTINUE.
         ENDIF.
       ENDIF.
@@ -1512,6 +1521,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
                             AND has_active_text_field = abap_false
                             AND is_key = abap_false
                             AND needed_for_virtual_join = abap_false
+                            AND needed_for_virtual_elem = abap_false
                             AND is_text_field = abap_false.
     lt_has_text_field = VALUE #( FOR f IN lr_t_fields->* WHERE ( has_text_field = abap_true  ) ( sign = 'I' option = 'EQ' low = f-alv_fieldname ) ).
     DELETE lr_t_fields->* WHERE is_text_field = abap_true

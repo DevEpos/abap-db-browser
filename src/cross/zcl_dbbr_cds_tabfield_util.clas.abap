@@ -14,13 +14,9 @@ CLASS zcl_dbbr_cds_tabfield_util DEFINITION
         io_custom_f4_map  TYPE REF TO zcl_dbbr_custom_f4_map OPTIONAL
         !if_output        TYPE abap_bool DEFAULT abap_true
         !if_selection     TYPE abap_bool DEFAULT abap_true
-        !it_columns       TYPE dd03ndvtab
-        if_has_params     TYPE abap_bool OPTIONAL
         !if_is_primary    TYPE abap_bool OPTIONAL
-        !iv_name          TYPE ddstrucobjname
+        !io_cds_view      TYPE REF TO zcl_sat_cds_view
         iv_alias          TYPE zsat_entity_alias OPTIONAL
-        !iv_raw_name      TYPE ddstrucobjname_raw
-        !iv_description   TYPE ddtext
       RETURNING
         VALUE(rs_entity)  TYPE zdbbr_entity_info .
     "! <p class="shorttext synchronized" lang="en">Add parameters to tab field list</p>
@@ -34,6 +30,10 @@ CLASS zcl_dbbr_cds_tabfield_util DEFINITION
         VALUE(rs_entity)  TYPE zdbbr_entity_info .
   PROTECTED SECTION.
   PRIVATE SECTION.
+    CONSTANTS:
+      BEGIN OF c_annotation_objectmodel,
+        virtual_element TYPE string VALUE 'OBJECTMODEL.VIRTUALELEMENT',
+      END OF c_annotation_objectmodel.
 ENDCLASS.
 
 
@@ -132,9 +132,12 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
           lv_rollname TYPE rollname.
 
     DATA(lr_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
-    data(lo_altcoltext_f) = new zcl_dbbr_altcoltext_factory( ).
+    DATA(lo_altcoltext_f) = NEW zcl_dbbr_altcoltext_factory( ).
 
-    LOOP AT it_columns ASSIGNING FIELD-SYMBOL(<ls_column>).
+    DATA(lt_annotation) = io_cds_view->get_annotations(
+      it_annotation_name = VALUE #( ( sign = 'I' option = 'EQ' low = c_annotation_objectmodel-virtual_element ) ) ).
+
+    LOOP AT io_cds_view->get_columns( ) ASSIGNING FIELD-SYMBOL(<ls_column>).
       CLEAR: lv_rollname,
              ls_datel.
 
@@ -152,29 +155,30 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
       ).
 
       DATA(ls_tabfield) = VALUE zdbbr_tabfield_info_ui(
-        tabname          = iv_name
-        tabname_raw      = iv_raw_name
-        tabname_alias    = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE iv_name )
-        fieldname        = <ls_column>-fieldname
-        fieldname_raw    = <ls_column>-fieldname_raw
-        is_key           = <ls_column>-keyflag
-        selection_active = if_selection
-        output_active    = if_output
-        default_sign     = zif_sat_c_options=>including
-        ddic_order       = <ls_column>-position
-        length           = <ls_column>-leng
-        decimals         = <ls_column>-decimals
-        datatype         = <ls_column>-datatype
-        rollname         = lv_rollname
-        ref_field        = <ls_column>-reffield
-        ref_tab          = <ls_column>-reftable
-        alt_long_text    = ls_altcoltext-alt_long_text
-        alt_medium_text  = ls_altcoltext-alt_short_text
+        tabname            = io_cds_view->mv_view_name
+        tabname_raw        = io_cds_view->get_header( )-entityname_raw
+        tabname_alias      = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE io_cds_view->mv_view_name )
+        fieldname          = <ls_column>-fieldname
+        fieldname_raw      = <ls_column>-fieldname_raw
+        is_key             = <ls_column>-keyflag
+        selection_active   = if_selection
+        output_active      = if_output
+        default_sign       = zif_sat_c_options=>including
+        ddic_order         = <ls_column>-position
+        length             = <ls_column>-leng
+        decimals           = <ls_column>-decimals
+        datatype           = <ls_column>-datatype
+        rollname           = lv_rollname
+        ref_field          = <ls_column>-reffield
+        ref_tab            = <ls_column>-reftable
+        alt_long_text      = ls_altcoltext-alt_long_text
+        alt_medium_text    = ls_altcoltext-alt_short_text
+        is_virtual_element = xsdbool( line_exists( lt_annotation[ fieldname = <ls_column>-fieldname ] ) )
       ).
 
       IF io_custom_f4_map IS BOUND.
         ls_tabfield-has_custom_f4 = io_custom_f4_map->entry_exists(
-          iv_tabname       = iv_name
+          iv_tabname       = io_cds_view->mv_view_name
           iv_fieldname     = ls_tabfield-fieldname
           iv_rollname      = ls_tabfield-rollname
           is_built_in_type = VALUE #(
@@ -188,7 +192,7 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
       IF ls_tabfield-rollname IS NOT INITIAL.
         ls_datel = zcl_sat_ddic_repo_access=>get_dfies_info_for_rollname( ls_tabfield-rollname ).
         lr_addtext_bl->determine_t_flds_for_cds_field(
-            iv_cds_view      = iv_name
+            iv_cds_view      = io_cds_view->mv_view_name
             iv_cds_field     = <ls_column>-fieldname
             is_tabfield_info = ls_datel
         ).
@@ -223,7 +227,8 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
       ls_tabfield-is_numeric = zcl_dbbr_ddic_util=>is_type_numeric( ls_tabfield-inttype ).
       DATA(lr_new_field) = CAST zdbbr_tabfield_info_ui( ir_tabfield_list->zif_uitb_data_ref_list~add( REF #( ls_tabfield ) ) ).
 
-      IF ls_datel IS NOT INITIAL AND lr_addtext_bl->text_exists( VALUE #( tabname = iv_name fieldname = ls_tabfield-fieldname ) ).
+      IF ls_datel IS NOT INITIAL
+        AND lr_addtext_bl->text_exists( VALUE #( tabname = io_cds_view->mv_view_name fieldname = ls_tabfield-fieldname ) ).
 
         lr_addtext_bl->add_text_fields_to_list(
           ir_tabfields  = ir_tabfield_list
@@ -240,11 +245,11 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
 *.. add cds view to list of tables
     rs_entity = VALUE zdbbr_entity_info(
       active_selection     = if_selection
-      tabname              = iv_name
-      tabname_alias        = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE iv_name )
-      has_params           = if_has_params
+      tabname              = io_cds_view->mv_view_name
+      tabname_alias        = COND #( WHEN iv_alias IS NOT INITIAL THEN iv_alias ELSE io_cds_view->mv_view_name )
+      has_params           = io_cds_view->has_parameters( )
       type                 = zif_sat_c_entity_type=>cds_view
-      description          = iv_description
+      description          = io_cds_view->get_header( )-description
       fields_are_loaded    = abap_true
       is_primary           = if_is_primary
     ).

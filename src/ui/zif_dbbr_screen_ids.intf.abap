@@ -31,6 +31,7 @@ INTERFACE zif_dbbr_screen_ids
       data_selection_tab TYPE dynnr VALUE '0105' ##NO_TEXT,
       favorites_tab      TYPE dynnr VALUE '0103' ##NO_TEXT,
       output_tab         TYPE dynnr VALUE '0104' ##NO_TEXT,
+      cds_view_settings  type dynnr value '0106' ##NO_TEXT,
     END OF c_user_settings.
   CONSTANTS c_show_eb_settings TYPE dynnr VALUE '0200' ##NO_TEXT.
   CONSTANTS c_maintain_join_table TYPE dynnr VALUE 1700 ##NO_TEXT.

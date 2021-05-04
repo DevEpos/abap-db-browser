@@ -127,7 +127,8 @@ CLASS zcl_dbbr_output_tab_builder IMPLEMENTATION.
              lr_current_field->has_active_text_field = abap_true OR
              lr_current_field->is_calculation_field = abap_true OR
              lr_current_field->is_key = abap_true OR
-             lr_current_field->needed_for_virtual_join = abap_true.
+             lr_current_field->needed_for_virtual_join = abap_true OR
+             lr_current_field->needed_for_virtual_elem = abap_true.
 
             rt_comp_tab = VALUE #( BASE rt_comp_tab ( ls_comp ) ).
           ENDIF.

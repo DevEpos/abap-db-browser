@@ -32,6 +32,10 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
         REDEFINITION .
     METHODS ignore_empty_result
         REDEFINITION.
+    METHODS before_selection
+        REDEFINITION.
+    METHODS after_selection
+        REDEFINITION.
   PRIVATE SECTION.
 
     "! Name of CDS view
@@ -40,7 +44,8 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
     DATA mo_cds_view TYPE REF TO zcl_sat_cds_view .
     "! Utilities for screen
     DATA mr_assoc_selector TYPE REF TO zcl_dbbr_cds_sub_entity_sel .
-
+    DATA mo_virtual_elem_handler TYPE REF TO zcl_dbbr_virtual_elem_handler.
+    DATA mf_handle_virtual_elem TYPE abap_bool.
     "! <p class="shorttext synchronized" lang="en">Change CDS parameter values</p>
     METHODS change_parameters .
     "! <p class="shorttext synchronized" lang="en">Choose Association for navigation</p>
@@ -52,6 +57,17 @@ CLASS zcl_dbbr_cds_selection_util DEFINITION
         !is_assoc TYPE zsat_cds_association .
     "! <p class="shorttext synchronized" lang="en">Shows the Source Code of the CDS</p>
     METHODS show_cds_source.
+    "! <p class="shorttext synchronized" lang="en">Get virtual element handler instance</p>
+    "!
+    "! @parameter ro_virtual_elem_handler | <p class="shorttext synchronized" lang="en">Instance of virtual element handler</p>
+    METHODS get_virtual_elem_handler
+      RETURNING
+        VALUE(ro_virtual_elem_handler) TYPE REF TO zcl_dbbr_virtual_elem_handler.
+
+    "! <p class="shorttext synchronized" lang="en">Mark fields that are needed for virtual element calculation</p>
+    METHODS mark_virtual_elem_requested
+      RAISING
+        zcx_dbbr_application_exc.
     "! <p class="shorttext synchronized" lang="en">Event handler for when association gets chosen</p>
     "! @parameter EV_CHOSEN_ENTITY_ID | <p class="shorttext synchronized" lang="en"></p>
     "! @parameter EV_CHOSEN_ENTITY_TYPE | <p class="shorttext synchronized" lang="en"></p>
@@ -426,6 +442,85 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
       WHEN OTHERS.
     ENDCASE.
 
+  ENDMETHOD.
+
+  METHOD after_selection.
+
+    IF mf_handle_virtual_elem = abap_true.
+      TRY.
+          get_virtual_elem_handler( )->calculate_elements(
+            EXPORTING
+              iv_entity_name = mo_cds_view->mv_view_name
+            CHANGING
+              ct_data = mr_t_data ).
+        CATCH zcx_dbbr_application_exc INTO DATA(lo_exception).
+          IF ms_technical_info-ignore_error_virt_elem_calc = abap_false.
+            RAISE EXCEPTION lo_exception.
+          ENDIF.
+      ENDTRY.
+    ENDIF.
+
+    super->after_selection( ).
+
+  ENDMETHOD.
+
+  METHOD before_selection.
+
+    IF ms_technical_info-calculate_virtual_element = abap_true.
+      mark_virtual_elem_requested( ).
+    ENDIF.
+    super->before_selection( ).
+
+  ENDMETHOD.
+
+  METHOD mark_virtual_elem_requested.
+
+    mo_tabfields->get_fields(
+       EXPORTING
+         if_include_only_checked = abap_true
+         if_consider_output = abap_true
+       IMPORTING
+         et_fields = DATA(lt_fields) ).
+
+    IF ms_technical_info-use_reduced_memory = abap_true.
+      DATA(lt_requested_elements) = get_virtual_elem_handler( )->determine_requested_elements(
+        EXPORTING
+          io_cds_view = mo_cds_view
+          it_fields   = lt_fields ).
+
+      LOOP AT lt_requested_elements ASSIGNING FIELD-SYMBOL(<lv_requested_element>).
+        TRY.
+            DATA(lr_s_field) = mo_tabfields->get_field_ref( iv_fieldname = CONV #( <lv_requested_element> ) ).
+            lr_s_field->needed_for_virtual_elem = abap_true.
+
+          CATCH cx_sy_itab_line_not_found.
+            DATA(ls_new_field) = mo_tabfields_all->get_field( iv_fieldname = CONV #( <lv_requested_element> ) ) .
+            ls_new_field-needed_for_virtual_elem = abap_true.
+            mo_tabfields->append_tabfield_info( is_tabfield = ls_new_field ).
+        ENDTRY.
+
+      ENDLOOP.
+    ENDIF.
+
+    TRY.
+        get_virtual_elem_handler( )->adjust_requested(
+          iv_entity_name = mo_cds_view->mv_view_name
+          it_fields      = lt_fields ).
+      CATCH zcx_dbbr_application_exc INTO DATA(lo_exception).
+        IF ms_technical_info-ignore_error_virt_elem_calc = abap_false.
+          RAISE EXCEPTION lo_exception.
+        ENDIF.
+    ENDTRY.
+
+    mf_handle_virtual_elem = xsdbool( line_exists( lt_fields[ is_virtual_element = abap_true ] ) ).
+
+  ENDMETHOD.
+
+  METHOD get_virtual_elem_handler.
+    IF mo_virtual_elem_handler IS INITIAL.
+      mo_virtual_elem_handler = NEW #( ).
+    ENDIF.
+    ro_virtual_elem_handler = mo_virtual_elem_handler.
   ENDMETHOD.
 
 ENDCLASS.
