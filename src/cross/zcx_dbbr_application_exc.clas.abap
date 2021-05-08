@@ -76,7 +76,7 @@ CLASS zcx_dbbr_application_exc IMPLEMENTATION.
 
     IF text IS NOT INITIAL.
       lf_fill_t100_from_sy = abap_true.
-      zcl_dutils_message_util=>split_string_to_symsg( text ).
+      zcl_uitb_message_util=>split_string_to_symsg( text ).
     ELSEIF sy-msgid IS NOT INITIAL.
       lf_fill_t100_from_sy = abap_true.
     ELSEIF textid IS NOT INITIAL.
