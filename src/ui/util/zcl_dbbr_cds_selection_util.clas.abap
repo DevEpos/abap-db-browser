@@ -475,16 +475,21 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   METHOD mark_virtual_elem_requested.
 
+* when use_reduced_memory is activated consider only output fields
+* else consider all fields as the user can include the fields
+* through layout change at any time
     mo_tabfields->get_fields(
        EXPORTING
          if_include_only_checked = abap_true
-         if_consider_output = abap_true
+         if_consider_output = xsdbool( ms_technical_info-use_reduced_memory = abap_true )
+         if_consider_all = xsdbool( ms_technical_info-use_reduced_memory = abap_false )
        IMPORTING
          et_fields = DATA(lt_fields) ).
 
     IF line_exists( lt_fields[ is_virtual_element = abap_true ] ) .
 
       mf_handle_virtual_elem = abap_true.
+
       IF ms_technical_info-use_reduced_memory = abap_true.
         DATA(lt_requested_elements) = get_virtual_elem_handler( )->determine_requested_elements(
           EXPORTING
