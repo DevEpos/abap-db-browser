@@ -466,7 +466,9 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   METHOD before_selection.
 
-    IF ms_technical_info-calculate_virtual_element = abap_true.
+    IF ms_technical_info-calculate_virtual_element = abap_true
+      AND mo_tabfields->has_virtual_element_fields(
+            if_consider_output_only = ms_technical_info-use_reduced_memory ).
       mark_virtual_elem_requested( ).
     ENDIF.
     super->before_selection( ).
@@ -478,48 +480,40 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 * when use_reduced_memory is activated consider only output fields
 * else consider all fields as the user can include the fields
 * through layout change at any time
-    mo_tabfields->get_fields(
-       EXPORTING
-         if_include_only_checked = abap_true
-         if_consider_output = xsdbool( ms_technical_info-use_reduced_memory = abap_true )
-         if_consider_all = xsdbool( ms_technical_info-use_reduced_memory = abap_false )
-       IMPORTING
-         et_fields = DATA(lt_fields) ).
+    DATA(lt_fields) = mo_tabfields->get_fields_for_db_selection(
+      if_consider_virtual_element = abap_true
+      if_consider_output_only     = xsdbool( ms_technical_info-use_reduced_memory = abap_true ) ).
 
-    IF line_exists( lt_fields[ is_virtual_element = abap_true ] ) .
+    mf_handle_virtual_elem = abap_true.
 
-      mf_handle_virtual_elem = abap_true.
+    IF ms_technical_info-use_reduced_memory = abap_true.
+      DATA(lt_requested_elements) = get_virtual_elem_handler( )->determine_requested_elements(
+          io_cds_view = mo_cds_view
+          it_fields   = lt_fields ).
 
-      IF ms_technical_info-use_reduced_memory = abap_true.
-        DATA(lt_requested_elements) = get_virtual_elem_handler( )->determine_requested_elements(
-          EXPORTING
-            io_cds_view = mo_cds_view
-            it_fields   = lt_fields ).
+      LOOP AT lt_requested_elements ASSIGNING FIELD-SYMBOL(<lv_requested_element>).
+        TRY.
+            DATA(lr_s_field) = mo_tabfields->get_field_ref( iv_fieldname = CONV #( <lv_requested_element> ) ).
+            lr_s_field->needed_for_virtual_elem = abap_true.
 
-        LOOP AT lt_requested_elements ASSIGNING FIELD-SYMBOL(<lv_requested_element>).
-          TRY.
-              DATA(lr_s_field) = mo_tabfields->get_field_ref( iv_fieldname = CONV #( <lv_requested_element> ) ).
-              lr_s_field->needed_for_virtual_elem = abap_true.
+          CATCH cx_sy_itab_line_not_found.
+            DATA(ls_new_field) = mo_tabfields_all->get_field( iv_fieldname = CONV #( <lv_requested_element> ) ) .
+            ls_new_field-needed_for_virtual_elem = abap_true.
+            mo_tabfields->append_tabfield_info( is_tabfield = ls_new_field ).
+        ENDTRY.
 
-            CATCH cx_sy_itab_line_not_found.
-              DATA(ls_new_field) = mo_tabfields_all->get_field( iv_fieldname = CONV #( <lv_requested_element> ) ) .
-              ls_new_field-needed_for_virtual_elem = abap_true.
-              mo_tabfields->append_tabfield_info( is_tabfield = ls_new_field ).
-          ENDTRY.
-
-        ENDLOOP.
-      ENDIF.
-
-      TRY.
-          get_virtual_elem_handler( )->adjust_requested(
-            iv_entity_name = mo_cds_view->mv_view_name
-            it_fields      = lt_fields ).
-        CATCH zcx_dbbr_application_exc INTO DATA(lo_exception).
-          IF ms_technical_info-ignore_error_virt_elem_calc = abap_false.
-            RAISE EXCEPTION lo_exception.
-          ENDIF.
-      ENDTRY.
+      ENDLOOP.
     ENDIF.
+
+    TRY.
+        get_virtual_elem_handler( )->adjust_requested(
+          iv_entity_name = mo_cds_view->mv_view_name
+          it_fields      = lt_fields ).
+      CATCH zcx_dbbr_application_exc INTO DATA(lo_exception).
+        IF ms_technical_info-ignore_error_virt_elem_calc = abap_false.
+          RAISE EXCEPTION lo_exception.
+        ENDIF.
+    ENDTRY.
 
   ENDMETHOD.
 

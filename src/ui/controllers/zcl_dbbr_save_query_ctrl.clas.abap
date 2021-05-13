@@ -23,7 +23,7 @@ CLASS zcl_dbbr_save_query_ctrl DEFINITION
     "! <p class="shorttext synchronized" lang="en">Returns the name of the saved query</p>
     METHODS get_query_name
       RETURNING
-        VALUE(rv_query_name) TYPE ZSAT_QUERY_NAME .
+        VALUE(rv_query_name) TYPE zsat_query_name .
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -35,7 +35,7 @@ CLASS zcl_dbbr_save_query_ctrl DEFINITION
     DATA mr_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list .
     DATA ms_query_info TYPE zdbbr_query_info .
     DATA mr_ui_global_data TYPE REF TO zdbbr_global_data .
-    DATA mr_ui_query_name TYPE REF TO ZSAT_QUERY_NAME .
+    DATA mr_ui_query_name TYPE REF TO zsat_query_name .
     DATA mr_ui_query_desc TYPE REF TO ddtext .
     DATA mr_ui_use_output_fields TYPE REF TO abap_bool .
     DATA mr_ui_use_sort_fields TYPE REF TO abap_bool .
@@ -98,7 +98,7 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
 
 
   METHOD save_query.
-    DATA: lv_primary_entity_type TYPE ZSAT_ENTITY_TYPE.
+    DATA: lv_primary_entity_type TYPE zsat_entity_type.
 
 *.. validate query name
     TRY .
@@ -143,13 +143,10 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
     " 3) save the query
     mr_tabfield_list->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-selection ).
 
-    mr_tabfield_list->get_fields(
-      EXPORTING if_include_only_checked = abap_true
-                if_consider_selected    = abap_true
-                if_consider_output      = mr_ui_use_output_fields->*
-                if_consider_sorted      = mr_ui_use_sort_fields->*
-      IMPORTING et_fields               = DATA(lt_fields_ui)
-    ).
+    DATA(lt_fields_ui) = mr_tabfield_list->get_active_fields(
+      if_consider_selected = abap_true
+      if_consider_output   = mr_ui_use_output_fields->*
+      if_consider_sorted   = mr_ui_use_sort_fields->* ).
 
     DATA(lt_fields) = CORRESPONDING zdbbr_tabfield_info_itab( lt_fields_ui ).
 
@@ -187,7 +184,7 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
       DATA(ls_variant) = zcl_dbbr_variant_creator=>create_variant(
           iv_entity_id           = CONV #( lv_new_query_id )
           iv_variant_id          = zcl_dbbr_variant_factory=>find_default_query_variant( iv_query_id = lv_new_query_id )
-          iv_entity_type         = ZIF_SAT_C_ENTITY_TYPE=>query
+          iv_entity_type         = zif_sat_c_entity_type=>query
           iv_variant_description = 'Default'(013)
           it_selfields           = mr_t_selfields->*
           it_multi_selfields     = mr_t_multi_selfields->*

@@ -122,15 +122,7 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
         !iv_fieldname      TYPE fieldname
       RETURNING
         VALUE(rs_tabfield) TYPE zdbbr_tabfield_info_ui .
-    METHODS get_fields
-      IMPORTING
-        !if_include_only_checked TYPE boolean OPTIONAL
-        !if_consider_all         TYPE boolean OPTIONAL
-        !if_consider_output      TYPE boolean OPTIONAL
-        !if_consider_sorted      TYPE boolean OPTIONAL
-        !if_consider_selected    TYPE boolean OPTIONAL
-      EXPORTING
-        !et_fields               TYPE zdbbr_tabfield_info_ui_itab .
+
     METHODS get_fields_ref
       RETURNING
         VALUE(rr_fields_ref) TYPE REF TO zdbbr_tabfield_info_ui_itab .
@@ -284,6 +276,35 @@ CLASS zcl_dbbr_tabfield_list DEFINITION
     "! <p class="shorttext synchronized" lang="en">Fills missing attributes of table fields</p>
     "!
     METHODS complete_field_infos.
+
+    "! <p class="shorttext synchronized" lang="en">Returns all fields</p>
+    METHODS get_fields
+      RETURNING
+        VALUE(rt_fields) TYPE zdbbr_tabfield_info_ui_itab .
+
+    "! <p class="shorttext synchronized" lang="en">Returns only checked fields (i.e. sorted, output, selection)</p>
+    METHODS get_active_fields
+      IMPORTING
+        if_consider_output   TYPE boolean
+        if_consider_sorted   TYPE boolean
+        if_consider_selected TYPE boolean
+      RETURNING
+        VALUE(rt_fields)     TYPE zdbbr_tabfield_info_ui_itab .
+
+    METHODS get_fields_for_db_selection
+      IMPORTING
+        if_consider_virtual_element TYPE abap_bool OPTIONAL
+        if_consider_output_only     TYPE abap_bool OPTIONAL
+      RETURNING
+        VALUE(rt_fields)            TYPE zdbbr_tabfield_info_ui_itab.
+
+    METHODS has_virtual_element_fields
+      IMPORTING
+        if_consider_output_only   TYPE abap_bool OPTIONAL
+      RETURNING
+        VALUE(rf_virtual_element) TYPE abap_bool.
+
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -367,7 +388,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
 
 
   METHOD add_fields.
-    ir_field_list->get_fields( IMPORTING et_fields = DATA(lt_fields) ).
+    DATA(lt_fields) = ir_field_list->get_fields( ).
     DATA(lt_tables) = ir_field_list->get_table_list( ).
 
     mt_fields = VALUE #( BASE mt_fields ( LINES OF lt_fields ) ).
@@ -805,58 +826,6 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-
-  METHOD get_fields.
-*&---------------------------------------------------------------------*
-*& Author:    stockbal     Date: 2016/11/28
-*&---------------------------------------------------------------------*
-*& Description: Returns fields of this list
-*&---------------------------------------------------------------------*
-    DATA: lt_where TYPE STANDARD TABLE OF string.
-
-    IF if_include_only_checked = abap_true.
-      IF if_consider_all = abap_true. " consider all active fields
-        lt_where = VALUE #( ( mc_dynamic_where-output_active ) ( mc_or )
-                            ( mc_dynamic_where-sort_active ) ( mc_or )
-                            ( mc_dynamic_where-selection_active )  ).
-      ELSE.
-        IF if_consider_output = abap_false AND
-           if_consider_selected = abap_false AND
-           if_consider_sorted = abap_false.
-          " consider only checked fields of current mode
-          lt_where = VALUE #( ( ms_where-field_is_active ) ).
-        ELSE.
-          IF if_consider_output = abap_true.
-            APPEND mc_dynamic_where-output_active TO lt_where.
-          ENDIF.
-          IF if_consider_sorted = abap_true.
-            IF lt_where IS NOT INITIAL.
-              APPEND mc_or TO lt_where.
-            ENDIF.
-            APPEND mc_dynamic_where-sort_active TO lt_where.
-          ENDIF.
-          IF if_consider_selected = abap_true.
-            IF lt_where IS NOT INITIAL.
-              APPEND mc_or TO lt_where.
-            ENDIF.
-            APPEND mc_dynamic_where-selection_active TO lt_where.
-          ENDIF.
-        ENDIF.
-      ENDIF.
-
-      CLEAR et_fields.
-
-      LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE (lt_where).
-        APPEND <ls_field> TO et_fields.
-      ENDLOOP.
-
-    ELSE.
-      et_fields = mt_fields.
-    ENDIF.
-
-  ENDMETHOD.
-
-
   METHOD get_fields_ref.
     rr_fields_ref = REF #( mt_fields ).
   ENDMETHOD.
@@ -1015,8 +984,7 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
     CHECK lr_s_table IS BOUND.
     CHECK lr_s_table->fields_are_loaded = abap_false.
 
-    ir_fields->get_fields( IMPORTING et_fields = DATA(lt_fields) ).
-
+    DATA(lt_fields) = ir_fields->get_fields( ).
     mt_fields = VALUE #( BASE mt_fields ( LINES OF lt_fields ) ).
 
     lr_s_table->fields_are_loaded = abap_true.
@@ -1349,4 +1317,68 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   METHOD zif_uitb_data_ref_list~size.
     rv_size = lines( mt_fields ).
   ENDMETHOD.
+
+  METHOD get_active_fields.
+    DATA: lt_where TYPE STANDARD TABLE OF string.
+
+    IF if_consider_sorted = abap_false
+      AND if_consider_output = abap_false
+        AND if_consider_selected = abap_false.
+      RETURN.
+    ELSE.
+      IF if_consider_output = abap_true.
+        APPEND mc_dynamic_where-output_active TO lt_where.
+      ENDIF.
+      IF if_consider_sorted = abap_true.
+        IF lt_where IS NOT INITIAL.
+          APPEND mc_or TO lt_where.
+        ENDIF.
+        APPEND mc_dynamic_where-sort_active TO lt_where.
+      ENDIF.
+      IF if_consider_selected = abap_true.
+        IF lt_where IS NOT INITIAL.
+          APPEND mc_or TO lt_where.
+        ENDIF.
+        APPEND mc_dynamic_where-selection_active TO lt_where.
+      ENDIF.
+    ENDIF.
+
+    CLEAR rt_fields.
+
+    LOOP AT mt_fields ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE (lt_where).
+      APPEND <ls_field> TO rt_fields.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD get_fields.
+    rt_fields = mt_fields.
+  ENDMETHOD.
+
+  METHOD get_fields_for_db_selection.
+
+    rt_fields = mt_fields.
+    DELETE rt_fields WHERE is_text_field = abap_true
+                        OR is_virtual_join_field = abap_true
+                        OR is_formula_field = abap_true
+                        OR is_parameter = abap_true.
+
+    IF if_consider_virtual_element = abap_false.
+      DELETE rt_fields WHERE is_virtual_element = abap_true.
+    ENDIF.
+
+    IF if_consider_output_only = abap_true.
+      DELETE rt_fields WHERE output_active = abap_false.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD has_virtual_element_fields.
+
+    rf_virtual_element = SWITCH #( if_consider_output_only
+      WHEN abap_true THEN xsdbool( line_exists( mt_fields[ is_virtual_element = abap_true ] ) )
+      ELSE xsdbool( line_exists( mt_fields[ is_virtual_element = abap_true
+                                            output_active      = abap_true ] ) ) ).
+
+  ENDMETHOD.
+
 ENDCLASS.
