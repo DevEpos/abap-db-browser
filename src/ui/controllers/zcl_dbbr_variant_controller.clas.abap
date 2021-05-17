@@ -18,8 +18,8 @@ CLASS zcl_dbbr_variant_controller DEFINITION
         iv_screen_mode          TYPE zdbbr_selscreen_mode
         if_default_variant_mode TYPE abap_bool OPTIONAL
         if_alv_mode             TYPE abap_bool OPTIONAL
-        iv_entity_id            TYPE ZSAT_ENTITY_ID
-        iv_entity_name          TYPE ZSAT_ENTITY_ID_raw
+        iv_entity_id            TYPE zsat_entity_id
+        iv_entity_name          TYPE zsat_entity_id_raw
         iv_mode                 TYPE int1
         ir_s_global_data        TYPE REF TO zdbbr_global_data
         ir_t_selfields          TYPE REF TO zdbbr_selfield_itab OPTIONAL
@@ -45,11 +45,11 @@ CLASS zcl_dbbr_variant_controller DEFINITION
         xsort_fields            TYPE REF TO abap_bool,
         xcolumn_widths          TYPE REF TO abap_bool,
         variant_table_name      TYPE REF TO tabname16,
-        variant_query_name      TYPE REF TO ZSAT_QUERY_NAME,
+        variant_query_name      TYPE REF TO zsat_query_name,
         variant_for_table_title TYPE REF TO syst_title,
         variant_for_query_title TYPE REF TO syst_title,
         variant_for_cds_title   TYPE REF TO syst_title,
-        variant_cds_name        TYPE REF TO ZSAT_CDS_VIEW_NAME,
+        variant_cds_name        TYPE REF TO zsat_cds_view_name,
       END OF ms_ui_refs .
     DATA mr_t_selfields TYPE REF TO zdbbr_selfield_itab.
     DATA mr_t_selfields_multi TYPE REF TO zdbbr_selfield_itab.
@@ -60,8 +60,8 @@ CLASS zcl_dbbr_variant_controller DEFINITION
     DATA mr_multi_or_itab TYPE REF TO zdbbr_or_seltab_itab .
     "! <p class="shorttext synchronized" lang="en">Mode for Seleciton Screen of DB Browser</p>
     DATA mv_selscreen_mode TYPE zdbbr_selscreen_mode .
-    DATA mv_entity_id   TYPE ZSAT_ENTITY_ID.
-    DATA mv_entity_name TYPE ZSAT_ENTITY_ID_raw.
+    DATA mv_entity_id   TYPE zsat_entity_id.
+    DATA mv_entity_name TYPE zsat_entity_id_raw.
     DATA mf_default_variant_mode TYPE abap_bool.
     DATA mf_alv_output TYPE abap_bool.
 
@@ -225,12 +225,10 @@ CLASS zcl_dbbr_variant_controller IMPLEMENTATION.
                                        if_clear_sort      = xsdbool( ms_ui_refs-xsort_fields->*   = abap_false ) ).
 
 *.... save output / order by fields
-      lr_tabfields->get_fields(
-        EXPORTING if_include_only_checked = abap_true
-                  if_consider_output      = ms_ui_refs-xoutput_fields->*
-                  if_consider_sorted      = ms_ui_refs-xsort_fields->*
-        IMPORTING et_fields               = DATA(lt_fields_ui)
-      ).
+      DATA(lt_fields_ui) = lr_tabfields->get_active_fields(
+        if_consider_output      = ms_ui_refs-xoutput_fields->*
+        if_consider_sorted      = ms_ui_refs-xsort_fields->*
+        if_consider_selected    = abap_false ).
 
       ls_variant-fields = CORRESPONDING #( lt_fields_ui ).
     ENDIF.

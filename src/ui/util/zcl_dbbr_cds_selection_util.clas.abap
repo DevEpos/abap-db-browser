@@ -466,7 +466,9 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   METHOD before_selection.
 
-    IF ms_technical_info-calculate_virtual_element = abap_true.
+    IF ms_technical_info-calculate_virtual_element = abap_true
+      AND mo_tabfields->has_virtual_element_fields(
+            if_consider_output_only = ms_technical_info-use_reduced_memory ).
       mark_virtual_elem_requested( ).
     ENDIF.
     super->before_selection( ).
@@ -475,16 +477,17 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
 
   METHOD mark_virtual_elem_requested.
 
-    mo_tabfields->get_fields(
-       EXPORTING
-         if_include_only_checked = abap_true
-         if_consider_output = abap_true
-       IMPORTING
-         et_fields = DATA(lt_fields) ).
+* when use_reduced_memory is activated consider only output fields
+* else consider all fields as the user can include the fields
+* through layout change at any time
+    DATA(lt_fields) = mo_tabfields->get_fields_for_db_selection(
+      if_consider_virtual_element = abap_true
+      if_consider_output_only     = xsdbool( ms_technical_info-use_reduced_memory = abap_true ) ).
+
+    mf_handle_virtual_elem = abap_true.
 
     IF ms_technical_info-use_reduced_memory = abap_true.
       DATA(lt_requested_elements) = get_virtual_elem_handler( )->determine_requested_elements(
-        EXPORTING
           io_cds_view = mo_cds_view
           it_fields   = lt_fields ).
 
@@ -511,8 +514,6 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
           RAISE EXCEPTION lo_exception.
         ENDIF.
     ENDTRY.
-
-    mf_handle_virtual_elem = xsdbool( line_exists( lt_fields[ is_virtual_element = abap_true ] ) ).
 
   ENDMETHOD.
 

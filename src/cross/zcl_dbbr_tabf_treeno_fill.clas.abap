@@ -12,7 +12,7 @@ CLASS zcl_dbbr_tabf_treeno_fill DEFINITION
         !ir_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list .
   PROTECTED SECTION.
   PRIVATE SECTION.
-    DATA mt_table_to_alias_map TYPE ZSAT_TABLE_TO_ALIAS_MAP_ITAB.
+    DATA mt_table_to_alias_map TYPE zsat_table_to_alias_map_itab.
     DATA mr_tabfield_list TYPE REF TO zcl_dbbr_tabfield_list.
 ENDCLASS.
 
@@ -31,8 +31,7 @@ CLASS zcl_dbbr_tabf_treeno_fill IMPLEMENTATION.
   METHOD zif_dbbr_tree_node_filler~fill_node_item_tables.
     DATA: lv_alias_prefix     TYPE string.
 
-    mr_tabfield_list->get_fields( EXPORTING if_consider_all = abap_true
-                                  IMPORTING et_fields       = DATA(lt_fields) ).
+    DATA(lt_fields) = mr_tabfield_list->get_fields( ).
     DATA(lt_table_list) = mr_tabfield_list->get_table_list( ).
 
     DATA(lv_table_node_prefix) = 'TABLE'.
