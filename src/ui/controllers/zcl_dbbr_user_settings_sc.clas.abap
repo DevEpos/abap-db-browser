@@ -90,6 +90,7 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
         calculate_virtual_element     TYPE REF TO zdbbr_user_settings_a-calculate_virtual_element,
         ignore_error_virt_elem_calc   TYPE REF TO zdbbr_user_settings_a-ignore_error_virt_elem_calc,
         color_cds_calculated_fields   TYPE REF TO zdbbr_user_settings_a-color_cds_calculated_fields,
+        async_max_rows_determination  TYPE REF TO zdbbr_user_settings_a-async_max_rows_determination,
       END OF ms_user_settings_refs .
     DATA mf_data_changed TYPE abap_bool .
 
@@ -158,143 +159,144 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
         auto_hide_empty_cols          c_auto_hide_empty_cols,
         calculate_virtual_element     c_calculate_virtual_elements,
         ignore_error_virt_elem_calc   c_ignore_error_virt_elem_calc,
-        color_cds_calculated_fields   c_color_cds_calculated_fields.
-  endmethod.
+        color_cds_calculated_fields   c_color_cds_calculated_fields,
+        async_max_rows_determination  c_async_max_rows_determination.
+  ENDMETHOD.
 
-    METHOD initialize_screen.
-      CHECK mf_first_call = abap_true.
+  METHOD initialize_screen.
+    CHECK mf_first_call = abap_true.
 
-      IF mv_start_tab IS NOT INITIAL.
-        cs_tabs-dynnr = mv_start_dynnr.
-        cs_tabs-activetab = mv_start_tab.
+    IF mv_start_tab IS NOT INITIAL.
+      cs_tabs-dynnr = mv_start_dynnr.
+      cs_tabs-activetab = mv_start_tab.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD get_settings.
+    rs_settings = ms_user_settings.
+  ENDMETHOD.
+
+
+  METHOD save_settings.
+    zcl_dbbr_usersettings_factory=>save_settings( ms_user_settings ).
+  ENDMETHOD.
+
+
+  METHOD transfer_ui_data.
+    DATA: lr_setting_ref TYPE REF TO data.
+
+    FIELD-SYMBOLS: <lr_settings> TYPE REF TO data.
+    DATA(lt_setting_comp_names) = zcl_uitb_rtti_util=>get_struct_components( ms_user_settings ).
+
+    LOOP AT lt_setting_comp_names ASSIGNING FIELD-SYMBOL(<ls_setting_comp>).
+      ASSIGN COMPONENT <ls_setting_comp>-name OF STRUCTURE ms_user_settings_refs TO FIELD-SYMBOL(<lr_setting_ui>).
+      CHECK sy-subrc = 0.
+
+      ASSIGN <lr_setting_ui>->* TO FIELD-SYMBOL(<lv_setting_ui>).
+
+      ASSIGN COMPONENT <ls_setting_comp>-name OF STRUCTURE ms_user_settings TO FIELD-SYMBOL(<lv_setting>).
+
+      IF if_from_screen = abap_true.
+        <lv_setting> = <lv_setting_ui>.
+      ELSEIF if_to_screen = abap_true.
+        <lv_setting_ui> = <lv_setting>.
       ENDIF.
-    ENDMETHOD.
 
-    METHOD get_settings.
-      rs_settings = ms_user_settings.
-    ENDMETHOD.
+    ENDLOOP.
+  ENDMETHOD.
 
 
-    METHOD save_settings.
-      zcl_dbbr_usersettings_factory=>save_settings( ms_user_settings ).
-    ENDMETHOD.
+  METHOD zif_uitb_screen_controller~call_screen.
+    transfer_ui_data( if_to_screen = abap_true ).
+    mf_first_call = abap_true.
+
+    zcl_uitb_screen_util=>call_screen(
+        iv_screen_id    = get_screen_id( )
+        iv_report_id    = get_report_id( )
+        if_selscreen    = abap_true
+        it_object_map   = VALUE #(
+          ( variable_name = zif_dbbr_user_settings_ids=>c_r_user_settings_controller
+            global_ref    = me )
+        )
+        iv_start_column = 10
+        iv_start_line   = 2
+    ).
+  ENDMETHOD.
 
 
-    METHOD transfer_ui_data.
-      DATA: lr_setting_ref TYPE REF TO data.
+  METHOD zif_uitb_screen_controller~cancel.
+    zcl_dbbr_screen_helper=>leave_screen( ).
+  ENDMETHOD.
 
-      FIELD-SYMBOLS: <lr_settings> TYPE REF TO data.
-      DATA(lt_setting_comp_names) = zcl_uitb_rtti_util=>get_struct_components( ms_user_settings ).
 
-      LOOP AT lt_setting_comp_names ASSIGNING FIELD-SYMBOL(<ls_setting_comp>).
-        ASSIGN COMPONENT <ls_setting_comp>-name OF STRUCTURE ms_user_settings_refs TO FIELD-SYMBOL(<lr_setting_ui>).
-        CHECK sy-subrc = 0.
+  METHOD zif_uitb_screen_controller~get_report_id.
+    result = zif_dbbr_c_report_id=>user_settings.
+  ENDMETHOD.
 
-        ASSIGN <lr_setting_ui>->* TO FIELD-SYMBOL(<lv_setting_ui>).
 
-        ASSIGN COMPONENT <ls_setting_comp>-name OF STRUCTURE ms_user_settings TO FIELD-SYMBOL(<lv_setting>).
+  METHOD zif_uitb_screen_controller~get_screen_id.
+    result = zif_dbbr_screen_ids=>c_user_settings-main_screen.
+  ENDMETHOD.
 
-        IF if_from_screen = abap_true.
-          <lv_setting> = <lv_setting_ui>.
-        ELSEIF if_to_screen = abap_true.
-          <lv_setting_ui> = <lv_setting>.
+
+  METHOD zif_uitb_screen_controller~handle_user_command.
+    CHECK sy-dynnr = 0100.
+
+    DATA(lv_function) = cv_function_code.
+
+    CASE lv_function.
+
+      WHEN 'OK'.
+        transfer_ui_data( if_from_screen = abap_true ).
+        IF mf_disable_save = abap_false.
+          save_settings( ).
+          MESSAGE s011(zdbbr_info).
         ENDIF.
+        mf_data_changed = abap_true.
+        zcl_dbbr_screen_helper=>leave_screen( ).
 
-      ENDLOOP.
-    ENDMETHOD.
-
-
-    METHOD zif_uitb_screen_controller~call_screen.
-      transfer_ui_data( if_to_screen = abap_true ).
-      mf_first_call = abap_true.
-
-      zcl_uitb_screen_util=>call_screen(
-          iv_screen_id    = get_screen_id( )
-          iv_report_id    = get_report_id( )
-          if_selscreen    = abap_true
-          it_object_map   = VALUE #(
-            ( variable_name = zif_dbbr_user_settings_ids=>c_r_user_settings_controller
-              global_ref    = me )
-          )
-          iv_start_column = 10
-          iv_start_line   = 2
-      ).
-    ENDMETHOD.
+    ENDCASE.
+  ENDMETHOD.
 
 
-    METHOD zif_uitb_screen_controller~cancel.
-      zcl_dbbr_screen_helper=>leave_screen( ).
-    ENDMETHOD.
+  METHOD zif_uitb_screen_controller~pbo.
+    IF mf_first_call = abap_true.
+      CLEAR mf_first_call.
+    ENDIF.
 
-
-    METHOD zif_uitb_screen_controller~get_report_id.
-      result = zif_dbbr_c_report_id=>user_settings.
-    ENDMETHOD.
-
-
-    METHOD zif_uitb_screen_controller~get_screen_id.
-      result = zif_dbbr_screen_ids=>c_user_settings-main_screen.
-    ENDMETHOD.
-
-
-    METHOD zif_uitb_screen_controller~handle_user_command.
-      CHECK sy-dynnr = 0100.
-
-      DATA(lv_function) = cv_function_code.
-
-      CASE lv_function.
-
-        WHEN 'OK'.
-          transfer_ui_data( if_from_screen = abap_true ).
-          IF mf_disable_save = abap_false.
-            save_settings( ).
-            MESSAGE s011(zdbbr_info).
-          ENDIF.
-          mf_data_changed = abap_true.
-          zcl_dbbr_screen_helper=>leave_screen( ).
-
-      ENDCASE.
-    ENDMETHOD.
-
-
-    METHOD zif_uitb_screen_controller~pbo.
-      IF mf_first_call = abap_true.
-        CLEAR mf_first_call.
-      ENDIF.
-
-      zif_uitb_screen_controller~set_status( ).
-      LOOP AT SCREEN.
+    zif_uitb_screen_controller~set_status( ).
+    LOOP AT SCREEN.
 ***      IF screen-name = zif_dbbr_user_settings_ids=>c_search_ignore_case.
 ***        screen-input = 0.
 ***        MODIFY SCREEN.
 ***      ENDIF.
-        IF mv_start_tab = c_tab_ids-output_tab AND
-           mf_disable_save = abap_true AND
-           (
+      IF mv_start_tab = c_tab_ids-output_tab AND
+         mf_disable_save = abap_true AND
+         (
 *           screen-name = 'BTN_INTR' OR
-             screen-name = 'BTN_DSEL' OR
-             screen-name = 'BTN_FAV' OR
-             screen-name = 'BTN_SEL' OR
-             screen-name = 'BTN_CDS' ).
-          screen-active = 0.
-          MODIFY SCREEN.
-        ENDIF.
-      ENDLOOP.
-    ENDMETHOD.
+           screen-name = 'BTN_DSEL' OR
+           screen-name = 'BTN_FAV' OR
+           screen-name = 'BTN_SEL' OR
+           screen-name = 'BTN_CDS' ).
+        screen-active = 0.
+        MODIFY SCREEN.
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
 
 
-    METHOD zif_uitb_screen_controller~set_status.
-      CHECK sy-dynnr = zif_dbbr_screen_ids=>c_user_settings-main_screen.
+  METHOD zif_uitb_screen_controller~set_status.
+    CHECK sy-dynnr = zif_dbbr_screen_ids=>c_user_settings-main_screen.
 
-      zcl_dbbr_screen_helper=>set_selscreen_status(
-          iv_status              = '0100'
-          iv_repid               = zif_dbbr_c_report_id=>user_settings
-          it_excluding_functions = COND #( WHEN mf_disable_save = abap_true THEN VALUE #( ( 'SAVE' ) ) )
-      ).
-    ENDMETHOD.
+    zcl_dbbr_screen_helper=>set_selscreen_status(
+        iv_status              = '0100'
+        iv_repid               = zif_dbbr_c_report_id=>user_settings
+        it_excluding_functions = COND #( WHEN mf_disable_save = abap_true THEN VALUE #( ( 'SAVE' ) ) )
+    ).
+  ENDMETHOD.
 
 
-    METHOD zif_uitb_screen_controller~was_not_cancelled.
-      rf_not_cancelled = mf_data_changed.
-    ENDMETHOD.
+  METHOD zif_uitb_screen_controller~was_not_cancelled.
+    rf_not_cancelled = mf_data_changed.
+  ENDMETHOD.
 ENDCLASS.

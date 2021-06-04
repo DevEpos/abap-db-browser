@@ -79,7 +79,12 @@ INTERFACE zif_dbbr_user_settings_ids
   CONSTANTS c_selscr_compact_col_widths TYPE string VALUE 'P_XSCCCW' ##NO_TEXT.
 
   CONSTANTS c_r_user_settings_controller TYPE string VALUE 'GR_USER_SETTINGS_CONTROLLER' ##NO_TEXT.
+  "! Type - SAP_BOOL
   CONSTANTS c_calculate_virtual_elements TYPE string VALUE 'P_CALCVE' ##NO_TEXT.
+  "! Type - SAP_BOOL
   CONSTANTS c_ignore_error_virt_elem_calc TYPE string VALUE 'P_IGEVEC' ##NO_TEXT.
+  "! Type - SAP_BOOL
   CONSTANTS c_color_cds_calculated_fields type string value 'P_COLCF' ##NO_TEXT.
+  "! Type - SAP_BOOL
+  constants c_async_max_rows_determination type string value 'P_XAMRDE' ##NO_TEXT.
 ENDINTERFACE.

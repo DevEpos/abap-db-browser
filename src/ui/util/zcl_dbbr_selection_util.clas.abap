@@ -133,6 +133,8 @@ CLASS zcl_dbbr_selection_util DEFINITION
         iv_filtered_line_count TYPE sy-tabix
       RETURNING
         VALUE(rv_result)       TYPE string.
+    "! <p class="shorttext synchronized" lang="en">Unregisters any active event handlers</p>
+    METHODS unregister_evt_handlers.
   PROTECTED SECTION.
 
     TYPES:
@@ -379,6 +381,10 @@ CLASS zcl_dbbr_selection_util DEFINITION
     METHODS has_result
       RETURNING
         VALUE(rf_has_result) TYPE abap_bool.
+    METHODS on_count_async_finished
+      FOR EVENT count_query_finished OF zcl_dbbr_sql_selection
+      IMPORTING
+        ev_count.
   PRIVATE SECTION.
     DATA mo_text_field_util TYPE REF TO zcl_dbbr_text_field_ui_util.
 ENDCLASS.
@@ -1611,6 +1617,12 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     " generate the program to perform the data selection
     IF ms_technical_info-activate_alv_live_filter = abap_true OR
        if_refresh_only = abap_false.
+
+      IF mo_sql_selection IS NOT INITIAL.
+        mo_sql_selection->unregister_evt_handlers( ).
+        SET HANDLER on_count_async_finished FOR mo_sql_selection ACTIVATION space.
+      ENDIF.
+
       mo_sql_selection = zcl_dbbr_sql_selection=>create(
         it_select   = mt_select
         it_from     = mt_from
@@ -1619,6 +1631,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         it_group_by = mt_group_by
         it_having   = mt_having
         iv_max_size = ms_technical_info-max_lines ).
+      SET HANDLER on_count_async_finished FOR mo_sql_selection.
     ELSE.
       mo_sql_selection->set_max_rows( ms_technical_info-max_lines ).
     ENDIF.
@@ -1634,21 +1647,34 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       mv_selected_lines = lines( <lt_table> ).
 
       " determine the maximum number of lines
-      IF sy-dbsys = 'HDB' AND mv_selected_lines = ms_technical_info-max_lines.
+      IF mv_selected_lines = ms_technical_info-max_lines.
 
         zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
+        cl_progress_indicator=>progress_indicate(
+          EXPORTING i_text      = |{ TEXT-007 }|
+                    i_processed = 25 ).
 
         IF mf_group_by = abap_true OR mf_aggregation = abap_true.
-          mv_max_lines_existing = mo_sql_selection->determine_size_for_group_by( mr_t_temp_data ).
+          IF ms_technical_info-async_max_rows_determination = abap_true.
+            mo_sql_selection->determine_group_by_size_async( mr_t_temp_data ).
+          ELSE.
+            mv_max_lines_existing = mo_sql_selection->determine_size_for_group_by( mr_t_temp_data ).
+          ENDIF.
         ELSE.
-          mv_max_lines_existing = mo_sql_selection->determine_size( ).
+          IF ms_technical_info-async_max_rows_determination = abap_true.
+            mo_sql_selection->determine_size_async( ).
+          ELSE.
+            mv_max_lines_existing = mo_sql_selection->determine_size( ).
+          ENDIF.
         ENDIF.
       ELSE.
         mv_max_lines_existing = mv_selected_lines.
       ENDIF.
     ELSE.
       " only count the number of lines that exist for the condition
-      zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
+      cl_progress_indicator=>progress_indicate(
+        EXPORTING i_text      = |{ TEXT-007 }|
+                  i_processed = 25 ).
 
       IF mf_group_by = abap_true OR mf_aggregation = abap_true.
         mv_selected_lines = mo_sql_selection->determine_size_for_group_by( mr_t_temp_data ).
@@ -1881,11 +1907,21 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_sel_count_text.
-    IF sy-dbsys <> 'HDB' OR mf_custom_query_active = abap_true.
+    IF mf_custom_query_active = abap_true.
       rv_result = |{ iv_filtered_line_count NUMBER = USER } Entries|.
     ELSE.
+      DATA(lv_max_line_count) = COND #(
+        WHEN mv_max_lines_existing IS INITIAL AND iv_filtered_line_count IS NOT INITIAL THEN `?`
+        ELSE |{ mv_max_lines_existing NUMBER = USER }| ).
       rv_result = |{ iv_filtered_line_count NUMBER = USER } of | &&
-        |{ mv_max_lines_existing NUMBER = USER } Entries|.
+        |{ lv_max_line_count } Entries|.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD unregister_evt_handlers.
+    IF mo_sql_selection IS NOT INITIAL.
+      mo_sql_selection->unregister_evt_handlers( ).
+      SET HANDLER on_count_async_finished FOR mo_sql_selection ACTIVATION space.
     ENDIF.
   ENDMETHOD.
 
@@ -2068,6 +2104,11 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   METHOD has_result.
     rf_has_result = xsdbool( mv_selected_lines > 0 ).
+  ENDMETHOD.
+
+  METHOD on_count_async_finished.
+    mv_max_lines_existing = ev_count.
+    zcl_uitb_screen_util=>set_function_code( ).
   ENDMETHOD.
 
 ENDCLASS.

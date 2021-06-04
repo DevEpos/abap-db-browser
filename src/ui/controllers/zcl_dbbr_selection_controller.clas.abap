@@ -2333,6 +2333,9 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
 
   METHOD zif_uitb_screen_controller~free_screen_resources.
+    IF mo_util IS BOUND.
+      mo_util->unregister_evt_handlers( ).
+    ENDIF.
   ENDMETHOD.
 
 

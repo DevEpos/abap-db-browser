@@ -1,52 +1,15 @@
 *"* use this source file for the definition and implementation of
 *"* local helper classes, interface definitions and type
 *"* declarations
-CLASS lcl_executor IMPLEMENTATION.
+CLASS lcl_query_executor_base IMPLEMENTATION.
+
+
   METHOD constructor.
     mo_query = io_query.
     mv_row_count = iv_row_count.
     mf_count_only = if_count_only.
   ENDMETHOD.
 
-  METHOD execute_query.
-    CLEAR: mf_async_finished,
-           ms_query_result.
-
-    zcl_dbbr_screen_helper=>show_progress( iv_text = |Query is being executed...| iv_progress = 1 ).
-
-    CALL FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY' STARTING NEW TASK 'QUERY_EXEC' DESTINATION 'NONE'
-      CALLING execute_query_finished ON END OF TASK
-      EXPORTING
-        is_query      = mo_query->ms_data
-        iv_row_count  = mv_row_count
-        if_count_only = mf_count_only
-        it_parameters = mo_query->mt_parameters.
-
-    WAIT FOR ASYNCHRONOUS TASKS UNTIL mf_async_finished = abap_true.
-
-    process_query_result( ).
-
-    ev_line_count = ms_query_result-line_count.
-    et_data_info = VALUE #(
-        FOR <ls_result_col> IN ms_query_result-columns
-        ( <ls_result_col>-metadata )
-    ).
-    ev_message = ms_query_result-message.
-    ev_message_type = ms_query_result-message_severity.
-    ev_execution_time = ms_query_result-query_execution_time.
-    er_data = mr_query_result.
-  ENDMETHOD.
-
-
-  METHOD execute_query_finished.
-    DATA: ls_query_result TYPE zdbbr_dp_table_data.
-
-    RECEIVE RESULTS FROM FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY'
-      IMPORTING
-        es_query_result = ms_query_result.
-
-    mf_async_finished = abap_true.
-  ENDMETHOD.
 
   METHOD process_query_result.
     DATA: lt_abap_comp_type TYPE cl_abap_structdescr=>component_table,
@@ -106,7 +69,7 @@ CLASS lcl_executor IMPLEMENTATION.
             CREATE DATA mr_query_result TYPE HANDLE lr_table_type.
             ASSIGN mr_query_result->* TO <lt_result>.
 
-*.......... fill query result table
+            " fill query result table
             DO ms_query_result-line_count TIMES.
               DATA(lv_index) = sy-index.
 
@@ -133,4 +96,87 @@ CLASS lcl_executor IMPLEMENTATION.
 
     ENDIF.
   ENDMETHOD.
+
+
+ENDCLASS.
+
+
+CLASS lcl_query_executor IMPLEMENTATION.
+
+
+  METHOD execute_query.
+    CLEAR: mf_async_finished,
+           ms_query_result.
+
+    zcl_dbbr_screen_helper=>show_progress( iv_text = |Query is being executed...| iv_progress = 1 ).
+
+    CALL FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY' STARTING NEW TASK 'QUERY_EXEC' DESTINATION 'NONE'
+      CALLING execute_query_finished ON END OF TASK
+      EXPORTING
+        is_query      = mo_query->ms_data
+        iv_row_count  = mv_row_count
+        if_count_only = mf_count_only
+        it_parameters = mo_query->mt_parameters.
+
+    WAIT FOR ASYNCHRONOUS TASKS UNTIL mf_async_finished = abap_true.
+
+    process_query_result( ).
+
+    ev_line_count = ms_query_result-line_count.
+    et_data_info = VALUE #(
+        FOR <ls_result_col> IN ms_query_result-columns
+        ( <ls_result_col>-metadata )
+    ).
+    ev_message = ms_query_result-message.
+    ev_message_type = ms_query_result-message_severity.
+    ev_execution_time = ms_query_result-query_execution_time.
+    er_data = mr_query_result.
+  ENDMETHOD.
+
+
+  METHOD execute_query_finished.
+    RECEIVE RESULTS FROM FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY'
+      IMPORTING
+        es_query_result = ms_query_result.
+
+    mf_async_finished = abap_true.
+  ENDMETHOD.
+
+
+ENDCLASS.
+
+
+CLASS lcl_query_async_executor IMPLEMENTATION.
+
+
+  METHOD execute_query.
+    CALL FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY' STARTING NEW TASK 'QUERY_EXEC' DESTINATION 'NONE'
+      CALLING execute_query_finished ON END OF TASK
+      EXPORTING
+        is_query      = mo_query->ms_data
+        iv_row_count  = mv_row_count
+        if_count_only = mf_count_only
+        it_parameters = mo_query->mt_parameters.
+  ENDMETHOD.
+
+
+  METHOD execute_query_finished.
+    RECEIVE RESULTS FROM FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY'
+      IMPORTING
+        es_query_result = ms_query_result.
+
+    process_query_result( ).
+
+    zcl_dbbr_sql_query_exec=>raise_query_finished(
+      it_data_info      = VALUE #(
+        FOR <ls_result_col> IN ms_query_result-columns
+        ( <ls_result_col>-metadata ) )
+      iv_execution_time = ms_query_result-query_execution_time
+      iv_message        = ms_query_result-message
+      iv_message_type   = CONV #( ms_query_result-message_severity )
+      iv_line_count     = CONV #( ms_query_result-line_count )
+      ir_data           = mr_query_result ).
+  ENDMETHOD.
+
+
 ENDCLASS.
