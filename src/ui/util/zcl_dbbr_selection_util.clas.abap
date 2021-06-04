@@ -24,7 +24,6 @@ CLASS zcl_dbbr_selection_util DEFINITION
         entity_id                TYPE zsat_entity_id,
         entity_params            TYPE string,
         query_string             TYPE string,
-        for_all_entries_data     TYPE REF TO data,
         association_target       TYPE zsat_cds_association,
         selection_fields         TYPE zdbbr_selfield_itab,
         technical_infos          TYPE zdbbr_tech_info,
@@ -162,7 +161,6 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mr_s_global_data TYPE REF TO zdbbr_global_data .
     DATA mf_navigation_select TYPE abap_bool.
     DATA ms_association_target TYPE zsat_cds_association .
-    DATA mr_t_for_all_data TYPE REF TO data .
     "! <p class="shorttext synchronized" lang="en">Creates subroutine pool program for selection data from db</p>
     DATA mo_select_program TYPE REF TO zcl_dbbr_select_prog_creator .
     DATA mr_t_data TYPE REF TO data .
@@ -518,7 +516,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     mv_entity_id          = is_selection_data-entity_id.
     mv_entity_type        = is_selection_data-entity_type.
     mv_entity_params      = is_selection_data-entity_params.
-    mr_t_for_all_data     = is_selection_data-for_all_entries_data.
     ms_association_target = is_selection_data-association_target.
     ms_technical_info     = is_selection_data-technical_infos.
     mf_case_insensitive_search = is_selection_data-technical_infos-search_ignore_case.
@@ -1615,16 +1612,13 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     IF ms_technical_info-activate_alv_live_filter = abap_true OR
        if_refresh_only = abap_false.
       mo_select_program = zcl_dbbr_select_prog_creator=>create_program(
-          if_only_create_count_logic = if_count_lines
-          is_association_target      = ms_association_target
-          it_select                  = mt_select
-          it_from                    = mt_from
-          it_where                   = mt_where
-          it_order_by                = mt_order_by
-          it_group_by                = mt_group_by
-          it_having                  = mt_having
-          iv_max_size                = ms_technical_info-max_lines
-      ).
+        it_select   = mt_select
+        it_from     = mt_from
+        it_where    = mt_where
+        it_order_by = mt_order_by
+        it_group_by = mt_group_by
+        it_having   = mt_having
+        iv_max_size = ms_technical_info-max_lines ).
     ELSE.
       mo_select_program->set_max_rows( ms_technical_info-max_lines ).
     ENDIF.
@@ -1635,10 +1629,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
       zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-001 }| iv_progress = 1 ).
 
-      mo_select_program->select_data(
-        EXPORTING ir_t_for_all = mr_t_for_all_data
-        IMPORTING et_data      = <lt_table>
-      ).
+      mo_select_program->select_data( IMPORTING et_data = <lt_table> ).
 
       mv_selected_lines = lines( <lt_table> ).
 
@@ -1650,7 +1641,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         IF mf_group_by = abap_true OR mf_aggregation = abap_true.
           mv_max_lines_existing = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
         ELSE.
-          mv_max_lines_existing = mo_select_program->determine_size( mr_t_for_all_data ).
+          mv_max_lines_existing = mo_select_program->determine_size( ).
         ENDIF.
       ELSE.
         mv_max_lines_existing = mv_selected_lines.

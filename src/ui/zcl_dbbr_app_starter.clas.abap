@@ -56,9 +56,7 @@ CLASS zcl_dbbr_app_starter IMPLEMENTATION.
 *... create controller instance
     DATA(lr_selection_controller) = zcl_dbbr_selection_controller=>create_controller_from_data(
       is_controller_serialized = ls_controller_data
-*      ir_t_for_all_data        = lr_t_for_all_data
-      if_not_first_screen_call = abap_true
-    ).
+      if_not_first_screen_call = abap_true ).
     result = lr_selection_controller.
     lr_selection_controller->execute_selection( ).
   ENDMETHOD.

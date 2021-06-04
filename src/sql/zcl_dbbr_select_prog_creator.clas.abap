@@ -10,18 +10,15 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
     "!
     CLASS-METHODS create_program
       IMPORTING
-        !if_only_create_count_logic TYPE abap_bool OPTIONAL
-        !if_create_for_all          TYPE abap_bool OPTIONAL
-        !is_association_target      TYPE zsat_cds_association OPTIONAL
-        !it_select                  TYPE string_table
-        !it_from                    TYPE string_table
-        !it_where                   TYPE string_table OPTIONAL
-        !it_order_by                TYPE string_table OPTIONAL
-        !it_group_by                TYPE string_table OPTIONAL
-        it_having                   TYPE string_table OPTIONAL
-        !iv_max_size                TYPE i
+        it_select                  TYPE string_table
+        it_from                    TYPE string_table
+        it_where                   TYPE string_table OPTIONAL
+        it_order_by                TYPE string_table OPTIONAL
+        it_group_by                TYPE string_table OPTIONAL
+        it_having                  TYPE string_table OPTIONAL
+        iv_max_size                TYPE i
       RETURNING
-        VALUE(rr_instance)          TYPE REF TO zcl_dbbr_select_prog_creator
+        VALUE(rr_instance)         TYPE REF TO zcl_dbbr_select_prog_creator
       RAISING
         zcx_dbbr_dyn_prog_generation .
     "! <p class="shorttext synchronized" lang="en">Determine during active aggregation</p>
@@ -35,8 +32,6 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
     "! <p class="shorttext synchronized" lang="en">Determines the size of existing entries</p>
     "!
     METHODS determine_size
-      IMPORTING
-        !ir_t_for_all  TYPE REF TO data OPTIONAL
       RETURNING
         VALUE(rv_size) TYPE zdbbr_no_of_lines
       RAISING
@@ -49,8 +44,6 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
     "! <p class="shorttext synchronized" lang="en">Selects data</p>
     "!
     METHODS select_data
-      IMPORTING
-        !ir_t_for_all  TYPE REF TO data OPTIONAL
       EXPORTING
         VALUE(et_data) TYPE table
       RAISING
@@ -80,9 +73,6 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
     DATA mt_group_by TYPE string_table .
     DATA mt_having TYPE string_table.
     DATA mv_max_size TYPE i .
-    DATA mv_class TYPE string .
-    DATA mf_only_create_count_logic TYPE abap_bool .
-    DATA mf_create_for_all TYPE abap_bool .
     "! Association Information for CDS View
     DATA ms_assocication_target TYPE zsat_cds_association .
 
@@ -133,7 +123,6 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
   METHOD create_program.
     rr_instance = NEW zcl_dbbr_select_prog_creator( ).
 
-    rr_instance->mf_only_create_count_logic = if_only_create_count_logic.
     rr_instance->mt_select   = it_select.
     rr_instance->mt_from     = it_from.
     rr_instance->mt_having   = it_having.
@@ -385,5 +374,6 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
       IMPORTING
         ev_value       = rv_size ).
   ENDMETHOD.
+
 
 ENDCLASS.

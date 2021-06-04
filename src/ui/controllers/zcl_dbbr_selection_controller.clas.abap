@@ -679,10 +679,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
        is_controller_serialized MAPPING association_target = navigation_info
                                         selfields_multi    = selection_fields_multi
                                         multi_or           = selection_fields_or
-                                        nav_breadcrumbs    = navigation_breadcrumbs
-    ).
+                                        nav_breadcrumbs    = navigation_breadcrumbs ).
 
-    ls_selection_data-for_all_entries_data = ir_t_for_all_data.
     ls_selection_data-technical_infos = ls_tech_info.
     ls_selection_data-tabfields = lr_tabfields.
     ls_selection_data-tabfields_all = lr_tabfields_all.
