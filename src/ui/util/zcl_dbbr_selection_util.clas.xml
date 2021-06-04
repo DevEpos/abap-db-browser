@@ -322,7 +322,7 @@
     </SEOCOMPOTX>
     <SEOCOMPOTX>
      <CLSNAME>ZCL_DBBR_SELECTION_UTIL</CLSNAME>
-     <CMPNAME>MO_SELECT_PROGRAM</CMPNAME>
+     <CMPNAME>MO_SQL_SELECTION</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Creates subroutine pool program for selection data from db</DESCRIPT>
     </SEOCOMPOTX>

@@ -162,7 +162,7 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mf_navigation_select TYPE abap_bool.
     DATA ms_association_target TYPE zsat_cds_association .
     "! <p class="shorttext synchronized" lang="en">Creates subroutine pool program for selection data from db</p>
-    DATA mo_select_program TYPE REF TO zcl_dbbr_select_prog_creator .
+    DATA mo_sql_selection TYPE REF TO zcl_dbbr_sql_selection .
     DATA mr_t_data TYPE REF TO data .
     DATA mr_t_temp_data TYPE REF TO data .
     DATA mf_join_is_active TYPE abap_bool .
@@ -1478,9 +1478,9 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
 
   METHOD get_sql_query.
-    CHECK mo_select_program IS BOUND.
+    CHECK mo_sql_selection IS BOUND.
 
-    rv_query = mo_select_program->get_select_sql( ).
+    rv_query = mo_sql_selection->get_select_sql( ).
   ENDMETHOD.
 
 
@@ -1611,7 +1611,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     " generate the program to perform the data selection
     IF ms_technical_info-activate_alv_live_filter = abap_true OR
        if_refresh_only = abap_false.
-      mo_select_program = zcl_dbbr_select_prog_creator=>create_program(
+      mo_sql_selection = zcl_dbbr_sql_selection=>create(
         it_select   = mt_select
         it_from     = mt_from
         it_where    = mt_where
@@ -1620,7 +1620,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         it_having   = mt_having
         iv_max_size = ms_technical_info-max_lines ).
     ELSE.
-      mo_select_program->set_max_rows( ms_technical_info-max_lines ).
+      mo_sql_selection->set_max_rows( ms_technical_info-max_lines ).
     ENDIF.
 
     " either select the data or, only count the lines for the where clause
@@ -1629,7 +1629,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
       zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-001 }| iv_progress = 1 ).
 
-      mo_select_program->select_data( IMPORTING et_data = <lt_table> ).
+      mo_sql_selection->select_data( IMPORTING et_data = <lt_table> ).
 
       mv_selected_lines = lines( <lt_table> ).
 
@@ -1639,9 +1639,9 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 
         IF mf_group_by = abap_true OR mf_aggregation = abap_true.
-          mv_max_lines_existing = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
+          mv_max_lines_existing = mo_sql_selection->determine_size_for_group_by( mr_t_temp_data ).
         ELSE.
-          mv_max_lines_existing = mo_select_program->determine_size( ).
+          mv_max_lines_existing = mo_sql_selection->determine_size( ).
         ENDIF.
       ELSE.
         mv_max_lines_existing = mv_selected_lines.
@@ -1651,9 +1651,9 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 
       IF mf_group_by = abap_true OR mf_aggregation = abap_true.
-        mv_selected_lines = mo_select_program->determine_size_for_group_by( mr_t_temp_data ).
+        mv_selected_lines = mo_sql_selection->determine_size_for_group_by( mr_t_temp_data ).
       ELSE.
-        mv_selected_lines = mo_select_program->determine_size( ).
+        mv_selected_lines = mo_sql_selection->determine_size( ).
       ENDIF.
     ENDIF.
 

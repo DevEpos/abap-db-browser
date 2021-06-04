@@ -1,14 +1,14 @@
 "! <p class="shorttext synchronized" lang="en">Creates subroutine pool program for selection data from db</p>
-CLASS zcl_dbbr_select_prog_creator DEFINITION
+CLASS zcl_dbbr_sql_selection DEFINITION
   PUBLIC
   FINAL
-  CREATE PRIVATE .
+  CREATE PRIVATE.
 
   PUBLIC SECTION.
 
-    "! <p class="shorttext synchronized" lang="en">Creates new instance of select program</p>
+    "! <p class="shorttext synchronized" lang="en">Creates new SQL selection</p>
     "!
-    CLASS-METHODS create_program
+    CLASS-METHODS create
       IMPORTING
         it_select                  TYPE string_table
         it_from                    TYPE string_table
@@ -18,9 +18,9 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
         it_having                  TYPE string_table OPTIONAL
         iv_max_size                TYPE i
       RETURNING
-        VALUE(rr_instance)         TYPE REF TO zcl_dbbr_select_prog_creator
+        VALUE(rr_instance)         TYPE REF TO zcl_dbbr_sql_selection
       RAISING
-        zcx_dbbr_dyn_prog_generation .
+        zcx_dbbr_dyn_prog_generation.
     "! <p class="shorttext synchronized" lang="en">Determine during active aggregation</p>
     METHODS determine_size_for_group_by
       IMPORTING
@@ -35,7 +35,7 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
       RETURNING
         VALUE(rv_size) TYPE zdbbr_no_of_lines
       RAISING
-        zcx_dbbr_selection_common .
+        zcx_dbbr_selection_common.
     "! <p class="shorttext synchronized" lang="en">Returns SQL String for current select</p>
     "!
     METHODS get_select_sql
@@ -47,12 +47,12 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
       EXPORTING
         VALUE(et_data) TYPE table
       RAISING
-        zcx_dbbr_selection_common .
+        zcx_dbbr_selection_common.
     "! <p class="shorttext synchronized" lang="en">Set maximum number of rows</p>
     "!
     METHODS set_max_rows
       IMPORTING
-        !iv_max_rows TYPE i .
+        !iv_max_rows TYPE i.
     "! <p class="shorttext synchronized" lang="en">Update from clause</p>
     "!
     METHODS update_from
@@ -62,19 +62,19 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
   PRIVATE SECTION.
 
     "! List of Strings
-    DATA mt_select TYPE string_table .
+    DATA mt_select TYPE string_table.
     "! List of Strings
-    DATA mt_from TYPE string_table .
+    DATA mt_from TYPE string_table.
     "! List of Strings
-    DATA mt_where TYPE string_table .
+    DATA mt_where TYPE string_table.
     "! List of Strings
-    DATA mt_order_by TYPE string_table .
+    DATA mt_order_by TYPE string_table.
     "! List of Strings
-    DATA mt_group_by TYPE string_table .
+    DATA mt_group_by TYPE string_table.
     DATA mt_having TYPE string_table.
-    DATA mv_max_size TYPE i .
+    DATA mv_max_size TYPE i.
     "! Association Information for CDS View
-    DATA ms_assocication_target TYPE zsat_cds_association .
+    DATA ms_assocication_target TYPE zsat_cds_association.
 
     METHODS fill_having
       CHANGING
@@ -83,27 +83,27 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_from
       CHANGING
-        !ct_lines TYPE string_table .
+        !ct_lines TYPE string_table.
     "! <p class="shorttext synchronized" lang="en">Fill coding lines with group by clause</p>
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_group_by
       CHANGING
-        !ct_lines TYPE string_table .
+        !ct_lines TYPE string_table.
     "! <p class="shorttext synchronized" lang="en">Fill coding lines with order by clause</p>
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_order_by
       CHANGING
-        !ct_lines TYPE string_table .
+        !ct_lines TYPE string_table.
     "! <p class="shorttext synchronized" lang="en">Fill coding lines with select clause</p>
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_select
       CHANGING
-        !ct_lines TYPE string_table .
+        !ct_lines TYPE string_table.
     "! <p class="shorttext synchronized" lang="en">Fill coding lines with where clause</p>
     "! @parameter ct_lines | <p class="shorttext synchronized" lang="en"></p>
     METHODS fill_where
       CHANGING
-        !ct_lines TYPE string_table .
+        !ct_lines TYPE string_table.
 
     "! <p class="shorttext synchronized" lang="en">Determines existing line count with CTE</p>
     METHODS get_group_by_size_by_cte
@@ -112,16 +112,16 @@ CLASS zcl_dbbr_select_prog_creator DEFINITION
     "! <p class="shorttext synchronized" lang="en">Creates count query with CTE</p>
     METHODS create_count_query_for_cte
       RETURNING
-        VALUE(ro_query) TYPE REF TO  zcl_dbbr_sql_query .
+        VALUE(ro_query) TYPE REF TO  zcl_dbbr_sql_query.
 ENDCLASS.
 
 
 
-CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
+CLASS zcl_dbbr_sql_selection IMPLEMENTATION.
 
 
-  METHOD create_program.
-    rr_instance = NEW zcl_dbbr_select_prog_creator( ).
+  METHOD create.
+    rr_instance = NEW zcl_dbbr_sql_selection( ).
 
     rr_instance->mt_select   = it_select.
     rr_instance->mt_from     = it_from.
@@ -150,7 +150,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
           GROUP BY (mt_group_by)
           HAVING (mt_having)
           ORDER BY (mt_order_by)
-        INTO CORRESPONDING FIELDS OF TABLE @<lt_data>.
+          INTO CORRESPONDING FIELDS OF TABLE @<lt_data>.
 
         rv_size = lines( <lt_data> ).
         CLEAR <lt_data>.
@@ -171,7 +171,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
         SELECT COUNT( * )
           FROM (mt_from)
           WHERE (mt_where)
-        INTO @rv_size.
+          INTO @rv_size.
       CATCH cx_root INTO lx_root.
         RAISE EXCEPTION TYPE zcx_dbbr_selection_common
           EXPORTING
@@ -285,7 +285,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
           GROUP BY (mt_group_by)
           HAVING (mt_having)
           ORDER BY (mt_order_by)
-        INTO CORRESPONDING FIELDS OF TABLE @et_data
+          INTO CORRESPONDING FIELDS OF TABLE @et_data
           UP TO @mv_max_size ROWS.
       CATCH cx_root INTO lx_root.
         RAISE EXCEPTION TYPE zcx_dbbr_selection_common
@@ -325,8 +325,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     lt_sql_lines = VALUE #(
       ( |WITH| )
       ( |  +group_select as (| )
-      ( || )
-    ).
+      ( || ) ).
 
     fill_select( CHANGING ct_lines = lt_sql_lines ).
     fill_from( CHANGING ct_lines = lt_sql_lines ).
@@ -335,15 +334,14 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
     fill_having( CHANGING ct_lines = lt_sql_lines ).
     lt_sql_lines = VALUE #( BASE lt_sql_lines
       ( |)| )
-      ( |SELECT COUNT(*) FROM +group_select| )
-    ).
+      ( |SELECT COUNT(*) FROM +group_select| ) ).
     CONCATENATE LINES OF lt_sql_lines INTO lv_query SEPARATED BY cl_abap_char_utilities=>cr_lf.
 
     TRY.
         ro_query = NEW zcl_dbbr_sql_query_parser(
-          iv_query                 = lv_query
-          if_fill_log_for_messages = abap_false
-        )->parse( ).
+            iv_query                 = lv_query
+            if_fill_log_for_messages = abap_false
+          )->parse( ).
       CATCH zcx_dbbr_sql_query_error INTO DATA(lx_error).
         lx_error->zif_sat_exception_message~print( ).
     ENDTRY.
@@ -364,8 +362,7 @@ CLASS zcl_dbbr_select_prog_creator IMPLEMENTATION.
         ev_execution_time = DATA(lv_exec_time)
         ev_message        = DATA(lv_message)
         ev_message_type   = DATA(lv_message_type)
-        er_data           = DATA(lr_t_result)
-    ).
+        er_data           = DATA(lr_t_result) ).
 
     zcl_dbbr_sql_query_exec=>get_single_value_from_result(
       EXPORTING

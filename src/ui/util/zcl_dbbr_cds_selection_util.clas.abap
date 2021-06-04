@@ -141,7 +141,7 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
     IF lf_trigger_select = abap_true.
       CLEAR mt_from.
       create_from_clause( ).
-      mo_select_program->update_from( mt_from ).
+      mo_sql_selection->update_from( mt_from ).
       refresh_selection( ).
     ENDIF.
   ENDMETHOD.
