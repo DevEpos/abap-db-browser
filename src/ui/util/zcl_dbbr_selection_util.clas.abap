@@ -1650,9 +1650,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       IF mv_selected_lines = ms_technical_info-max_lines.
 
         zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
-        cl_progress_indicator=>progress_indicate(
-          EXPORTING i_text      = |{ TEXT-007 }|
-                    i_processed = 25 ).
 
         IF mf_group_by = abap_true OR mf_aggregation = abap_true.
           IF ms_technical_info-async_max_rows_determination = abap_true.
@@ -1671,10 +1668,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         mv_max_lines_existing = mv_selected_lines.
       ENDIF.
     ELSE.
-      " only count the number of lines that exist for the condition
-      cl_progress_indicator=>progress_indicate(
-        EXPORTING i_text      = |{ TEXT-007 }|
-                  i_processed = 25 ).
+      zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 
       IF mf_group_by = abap_true OR mf_aggregation = abap_true.
         mv_selected_lines = mo_sql_selection->determine_size_for_group_by( mr_t_temp_data ).
