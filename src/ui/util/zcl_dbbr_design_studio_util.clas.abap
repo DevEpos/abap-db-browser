@@ -79,7 +79,8 @@ CLASS zcl_dbbr_design_studio_util IMPLEMENTATION.
       ASSIGN mo_selscreen_data->mr_t_table_data->*[ tabname_alias = zif_dbbr_c_global=>c_parameter_dummy_table
                                                     fieldname     = <ls_param>-parametername ] TO FIELD-SYMBOL(<ls_param_value>).
       CHECK <ls_param_value>-low IS NOT INITIAL.
-      mv_url_params = |{ mv_url_params }&{ <ls_param>-parametername_raw }={ <ls_param_value>-low }|.
+      mv_url_params = |{ mv_url_params }&{ <ls_param>-parametername_raw }=| &&
+        |{ escape( val = <ls_param_value>-low format = cl_abap_format=>e_uri_full ) }|.
     ENDLOOP.
 
 *.. Fill the values from the parameters which were declared via annotation
@@ -90,7 +91,8 @@ CLASS zcl_dbbr_design_studio_util IMPLEMENTATION.
       ASSIGN mo_selscreen_data->mr_t_table_data->*[ tabname_alias = mo_cds_view->get_header( )-entityname
                                                     fieldname     = ls_anno_param ] TO <ls_param_value>.
       CHECK <ls_param_value>-low IS NOT INITIAL.
-      mv_url_params = |{ mv_url_params }&{ <ls_param_value>-fieldname_raw }={ <ls_param_value>-low }|.
+      mv_url_params = |{ mv_url_params }&{ <ls_param_value>-fieldname_raw }=| &&
+        |{ escape( val = <ls_param_value>-low format = cl_abap_format=>e_uri_full ) }|.
     ENDLOOP.
 
   ENDMETHOD.
