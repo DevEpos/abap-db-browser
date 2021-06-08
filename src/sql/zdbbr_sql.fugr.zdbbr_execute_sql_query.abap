@@ -1,4 +1,4 @@
-FUNCTION ZDBBR_EXECUTE_SQL_QUERY.
+FUNCTION zdbbr_execute_sql_query.
 *"----------------------------------------------------------------------
 *"*"Local Interface:
 *"  IMPORTING
