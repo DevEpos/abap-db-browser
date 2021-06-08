@@ -68,8 +68,10 @@ CLASS zcl_dbbr_design_studio_util IMPLEMENTATION.
     TYPES: BEGIN OF lty_s_field,
              fieldname TYPE fieldname,
            END OF lty_s_field.
-    DATA lt_anno_params TYPE TABLE OF lty_s_field.
-    DATA lt_param_values TYPE zif_sat_ty_global=>ty_t_cds_param_value.
+    DATA: lt_anno_params  TYPE TABLE OF lty_s_field,
+          lt_param_values TYPE zif_sat_ty_global=>ty_t_cds_param_value,
+          lt_url_params   TYPE tihttpnvp.
+
     DATA(lt_cds_params) = mo_cds_view->get_parameters( if_exclude_system_params = abap_true ).
 
     DATA(lt_anno) = mo_cds_view->get_annotations( VALUE #( ( sign = 'I' option = 'CP' low = 'CONSUMPTION.*FILTER.*' ) ) ).
@@ -79,8 +81,8 @@ CLASS zcl_dbbr_design_studio_util IMPLEMENTATION.
       ASSIGN mo_selscreen_data->mr_t_table_data->*[ tabname_alias = zif_dbbr_c_global=>c_parameter_dummy_table
                                                     fieldname     = <ls_param>-parametername ] TO FIELD-SYMBOL(<ls_param_value>).
       CHECK <ls_param_value>-low IS NOT INITIAL.
-      mv_url_params = |{ mv_url_params }&{ <ls_param>-parametername_raw }=| &&
-        |{ escape( val = <ls_param_value>-low format = cl_abap_format=>e_uri_full ) }|.
+      lt_url_params = VALUE #( BASE lt_url_params
+        ( name = <ls_param>-parametername_raw value = <ls_param_value>-low ) ).
     ENDLOOP.
 
 *.. Fill the values from the parameters which were declared via annotation
@@ -91,9 +93,15 @@ CLASS zcl_dbbr_design_studio_util IMPLEMENTATION.
       ASSIGN mo_selscreen_data->mr_t_table_data->*[ tabname_alias = mo_cds_view->get_header( )-entityname
                                                     fieldname     = ls_anno_param ] TO <ls_param_value>.
       CHECK <ls_param_value>-low IS NOT INITIAL.
-      mv_url_params = |{ mv_url_params }&{ <ls_param_value>-fieldname_raw }=| &&
-        |{ escape( val = <ls_param_value>-low format = cl_abap_format=>e_uri_full ) }|.
+      lt_url_params = VALUE #( BASE lt_url_params
+          ( name = <ls_param_value>-fieldname_raw  value = <ls_param_value>-low ) ).
     ENDLOOP.
+
+    mv_url_params = cl_nwbc_utility=>fields_to_string( lt_url_params ).
+
+    IF mv_url_params IS NOT INITIAL.
+      mv_url_params = '&' && mv_url_params.
+    ENDIF.
 
   ENDMETHOD.
 
