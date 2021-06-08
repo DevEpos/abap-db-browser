@@ -121,11 +121,15 @@ CLASS zcl_dbbr_sql_selection DEFINITION
       "! <p class="shorttext synchronized" lang="en">Determines existing line count with CTE</p>
       get_group_by_size_by_cte
         RETURNING
-          VALUE(rv_size) TYPE zdbbr_no_of_lines,
+          VALUE(rv_size) TYPE zdbbr_no_of_lines
+        RAISING
+          zcx_dbbr_sql_query_error,
       "! <p class="shorttext synchronized" lang="en">Creates count query with CTE</p>
       create_count_query_for_cte
         RETURNING
-          VALUE(ro_query) TYPE REF TO  zcl_dbbr_sql_query,
+          VALUE(ro_query) TYPE REF TO  zcl_dbbr_sql_query
+        RAISING
+          zcx_dbbr_sql_query_error,
       "! <p class="shorttext synchronized" lang="en">Handler for query finished event</p>
       on_async_query_finished
         FOR EVENT query_finished OF zcl_dbbr_sql_query_exec
@@ -169,27 +173,31 @@ CLASS zcl_dbbr_sql_selection IMPLEMENTATION.
     FIELD-SYMBOLS: <lt_data> TYPE table.
 
     IF sy-saprl > 751. " Common table expressions exist
-      rv_size = get_group_by_size_by_cte( ).
-    ELSE.
-      ASSIGN ir_t_data->* TO <lt_data>.
-
       TRY.
-          SELECT (mt_select)
-            FROM (mt_from)
-            WHERE (mt_where)
-            GROUP BY (mt_group_by)
-            HAVING (mt_having)
-            ORDER BY (mt_order_by)
-            INTO CORRESPONDING FIELDS OF TABLE @<lt_data>.
-
-          rv_size = lines( <lt_data> ).
-          CLEAR <lt_data>.
-        CATCH cx_root INTO lx_root.
-          RAISE EXCEPTION TYPE zcx_dbbr_selection_common
-            EXPORTING
-              previous = lx_root.
+          rv_size = get_group_by_size_by_cte( ).
+          RETURN.
+        CATCH zcx_dbbr_sql_query_error ##NEEDED.
       ENDTRY.
     ENDIF.
+
+    ASSIGN ir_t_data->* TO <lt_data>.
+
+    TRY.
+        SELECT (mt_select)
+          FROM (mt_from)
+          WHERE (mt_where)
+          GROUP BY (mt_group_by)
+          HAVING (mt_having)
+          ORDER BY (mt_order_by)
+          INTO CORRESPONDING FIELDS OF TABLE @<lt_data>.
+
+        rv_size = lines( <lt_data> ).
+        CLEAR <lt_data>.
+      CATCH cx_root INTO lx_root.
+        RAISE EXCEPTION TYPE zcx_dbbr_selection_common
+          EXPORTING
+            previous = lx_root.
+    ENDTRY.
   ENDMETHOD.
 
   METHOD determine_size.
@@ -229,13 +237,22 @@ CLASS zcl_dbbr_sql_selection IMPLEMENTATION.
 
 
   METHOD determine_group_by_size_async.
-    DATA: lt_sql_lines   TYPE string_table,
-          lo_count_query TYPE REF TO zcl_dbbr_sql_query.
+    DATA: lt_sql_lines                   TYPE string_table,
+          lo_count_query                 TYPE REF TO zcl_dbbr_sql_query,
+          lf_create_fallback_count_query TYPE abap_bool.
 
 
     IF sy-saprl > 751.
-      lo_count_query = create_count_query_for_cte( ).
+      TRY.
+          lo_count_query = create_count_query_for_cte( ).
+        CATCH zcx_dbbr_sql_query_error.
+          lf_create_fallback_count_query = abap_true.
+      ENDTRY.
     ELSE.
+      lf_create_fallback_count_query = abap_true.
+    ENDIF.
+
+    IF lf_create_fallback_count_query = abap_true.
       fill_select( CHANGING ct_lines = lt_sql_lines ).
       fill_from( CHANGING ct_lines = lt_sql_lines ).
       fill_where( CHANGING ct_lines = lt_sql_lines ).
@@ -419,14 +436,10 @@ CLASS zcl_dbbr_sql_selection IMPLEMENTATION.
       ( |SELECT COUNT(*) FROM +group_select| ) ).
     CONCATENATE LINES OF lt_sql_lines INTO lv_query SEPARATED BY cl_abap_char_utilities=>cr_lf.
 
-    TRY.
-        ro_query = NEW zcl_dbbr_sql_query_parser(
-            iv_query                 = lv_query
-            if_fill_log_for_messages = abap_false
-          )->parse( ).
-      CATCH zcx_dbbr_sql_query_error INTO DATA(lx_error).
-        lx_error->zif_sat_exception_message~print( ).
-    ENDTRY.
+    ro_query = NEW zcl_dbbr_sql_query_parser(
+        iv_query                 = lv_query
+        if_fill_log_for_messages = abap_false
+      )->parse( ).
   ENDMETHOD.
 
 

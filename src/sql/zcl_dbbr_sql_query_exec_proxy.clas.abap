@@ -72,6 +72,8 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
   METHOD execute_select.
     DATA: lr_query_result TYPE REF TO data.
 
+    zcl_uitb_screen_util=>show_progress( iv_text = 'Executing Query...' ).
+
     create_subroutine_code(
       EXPORTING
         iv_row_count = iv_row_count

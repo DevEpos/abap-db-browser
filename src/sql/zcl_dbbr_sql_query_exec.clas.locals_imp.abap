@@ -144,9 +144,9 @@ CLASS lcl_query_executor IMPLEMENTATION.
     CLEAR: mf_async_finished,
            ms_query_result.
 
-    zcl_dbbr_screen_helper=>show_progress( iv_text = |Query is being executed...| iv_progress = 1 ).
+    zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-001 }| iv_progress = 1 ).
 
-    CALL FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY' STARTING NEW TASK 'QUERY_EXEC' DESTINATION 'NONE'
+    CALL FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY' STARTING NEW TASK 'QUERY_EXEC'
       CALLING execute_query_finished ON END OF TASK
       EXPORTING
         is_query      = mo_query->ms_data
@@ -186,13 +186,16 @@ CLASS lcl_query_async_executor IMPLEMENTATION.
 
 
   METHOD execute_query.
-    CALL FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY' STARTING NEW TASK 'QUERY_EXEC' DESTINATION 'NONE'
+    CALL FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY' STARTING NEW TASK 'QUERY_EXEC'
       CALLING execute_query_finished ON END OF TASK
       EXPORTING
-        is_query      = mo_query->ms_data
-        iv_row_count  = mv_row_count
-        if_count_only = mf_count_only
-        it_parameters = mo_query->mt_parameters.
+        is_query              = mo_query->ms_data
+        iv_row_count          = mv_row_count
+        if_count_only         = mf_count_only
+        it_parameters         = mo_query->mt_parameters
+      EXCEPTIONS
+        communication_failure = 1
+        system_failure        = 2.
   ENDMETHOD.
 
 

@@ -1615,6 +1615,8 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
                    <lt_selection> TYPE table.
 
     " generate the program to perform the data selection
+    CLEAR mv_max_lines_existing.
+
     IF ms_technical_info-activate_alv_live_filter = abap_true OR
        if_refresh_only = abap_false.
 
