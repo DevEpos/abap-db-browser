@@ -11,16 +11,36 @@ CLASS lcl_query_executor_base DEFINITION
           iv_row_count  TYPE i
           io_query      TYPE REF TO zcl_dbbr_sql_query.
   PROTECTED SECTION.
+    TYPES:
+      BEGIN OF ty_s_tab_field_type,
+        typekind TYPE typekind,
+        length   TYPE i,
+        decimals TYPE i,
+        type_ref TYPE REF TO cl_abap_elemdescr,
+      END OF ty_s_tab_field_type,
+      ty_t_tab_field_type TYPE HASHED TABLE OF ty_s_tab_field_type WITH UNIQUE KEY typekind length decimals.
+
+    CONSTANTS:
+      c_dec_types_table  TYPE tabname VALUE 'DDDDLDECTYPES'.
+
     DATA:
       "! <p class="shorttext synchronized" lang="en">Query Result</p>
-      ms_query_result TYPE zdbbr_dp_table_data,
-      mr_query_result TYPE REF TO data,
-      mf_count_only   TYPE abap_bool,
-      mo_query        TYPE REF TO zcl_dbbr_sql_query,
-      mv_row_count    TYPE i.
+      ms_query_result    TYPE zdbbr_dp_table_data,
+      mr_query_result    TYPE REF TO data,
+      mf_count_only      TYPE abap_bool,
+      mo_query           TYPE REF TO zcl_dbbr_sql_query,
+      mt_tab_field_types TYPE ty_t_tab_field_type,
+      mv_row_count       TYPE i.
 
     METHODS:
-      process_query_result.
+      process_query_result,
+      get_fallback_type
+        IMPORTING
+          iv_type_kind  TYPE typekind
+          iv_length     TYPE i OPTIONAL
+          iv_decimals   TYPE i OPTIONAL
+        RETURNING
+          VALUE(result) TYPE REF TO cl_abap_elemdescr.
   PRIVATE SECTION.
 ENDCLASS.
 
@@ -62,4 +82,4 @@ CLASS lcl_query_async_executor DEFINITION
 ENDCLASS.
 
 
-class zcl_dbbr_sql_query_exec DEFINITION local friends lcl_query_async_executor.
+CLASS zcl_dbbr_sql_query_exec DEFINITION LOCAL FRIENDS lcl_query_async_executor.
