@@ -238,8 +238,8 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mr_alv_util TYPE REF TO zcl_dbbr_output_alv_util .
     DATA mv_source_entity_id TYPE zsat_entity_id.
     DATA mt_source_where_cond TYPE string_table.
-*    DATA mt_source_param_values TYPE zif_sat_ty_global=>ty_t_cds_param_value.
     DATA mv_source_params TYPE string.
+    DATA mo_gui_timer TYPE REF TO cl_gui_timer.
 
     "! <p class="shorttext synchronized" lang="en">Adds column for hiding rows</p>
     METHODS add_hide_flag_column .
@@ -385,6 +385,8 @@ CLASS zcl_dbbr_selection_util DEFINITION
       FOR EVENT count_query_finished OF zcl_dbbr_sql_selection
       IMPORTING
         ev_count.
+    METHODS on_timer_finished
+        FOR EVENT finished OF cl_gui_timer.
   PRIVATE SECTION.
     DATA mo_text_field_util TYPE REF TO zcl_dbbr_text_field_ui_util.
 ENDCLASS.
@@ -565,6 +567,12 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       ENDIF.
 
       CLEAR: ms_technical_info-activate_alv_live_filter.
+    ENDIF.
+
+    IF ms_technical_info-async_max_rows_determination = abap_true.
+      mo_gui_timer = NEW #( ).
+      mo_gui_timer->interval = 1.
+      SET HANDLER on_timer_finished FOR mo_gui_timer.
     ENDIF.
   ENDMETHOD.
 
@@ -1655,12 +1663,16 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
         IF mf_group_by = abap_true OR mf_aggregation = abap_true.
           IF ms_technical_info-async_max_rows_determination = abap_true.
+            mo_gui_timer->cancel( EXCEPTIONS error = 1 ).
+            mo_gui_timer->run( EXCEPTIONS error = 1 ).
             mo_sql_selection->determine_group_by_size_async( mr_t_temp_data ).
           ELSE.
             mv_max_lines_existing = mo_sql_selection->determine_size_for_group_by( mr_t_temp_data ).
           ENDIF.
         ELSE.
           IF ms_technical_info-async_max_rows_determination = abap_true.
+            mo_gui_timer->cancel( EXCEPTIONS error = 1 ).
+            mo_gui_timer->run( EXCEPTIONS error = 1 ).
             mo_sql_selection->determine_size_async( ).
           ELSE.
             mv_max_lines_existing = mo_sql_selection->determine_size( ).
@@ -2104,7 +2116,14 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   METHOD on_count_async_finished.
     mv_max_lines_existing = ev_count.
-    zcl_uitb_screen_util=>set_function_code( ).
+  ENDMETHOD.
+
+  METHOD on_timer_finished.
+    IF mv_max_lines_existing > 0.
+      zcl_uitb_screen_util=>set_function_code( ).
+    ELSE.
+      mo_gui_timer->run( EXCEPTIONS error = 1 ).
+    ENDIF.
   ENDMETHOD.
 
 ENDCLASS.
