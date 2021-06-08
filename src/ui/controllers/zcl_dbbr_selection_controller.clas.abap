@@ -1043,7 +1043,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
           ENDIF.
         ENDIF.
       CATCH zcx_dbbr_application_exc INTO DATA(lx_appl_exc).
-        MESSAGE lx_appl_exc->get_text( ) TYPE 'I' DISPLAY LIKE 'E'.
+        lx_appl_exc->zif_sat_exception_message~print( iv_msg_type = 'I' ).
     ENDTRY.
 
     rf_no_data = mf_no_data.
