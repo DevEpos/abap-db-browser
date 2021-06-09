@@ -218,10 +218,20 @@ SELECTION-SCREEN BEGIN OF SCREEN 105 AS SUBSCREEN.
     SELECTION-SCREEN COMMENT 3(50) TEXT-t24 FOR FIELD p_xigncs.
   SELECTION-SCREEN END OF LINE.
 
-  SELECTION-SCREEN BEGIN OF LINE.
-    PARAMETERS p_xamrde TYPE zdbbr_async_max_rows_det AS CHECKBOX.
-    SELECTION-SCREEN COMMENT 3(50) TEXT-t44 FOR FIELD p_xamrde.
-  SELECTION-SCREEN END OF LINE.
+  SELECTION-SCREEN BEGIN OF BLOCK row_count_settings WITH FRAME TITLE TEXT-b08 NO INTERVALS.
+    " Disable automatic max row count determination during select
+    SELECTION-SCREEN BEGIN OF LINE.
+      PARAMETERS p_xdamrd TYPE abap_bool AS CHECKBOX USER-COMMAND uc_p_xdamrd.
+      SELECTION-SCREEN COMMENT 3(50) TEXT-t45 FOR FIELD p_xdamrd.
+    SELECTION-SCREEN END OF LINE.
+
+    " Activate Asynchronous Row Count Determination
+    SELECTION-SCREEN BEGIN OF LINE.
+      PARAMETERS p_xamrde TYPE zdbbr_async_max_rows_det AS CHECKBOX.
+      SELECTION-SCREEN COMMENT 3(50) TEXT-t44 FOR FIELD p_xamrde.
+    SELECTION-SCREEN END OF LINE.
+  SELECTION-SCREEN END OF BLOCK row_count_settings.
+
 
 SELECTION-SCREEN END OF SCREEN 105.
 **********************************************************************

@@ -55,6 +55,7 @@
       <TEXT_NAME>ICON_SYSTEM_SAVE</TEXT_NAME>
       <ICON_ID>@2L@</ICON_ID>
       <FUN_TEXT>Save Settings</FUN_TEXT>
+      <ICON_TEXT>Save</ICON_TEXT>
      </RSMPE_FUNT>
     </FUN>
     <BUT>
@@ -62,7 +63,7 @@
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>01</NO>
-      <PFNO>00</PFNO>
+      <PFNO>11</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
@@ -92,6 +93,12 @@
      </RSMPE_PFK>
      <RSMPE_PFK>
       <CODE>000001</CODE>
+      <PFNO>11</PFNO>
+      <FUNCODE>SAVE</FUNCODE>
+      <FUNNO>001</FUNNO>
+     </RSMPE_PFK>
+     <RSMPE_PFK>
+      <CODE>000001</CODE>
       <PFNO>12</PFNO>
       <FUNCODE>&amp;F12</FUNCODE>
       <FUNNO>001</FUNNO>
@@ -117,6 +124,10 @@
      <RSMPE_STAF>
       <STATUS>0100</STATUS>
       <FUNCTION>OK</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>SAVE</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>0200</STATUS>

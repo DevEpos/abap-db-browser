@@ -44,12 +44,6 @@
     </item>
     <item>
      <ID>I</ID>
-     <KEY>006</KEY>
-     <ENTRY>Parameter</ENTRY>
-     <LENGTH>19</LENGTH>
-    </item>
-    <item>
-     <ID>I</ID>
      <KEY>007</KEY>
      <ENTRY>Change Parameters</ENTRY>
      <LENGTH>27</LENGTH>
@@ -200,12 +194,6 @@
     </item>
     <item>
      <ID>I</ID>
-     <KEY>032</KEY>
-     <ENTRY>Association</ENTRY>
-     <LENGTH>21</LENGTH>
-    </item>
-    <item>
-     <ID>I</ID>
      <KEY>033</KEY>
      <ENTRY>Navigate to Association</ENTRY>
      <LENGTH>46</LENGTH>
@@ -269,12 +257,6 @@
      <KEY>043</KEY>
      <ENTRY>Leave Screen (+ Transfer Layout)</ENTRY>
      <LENGTH>64</LENGTH>
-    </item>
-    <item>
-     <ID>I</ID>
-     <KEY>045</KEY>
-     <ENTRY>Show the def. Keyboard Shortc.</ENTRY>
-     <LENGTH>60</LENGTH>
     </item>
     <item>
      <ID>I</ID>
@@ -353,6 +335,18 @@
      <KEY>058</KEY>
      <ENTRY>Show all Columns</ENTRY>
      <LENGTH>26</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>059</KEY>
+     <ENTRY>No. of Entries</ENTRY>
+     <LENGTH>24</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>060</KEY>
+     <ENTRY>Determine Number of Entries</ENTRY>
+     <LENGTH>54</LENGTH>
     </item>
    </TPOOL>
    <DESCRIPTIONS>

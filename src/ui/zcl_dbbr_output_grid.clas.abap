@@ -76,7 +76,7 @@ CLASS zcl_dbbr_output_grid DEFINITION
 
     TYPES: BEGIN OF ty_s_tb_button.
              INCLUDE TYPE stb_button.
-             TYPES: fkey TYPE ui_func.
+    TYPES: fkey TYPE ui_func.
     TYPES:END OF ty_s_tb_button.
 
     CLASS-DATA gt_shortcuts_map TYPE zif_uitb_ty_gui_screen=>ty_t_fkey_map.
@@ -89,12 +89,12 @@ CLASS zcl_dbbr_output_grid DEFINITION
         VALUE(rt_buttons) TYPE ttb_button.
     "! <p class="shorttext synchronized" lang="en">Handler for toolbar build event</p>
     METHODS on_toolbar
-        FOR EVENT toolbar OF cl_gui_alv_grid
+      FOR EVENT toolbar OF cl_gui_alv_grid
       IMPORTING
         e_interactive
         e_object.
     METHODS on_toolbar_button
-        FOR EVENT toolbar_button_click OF cl_gui_alv_grid
+      FOR EVENT toolbar_button_click OF cl_gui_alv_grid
       IMPORTING
         fcode.
 
@@ -110,131 +110,134 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     gt_default_tb_buttons = VALUE #(
       ( function  = zif_dbbr_c_selection_functions=>edit_data
         icon      = icon_change
-        quickinfo = |{ 'Edit Data'(002) }|
+        quickinfo = |{ TEXT-002 }|
         fkey = zif_uitb_c_gui_screen=>c_functions-shift_f6 )
       ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>toggle_entity_info_header
         icon      = icon_overview
-        quickinfo = |{ 'Show / Hide Additional Info'(003) }|
+        quickinfo = |{ TEXT-003 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-f7 )
       ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>refresh
         icon      = icon_refresh
-        quickinfo = |{ 'Refresh'(004) }|
+        quickinfo = |{ TEXT-004 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-f8 )
       ( function  = zif_dbbr_c_selection_functions=>change_max_row_count
-        text      = |{ 'Max Entries'(001) }| quickinfo = |{ 'Change Max. Number of Entries'(005) }|
+        text      = |{ TEXT-001 }| quickinfo = |{ TEXT-005 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-f5 )
       ( function  = zif_dbbr_c_selection_functions=>change_cds_parameters
         icon      = icon_parameter_export
-        quickinfo = |{ 'Change Parameters'(007) }|
+        quickinfo = |{ TEXT-007 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-f6 )
+      ( function  = zif_dbbr_c_selection_functions=>determine_line_count
+        text      = |{ TEXT-059 }| quickinfo =  |{ TEXT-060 }|
+        fkey      = zif_uitb_c_gui_screen=>c_functions-f7 )
       ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>show_users_settings
         icon      = icon_personal_settings
-        quickinfo = |{ 'Show Settings'(008) }|
+        quickinfo = |{ TEXT-008 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f11 )
       ( butn_type = cntb_btype_sep )
       ( function  = cl_gui_alv_grid=>mc_fc_sort_asc
         icon      = icon_sort_up
-        quickinfo = |{ 'Sort Up'(009) }|
+        quickinfo = |{ TEXT-009 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f4 )
       ( function  = cl_gui_alv_grid=>mc_fc_sort_dsc
         icon      = icon_sort_down
-        quickinfo = |{ 'Sort Down'(010) }|
+        quickinfo = |{ TEXT-010 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f4 )
       ( butn_type = cntb_btype_sep )
       ( function  = cl_gui_alv_grid=>mc_fc_filter
         icon      = icon_filter
-        quickinfo = |{ 'Set Filter'(011) }|
+        quickinfo = |{ TEXT-011 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f5 )
       ( function  = zif_dbbr_c_selection_functions=>quick_filter
-        icon      = icon_select_with_condition  text = |{ 'Quick-Filter'(012) }|
-        quickinfo = |{ 'Filter with chosen Table Cells'(013) }|
+        icon      = icon_select_with_condition  text = |{ TEXT-012 }|
+        quickinfo = |{ TEXT-013 }|
         butn_type = cntb_btype_dropdown
         fkey      = zif_uitb_c_gui_screen=>c_functions-f9 )
       ( function  = cl_gui_alv_grid=>mc_fc_delete_filter
         icon      = icon_filter_undo
-        quickinfo = |{ 'Remove Filters'(014) }|
+        quickinfo = |{ TEXT-014 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f2  )
       ( function  = zif_dbbr_c_selection_functions=>transfer_filter_values
         icon      = icon_filter
-        text      = |{ 'Transfer'(016) }|
-        quickinfo = |{ 'Transfer Filters to Sel.Scrn'(015) }|
+        text      = |{ TEXT-016 }|
+        quickinfo = |{ TEXT-015 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f12 )
       ( butn_type = cntb_btype_sep )
       ( function  = cl_gui_alv_grid=>mc_fc_sum
         icon      = icon_sum
-        quickinfo = |{ 'Total'(017) }|
+        quickinfo = |{ TEXT-017 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f6 )
       ( function  = cl_gui_alv_grid=>mc_fc_subtot
         icon      = icon_intermediate_sum
-        quickinfo = |{ 'Sub Totals'(018) }|
+        quickinfo = |{ TEXT-018 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f6 )
       ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>go_to_column
         icon      = icon_next_page
-        text      = |{ 'to Column'(019) }|
-        quickinfo = |{ 'Scroll to Column'(057) }|
+        text      = |{ TEXT-019 }|
+        quickinfo = |{ TEXT-057 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f4 )
       ( function  = 'ROWS'
         icon      = icon_settings
-        text      = |{ 'Rows'(020) }|
+        text      = |{ TEXT-020 }|
         quickinfo = |{ TEXT-020 }|
         butn_type = cntb_btype_menu )
       ( function  = 'COLS'
         icon      = icon_settings
-        text      = |{ 'Columns'(021) }|
+        text      = |{ TEXT-021 }|
         quickinfo = |{ TEXT-021 }|
         butn_type = cntb_btype_menu )
       ( butn_type = cntb_btype_sep )
       ( function  = cl_gui_alv_grid=>mc_fc_call_xxl
         icon      = icon_xxl
-        text      = |{ 'Export'(022) }|
-        quickinfo = |{ 'Export data to Excel...'(023) }|
+        text      = |{ TEXT-022 }|
+        quickinfo = |{ TEXT-023 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f8 )
       ( function  = cl_gui_alv_grid=>mc_fc_current_variant
         icon      = icon_alv_variants
-        quickinfo = |{ 'Change Layout'(024) }|
+        quickinfo = |{ TEXT-024 }|
         butn_type = cntb_btype_dropdown
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f8 )
       ( function  = cl_gui_alv_grid=>mc_fc_load_variant
         icon      = icon_alv_variant_choose
-        quickinfo = |{ 'Choose Layout'(025) }|
+        quickinfo = |{ TEXT-025 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f9 )
       ( function  = cl_gui_alv_grid=>mc_fc_save_variant
         icon      = icon_alv_variant_save
-        quickinfo = |{ 'Save Layout'(026) }|
+        quickinfo = |{ TEXT-026 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f10 )
       ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>control_tech_view
         icon      = icon_active_inactive
-        text      = |{ text-027 }|
-        quickinfo = |{ 'Technical Column Names on/off'(028) }|
+        text      = |{ TEXT-027 }|
+        quickinfo = |{ TEXT-028 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f7 )
       ( function  = zif_dbbr_c_selection_functions=>compare_selected_lines
         icon      = icon_compare
-        quickinfo = |{ 'Compare selected Rows'(029) }|
+        quickinfo = |{ TEXT-029 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f7 )
       ( function  = zif_dbbr_c_selection_functions=>remove_column_grouping
         icon      = icon_delete
-        text      = |{ 'Remove Grouping'(030) }|
-        quickinfo = |{ 'Remove Column Grouping'(031) }|
+        text      = |{ TEXT-030 }|
+        quickinfo = |{ TEXT-031 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f5 )
       ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>navigate_association
         icon      = icon_workflow_fork
-        quickinfo = |{ 'Navigate to Association'(033) }|
+        quickinfo = |{ TEXT-033 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f5 )
       ( function  = zif_dbbr_c_selection_functions=>show_cds_source
         icon      = icon_biw_info_object
         text      = |{ 'Source' }|
-        quickinfo = |{ 'Show CDS Source Code'(052) }|
+        quickinfo = |{ TEXT-052 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f10 )
       ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>open_in_sql_console
         icon      = icon_edit_file
-        quickinfo = |{ 'Open in SQL Console'(056) }| )
+        quickinfo = |{ TEXT-056 }| )
       ( butn_type = cntb_btype_sep )
       ( function  = 'COPY_MENU'
         icon      = icon_system_copy
@@ -252,34 +255,34 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
 *.. Add some additional shortcut mappings for which there are no buttons
     gt_shortcuts_map = VALUE #( BASE gt_shortcuts_map
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-f2
-        text            = |{ 'Show Line Details'(046) }|  )
+        text            = |{ TEXT-046 }|  )
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f11
         mapped_function = zif_dbbr_c_selection_functions=>save_selection_as_f4
-        text            = |{ 'Save as Value Help'(047) }| )
+        text            = |{ TEXT-047 }| )
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f12
         mapped_function = zif_dbbr_c_selection_functions=>show_sql_of_select
-        text            = |{ 'Show SQL of current Selection'(048) }| )
+        text            = |{ TEXT-048 }| )
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f2
-        text            = |{ 'Hide selected Columns'(049) }| )
+        text            = |{ TEXT-049 }| )
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f1
         mapped_function = zif_dbbr_c_selection_functions=>set_focus_to_list
-        text            = |{ 'Set Focus to List'(050) }| )
+        text            = |{ TEXT-050 }| )
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f2
         mapped_function = zif_dbbr_c_selection_functions=>set_focus_to_assoc_list
-        text            = |{ 'Set Focus to Associations'(051) }| )
+        text            = |{ TEXT-051 }| )
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f9
         mapped_function = zif_dbbr_c_selection_functions=>delete_filters_from_cols
-        text            = |{ 'Delete Filters from selected Columns'(053) }| )
+        text            = |{ TEXT-053 }| )
       ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f8
         mapped_function = zif_dbbr_c_selection_functions=>copy_as_val_stmnts
-        text            = |{ 'Copy Rows as Value statement'(055) }| )
+        text            = |{ TEXT-055 }| )
     ).
 
 *.. Create and fill button menus
     DATA(lo_quickfilt_menu) = NEW cl_ctmenu( ).
     lo_quickfilt_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>quick_filter_exclusion
-        text  = |{ 'Quickfilter for Selection (Inverted)'(034) }|
+        text  = |{ TEXT-034 }|
     ).
     gt_shortcuts_map = VALUE #( BASE gt_shortcuts_map ( text            = TEXT-034
                                                         fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f9
@@ -288,25 +291,25 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     DATA(lo_rows_menu) = NEW cl_ctmenu( ).
     lo_rows_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>show_hidden_lines
-        text  = |{ 'Show hidden Rows'(035) }|
+        text  = |{ TEXT-035 }|
     ).
     lo_rows_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>delete_hidden_lines
-        text  = |{ 'Discard hidden Rows'(036) }|
+        text  = |{ TEXT-036 }|
     ).
     lo_rows_menu->add_separator( ).
     lo_rows_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>delete_colors_of_rows
-        text  = |{ 'Remove all row colors'(037) }|
+        text  = |{ TEXT-037 }|
     ).
     lo_rows_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>emphasize_negative_values
-        text  = |{ 'Mark negative values'(038) }|
+        text  = |{ TEXT-038 }|
     ).
     lo_rows_menu->add_separator( ).
     lo_rows_menu->add_function(
        fcode  = zif_dbbr_c_selection_functions=>remove_fixed_rows
-       text   = |{ 'Remove fixed rows'(054) }|
+       text   = |{ TEXT-054 }|
     ).
 
     DATA(lo_cols_menu) = NEW cl_ctmenu( ).
@@ -322,7 +325,7 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     lo_cols_menu->add_separator( ).
     lo_cols_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>group_by_selected_columns
-        text  = |{ 'Group selected Columns'(039) }|
+        text  = |{ TEXT-039 }|
     ).
     lo_cols_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>remove_column_grouping
@@ -336,26 +339,26 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     lo_cols_menu->add_separator( ).
     lo_cols_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>delete_colors_of_columns
-        text  = |{ 'Remove all column colors'(040) }|
+        text  = |{ TEXT-040 }|
     ).
     lo_cols_menu->add_separator( ).
     lo_cols_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>hide_cols_without_values
-        text  = |{ 'Hide all Columns where no values exist'(041) }|
+        text  = |{ TEXT-041 }|
     ).
     lo_cols_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>show_all_columns
-        text  = |{ 'Show all Columns'(058) }|
+        text  = |{ TEXT-058 }|
     ).
 
     DATA(lo_variant_menu) = NEW cl_ctmenu( ).
     lo_variant_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>reset_alv_layout
-        text  = |{ 'Reset ALV layout'(042) }|
+        text  = |{ TEXT-042 }|
     ).
     lo_variant_menu->add_function(
         fcode = zif_dbbr_c_selection_functions=>leave_screen_with_layout
-        text  = |{ 'Leave Screen (+ Transfer Layout)'(043) }|
+        text  = |{ TEXT-043 }|
     ).
 
     DATA(lo_copy_menu) = NEW cl_ctmenu( ).

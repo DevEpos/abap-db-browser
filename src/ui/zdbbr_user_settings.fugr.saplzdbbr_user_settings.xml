@@ -88,6 +88,12 @@
     </item>
     <item>
      <ID>I</ID>
+     <KEY>B08</KEY>
+     <ENTRY>Row Count Settings</ENTRY>
+     <LENGTH>19</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
      <KEY>S01</KEY>
      <ENTRY>DB Browser - User settings</ENTRY>
      <LENGTH>35</LENGTH>
@@ -347,8 +353,14 @@
     <item>
      <ID>I</ID>
      <KEY>T44</KEY>
-     <ENTRY>Determine Max Rows Count Asynchronously</ENTRY>
+     <ENTRY>Determine &apos;Max Rows Count&apos; Asynchronously</ENTRY>
      <LENGTH>78</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>T45</KEY>
+     <ENTRY>Disable automatic &apos;Max Row Count&apos; Determination</ENTRY>
+     <LENGTH>94</LENGTH>
     </item>
     <item>
      <ID>S</ID>

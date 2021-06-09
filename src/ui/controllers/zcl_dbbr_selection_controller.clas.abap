@@ -1403,7 +1403,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
            zif_dbbr_c_selection_functions=>navigate_association OR
            zif_dbbr_c_selection_functions=>show_cds_source OR
            zif_dbbr_c_selection_functions=>hide_other_columns OR
-           zif_dbbr_c_selection_functions=>open_in_sql_console.
+           zif_dbbr_c_selection_functions=>open_in_sql_console or
+           zif_dbbr_c_selection_functions=>determine_line_count.
         RETURN.
     ENDCASE.
 

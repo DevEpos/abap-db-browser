@@ -91,6 +91,7 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
         ignore_error_virt_elem_calc   TYPE REF TO zdbbr_user_settings_a-ignore_error_virt_elem_calc,
         color_cds_calculated_fields   TYPE REF TO zdbbr_user_settings_a-color_cds_calculated_fields,
         async_max_rows_determination  TYPE REF TO zdbbr_user_settings_a-async_max_rows_determination,
+        disable_auto_max_rows_det     TYPE REF TO zdbbr_user_settings_a-disable_auto_max_rows_det,
       END OF ms_user_settings_refs .
     DATA mf_data_changed TYPE abap_bool .
 
@@ -160,7 +161,8 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
         calculate_virtual_element     c_calculate_virtual_elements,
         ignore_error_virt_elem_calc   c_ignore_error_virt_elem_calc,
         color_cds_calculated_fields   c_color_cds_calculated_fields,
-        async_max_rows_determination  c_async_max_rows_determination.
+        async_max_rows_determination  c_async_max_rows_determination,
+        disable_auto_max_rows_det     c_disable_auto_max_rows_det.
   ENDMETHOD.
 
   METHOD initialize_screen.
@@ -246,7 +248,7 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
 
     CASE lv_function.
 
-      WHEN 'OK'.
+      WHEN 'SAVE'.
         transfer_ui_data( if_from_screen = abap_true ).
         IF mf_disable_save = abap_false.
           save_settings( ).
@@ -266,14 +268,16 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
 
     zif_uitb_screen_controller~set_status( ).
     LOOP AT SCREEN.
-***      IF screen-name = zif_dbbr_user_settings_ids=>c_search_ignore_case.
-***        screen-input = 0.
-***        MODIFY SCREEN.
-***      ENDIF.
+      IF screen-name = zif_dbbr_user_settings_ids=>c_async_max_rows_determination.
+        IF ms_user_settings_refs-disable_auto_max_rows_det->* = abap_true.
+          screen-input = 0.
+          ms_user_settings_refs-async_max_rows_determination->* = abap_false.
+          MODIFY SCREEN.
+        ENDIF.
+      ENDIF.
       IF mv_start_tab = c_tab_ids-output_tab AND
          mf_disable_save = abap_true AND
          (
-*           screen-name = 'BTN_INTR' OR
            screen-name = 'BTN_DSEL' OR
            screen-name = 'BTN_FAV' OR
            screen-name = 'BTN_SEL' OR

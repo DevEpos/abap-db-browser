@@ -1657,7 +1657,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       mv_selected_lines = lines( <lt_table> ).
 
       " determine the maximum number of lines
-      IF mv_selected_lines = ms_technical_info-max_lines.
+      IF mv_selected_lines = ms_technical_info-max_lines AND ms_technical_info-disable_auto_max_rows_det = abap_false.
 
         zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| iv_progress = 25 ).
 
@@ -1915,7 +1915,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_sel_count_text.
-    IF mf_custom_query_active = abap_true.
+    IF mf_custom_query_active = abap_true OR ms_technical_info-disable_auto_max_rows_det = abap_true.
       rv_result = |{ iv_filtered_line_count NUMBER = USER } Entries|.
     ELSE.
       DATA(lv_max_line_count) = COND #(
@@ -1930,6 +1930,9 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     IF mo_sql_selection IS NOT INITIAL.
       mo_sql_selection->unregister_evt_handlers( ).
       SET HANDLER on_count_async_finished FOR mo_sql_selection ACTIVATION space.
+      IF mo_gui_timer IS BOUND.
+        mo_gui_timer->cancel( EXCEPTIONS error = 1 ).
+      ENDIF.
     ENDIF.
   ENDMETHOD.
 
@@ -1938,17 +1941,19 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     result = VALUE #( BASE result
       ( zif_dbbr_c_selection_functions=>change_cds_parameters )
       ( zif_dbbr_c_selection_functions=>show_cds_source )
-      ( zif_dbbr_c_selection_functions=>edit_data )
-    ).
+      ( zif_dbbr_c_selection_functions=>edit_data ) ).
 
     IF mf_aggregation = abap_true OR
        mf_group_by    = abap_true.
 
-      result = VALUE #(
-       BASE result
+      result = VALUE #( BASE result
        ( zif_dbbr_c_selection_functions=>toggle_entity_info_header )
-       ( zif_dbbr_c_selection_functions=>group_by_selected_columns )
-      ).
+       ( zif_dbbr_c_selection_functions=>group_by_selected_columns ) ).
+    ENDIF.
+
+    IF ms_technical_info-disable_auto_max_rows_det = abap_false.
+      result = VALUE #( BASE result
+       ( zif_dbbr_c_selection_functions=>determine_line_count ) ).
     ENDIF.
 
     IF NOT is_f4_saving_allowed( ).
@@ -2010,6 +2015,21 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       WHEN zif_dbbr_c_selection_functions=>open_in_sql_console.
         CLEAR cv_function.
         open_in_sql_console( ).
+
+      WHEN zif_dbbr_c_selection_functions=>determine_line_count.
+        CLEAR cv_function.
+        zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-007 }| ).
+
+        TRY.
+            IF mf_group_by = abap_true OR mf_aggregation = abap_true.
+              DATA(lv_line_count) = mo_sql_selection->determine_size_for_group_by( mr_t_temp_data ).
+            ELSE.
+              lv_line_count = mo_sql_selection->determine_size( ).
+            ENDIF.
+            MESSAGE i024(zdbbr_info) WITH |{ lv_line_count NUMBER = USER }|.
+          CATCH zcx_dbbr_selection_common INTO DATA(lx_sel_error).
+            lx_sel_error->zif_sat_exception_message~print( iv_msg_type = 'I' ).
+        ENDTRY.
     ENDCASE.
   ENDMETHOD.
 

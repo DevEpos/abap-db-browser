@@ -84,7 +84,9 @@ INTERFACE zif_dbbr_user_settings_ids
   "! Type - SAP_BOOL
   CONSTANTS c_ignore_error_virt_elem_calc TYPE string VALUE 'P_IGEVEC' ##NO_TEXT.
   "! Type - SAP_BOOL
-  CONSTANTS c_color_cds_calculated_fields type string value 'P_COLCF' ##NO_TEXT.
+  CONSTANTS c_color_cds_calculated_fields TYPE string VALUE 'P_COLCF' ##NO_TEXT.
   "! Type - SAP_BOOL
-  constants c_async_max_rows_determination type string value 'P_XAMRDE' ##NO_TEXT.
+  CONSTANTS c_async_max_rows_determination TYPE string VALUE 'P_XAMRDE' ##NO_TEXT.
+  "! Type - SAP_BOOL
+  CONSTANTS c_disable_auto_max_rows_det TYPE string VALUE 'P_XDAMRD' ##NO_TEXT.
 ENDINTERFACE.
