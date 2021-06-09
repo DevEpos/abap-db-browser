@@ -1101,7 +1101,8 @@ CLASS zcl_dbbr_selscreen_table IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD select_all_group_by.
-    LOOP AT mr_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>).
+    LOOP AT mr_table_data->* ASSIGNING FIELD-SYMBOL(<ls_selfield>) WHERE is_parameter = abap_false
+                                                                     AND is_table_header = abap_false.
       <ls_selfield>-group_by = abap_true.
     ENDLOOP.
   ENDMETHOD.

@@ -434,6 +434,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
   METHOD delete_aggregations.
     mo_selection_table->delete_aggregations( ).
+    update_aggrgtd_tabfield_list( ).
   ENDMETHOD.
 
 
@@ -1752,9 +1753,11 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
           WHEN zif_dbbr_c_selscreen_functions=>select_group_by_all.
             mo_selection_table->select_all_group_by( ).
+            update_aggrgtd_tabfield_list( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>unselect_group_by_all.
             mo_selection_table->unselect_all_group_by( ).
+            update_aggrgtd_tabfield_list( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>delete_all_or_tuple.
             mo_data->clear_multi_or( ).
