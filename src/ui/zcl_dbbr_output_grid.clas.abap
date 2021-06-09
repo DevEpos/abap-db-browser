@@ -113,11 +113,6 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         quickinfo = |{ TEXT-002 }|
         fkey = zif_uitb_c_gui_screen=>c_functions-shift_f6 )
       ( butn_type = cntb_btype_sep )
-      ( function  = zif_dbbr_c_selection_functions=>toggle_entity_info_header
-        icon      = icon_overview
-        quickinfo = |{ TEXT-003 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-f7 )
-      ( butn_type = cntb_btype_sep )
       ( function  = zif_dbbr_c_selection_functions=>refresh
         icon      = icon_refresh
         quickinfo = |{ TEXT-004 }|
