@@ -7,9 +7,10 @@ CLASS lcl_query_executor_base DEFINITION
     METHODS:
       constructor
         IMPORTING
-          if_count_only TYPE abap_bool
-          iv_row_count  TYPE i
-          io_query      TYPE REF TO zcl_dbbr_sql_query.
+          if_count_only         TYPE abap_bool
+          if_show_progress_text TYPE abap_bool
+          iv_row_count          TYPE i
+          io_query              TYPE REF TO zcl_dbbr_sql_query.
   PROTECTED SECTION.
     TYPES:
       BEGIN OF ty_s_tab_field_type,
@@ -25,12 +26,13 @@ CLASS lcl_query_executor_base DEFINITION
 
     DATA:
       "! <p class="shorttext synchronized" lang="en">Query Result</p>
-      ms_query_result    TYPE zdbbr_dp_table_data,
-      mr_query_result    TYPE REF TO data,
-      mf_count_only      TYPE abap_bool,
-      mo_query           TYPE REF TO zcl_dbbr_sql_query,
-      mt_tab_field_types TYPE ty_t_tab_field_type,
-      mv_row_count       TYPE i.
+      ms_query_result       TYPE zdbbr_dp_table_data,
+      mr_query_result       TYPE REF TO data,
+      mf_count_only         TYPE abap_bool,
+      mf_show_progress_text TYPE abap_bool,
+      mo_query              TYPE REF TO zcl_dbbr_sql_query,
+      mt_tab_field_types    TYPE ty_t_tab_field_type,
+      mv_row_count          TYPE i.
 
     METHODS:
       process_query_result,

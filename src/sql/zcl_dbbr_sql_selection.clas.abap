@@ -273,9 +273,10 @@ CLASS zcl_dbbr_sql_selection IMPLEMENTATION.
 
     IF lo_count_query IS NOT INITIAL.
       zcl_dbbr_sql_query_exec=>execute_query_async(
-        io_query     = lo_count_query
+        io_query              = lo_count_query
+        if_show_progress_text = abap_false
         " we want all rows to get the full group by count
-        iv_row_count = 0 ).
+        iv_row_count          = 0 ).
     ENDIF.
   ENDMETHOD.
 
@@ -450,14 +451,15 @@ CLASS zcl_dbbr_sql_selection IMPLEMENTATION.
 
     zcl_dbbr_sql_query_exec=>execute_query(
       EXPORTING
-        io_query          = lo_count_query
-        iv_row_count      = mv_max_size
+        io_query              = lo_count_query
+        iv_row_count          = mv_max_size
+        if_show_progress_text = abap_false
       IMPORTING
-        et_data_info      = DATA(lt_data_info)
-        ev_execution_time = DATA(lv_exec_time)
-        ev_message        = DATA(lv_message)
-        ev_message_type   = DATA(lv_message_type)
-        er_data           = DATA(lr_t_result) ).
+        et_data_info          = DATA(lt_data_info)
+        ev_execution_time     = DATA(lv_exec_time)
+        ev_message            = DATA(lv_message)
+        ev_message_type       = DATA(lv_message_type)
+        er_data               = DATA(lr_t_result) ).
 
     zcl_dbbr_sql_query_exec=>get_single_value_from_result(
       EXPORTING

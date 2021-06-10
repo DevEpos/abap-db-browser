@@ -144,7 +144,9 @@ CLASS lcl_query_executor IMPLEMENTATION.
     CLEAR: mf_async_finished,
            ms_query_result.
 
-    zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-001 }| iv_progress = 1 ).
+    IF mf_show_progress_text = abap_true.
+      zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-001 }| iv_progress = 1 ).
+    ENDIF.
 
     CALL FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY' STARTING NEW TASK 'QUERY_EXEC'
       CALLING execute_query_finished ON END OF TASK
@@ -186,6 +188,10 @@ CLASS lcl_query_async_executor IMPLEMENTATION.
 
 
   METHOD execute_query.
+    IF mf_show_progress_text = abap_true.
+      zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-001 }| iv_progress = 1 ).
+    ENDIF.
+
     CALL FUNCTION 'ZDBBR_EXECUTE_SQL_QUERY' STARTING NEW TASK 'QUERY_EXEC'
       CALLING execute_query_finished ON END OF TASK
       EXPORTING

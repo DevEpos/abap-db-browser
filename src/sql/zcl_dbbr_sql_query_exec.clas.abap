@@ -19,22 +19,24 @@ CLASS zcl_dbbr_sql_query_exec DEFINITION
       "! <p class="shorttext synchronized" lang="en">Execute the entered query and display the results</p>
       execute_query
         IMPORTING
-          io_query          TYPE REF TO zcl_dbbr_sql_query
-          iv_row_count      TYPE i DEFAULT 100
-          if_count_only     TYPE abap_bool OPTIONAL
+          io_query              TYPE REF TO zcl_dbbr_sql_query
+          iv_row_count          TYPE i DEFAULT 100
+          if_count_only         TYPE abap_bool OPTIONAL
+          if_show_progress_text TYPE abap_bool DEFAULT abap_true
         EXPORTING
-          et_data_info      TYPE zdbbr_dp_col_metadata_t
-          ev_execution_time TYPE string
-          ev_message        TYPE string
-          ev_message_type   TYPE sy-msgty
-          ev_line_count     TYPE zdbbr_no_of_lines
-          er_data           TYPE REF TO data,
+          et_data_info          TYPE zdbbr_dp_col_metadata_t
+          ev_execution_time     TYPE string
+          ev_message            TYPE string
+          ev_message_type       TYPE sy-msgty
+          ev_line_count         TYPE zdbbr_no_of_lines
+          er_data               TYPE REF TO data,
       "! <p class="shorttext synchronized" lang="en">Execute the entered query asynchronoulsy</p>
       execute_query_async
         IMPORTING
-          io_query      TYPE REF TO zcl_dbbr_sql_query
-          iv_row_count  TYPE i DEFAULT 100
-          if_count_only TYPE abap_bool OPTIONAL,
+          io_query              TYPE REF TO zcl_dbbr_sql_query
+          iv_row_count          TYPE i DEFAULT 100
+          if_count_only         TYPE abap_bool OPTIONAL
+          if_show_progress_text TYPE abap_bool DEFAULT abap_true,
       "! <p class="shorttext synchronized" lang="en">Retrieves single column value from result</p>
       get_single_value_from_result
         IMPORTING
@@ -65,9 +67,10 @@ CLASS zcl_dbbr_sql_query_exec IMPLEMENTATION.
           ls_check_result TYPE zdbbr_dp_check_result.
 
     DATA(lo_executor) = NEW lcl_query_executor(
-      io_query      = io_query
-      iv_row_count  = iv_row_count
-      if_count_only = if_count_only ).
+      io_query              = io_query
+      iv_row_count          = iv_row_count
+      if_count_only         = if_count_only
+      if_show_progress_text = if_show_progress_text ).
     lo_executor->execute_query(
       IMPORTING
         et_data_info      = et_data_info
@@ -81,9 +84,10 @@ CLASS zcl_dbbr_sql_query_exec IMPLEMENTATION.
 
   METHOD execute_query_async.
     DATA(lo_executor) = NEW lcl_query_async_executor(
-      io_query      = io_query
-      iv_row_count  = iv_row_count
-      if_count_only = if_count_only ).
+      io_query              = io_query
+      iv_row_count          = iv_row_count
+      if_count_only         = if_count_only
+      if_show_progress_text = if_show_progress_text ).
     lo_executor->execute_query( ).
   ENDMETHOD.
 
