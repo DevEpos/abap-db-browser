@@ -131,7 +131,10 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
     DATA: ls_datel    TYPE dfies,
           lv_rollname TYPE rollname.
 
-    DATA(lr_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
+    DATA(lo_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
+    lo_addtext_bl->determine_text_fields(
+      iv_entity      = io_cds_view->mv_view_name
+      iv_entity_type = zif_sat_c_entity_type=>cds_view ).
     DATA(lo_altcoltext_f) = NEW zcl_dbbr_altcoltext_factory( ).
 
     DATA(lt_annotation) = io_cds_view->get_annotations(
@@ -150,8 +153,8 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
       ).
 
       DATA(ls_altcoltext) = lo_altcoltext_f->find_alternative_text(
-          iv_tabname   = <ls_column>-strucobjn
-          iv_fieldname = <ls_column>-fieldname
+        iv_tabname   = <ls_column>-strucobjn
+        iv_fieldname = <ls_column>-fieldname
       ).
 
       DATA(ls_tabfield) = VALUE zdbbr_tabfield_info_ui(
@@ -191,11 +194,6 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
 *... get additional information from rollname
       IF ls_tabfield-rollname IS NOT INITIAL.
         ls_datel = zcl_sat_ddic_repo_access=>get_dfies_info_for_rollname( ls_tabfield-rollname ).
-        lr_addtext_bl->determine_t_flds_for_cds_field(
-            iv_cds_view      = io_cds_view->mv_view_name
-            iv_cds_field     = <ls_column>-fieldname
-            is_tabfield_info = ls_datel
-        ).
         ls_tabfield-domname = ls_datel-domname.
         ls_tabfield-is_lowercase = ls_datel-lowercase.
         ls_tabfield-outputlen = ls_datel-outputlen.
@@ -228,13 +226,13 @@ CLASS zcl_dbbr_cds_tabfield_util IMPLEMENTATION.
       DATA(lr_new_field) = CAST zdbbr_tabfield_info_ui( ir_tabfield_list->zif_uitb_data_ref_list~add( REF #( ls_tabfield ) ) ).
 
       IF ls_datel IS NOT INITIAL
-        AND lr_addtext_bl->text_exists( VALUE #( tabname = io_cds_view->mv_view_name fieldname = ls_tabfield-fieldname ) ).
+        AND lo_addtext_bl->text_exists( VALUE #( tabname = io_cds_view->mv_view_name fieldname = ls_tabfield-fieldname ) ).
 
-        lr_addtext_bl->add_text_fields_to_list(
-          ir_tabfields  = ir_tabfield_list
+        lo_addtext_bl->add_text_fields_to_list(
+          ir_tabfields    = ir_tabfield_list
           is_ref_tabfield = ls_tabfield
-          iv_position   = ls_tabfield-ddic_order
-          is_altcoltext = VALUE #( )
+          iv_position     = ls_tabfield-ddic_order
+          is_altcoltext   = VALUE #( )
         ).
 
 *...... connect text field and key field

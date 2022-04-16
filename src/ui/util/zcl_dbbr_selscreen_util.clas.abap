@@ -730,8 +730,6 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
     DATA(lo_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
 
-    lo_addtext_bl->determine_t_fields_for_tab( is_tabfield_info = is_field ).
-
     IF ls_altcoltext-alt_long_text IS NOT INITIAL.
       ls_tabfield-field_ddtext = ls_altcoltext-alt_long_text.
     ENDIF.
@@ -782,6 +780,9 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
     DATA(lr_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
     lr_addtext_bl->determine_manual_text_fields( is_entity_info-tabname ).
+    lr_addtext_bl->determine_text_fields(
+      iv_entity      = is_entity_info-tabname
+      iv_entity_type = is_entity_info-type ).
 
     DATA(lf_first_non_key_field) = abap_false.
 

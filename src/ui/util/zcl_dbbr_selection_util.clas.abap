@@ -936,7 +936,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         IF ls_field-convexit <> space.
           ls_field-no_convext = abap_true.
           CLEAR ls_field-edit_mask.
-          ls_field-convexit = 'EMPTY'.
         ENDIF.
       ELSE. " use conversion exit
         IF  ls_field-convexit = space.
