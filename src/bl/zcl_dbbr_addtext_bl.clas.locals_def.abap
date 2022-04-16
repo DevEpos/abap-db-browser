@@ -86,7 +86,7 @@ CLASS lcl_text_field_reader_base DEFINITION
 
     METHODS:
       determine_f_w_shlp,
-      determine_f_w_fixed_val_shlp,
+      determine_f_w_fixed_val_shlp abstract,
       determine_f_w_dtel_shlp,
       determine_text_table_fields,
       fill_text_field_infos
@@ -108,6 +108,7 @@ CLASS lcl_cds_text_field_reader DEFINITION
   PROTECTED SECTION.
     METHODS:
       determine_fields REDEFINITION,
+      determine_f_w_fixed_val_shlp REDEFINITION,
       select_f_w_dtel_shlp REDEFINITION.
   PRIVATE SECTION.
 
@@ -122,6 +123,7 @@ CLASS lcl_table_text_field_reader DEFINITION
   PROTECTED SECTION.
     METHODS:
       determine_fields REDEFINITION,
+      determine_f_w_fixed_val_shlp REDEFINITION,
       select_f_w_dtel_shlp REDEFINITION.
   PRIVATE SECTION.
 

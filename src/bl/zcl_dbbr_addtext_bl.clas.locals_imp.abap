@@ -135,16 +135,6 @@ CLASS lcl_text_field_reader_base IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD determine_f_w_fixed_val_shlp.
-    SELECT fieldname
-      FROM dd03l AS field
-      WHERE tabname = @mv_entity
-        AND shlporigin = @c_shlporigin-fixed_values
-        AND as4local = 'A'
-      INTO CORRESPONDING FIELDS OF TABLE @mt_field_with_fix_val_shlp.
-  ENDMETHOD.
-
-
   METHOD determine_f_w_dtel_shlp.
     DATA(lt_f_w_dtel_shlp) = select_f_w_dtel_shlp( ).
 
@@ -239,6 +229,16 @@ CLASS lcl_cds_text_field_reader IMPLEMENTATION.
       INTO CORRESPONDING FIELDS OF TABLE @rt_result.
   ENDMETHOD.
 
+
+  METHOD determine_f_w_fixed_val_shlp.
+    SELECT fieldname
+      FROM dd03nd AS field
+      WHERE strucobjn = @mv_entity
+        AND shlporigin = @c_shlporigin-fixed_values
+        AND as4local = 'A'
+      INTO CORRESPONDING FIELDS OF TABLE @mt_field_with_fix_val_shlp.
+  ENDMETHOD.
+
 ENDCLASS.
 
 
@@ -251,6 +251,16 @@ CLASS lcl_table_text_field_reader IMPLEMENTATION.
       FROM dd03l
       WHERE tabname = @mv_entity
       INTO CORRESPONDING FIELDS OF TABLE @mt_fields.
+  ENDMETHOD.
+
+
+  METHOD determine_f_w_fixed_val_shlp.
+    SELECT fieldname
+      FROM dd03l AS field
+      WHERE tabname = @mv_entity
+        AND shlporigin = @c_shlporigin-fixed_values
+        AND as4local = 'A'
+      INTO CORRESPONDING FIELDS OF TABLE @mt_field_with_fix_val_shlp.
   ENDMETHOD.
 
 
