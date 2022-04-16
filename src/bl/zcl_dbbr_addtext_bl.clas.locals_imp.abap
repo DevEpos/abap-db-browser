@@ -22,7 +22,8 @@ CLASS lcl_text_field_reader_base IMPLEMENTATION.
 
 
   METHOD determine_text_fields.
-    DELETE ct_addtext WHERE id_table = mv_entity.
+    DELETE ct_addtext WHERE id_table = mv_entity
+                        AND addtext_id IS INITIAL.
 
     determine_fields( ).
     determine_f_w_shlp( ).
