@@ -182,7 +182,9 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
     zcl_sat_ddic_repo_access=>get_table_field_infos( EXPORTING iv_tablename    = is_entity_info-tabname
                                                      IMPORTING et_table_fields = DATA(lt_dfies) ).
 
-    zcl_dbbr_addtext_bl=>get_instance( )->determine_text_flds_for_tab( is_entity_info-tabname ).
+    zcl_dbbr_addtext_bl=>get_instance( )->determine_text_fields(
+      iv_entity      = is_entity_info-tabname
+      iv_entity_type = is_entity_info-type ).
 
     " build tablefield table
     LOOP AT lt_dfies ASSIGNING FIELD-SYMBOL(<ls_data_element_field>) WHERE datatype <> 'CLNT'.

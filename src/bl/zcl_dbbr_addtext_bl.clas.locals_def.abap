@@ -1,21 +1,34 @@
 *"* use this source file for any type of declarations (class
 *"* definitions, interfaces or type declarations) you need for
 *"* components in the private section
-
 CLASS lcl_text_field_reader DEFINITION
+  CREATE PRIVATE.
+
+  PUBLIC SECTION.
+    CLASS-METHODS:
+      determine_text_fields
+        IMPORTING
+          iv_entity      TYPE zsat_entity_id
+          iv_entity_type TYPE zsat_entity_type
+        CHANGING
+          ct_addtext     TYPE zdbbr_addtext_data_itab.
+ENDCLASS.
+
+
+CLASS lcl_text_field_reader_base DEFINITION
+  ABSTRACT
   CREATE PUBLIC.
 
   PUBLIC SECTION.
     METHODS:
       constructor
         IMPORTING
-          iv_tabname TYPE tabname,
+          iv_entity TYPE tabname,
 
       determine_text_fields
         CHANGING
           ct_addtext TYPE zdbbr_addtext_data_itab.
   PROTECTED SECTION.
-  PRIVATE SECTION.
     CONSTANTS:
       BEGIN OF c_shlporigin,
         explicit         TYPE shlporigin VALUE 'X',
@@ -53,6 +66,8 @@ CLASS lcl_text_field_reader DEFINITION
         texttab             TYPE dd30l-texttab,
       END OF ty_dtel_shlp,
 
+      ty_t_dtel_shlp TYPE TABLE OF ty_dtel_shlp WITH EMPTY KEY,
+
       BEGIN OF ty_text_table_field,
         tabname   TYPE tabname,
         fieldname TYPE fieldname,
@@ -61,7 +76,7 @@ CLASS lcl_text_field_reader DEFINITION
       END OF ty_text_table_field.
 
     DATA:
-      mv_tabname                 TYPE tabname,
+      mv_entity                  TYPE zsat_entity_id,
       mt_fields                  TYPE TABLE OF ty_field_data,
       mt_field_with_shlp         TYPE SORTED TABLE OF ty_field_w_shlp WITH UNIQUE KEY fieldname,
       mt_field_with_fix_val_shlp TYPE SORTED TABLE OF ty_field_w_fixed_val_shlp WITH UNIQUE KEY fieldname,
@@ -69,12 +84,45 @@ CLASS lcl_text_field_reader DEFINITION
       mt_text_table_field        TYPE SORTED TABLE OF ty_text_table_field WITH UNIQUE KEY tabname fieldname
                                                                      WITH NON-UNIQUE SORTED KEY lang COMPONENTS tabname datatype.
 
-    METHODS: determine_f_w_shlp,
+    METHODS:
+      determine_f_w_shlp,
       determine_f_w_fixed_val_shlp,
       determine_f_w_dtel_shlp,
       determine_text_table_fields,
       fill_text_field_infos
         CHANGING
           cs_text_field TYPE zdbbr_addtext_data,
-      determine_fields.
+      determine_fields ABSTRACT,
+      select_f_w_dtel_shlp ABSTRACT
+        RETURNING
+          VALUE(rt_result) TYPE ty_t_dtel_shlp.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+CLASS lcl_cds_text_field_reader DEFINITION
+  CREATE PUBLIC
+  INHERITING FROM lcl_text_field_reader_base.
+
+  PUBLIC SECTION.
+  PROTECTED SECTION.
+    METHODS:
+      determine_fields REDEFINITION,
+      select_f_w_dtel_shlp REDEFINITION.
+  PRIVATE SECTION.
+
+ENDCLASS.
+
+
+CLASS lcl_table_text_field_reader DEFINITION
+  CREATE PUBLIC
+  INHERITING FROM lcl_text_field_reader_base.
+
+  PUBLIC SECTION.
+  PROTECTED SECTION.
+    METHODS:
+      determine_fields REDEFINITION,
+      select_f_w_dtel_shlp REDEFINITION.
+  PRIVATE SECTION.
+
 ENDCLASS.
