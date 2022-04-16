@@ -38,25 +38,31 @@ CLASS zcl_dbbr_addtext_bl DEFINITION
         iv_cds_view      TYPE zsat_cds_view_name
         iv_cds_field     TYPE fieldname
         is_tabfield_info TYPE dfies .
-    "! <p class="shorttext synchronized" lang="en">Determine text fields for table</p>
+    "! <p class="shorttext synchronized" lang="en">[OBSOLETE] Determine text fields for table</p>
     "!
     METHODS determine_t_fields_for_tab
       IMPORTING
         is_tabfield_info TYPE dfies OPTIONAL.
+    "! <p class="shorttext synchronized" lang="en">Determines text fields for table (new)</p>
+    METHODS determine_text_flds_for_tab
+      IMPORTING
+        iv_tabname TYPE tabname.
+
     "! <p class="shorttext synchronized" lang="en">Determines manually created text fields for table</p>
     METHODS determine_manual_text_fields
       IMPORTING
         iv_entity TYPE tabname.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    TYPES: BEGIN OF ty_text_tab_map,
-             checktable    TYPE tabname,
-             no_text_table TYPE abap_bool,
-             texttable     TYPE tabname,
-             keyfield      TYPE fieldname,
-             textfield     TYPE fieldname,
-             sprasfield    TYPE fieldname,
-           END OF ty_text_tab_map.
+    TYPES:
+      BEGIN OF ty_text_tab_map,
+        checktable    TYPE tabname,
+        no_text_table TYPE abap_bool,
+        texttable     TYPE tabname,
+        keyfield      TYPE fieldname,
+        textfield     TYPE fieldname,
+        sprasfield    TYPE fieldname,
+      END OF ty_text_tab_map.
 
     DATA mt_text_table_map TYPE HASHED TABLE OF ty_text_tab_map WITH UNIQUE KEY checktable.
     DATA mt_addtext_info TYPE zdbbr_addtext_data_itab.
@@ -241,8 +247,10 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
 
         " retrieve the first non-key field from the text table
         zcl_sat_ddic_repo_access=>get_table_field_infos(
-          EXPORTING iv_tablename    = lv_text_tab
-          IMPORTING et_table_fields = DATA(lt_text_table_fields)
+          EXPORTING
+            iv_tablename    = lv_text_tab
+          IMPORTING
+            et_table_fields = DATA(lt_text_table_fields)
         ).
 
         DATA(lv_language_field) = VALUE #( lt_text_table_fields[ datatype = 'LANGU' ]-fieldname OPTIONAL ).
@@ -341,6 +349,11 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD determine_text_flds_for_tab.
+    NEW lcl_text_field_reader( iv_tabname )->determine_text_fields( CHANGING ct_addtext = mt_addtext_info ).
+  ENDMETHOD.
+
+
   METHOD get_instance.
     IF sr_instance IS INITIAL.
       sr_instance = NEW #( ).
@@ -353,9 +366,8 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
   METHOD get_text_fields.
     rt_text_info = FILTER #(
       mt_addtext_info USING KEY key_for_source
-      WHERE id_table = CONV #( iv_tablename )
-        AND id_field = iv_fieldname
-    ).
+      WHERE id_table = iv_tablename
+        AND id_field = iv_fieldname ).
   ENDMETHOD.
 
 
@@ -372,8 +384,8 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
     " 1) try getting text field through f4 information defined at the data element
     IF ms_dtel_info-f4availabl = abap_true.
       DATA(ls_f4_infos) = zcl_dbbr_f4_helper=>get_f4_infos(
-          iv_fieldname = ms_dtel_info-fieldname
-          iv_tablename = ms_dtel_info-tabname
+        iv_fieldname = ms_dtel_info-fieldname
+        iv_tablename = ms_dtel_info-tabname
       ).
 
       IF ls_f4_infos IS NOT INITIAL.
@@ -400,5 +412,6 @@ CLASS zcl_dbbr_addtext_bl IMPLEMENTATION.
       <ls_addtext_info>-selection_type = zif_dbbr_c_text_selection_type=>text_table.
     ENDLOOP.
   ENDMETHOD.
+
 
 ENDCLASS.
