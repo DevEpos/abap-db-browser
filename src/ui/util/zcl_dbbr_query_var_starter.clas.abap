@@ -20,7 +20,6 @@ CLASS zcl_dbbr_query_var_starter DEFINITION
     DATA ms_join_def TYPE zdbbr_join_def.
     DATA mt_table_list TYPE zdbbr_query_data-tables.
     DATA ms_query TYPE zdbbr_query_data.
-    DATA: mo_formula TYPE REF TO zcl_dbbr_formula.
 
     "! <p class="shorttext synchronized" lang="en">Handle join entities</p>
     "!
@@ -129,25 +128,6 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
       ENDIF.
     ENDWHILE.
 
-    IF ms_query-formula IS NOT INITIAL.
-      TRY.
-          mo_formula = NEW zcl_dbbr_fe_validator(
-              iv_formula   = ms_query-formula
-              io_tabfields = mo_tabfield_list
-          )->validate( ).
-
-          zcl_dbbr_formula_helper=>update_tabflds_from_formula(
-              ir_tabfields      = mo_tabfield_list
-              ir_formula        = mo_formula
-              it_form_selfields = ms_query-fields
-          ).
-
-        CATCH zcx_dbbr_formula_exception.
-          mo_tabfield_list->clear_calculation_flag( ).
-          mo_tabfield_list->delete_formula_fields( ).
-          CLEAR ms_query-formula.
-      ENDTRY.
-    ENDIF.
   ENDMETHOD.
 
   METHOD load_query.
@@ -192,7 +172,6 @@ CLASS zcl_dbbr_query_var_starter IMPLEMENTATION.
            ( zif_dbbr_c_selection_functions=>leave_screen_with_layout )
            ( zif_dbbr_c_selection_functions=>transfer_filter_values   )
          )
-         formula            = COND #( WHEN mo_formula IS BOUND AND mo_formula->has_executable_code( ) THEN  mo_formula )
        )
     ).
 

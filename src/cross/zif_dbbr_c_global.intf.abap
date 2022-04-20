@@ -1,6 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">Global constants</p>
 INTERFACE zif_dbbr_c_global
-  PUBLIC .
+  PUBLIC.
 
   CONSTANTS:
     "! Important domain names
@@ -45,13 +45,7 @@ INTERFACE zif_dbbr_c_global
     BEGIN OF c_jump_call_types,
       normal         TYPE zdbbr_jump_target_type VALUE 'N',
       start_new_mode TYPE zdbbr_jump_target_type VALUE 'T',
-    END OF c_jump_call_types ,
-
-    "! Types of form fields
-    BEGIN OF c_formfield_types,
-      calculation TYPE zdbbr_formfield_type VALUE 'CALC',
-      icon        TYPE zdbbr_formfield_type VALUE 'ICON',
-    END OF c_formfield_types ,
+    END OF c_jump_call_types,
 
     "! Display modes<br/>
     "! To be used in dialogs

@@ -1267,7 +1267,6 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         ( zif_dbbr_c_selscreen_functions=>edit_jump_fields )
         ( zif_dbbr_c_selscreen_functions=>multi_or_selection )
         ( zif_dbbr_c_selscreen_functions=>save_query )
-        ( zif_dbbr_c_selscreen_functions=>show_formula_manager )
         ( zif_dbbr_c_selscreen_functions=>show_ddls_source )
         ( zif_dbbr_c_selscreen_functions=>go_to_ddic_view_of_cds )
         ( zif_dbbr_c_selscreen_functions=>open_cds_view_with_adt )
@@ -1289,7 +1288,6 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
           ( zif_dbbr_c_selscreen_functions=>assign_built_in_f4_at_field )
           ( zif_dbbr_c_selscreen_functions=>delete_f4_from_field )
           ( zif_dbbr_c_selscreen_functions=>multi_or_selection )
-          ( zif_dbbr_c_selscreen_functions=>show_formula_manager )
         ).
       ENDIF.
 

@@ -308,18 +308,6 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
 
     create_dynamic_table( ).
 
-    IF mo_formula IS BOUND.
-      TRY.
-          mo_formula_calculator = zcl_dbbr_formula_calculator=>create(
-              ir_formula            = mo_formula
-              ir_tabfields          = mo_tabfields
-              it_tab_components     = mt_dyntab_components
-          ).
-        CATCH zcx_dbbr_exception INTO DATA(lr_exception).
-          lr_exception->zif_sat_exception_message~print( ).
-      ENDTRY.
-    ENDIF.
-
   ENDMETHOD.
 
   METHOD after_selection.

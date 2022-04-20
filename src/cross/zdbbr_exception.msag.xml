@@ -137,18 +137,6 @@
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZDBBR_EXCEPTION</ARBGB>
-     <MSGNR>021</MSGNR>
-     <TEXT>Error in text definition of formula field: &amp;1&amp;2&amp;3&amp;4</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
-     <MSGNR>022</MSGNR>
-     <TEXT>Error in definition of a formula field: &amp;1&amp;2&amp;3&amp;4</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
      <MSGNR>023</MSGNR>
      <TEXT>Error in definition of an icon field: &amp;1&amp;2&amp;3&amp;4</TEXT>
     </T100>
@@ -157,42 +145,6 @@
      <ARBGB>ZDBBR_EXCEPTION</ARBGB>
      <MSGNR>024</MSGNR>
      <TEXT>Unknown Key Word &amp;1 detected</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
-     <MSGNR>025</MSGNR>
-     <TEXT>Type of formula field must be given in form of &apos;Table-Field&apos;</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
-     <MSGNR>026</MSGNR>
-     <TEXT>No formula field extractor for key word &apos;&amp;1&apos; found</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
-     <MSGNR>027</MSGNR>
-     <TEXT>Formula field &amp;1 was not defined</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
-     <MSGNR>028</MSGNR>
-     <TEXT>There already is a formula field with the name &amp;1</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
-     <MSGNR>029</MSGNR>
-     <TEXT>At least 1 formula field has to be defined in the formula</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
-     <MSGNR>030</MSGNR>
-     <TEXT>Formula field &amp;1 does not match the template &amp;2</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -211,12 +163,6 @@
      <ARBGB>ZDBBR_EXCEPTION</ARBGB>
      <MSGNR>033</MSGNR>
      <TEXT>There is no icon with the name &amp;l</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
-     <MSGNR>034</MSGNR>
-     <TEXT>The formula does not contain any executable lines of code</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>
@@ -265,12 +211,6 @@
      <ARBGB>ZDBBR_EXCEPTION</ARBGB>
      <MSGNR>042</MSGNR>
      <TEXT>General error during Tree processing</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_EXCEPTION</ARBGB>
-     <MSGNR>043</MSGNR>
-     <TEXT>Query cannot be saved due to an invalid Formula definition</TEXT>
     </T100>
     <T100>
      <SPRSL>E</SPRSL>

@@ -418,14 +418,6 @@ CLASS zcl_dbbr_field_output_tree IMPLEMENTATION.
           text             = 'Text Fields'
           quickinfo        = 'Add Missing Text Fields'
       ).
-
-      mo_toolbar->add_button(
-          fcode            = c_fcode-insert_form_fields    " fcode associated to a button
-          icon             = icon_biw_formula    " icon name defined like '@0a@'
-          butn_type        = cntb_btype_button
-          text             = 'Formula Fields'
-          quickinfo        = 'Add Missing Formula'
-      ).
     ENDIF.
 
     lt_events = VALUE #(

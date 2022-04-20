@@ -8233,36 +8233,30 @@
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
       <NO>23</NO>
-      <PFNO>35</PFNO>
-     </RSMPE_BUT>
-     <RSMPE_BUT>
-      <PFK_CODE>000001</PFK_CODE>
-      <CODE>0001</CODE>
-      <NO>24</NO>
       <PFNO>48</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>25</NO>
+      <NO>24</NO>
       <PFNO>S</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>26</NO>
+      <NO>25</NO>
       <PFNO>32</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>27</NO>
+      <NO>26</NO>
       <PFNO>S</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
       <CODE>0001</CODE>
-      <NO>28</NO>
+      <NO>27</NO>
       <PFNO>36</PFNO>
      </RSMPE_BUT>
      <RSMPE_BUT>
@@ -10071,12 +10065,6 @@
       <CODE>000001</CODE>
       <PFNO>33</PFNO>
       <FUNCODE>MULTI_OR</FUNCODE>
-      <FUNNO>001</FUNNO>
-     </RSMPE_PFK>
-     <RSMPE_PFK>
-      <CODE>000001</CODE>
-      <PFNO>35</PFNO>
-      <FUNCODE>FF_MANAGER</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
      <RSMPE_PFK>

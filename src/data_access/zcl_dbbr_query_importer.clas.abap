@@ -74,9 +74,6 @@ CLASS zcl_dbbr_query_importer IMPLEMENTATION.
         REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN <ls_query>-source WITH cl_abap_char_utilities=>cr_lf.
       ENDIF.
 
-      IF <ls_query>-formula IS NOT INITIAL.
-        REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN <ls_query>-formula WITH cl_abap_char_utilities=>cr_lf.
-      ENDIF.
     ENDLOOP.
   ENDMETHOD.
 

@@ -65,12 +65,6 @@ CLASS zcl_dbbr_selscreen_data DEFINITION
     METHODS get_custom_f4_map
       RETURNING
         VALUE(result) TYPE REF TO zcl_dbbr_custom_f4_map .
-    METHODS get_formula
-      RETURNING
-        VALUE(result) TYPE REF TO zcl_dbbr_formula .
-    METHODS set_formula
-      IMPORTING
-        !value TYPE REF TO zcl_dbbr_formula .
     METHODS get_multi_or_all
       RETURNING
         VALUE(result) TYPE REF TO zdbbr_or_seltab_itab .
@@ -114,7 +108,6 @@ CLASS zcl_dbbr_selscreen_data DEFINITION
     DATA mt_multi_or_all TYPE zdbbr_or_seltab_itab .
     DATA mf_join_is_active TYPE abap_bool .
     DATA mf_group_fields_updated TYPE abap_bool .
-    DATA mo_formula TYPE REF TO zcl_dbbr_formula .
     DATA mv_mode TYPE zdbbr_selscreen_mode .
 ENDCLASS.
 
@@ -142,8 +135,7 @@ CLASS zcl_dbbr_selscreen_data IMPLEMENTATION.
            mr_v_variant_name->*,
            mr_v_seltable_counter_text->*,
            mr_s_query_info->*,
-           mr_s_join_def->*,
-           mo_formula.
+           mr_s_join_def->*.
 
     mo_custom_f4_map->clear( ).
     mo_selection_table->clear( ).
@@ -214,11 +206,6 @@ CLASS zcl_dbbr_selscreen_data IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_formula.
-    result = mo_formula.
-  ENDMETHOD.
-
-
   METHOD get_mode.
     result = mv_mode.
   ENDMETHOD.
@@ -251,11 +238,6 @@ CLASS zcl_dbbr_selscreen_data IMPLEMENTATION.
 
   METHOD is_table_mode.
     result = xsdbool( mv_mode = zif_dbbr_c_selscreen_mode=>table ).
-  ENDMETHOD.
-
-
-  METHOD set_formula.
-    mo_formula = value.
   ENDMETHOD.
 
 

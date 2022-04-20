@@ -173,7 +173,6 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
         join_def          = ms_join_def
         fields            = lt_fields
         tables            = CORRESPONDING #( mr_tabfield_list->get_table_list( ) )
-        formula           = ms_query_info-formula
     ).
 
     DATA(lv_new_query_id) = mr_query_f->save_query( ls_query_data ).

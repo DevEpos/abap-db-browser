@@ -182,7 +182,6 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
         !iv_current_line TYPE sy-tabix
         !iv_option       TYPE char2
         !iv_sign         TYPE char1 .
-    METHODS show_formula_editor .
     "! <p class="shorttext synchronized" lang="en">Shows/hides navigation history</p>
     METHODS show_history
       IMPORTING
@@ -527,8 +526,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 *.. Do some pre validation of the current entity
     CHECK mo_util->can_execute(  ).
 
-    DATA(lr_formula) = mo_data->get_formula( ).
-
     refresh_alternative_texts( mo_data->mo_tabfield_list ).
     ASSIGN mo_data->mo_tabfield_list TO <lr_tabfields_all>.
 
@@ -537,22 +534,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       refresh_alternative_texts( <lr_tabfields> ).
     ELSE.
       ASSIGN mo_data->mo_tabfield_list TO <lr_tabfields>.
-    ENDIF.
-
-    " check if there is at least one formula field that will be shown
-    DATA(lr_table_searcher) = NEW zcl_uitb_table_func_executor( ir_table = <lr_tabfields>->get_fields_ref( ) ).
-    IF lr_formula IS BOUND AND lr_formula->is_valid( ).
-      DATA(lv_form_field_output_count) = lr_table_searcher->count_lines(
-        it_field_selopts = VALUE #(
-          ( fieldname   = 'IS_FORMULA_FIELD'
-            selopt_itab = VALUE #( ( sign = 'I' option = 'EQ' low = abap_true ) ) )
-          ( fieldname   = 'OUTPUT_ACTIVE'
-            selopt_itab = VALUE #( ( sign = 'I' option = 'EQ' low = abap_true ) ) )
-        )
-      ).
-
-      DATA(lr_valid_formula) = COND #( WHEN lv_form_field_output_count > 0 OR
-                                          lr_formula->has_executable_code( ) THEN lr_formula ).
     ENDIF.
 
     DATA(lt_selfields) = mo_selection_table->get_data( ).
@@ -593,7 +574,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
               tabfields            = <lr_tabfields>->copy( )
               tabfields_all        = <lr_tabfields_all>->copy( )
               join_def             = mo_data->mr_s_join_def->*
-              formula              = lr_valid_formula
           )
         ).
 
@@ -1028,23 +1008,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD save_query.
-    DATA(lr_formula) = mo_data->get_formula( ).
-
-    IF lr_formula IS BOUND.
-      TRY .
-          NEW zcl_dbbr_fe_validator(
-              iv_formula   = lr_formula->get_formula_string( )
-              io_tabfields = mo_data->mo_tabfield_list
-          )->validate( ).
-
-          mo_data->mr_s_query_info->formula = lr_formula->get_formula_string( ).
-        CATCH zcx_dbbr_formula_exception.
-          MESSAGE i043(zdbbr_exception) DISPLAY LIKE 'E'.
-          RETURN.
-      ENDTRY.
-    ELSE.
-      CLEAR mo_data->mr_s_query_info->formula.
-    ENDIF.
 
     DATA(lr_save_query_controller) = NEW zcl_dbbr_save_query_ctrl(
       ir_tabfield_list     = mo_data->mo_tabfield_list->copy( )
@@ -1264,43 +1227,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
     mo_data->mr_t_table_data->*[ iv_current_line ]-option = iv_option.
     mo_data->mr_t_table_data->*[ iv_current_line ]-sign = iv_sign.
-  ENDMETHOD.
-
-
-  METHOD show_formula_editor.
-
-    DATA(lo_tabfields) = mo_data->mo_tabfield_list.
-    lo_tabfields->update_tables( ).
-
-    DATA(lo_formula) = mo_data->get_formula( ).
-
-    DATA(lo_formula_editor) = NEW zcl_dbbr_formula_editor(
-      io_tabfield_list = lo_tabfields
-      is_join_def      = mo_data->mr_s_join_def->*
-      iv_display_mode  = zif_dbbr_c_global=>c_display_modes-edit
-      iv_formula       = COND #( WHEN lo_formula IS BOUND THEN lo_formula->get_formula_string( ) )
-    ).
-
-    lo_formula_editor->show( ).
-
-    IF lo_formula_editor->has_formula_been_activated( ).
-      lo_formula = lo_formula_editor->get_formula( ).
-      TRY.
-          zcl_dbbr_formula_helper=>update_tabflds_from_formula(
-              ir_tabfields = lo_tabfields
-              ir_formula   = lo_formula
-          ).
-        CATCH zcx_dbbr_formula_exception INTO DATA(lr_exception).
-*........ should not happen at this point at all because formula has just been activated
-          lr_exception->zif_sat_exception_message~print( ).
-      ENDTRY.
-    ELSEIF lo_formula_editor->has_formula_been_deleted( ).
-      CLEAR lo_formula.
-      lo_tabfields->delete_formula_fields( ).
-      lo_tabfields->clear_calculation_flag( ).
-    ENDIF.
-
-    mo_data->set_formula( lo_formula ).
   ENDMETHOD.
 
 
@@ -1613,9 +1539,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
             set_select_option( iv_current_line = lv_current_index
                                iv_option       = zif_dbbr_c_global=>c_options-ne
                                iv_sign         = zif_dbbr_c_global=>c_options-i ).
-
-          WHEN zif_dbbr_c_selscreen_functions=>show_formula_manager.
-            show_formula_editor( ).
 
           WHEN zif_dbbr_c_selscreen_functions=>multi_or_selection.
             show_multi_or( ).

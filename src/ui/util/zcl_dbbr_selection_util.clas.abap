@@ -39,7 +39,6 @@ CLASS zcl_dbbr_selection_util DEFINITION
         join_definition          TYPE zdbbr_join_data,
         join_def                 TYPE zdbbr_join_def,
         exclude_function         TYPE ui_functions,
-        formula                  TYPE REF TO zcl_dbbr_formula,
         nav_breadcrumbs          TYPE string_table,
         navigation_count         TYPE i,
         source_entity_id         TYPE zsat_entity_id,
@@ -216,8 +215,6 @@ CLASS zcl_dbbr_selection_util DEFINITION
     DATA mo_tabfields_all_original TYPE REF TO zcl_dbbr_tabfield_list .
     DATA mo_post_join_helper TYPE REF TO zcl_dbbr_virtual_join_helper .
     DATA mt_exclude_function TYPE ucomm_it .
-    DATA mo_formula TYPE REF TO zcl_dbbr_formula .
-    DATA mo_formula_calculator TYPE REF TO zcl_dbbr_formula_calculator .
     DATA mt_dyntab_components TYPE zdbbr_abap_comp_type_itab .
     DATA:
       mt_virtual_join_table_range TYPE RANGE OF tabname .
@@ -293,8 +290,6 @@ CLASS zcl_dbbr_selection_util DEFINITION
         VALUE(result) TYPE abap_bool .
     "! <p class="shorttext synchronized" lang="en">Determines if a group by fields exists in the selection</p>
     METHODS determine_group_by_state .
-    "! <p class="shorttext synchronized" lang="en">Exectue formulas for selected lines</p>
-    METHODS execute_formula_for_lines .
     "! <p class="shorttext synchronized" lang="en">Fills the quantity/currency field for another field</p>
     METHODS fill_fcat_quan_curr_field
       IMPORTING
@@ -519,7 +514,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     mv_source_entity_id = is_selection_data-source_entity_id.
     mt_source_where_cond = is_selection_data-source_entity_where_cond.
     mv_source_params      = is_selection_data-source_entity_params.
-    mo_formula            = is_selection_data-formula.
     ms_join_def           = is_selection_data-join_def.
     mv_entity_id          = is_selection_data-entity_id.
     mv_entity_type        = is_selection_data-entity_type.
@@ -916,7 +910,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
         ls_field-emphasize = COND #( WHEN ms_technical_info-color_formula_fields = abap_true THEN
                                               zif_dbbr_c_global=>c_alv_emphasize-formula_fields_color ).
         ls_field-parameter2 = 'F'.
-        ls_field-icon = zcl_dbbr_formula_helper=>is_icon_field( lr_current_field ).
+        " TODO: handle icon field in future calculated field exit
       ENDIF.
 
       IF lr_current_field->is_virtual_element = abap_true.
@@ -1327,24 +1321,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   METHOD determine_group_by_state.
     mf_group_by = xsdbool( line_exists( mt_selection_fields[ group_by = abap_true ] ) ).
-  ENDMETHOD.
-
-
-  METHOD execute_formula_for_lines.
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
-
-    CHECK mo_formula_calculator IS NOT INITIAL.
-
-    zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-005 }| iv_progress = 25 ).
-
-    ASSIGN mr_t_data->* TO <lt_table>.
-
-    LOOP AT <lt_table> ASSIGNING FIELD-SYMBOL(<ls_row>).
-      DATA(lr_row) = REF data( <ls_row> ).
-
-      mo_formula_calculator->calculate_row( CHANGING cr_row = lr_row ).
-
-    ENDLOOP.
   ENDMETHOD.
 
 
@@ -2034,8 +2010,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
   METHOD after_selection.
 
-    execute_formula_for_lines( ).
-
     set_miscinfo_for_selected_data( ).
 
   ENDMETHOD.
@@ -2071,18 +2045,6 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     create_select_clause( ).
 
     create_dynamic_table( ).
-
-    IF mo_formula IS BOUND.
-      TRY.
-          mo_formula_calculator = zcl_dbbr_formula_calculator=>create(
-              ir_formula            = mo_formula
-              ir_tabfields          = mo_tabfields
-              it_tab_components     = mt_dyntab_components
-          ).
-        CATCH zcx_dbbr_exception INTO DATA(lr_exception).
-          lr_exception->zif_sat_exception_message~print( ).
-      ENDTRY.
-    ENDIF.
 
   ENDMETHOD.
 

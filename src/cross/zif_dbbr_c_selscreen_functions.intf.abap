@@ -86,7 +86,6 @@ INTERFACE zif_dbbr_c_selscreen_functions
   CONSTANTS set_focus_to_1st_selfield TYPE sy-ucomm VALUE 'FOCUS1STFL' ##NO_TEXT.
   CONSTANTS set_focus_to_navigator TYPE sy-ucomm VALUE 'FOCONNAV' ##NO_TEXT.
   CONSTANTS show_ddls_source TYPE sy-ucomm VALUE 'ENTITYFC01' ##NO_TEXT.
-  CONSTANTS show_formula_manager TYPE sy-ucomm VALUE 'FF_MANAGER' ##NO_TEXT.
   CONSTANTS show_multi_select_dialog TYPE sy-ucomm VALUE 'MORE' ##NO_TEXT.
   CONSTANTS show_navigation_history TYPE sy-ucomm VALUE 'NAVHISTORY' ##NO_TEXT.
   CONSTANTS show_option_dialog TYPE sy-ucomm VALUE 'OPTION' ##NO_TEXT.

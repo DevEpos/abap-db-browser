@@ -285,7 +285,6 @@ CLASS zcl_dbbr_association_manager IMPLEMENTATION.
         lr_columns->get_column( 'HAS_JUMP_FIELDS' )->set_visible( abap_false ).
         lr_columns->get_column( 'IS_GLOBAL' )->set_visible( abap_false ).
         lr_columns->get_column( 'REF_JOIN_ID' )->set_visible( abap_false ).
-        lr_columns->get_column( 'FORMULA' )->set_visible( abap_false ).
 
         mr_query_alv->display( ).
       CATCH zcx_uitb_alv_error.    "

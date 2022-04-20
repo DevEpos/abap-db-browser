@@ -66,7 +66,6 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS set_fixed_rows TYPE sy-ucomm VALUE 'SET_FIXED_ROWS' ##NO_TEXT.
   CONSTANTS set_focus_to_assoc_list TYPE sy-ucomm VALUE 'FOCUSASSOC' ##NO_TEXT.
   CONSTANTS set_focus_to_list TYPE sy-ucomm VALUE 'FOCUSALV' ##NO_TEXT.
-  CONSTANTS show_active_formula TYPE sy-ucomm VALUE 'SHOWFORM' ##NO_TEXT.
   CONSTANTS show_all_columns TYPE sy-ucomm VALUE 'SHOW_ALL_COLS' ##NO_TEXT.
   CONSTANTS show_cds_source TYPE sy-ucomm VALUE 'SHOWCDSSRC' ##NO_TEXT.
   "! <p class="shorttext synchronized" lang="en">ABAP System Field: PAI-Triggering Function Code</p>

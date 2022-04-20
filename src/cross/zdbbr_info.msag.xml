@@ -287,12 +287,6 @@
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZDBBR_INFO</ARBGB>
-     <MSGNR>046</MSGNR>
-     <TEXT>Formula is free of errors</TEXT>
-    </T100>
-    <T100>
-     <SPRSL>E</SPRSL>
-     <ARBGB>ZDBBR_INFO</ARBGB>
      <MSGNR>047</MSGNR>
      <TEXT>Virtual join did not find any hits</TEXT>
     </T100>

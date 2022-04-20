@@ -10,8 +10,6 @@ CLASS zcl_dbbr_start DEFINITION
     METHODS constructor .
     "! <p class="shorttext synchronized" lang="en">Starts DB Browser</p>
     METHODS start .
-    "! <p class="shorttext synchronized" lang="en">Starts Test of DB Browser Formula Editor</p>
-    METHODS start_formula_editor_test .
     "! <p class="shorttext synchronized" lang="en">Start Central Search Function</p>
     METHODS start_search .
     "! <p class="shorttext synchronized" lang="en">Starts the SQL Query Console</p>
@@ -32,29 +30,6 @@ CLASS zcl_dbbr_start IMPLEMENTATION.
 
   METHOD start.
     CALL FUNCTION 'ZDBBR_START'.
-  ENDMETHOD.
-
-
-  METHOD start_formula_editor_test.
-    DATA(lr_tabfields) = NEW zcl_dbbr_tabfield_list( ).
-
-    zcl_dbbr_tabfield_builder=>create_tabfields(
-        iv_tablename        = 'COEP'
-        ir_tabfield_list    = lr_tabfields
-        if_output_active    = abap_true
-        if_is_primary       = abap_true
-    ).
-    DATA(lr_formula_editor) = NEW zcl_dbbr_formula_editor(
-      io_tabfield_list = lr_tabfields
-*      ir_join_def_stru = NEW zdbbr_join_data( )
-      is_join_def      = VALUE zdbbr_join_def( )
-      iv_display_mode  = zif_dbbr_c_global=>c_display_modes-edit
-      iv_formula       = `* Meine Formel` && cl_abap_char_utilities=>cr_lf &&
-                         `$DEF my_form type wtgxxx.`  && cl_abap_char_utilities=>cr_lf &&
-                         `my_form = row-wtgbtr + 4.`
-    ).
-
-    lr_formula_editor->show( ).
   ENDMETHOD.
 
 

@@ -111,7 +111,6 @@ CLASS zcl_dbbr_save_sql_query_ctrl IMPLEMENTATION.
         changed_date     = COND #( WHEN ls_query_existing IS NOT INITIAL THEN sy-datum )
         query_name       = mr_ui_query_name->*
         description      = mr_ui_query_desc->*
-**        formula          = ms_query_info-formula
         is_sql_query     = abap_true
         source           = ms_query_info-source
         parameters       = mt_query_parameters

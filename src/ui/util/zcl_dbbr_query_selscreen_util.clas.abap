@@ -371,7 +371,6 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
         ( zif_dbbr_c_selscreen_functions=>define_joins )
         ( zif_dbbr_c_selscreen_functions=>edit_jump_fields )
         ( zif_dbbr_c_selscreen_functions=>select_additional_texts )
-        ( zif_dbbr_c_selscreen_functions=>show_formula_manager )
       ).
     ENDIF.
 
@@ -516,33 +515,6 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
         lr_current_field->sort_direction = <ls_query_selfield>-sort_direction.
       ENDIF.
     ENDWHILE.
-
-    IF mo_data->mr_s_query_info->formula IS NOT INITIAL.
-*... validate formula
-      TRY.
-          DATA(lr_formula) = NEW zcl_dbbr_fe_validator(
-              iv_formula   = mo_data->mr_s_query_info->formula
-              io_tabfields = lr_tabfield_list
-          )->validate( ).
-
-          zcl_dbbr_formula_helper=>update_tabflds_from_formula(
-              ir_tabfields      = lr_tabfield_list
-              ir_formula        = lr_formula
-              it_form_selfields = lt_query_selfields
-          ).
-
-        CATCH zcx_dbbr_formula_exception.
-          CLEAR mo_data->mr_s_query_info->formula.
-          lr_tabfield_list->clear_calculation_flag( ).
-          lr_tabfield_list->delete_formula_fields( ).
-          " create the formula entity but with an invalid state
-          lr_formula = NEW #( iv_formula  = mo_data->mr_s_query_info->formula
-                              if_is_valid = abap_false ).
-      ENDTRY.
-
-    ENDIF.
-
-    mo_data->set_formula( lr_formula ).
 
     fill_selection_mask( ).
 
