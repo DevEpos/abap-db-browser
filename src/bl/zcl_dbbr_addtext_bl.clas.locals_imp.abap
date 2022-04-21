@@ -166,7 +166,8 @@ CLASS lcl_text_field_reader_base IMPLEMENTATION.
     SELECT tabname,
            fieldname,
            rollname,
-           datatype
+           datatype,
+           keyflag
       FROM dd03l
       WHERE tabname IN @lt_tablename_range
         AND datatype <> 'CLNT'
@@ -181,6 +182,7 @@ CLASS lcl_text_field_reader_base IMPLEMENTATION.
 
     LOOP AT mt_text_table_field ASSIGNING FIELD-SYMBOL(<text_tab_field>) WHERE datatype <> 'LANG'
                                                                            AND tabname = cs_text_field-text_table
+                                                                           AND keyflag = abap_false
                                                                            AND fieldname <> cs_text_field-key_field.
       cs_text_field-text_field = <text_tab_field>-fieldname.
       EXIT.

@@ -73,6 +73,7 @@ CLASS lcl_text_field_reader_base DEFINITION
         fieldname TYPE fieldname,
         rollname  TYPE rollname,
         datatype  TYPE dd03l-datatype,
+        keyflag   TYPE dd03l-keyflag,
       END OF ty_text_table_field.
 
     DATA:
