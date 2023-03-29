@@ -13,7 +13,6 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_DB_ENTITY_SEL_DIALOG</CLSNAME>
      <CMPNAME>GET_DB_ENTITIES</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Creates dialog for finding and selected db entities</DESCRIPT>

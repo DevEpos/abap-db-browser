@@ -13,61 +13,51 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>CALL_BUILT_IN_F4</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Call built-in value help</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>CALL_BUILT_IN_F4_MULTI</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Call built-in value help with multiple selection</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>CALL_BUILT_IN_SELFIELD_F4</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Call built in selection field value help</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>CALL_F4</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Call value help for selection field</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>CALL_F4_WITH_SEARCH_HELP</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Call value help for specific ddic value help definition</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>CALL_INT_TABLE_F4</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Call value help with internal table</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>CALL_SELFIELD_F4</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Call value help for selection field</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>CALL_TABLE_FIELD_F4</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Call value help for table field</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>GET_CDS_FIELD_F4_INFOS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Get value help information for cds view field</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_F4_HELPER</CLSNAME>
      <CMPNAME>GET_F4_INFOS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Retrieve infos of Value help</DESCRIPT>

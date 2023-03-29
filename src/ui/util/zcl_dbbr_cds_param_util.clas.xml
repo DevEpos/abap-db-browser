@@ -13,7 +13,6 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CDS_PARAM_UTIL</CLSNAME>
      <CMPNAME>BUILD_PARAM_STRING</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Concatenate parameters and its values to a string</DESCRIPT>

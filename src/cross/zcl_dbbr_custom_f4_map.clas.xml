@@ -13,43 +13,36 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CUSTOM_F4_MAP</CLSNAME>
      <CMPNAME>CLEAR</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Clears all buffered custom f4 definitions</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CUSTOM_F4_MAP</CLSNAME>
      <CMPNAME>CLEAR_F4_FOR_FIELD</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Clears all buffered F4 def. for the given table field</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CUSTOM_F4_MAP</CLSNAME>
      <CMPNAME>DETERMINE_F4_FOR_FIELD</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Determine F4 for given table field</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CUSTOM_F4_MAP</CLSNAME>
      <CMPNAME>ENTRY_EXISTS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Checks if there is a custom F4 for the given table field</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CUSTOM_F4_MAP</CLSNAME>
      <CMPNAME>READ_CUSTOM_F4_DEFINITION</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Reads custom F4 definitions for the given table-field</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CUSTOM_F4_MAP</CLSNAME>
      <CMPNAME>READ_CUSTOM_F4_DEFINITIONS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Reads custom f4 definitions for the given table</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CUSTOM_F4_MAP</CLSNAME>
      <CMPNAME>READ_SAME_TYPE_CUSTOM_F4_DEFS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Read and cache custom f4 w/o necessary field assignment</DESCRIPT>

@@ -27,7 +27,6 @@
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_TEXT_FIELD_SELECTOR</CLSNAME>
      <CMPNAME>GET_TEXT_FIELDS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Returns selected/deselected text fields of the dialog</DESCRIPT>

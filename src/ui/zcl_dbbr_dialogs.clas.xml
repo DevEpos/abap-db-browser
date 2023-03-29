@@ -13,13 +13,11 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_DIALOGS</CLSNAME>
      <CMPNAME>SHOW_MULTI_SELECT</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Shows the multi input selection screen for a table field</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_DIALOGS</CLSNAME>
      <CMPNAME>SHOW_USER_SETTINGS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Show user settings dialog for DB Browser</DESCRIPT>

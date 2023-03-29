@@ -13,7 +13,6 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_APPL_UTIL</CLSNAME>
      <CMPNAME>TRANSLATE_FIRST_LETTER</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Translates the first character in a string</DESCRIPT>
