@@ -23,11 +23,6 @@
      <DESCRIPT>Starts DB Browser</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CMPNAME>START_FORMULA_EDITOR_TEST</CMPNAME>
-     <LANGU>E</LANGU>
-     <DESCRIPT>Starts Test of DB Browser Formula Editor</DESCRIPT>
-    </SEOCOMPOTX>
-    <SEOCOMPOTX>
      <CMPNAME>START_SEARCH</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Start Central Search Function</DESCRIPT>
