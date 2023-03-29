@@ -21,7 +21,6 @@
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_HELP_REPOSITORY</CLSNAME>
      <CMPNAME>SHOW_HELP</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Shows the help for the supplied help index</DESCRIPT>

@@ -13,13 +13,11 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_TABLE_SELECTION_UTIL</CLSNAME>
      <CMPNAME>DELETE_DATA</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Delete data for the given selection criteria</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_TABLE_SELECTION_UTIL</CLSNAME>
      <CMPNAME>EDIT_DATA</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Maintain data for the selection criteria</DESCRIPT>

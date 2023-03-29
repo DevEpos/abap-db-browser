@@ -13,12 +13,37 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_CDS_PARAM_UTIL</CLSNAME>
      <CMPNAME>BUILD_PARAM_STRING</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Concatenate parameters and its values to a string</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>BUILD_PARAM_STRING</CMPNAME>
+     <SCONAME>IF_SEP_PARAM_BY_NEWLINE</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Every param/value in new line</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>BUILD_PARAM_STRING</CMPNAME>
+     <SCONAME>IT_PARAM_VALUES</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>List of parameters with values</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>BUILD_PARAM_STRING</CMPNAME>
+     <SCONAME>IV_PARAM_INDENTATION</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Number of spaces for indentation</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>BUILD_PARAM_STRING</CMPNAME>
+     <SCONAME>RV_PARAMS</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Concatenated parameter/value combinations</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
   </asx:values>
  </asx:abap>
 </abapGit>

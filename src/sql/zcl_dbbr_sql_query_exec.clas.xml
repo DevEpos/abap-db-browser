@@ -21,25 +21,21 @@
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC</CLSNAME>
      <CMPNAME>EXECUTE_QUERY</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Execute the entered query and display the results</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC</CLSNAME>
      <CMPNAME>EXECUTE_QUERY_ASYNC</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Execute the entered query asynchronoulsy</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC</CLSNAME>
      <CMPNAME>GET_SINGLE_VALUE_FROM_RESULT</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Retrieves single column value from result</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_SQL_QUERY_EXEC</CLSNAME>
      <CMPNAME>QUERY_FINISHED</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Is called after asynchronous query finishes</DESCRIPT>

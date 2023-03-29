@@ -27,12 +27,19 @@
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZCL_DBBR_TEXT_FIELD_SELECTOR</CLSNAME>
      <CMPNAME>GET_TEXT_FIELDS</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Returns selected/deselected text fields of the dialog</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>GET_TEXT_FIELDS</CMPNAME>
+     <SCONAME>RT_TEXT_FIELDS</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Text fields with visibility status</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
   </asx:values>
  </asx:abap>
 </abapGit>
