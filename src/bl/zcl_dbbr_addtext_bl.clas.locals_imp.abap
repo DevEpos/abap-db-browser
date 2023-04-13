@@ -123,7 +123,7 @@ CLASS lcl_text_field_reader_base IMPLEMENTATION.
           AND shlp_field~fieldname = shlp_f_param~fieldname
           AND shlp_field~fieldname = shlp_f_param~shfield
       WHERE shlp_field~as4local = 'A'
-        AND shlp_field~fieldname IS NOT INITIAL
+        AND shlp_field~fieldname <> @space
         AND shlp_field~tabname = @mv_entity
         AND shlp~selmtype = @zif_dbbr_c_sh_selmethod_type=>with_text_table_selection
         AND shlp~issimple = @abap_true
@@ -224,9 +224,9 @@ CLASS lcl_cds_text_field_reader IMPLEMENTATION.
           AND dtel~entitytab <> 'T002' " exclude language table
       WHERE field~strucobjn = @mv_entity
         AND (
-                 (     dtel~shlpname IS NOT INITIAL
-                   AND shlp~texttab IS NOT INITIAL )
-              OR dtel~entitytab IS NOT INITIAL )
+                 (     dtel~shlpname <> @space
+                   AND shlp~texttab <> @space )
+              OR dtel~entitytab <> @space )
       ORDER BY dtel~rollname
       INTO CORRESPONDING FIELDS OF TABLE @rt_result.
   ENDMETHOD.
@@ -285,9 +285,9 @@ CLASS lcl_table_text_field_reader IMPLEMENTATION.
           AND dtel~entitytab <> 'T002' " exclude language table
       WHERE field~tabname = @mv_entity
         AND (
-                 (     dtel~shlpname IS NOT INITIAL
-                   AND shlp~texttab IS NOT INITIAL )
-              OR dtel~entitytab IS NOT INITIAL )
+                 (     dtel~shlpname <> @space
+                   AND shlp~texttab <> @space )
+              OR dtel~entitytab <> @space )
       ORDER BY dtel~rollname
       INTO CORRESPONDING FIELDS OF TABLE @rt_result.
   ENDMETHOD.
