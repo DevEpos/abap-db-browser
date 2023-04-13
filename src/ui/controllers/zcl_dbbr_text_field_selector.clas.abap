@@ -38,7 +38,7 @@ CLASS zcl_dbbr_text_field_selector DEFINITION
         mark          TYPE abap_bool,
         visible       TYPE abap_bool,
         filtered      TYPE abap_bool,
-        type_icon     TYPE char40,
+        type_icon     TYPE c LENGTH 50,
         description   TYPE ddtext,
         alv_fieldname TYPE fieldname,
         tabname       TYPE tabname,
@@ -88,9 +88,9 @@ CLASS zcl_dbbr_text_field_selector IMPLEMENTATION.
 
   METHOD constructor.
     super->constructor(
-        iv_title          = |{ 'Available Text Fields'(001) }|
-        if_multi_select   = abap_true
-        if_use_alv_filter = abap_true
+      iv_title          = |{ 'Available Text Fields'(001) }|
+      if_multi_select   = abap_true
+      if_use_alv_filter = abap_true
     ).
     mo_tabfields = io_tabfields.
     mt_fieldcat = it_fieldcat.
@@ -145,10 +145,10 @@ CLASS zcl_dbbr_text_field_selector IMPLEMENTATION.
     ENDIF.
 
     show(
-        iv_top    = 4
-        iv_left   = 20
-        iv_width  = 120
-        iv_height = 15
+      iv_top    = 4
+      iv_left   = 20
+      iv_width  = 120
+      iv_height = 15
     ).
 
     LOOP AT mt_text_fields ASSIGNING FIELD-SYMBOL(<ls_field>).
