@@ -13,18 +13,14 @@ CLASS zcl_dbbr_query_selection_util DEFINITION
     METHODS get_entity_name
         REDEFINITION .
   PROTECTED SECTION.
-    METHODS read_entity_infos
-        REDEFINITION.
   PRIVATE SECTION.
-
-    DATA mv_query_name TYPE ZSAT_QUERY_NAME .
+    DATA mv_query_name TYPE zsat_query_name .
     DATA mv_query_descr TYPE ddtext .
 ENDCLASS.
 
 
 
 CLASS zcl_dbbr_query_selection_util IMPLEMENTATION.
-
 
   METHOD build_simple_alv_title.
     result = |Query - { mv_query_name } - { mv_query_descr }|.
@@ -40,9 +36,8 @@ CLASS zcl_dbbr_query_selection_util IMPLEMENTATION.
 *... read the query description
     DATA(lr_query_f) = NEW zcl_dbbr_query_factory( ).
     DATA(ls_query) = lr_query_f->get_query(
-        iv_query_name     = mv_entity_id
-        if_load_completely = abap_false
-    ).
+      iv_query_name      = mv_entity_id
+      if_load_completely = abap_false ).
     mv_query_name = ls_query-query_name.
     mv_query_descr = ls_query-description.
 
@@ -55,44 +50,4 @@ CLASS zcl_dbbr_query_selection_util IMPLEMENTATION.
     super->init( ).
   ENDMETHOD.
 
-  METHOD read_entity_infos.
-***    DATA(lv_special_group_count) = 1.
-***
-***    DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( ms_control_info-primary_table ).
-***
-***    ms_control_info-primary_table_name = ls_table_info-ddtext.
-***    ms_control_info-client_dependent = ls_table_info-clidep.
-***    ms_control_info-primary_table_tabclass = ls_table_info-tabclass.
-***
-***    DATA(lv_sp_group) = CONV lvc_spgrp( c_col_group_prefix && lv_special_group_count ).
-***    mt_column_groups = VALUE #(
-***      ( sp_group = lv_sp_group
-***        text     = `Table - ` && ms_control_info-primary_table )
-***    ).
-***
-***    mt_group_tab_map = VALUE #( ( sp_group = lv_sp_group tabname = ms_control_info-primary_table ) ).
-***
-***    ADD 1 TO lv_special_group_count.
-***
-***    " update join table names
-***    IF ms_join_def-tables IS NOT INITIAL.
-***      LOOP AT ms_join_def-tables ASSIGNING FIELD-SYMBOL(<ls_join_table>) WHERE table_name IS INITIAL.
-***        <ls_join_table>-table_name = zcl_sat_ddic_repo_access=>get_table_info( <ls_join_table>-add_table )-ddtext.
-***        lv_sp_group = c_col_group_prefix && lv_special_group_count.
-***        mt_column_groups = VALUE #(
-***          BASE mt_column_groups
-***          ( sp_group = lv_sp_group
-***            text     = `Table - ` && <ls_join_table>-add_table )
-***        ).
-***        mt_group_tab_map = VALUE #(
-***          BASE mt_group_tab_map
-***          ( sp_group = lv_sp_group
-***            tabname  = <ls_join_table>-add_table )
-***        ).
-***        ADD 1 TO lv_special_group_count.
-***      ENDLOOP.
-***    ELSE.
-***      CLEAR mt_column_groups.
-***    ENDIF.
-  ENDMETHOD.
 ENDCLASS.
