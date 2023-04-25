@@ -100,8 +100,6 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD init.
-    ms_control_info-primary_table = mv_entity_id.
-
     IF mt_param_values IS NOT INITIAL.
       DATA(ls_join) = CORRESPONDING zif_sat_ty_global=>ty_s_join_def( DEEP ms_join_def ).
       prefill_parameters(
