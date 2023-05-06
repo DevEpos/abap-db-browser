@@ -5,7 +5,7 @@
 
 ## Documentation
 
-See [here](https://devepos.com/projects/abap-db-browser)
+See [here](https://devepos.com/projects/sap-gui/db-browser/)
 
 ## Important Information
 
