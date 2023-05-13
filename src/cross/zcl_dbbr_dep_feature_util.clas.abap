@@ -11,9 +11,15 @@ CLASS zcl_dbbr_dep_feature_util DEFINITION
     CLASS-METHODS is_se16n_available
       RETURNING
         VALUE(rf_available) TYPE abap_bool.
+
+    "! <p class="shorttext synchronized" lang="en">Returns 'X' CDS virtual elements are supported</p>
+    CLASS-METHODS is_cds_virtelem_available
+      RETURNING
+        VALUE(rf_available) TYPE abap_bool.
   PROTECTED SECTION.
   PRIVATE SECTION.
     CLASS-DATA sf_se16n_available TYPE abap_bool.
+    CLASS-DATA sf_cds_virtelem_available TYPE abap_bool.
 ENDCLASS.
 
 
@@ -25,6 +31,12 @@ CLASS zcl_dbbr_dep_feature_util IMPLEMENTATION.
 
   METHOD class_constructor.
     SELECT SINGLE @abap_true FROM tfdir WHERE funcname = 'SE16N_INTERFACE' INTO @sf_se16n_available.
+
+    SELECT SINGLE @abap_true FROM ddla_rt_header WHERE key_upper = 'OBJECTMODEL.VIRTUALELEMENTCALCULATEDBY' INTO @sf_cds_virtelem_available.
+  ENDMETHOD.
+
+  METHOD is_cds_virtelem_available.
+    rf_available = sf_cds_virtelem_available.
   ENDMETHOD.
 
 ENDCLASS.

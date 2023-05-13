@@ -108,30 +108,45 @@ ENDCLASS.
 CLASS lcl_sadl_exit_handler IMPLEMENTATION.
 
   METHOD constructor.
+    DATA: lt_path_element_targets TYPE cl_sadl_filter_path_utils=>tt_path_element_targets,
+          lt_function_aliases     TYPE if_sadl_types=>tt_sorted_strings.
+
     mv_entity_name = iv_entity_name.
     TRY.
         DATA(lo_sadl_mdp_factory) = NEW lcl_sadl_mdp_factory( iv_entity_name ).
-
-        DATA(lr_mdp) = lo_sadl_mdp_factory->get_mdp_for_id( ).
-        ASSIGN lr_mdp->* TO FIELD-SYMBOL(<lo_mdp>).
-
         DATA(lr_entity_load) = lo_sadl_mdp_factory->get_entity_load_by_id( ).
         ASSIGN lr_entity_load->* TO FIELD-SYMBOL(<ls_entity_load>).
         ASSIGN COMPONENT 'ENTITY_ID' OF STRUCTURE <ls_entity_load> TO FIELD-SYMBOL(<lv_entity_id>).
         IF sy-subrc = 0.
           TRY.
-              CREATE OBJECT mo_sadl_exit_handler TYPE (c_cls-sadl_exit_handler-name)
-                EXPORTING
-                  io_mdp       = <lo_mdp>
-                  iv_entity_id = <lv_entity_id>.
-            CATCH cx_sy_create_object_error.
-              " no SADL classes available
-          ENDTRY.
 
+              CALL METHOD (c_cls-sadl_exit_handler-name)=>(c_cls-sadl_exit_handler-meth-create-name)
+                EXPORTING
+                  iv_entity_id                 = <lv_entity_id>
+                  it_path_element_targets      = lt_path_element_targets
+                  it_function_aliases          = lt_function_aliases
+                  iv_is_query_with_aggregation = abap_false
+                RECEIVING
+                  ro_handler                   = mo_sadl_exit_handler.
+
+            CATCH cx_sy_create_object_error.
+              TRY.
+                  DATA(lr_mdp) = lo_sadl_mdp_factory->get_mdp_for_id( ).
+                  ASSIGN lr_mdp->* TO FIELD-SYMBOL(<lo_mdp>).
+
+                  CREATE OBJECT mo_sadl_exit_handler TYPE (c_cls-sadl_exit_handler-name)
+                   EXPORTING
+                     io_mdp       = <lo_mdp>
+                     iv_entity_id = <lv_entity_id>.
+                CATCH cx_sy_create_object_error.
+                  " init of sadl classes failed
+              ENDTRY.
+          ENDTRY.
         ENDIF.
       CATCH cx_sy_dyn_call_error.
         " init of sadl classes failed
     ENDTRY.
+
   ENDMETHOD.
 
   METHOD calculate_elements.
