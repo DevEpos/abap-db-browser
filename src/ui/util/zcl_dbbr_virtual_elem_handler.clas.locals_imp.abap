@@ -129,7 +129,7 @@ CLASS lcl_sadl_exit_handler IMPLEMENTATION.
                 RECEIVING
                   ro_handler                   = mo_sadl_exit_handler.
 
-            CATCH cx_sy_create_object_error.
+            CATCH cx_sy_dyn_call_error.
               TRY.
                   DATA(lr_mdp) = lo_sadl_mdp_factory->get_mdp_for_id( ).
                   ASSIGN lr_mdp->* TO FIELD-SYMBOL(<lo_mdp>).
@@ -143,10 +143,7 @@ CLASS lcl_sadl_exit_handler IMPLEMENTATION.
               ENDTRY.
           ENDTRY.
         ENDIF.
-      CATCH cx_sy_dyn_call_error.
-        " init of sadl classes failed
     ENDTRY.
-
   ENDMETHOD.
 
   METHOD calculate_elements.
