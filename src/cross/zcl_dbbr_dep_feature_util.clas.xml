@@ -13,6 +13,16 @@
    </VSEOCLASS>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
+     <CMPNAME>CHECK_CDS_VIRTELEM_SUPPORTED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Check if CDS virtual elements are supported</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>IS_CDS_VIRTELEM_SUPPORTED</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Returns &apos;X&apos; CDS virtual elements are supported</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
      <CMPNAME>IS_SE16N_AVAILABLE</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Returns &apos;X&apos; if SE16N exists in the system</DESCRIPT>

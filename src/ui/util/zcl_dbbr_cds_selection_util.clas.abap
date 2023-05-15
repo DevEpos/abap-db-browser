@@ -447,6 +447,8 @@ CLASS zcl_dbbr_cds_selection_util IMPLEMENTATION.
   METHOD after_selection.
 
     IF mf_handle_virtual_elem = abap_true.
+      zcl_dbbr_screen_helper=>show_progress( iv_text = |{ 'Calculating Virtual Fields'(001) }| iv_progress = 50 ).
+
       TRY.
           get_virtual_elem_handler( )->calculate_elements(
             EXPORTING

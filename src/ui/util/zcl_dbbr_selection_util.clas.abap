@@ -1335,7 +1335,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
 
     CHECK mo_formula_calculator IS NOT INITIAL.
 
-    zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-005 }| iv_progress = 25 ).
+    zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-005 }| iv_progress = 50 ).
 
     ASSIGN mr_t_data->* TO <lt_table>.
 
