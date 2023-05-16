@@ -108,8 +108,18 @@ ENDCLASS.
 CLASS lcl_sadl_exit_handler IMPLEMENTATION.
 
   METHOD constructor.
-    DATA: lt_path_element_targets TYPE cl_sadl_filter_path_utils=>tt_path_element_targets,
-          lt_function_aliases     TYPE if_sadl_types=>tt_sorted_strings.
+        DATA: lr_path_element_targets TYPE REF TO data,
+          lr_function_aliases     TYPE REF TO data.
+
+    FIELD-SYMBOLS: <lt_path_element_targets> TYPE ANY TABLE,
+                   <lt_function_aliases>     TYPE ANY TABLE.
+
+    CREATE DATA lr_path_element_targets TYPE ('CL_SADL_FILTER_PATH_UTILS=>TT_PATH_ELEMENT_TARGETS').
+    ASSIGN lr_path_element_targets->* TO <lt_path_element_targets>.
+
+    CREATE DATA lr_function_aliases TYPE ('IF_SADL_TYPES=>TT_SORTED_STRINGS').
+    ASSIGN lr_function_aliases->* TO <lt_function_aliases>.
+
     TRY.
         mv_entity_name = iv_entity_name.
         DATA(lo_sadl_mdp_factory) = NEW lcl_sadl_mdp_factory( iv_entity_name ).
@@ -122,8 +132,8 @@ CLASS lcl_sadl_exit_handler IMPLEMENTATION.
               CALL METHOD (c_cls-sadl_exit_handler-name)=>(c_cls-sadl_exit_handler-meth-create-name)
                 EXPORTING
                   iv_entity_id                 = <lv_entity_id>
-                  it_path_element_targets      = lt_path_element_targets
-                  it_function_aliases          = lt_function_aliases
+                  it_path_element_targets      = <lt_path_element_targets>
+                  it_function_aliases          = <lt_function_aliases>
                   iv_is_query_with_aggregation = abap_false
                 RECEIVING
                   ro_handler                   = mo_sadl_exit_handler.
