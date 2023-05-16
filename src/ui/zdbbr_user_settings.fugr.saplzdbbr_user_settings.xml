@@ -94,6 +94,12 @@
     </item>
     <item>
      <ID>I</ID>
+     <KEY>B09</KEY>
+     <ENTRY>Virtual Elements</ENTRY>
+     <LENGTH>17</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
      <KEY>S01</KEY>
      <ENTRY>DB Browser - User settings</ENTRY>
      <LENGTH>35</LENGTH>
@@ -335,19 +341,19 @@
     <item>
      <ID>I</ID>
      <KEY>T41</KEY>
-     <ENTRY>Calculate Virtual Elements</ENTRY>
+     <ENTRY>Enable calculation</ENTRY>
      <LENGTH>50</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T42</KEY>
-     <ENTRY>Ignore errors during Virtual Element Calculation</ENTRY>
+     <ENTRY>Ignore errors during calculation</ENTRY>
      <LENGTH>50</LENGTH>
     </item>
     <item>
      <ID>I</ID>
      <KEY>T43</KEY>
-     <ENTRY>Color calculated fields of CDS View</ENTRY>
+     <ENTRY>Emphasize fields on output</ENTRY>
      <LENGTH>70</LENGTH>
     </item>
     <item>
@@ -394,7 +400,7 @@
     <item>
      <ID>S</ID>
      <KEY>P_FAVMO</KEY>
-     <ENTRY>.</ENTRY>
+     <ENTRY>Mode for Favorite menu</ENTRY>
      <LENGTH>30</LENGTH>
      <SPLIT>D</SPLIT>
     </item>

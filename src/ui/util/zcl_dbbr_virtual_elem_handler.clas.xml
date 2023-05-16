@@ -33,6 +33,20 @@
      <DESCRIPT>Get sadl exit handler instance</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>GET_SADL_EXIT_HANDLER</CMPNAME>
+     <SCONAME>IV_ENTITY_NAME</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>CDS view name</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>GET_SADL_EXIT_HANDLER</CMPNAME>
+     <SCONAME>RO_SADL_EXIT_HANDLER</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Reference to SADL exit handler</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
   </asx:values>
  </asx:abap>
 </abapGit>

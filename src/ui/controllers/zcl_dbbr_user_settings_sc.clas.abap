@@ -285,6 +285,11 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
         screen-active = 0.
         MODIFY SCREEN.
       ENDIF.
+      IF zcl_dbbr_dep_feature_util=>is_cds_virtelem_supported( ) = abap_false AND
+           screen-name = 'BTN_CDS'.
+        screen-active = 0.
+        MODIFY SCREEN.
+      ENDIF.
     ENDLOOP.
   ENDMETHOD.
 

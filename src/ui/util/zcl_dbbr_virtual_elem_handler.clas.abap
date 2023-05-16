@@ -47,9 +47,6 @@ CLASS zcl_dbbr_virtual_elem_handler DEFINITION
     TYPES ty_t_sorted_string TYPE SORTED TABLE OF string WITH UNIQUE DEFAULT KEY.
 
     CONSTANTS:
-      BEGIN OF c_annotation_objectmodel,
-        virtual_elem_calc_by TYPE string VALUE 'OBJECTMODEL.VIRTUALELEMENTCALCULATEDBY',
-      END OF c_annotation_objectmodel,
       c_meth_get_calculation_info TYPE string VALUE 'IF_SADL_EXIT_CALC_ELEMENT_READ~GET_CALCULATION_INFO'.
 
     DATA mo_sadl_exit_handler TYPE REF TO lcl_sadl_exit_handler.
@@ -82,7 +79,7 @@ CLASS zcl_dbbr_virtual_elem_handler IMPLEMENTATION.
           lt_requested_elements TYPE ty_t_sorted_string.
 
     DATA(lt_annotation) = io_cds_view->get_annotations(
-      it_annotation_name = VALUE #( ( sign = 'I' option = 'EQ' low = c_annotation_objectmodel-virtual_elem_calc_by ) ) ).
+      it_annotation_name = VALUE #( ( sign = 'I' option = 'EQ' low = zif_dbbr_c_annotations=>objectmodel-virtual_elem_calc_by ) ) ).
 
     LOOP AT lt_annotation ASSIGNING FIELD-SYMBOL(<ls_annotation>).
       IF line_exists( it_fields[ fieldname = <ls_annotation>-fieldname ] ).
