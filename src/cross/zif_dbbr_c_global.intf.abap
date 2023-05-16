@@ -170,4 +170,4 @@ INTERFACE zif_dbbr_c_global
     END OF c_function_codes ,
     c_for_all_entries_select_table TYPE string VALUE '<lt_for_all>' ##NO_TEXT.
 
-    endinterface.
+ENDINTERFACE.

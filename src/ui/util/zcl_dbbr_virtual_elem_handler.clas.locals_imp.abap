@@ -108,7 +108,7 @@ ENDCLASS.
 CLASS lcl_sadl_exit_handler IMPLEMENTATION.
 
   METHOD constructor.
-        DATA: lr_path_element_targets TYPE REF TO data,
+    DATA: lr_path_element_targets TYPE REF TO data,
           lr_function_aliases     TYPE REF TO data.
 
     FIELD-SYMBOLS: <lt_path_element_targets> TYPE ANY TABLE,
