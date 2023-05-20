@@ -11,8 +11,8 @@ See [here](https://devepos.com/projects/sap-gui/db-browser/)
 
 ### Dependencies
 
-- [abap-search-tools](https://github.com/stockbal/abap-search-tools)
-- [abap-ui-toolbox](https://github.com/stockbal/abap-ui-toolbox)
+- [abap-search-tools](https://github.com/DevEpos/abap-search-tools)
+- [abap-ui-toolbox](https://github.com/DevEpos/abap-ui-toolbox)
 
 ### Installation Guide
 Install this repository using [abapGit](https://github.com/abapGit/abapGit#).  
