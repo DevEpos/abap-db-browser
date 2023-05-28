@@ -1154,10 +1154,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
       LOOP AT lt_assoc ASSIGNING FIELD-SYMBOL(<ls_assoc>).
         lv_node_type = SWITCH #( <ls_assoc>-kind
-           WHEN zif_sat_c_cds_assoc_type=>entity OR
-                zif_sat_c_cds_assoc_type=>table_function THEN c_node_type-cds_view
            WHEN zif_sat_c_cds_assoc_type=>table OR
                 zif_sat_c_cds_assoc_type=>view           THEN c_node_type-dbtable
+           ELSE c_node_type-cds_view
         ).
         lv_node_image = node_image_for_node_type( lv_node_type ).
 

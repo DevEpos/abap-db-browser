@@ -99,9 +99,18 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
 
     CASE ms_association-kind.
 
-      WHEN zif_sat_c_cds_assoc_type=>entity OR
-           zif_sat_c_cds_assoc_type=>table_function.
+      WHEN zif_sat_c_cds_assoc_type=>table OR
+           zif_sat_c_cds_assoc_type=>view.
 
+        mv_entity_type = zif_sat_c_entity_type=>table.
+        zcl_dbbr_tabfield_builder=>create_tabfields(
+            iv_tablename        = ms_association-ref_cds_view
+            ir_tabfield_list    = mr_tabfields
+            if_output_active    = abap_true
+            if_is_primary       = abap_true
+        ).
+
+      WHEN OTHERS.
         mv_entity_type = zif_sat_c_entity_type=>cds_view.
         TRY.
             DATA(lr_target_cds) = zcl_sat_cds_view_factory=>read_cds_view( ms_association-ref_cds_view ).
@@ -121,18 +130,6 @@ CLASS zcl_dbbr_cds_navigator IMPLEMENTATION.
                                   it_params = lr_target_cds->get_parameters( ) ).
         ENDIF.
 
-      WHEN zif_sat_c_cds_assoc_type=>table OR
-           zif_sat_c_cds_assoc_type=>view.
-
-        mv_entity_type = zif_sat_c_entity_type=>table.
-        zcl_dbbr_tabfield_builder=>create_tabfields(
-            iv_tablename        = ms_association-ref_cds_view
-            ir_tabfield_list    = mr_tabfields
-            if_output_active    = abap_true
-            if_is_primary       = abap_true
-        ).
-      WHEN OTHERS.
-*... TODO: raise exception???
     ENDCASE.
 
   ENDMETHOD.
