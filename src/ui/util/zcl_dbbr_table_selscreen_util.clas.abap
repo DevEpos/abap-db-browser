@@ -24,6 +24,8 @@ CLASS zcl_dbbr_table_selscreen_util DEFINITION
         REDEFINITION .
     METHODS zif_dbbr_screen_util~handle_ui_function
         REDEFINITION .
+    METHODS clear
+        REDEFINITION .
   PROTECTED SECTION.
 
     DATA mv_tab_size_text TYPE string .
@@ -51,6 +53,11 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD clear.
+    super->clear( ).
+    mo_data->mr_v_selmask_entity_type->* = text-001.
+  ENDMETHOD.
+
   METHOD check_primary_entity.
     rf_success = abap_true.
 
@@ -62,6 +69,12 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
 
     mf_is_view = xsdbool( ls_table_info-tabclass = 'VIEW' ).
     mo_data->mr_s_settings->disable_edit = mf_is_view.
+
+    IF mf_is_view = abap_true.
+      mo_data->mr_v_selmask_entity_type->* = text-005.
+    ELSE.
+      mo_data->mr_v_selmask_entity_type->* = text-004.
+    ENDIF.
 
     mo_data->mr_s_global_data->client_dependent = ls_table_info-clidep.
 
@@ -90,7 +103,7 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
       ir_selscreen_data = ir_selscreen_data
       iv_entity_type    = iv_entity_type
     ).
-    mo_data->mr_v_selmask_entity_type->* = 'Table'(001).
+    mo_data->mr_v_selmask_entity_type->* = 'Table/View'(001).
 
 *.. Fill custom toolbar menu
     mo_custom_menu = NEW #( ).
