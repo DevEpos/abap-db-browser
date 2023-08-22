@@ -1580,9 +1580,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
   METHOD expand_tech_settings_node.
     SELECT SINGLE *
-     FROM zsat_i_dbtabletechsettings
+     FROM ZDBBR_I_DbTableTechSettings
      WHERE tablename = @iv_tabname
-    INTO @DATA(ls_tech_settings).
+     INTO @DATA(ls_tech_settings).
 
     CHECK sy-subrc = 0.
 
