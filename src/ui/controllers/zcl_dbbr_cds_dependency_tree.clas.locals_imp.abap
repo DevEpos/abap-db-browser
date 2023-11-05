@@ -6,9 +6,11 @@ CLASS lcl_usage_alv IMPLEMENTATION.
 
   METHOD constructor.
     mo_dependency_tree = io_dependency_tree.
-    mt_usages = CORRESPONDING #( ZCL_SAT_CDS_DEP_ANALYZER=>get_used_entities(
-                                  iv_cds_view_name = iv_cds_view_name
-                                )-dependencies ).
+    mt_usages = CORRESPONDING #( NEW zcl_sat_cds_usage_analyzer(
+                                         iv_ddlname = CONV #( iv_cds_view_name ) )->analyze_dependencies( ) ).
+*    mt_usages = CORRESPONDING #( ZCL_SAT_CDS_DEP_ANALYZER=>get_used_entities(
+*                                  iv_cds_view_name = iv_cds_view_name
+*                                )-dependencies ).
 *.. Enrich usages with icons
     LOOP AT mt_usages ASSIGNING FIELD-SYMBOL(<ls_usage>).
       <ls_usage>-type_icon = SWITCH #( <ls_usage>-object_type
@@ -57,6 +59,11 @@ CLASS lcl_usage_alv IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_context_menu.
+    DATA(lt_selected_rows) = mo_alv->get_selections( )->get_selected_rows( ).
+
+    IF lt_selected_rows IS INITIAL.
+      RETURN.
+    ENDIF.
 
     er_menu->add_function(
        fcode = c_functions-open_with_adt
@@ -76,7 +83,6 @@ CLASS lcl_usage_alv IMPLEMENTATION.
         fcode = c_functions-exec_with_dbbrs_new_window
         text  = |{ 'Show Content (New Task)'(039) }|
     ).
-    DATA(lt_selected_rows) = mo_alv->get_selections( )->get_selected_rows( ).
     IF mt_usages[ lt_selected_rows[ 1 ] ]-object_type = ZIF_SAT_C_ENTITY_TYPE=>cds_view.
       er_menu->add_separator( ).
       er_menu->add_function(
