@@ -8,9 +8,6 @@ CLASS lcl_usage_alv IMPLEMENTATION.
     mo_dependency_tree = io_dependency_tree.
     mt_usages = CORRESPONDING #( NEW zcl_sat_cds_usage_analyzer(
                                          iv_ddlname = CONV #( iv_cds_view_name ) )->analyze_dependencies( ) ).
-*    mt_usages = CORRESPONDING #( ZCL_SAT_CDS_DEP_ANALYZER=>get_used_entities(
-*                                  iv_cds_view_name = iv_cds_view_name
-*                                )-dependencies ).
 *.. Enrich usages with icons
     LOOP AT mt_usages ASSIGNING FIELD-SYMBOL(<ls_usage>).
       <ls_usage>-type_icon = SWITCH #( <ls_usage>-object_type
@@ -104,10 +101,10 @@ CLASS lcl_usage_alv IMPLEMENTATION.
     lo_cols->set_column_position( iv_columnname = 'TYPE_ICON' iv_position = 1 ).
     lo_cols->set_column_position( iv_columnname = 'RAW_NAME' iv_position = 2 ).
     lo_cols->set_column_position( iv_columnname = 'DESCRIPTION' iv_position = 3 ).
-    lo_cols->set_column_position( iv_columnname = 'OCCURRENCE' iv_position = 4 ).
-    lo_cols->set_column_position( iv_columnname = 'USED_ENTITIES_COUNT' iv_position = 5 ).
-    lo_cols->set_column_position( iv_columnname = 'USED_JOIN_COUNT' iv_position = 6 ).
-    lo_cols->set_column_position( iv_columnname = 'USED_UNION_COUNT' iv_position = 7 ).
+    lo_cols->set_column_position( iv_columnname = 'OCCURRENCES' iv_position = 4 ).
+    lo_cols->set_column_position( iv_columnname = 'USED_ENTITIES' iv_position = 5 ).
+    lo_cols->set_column_position( iv_columnname = 'JOIN_COUNT' iv_position = 6 ).
+    lo_cols->set_column_position( iv_columnname = 'SET_OPERATION_COUNT' iv_position = 7 ).
 
     DATA(lo_col_iterator) = lo_cols->zif_uitb_list~get_iterator( ).
     WHILE lo_col_iterator->has_next( ).
@@ -131,20 +128,20 @@ CLASS lcl_usage_alv IMPLEMENTATION.
         WHEN 'DESCRIPTION'.
           lo_col->set_optimized( ).
 
-        WHEN 'OCCURRENCE'.
+        WHEN 'OCCURRENCES'.
           lo_col->set_descriptions( iv_long = 'Occurrence' iv_tooltip = 'Times the entity occurrs in the depend.' ).
           lo_col->set_optimized( ).
 
-        WHEN 'USED_ENTITIES_COUNT'.
-          lo_col->set_descriptions( iv_long = 'Used Tables/Views' iv_tooltip = 'Number of used Tables/Views' ).
+        WHEN 'USED_ENTITIES'.
+          lo_col->set_descriptions( iv_long = 'Used Entities' iv_tooltip = 'Number of used Entities' ).
           lo_col->set_optimized( ).
 
-        WHEN 'USED_JOIN_COUNT'.
+        WHEN 'JOIN_COUNT'.
           lo_col->set_descriptions( iv_long = 'Used Joins' iv_tooltip = 'Number of Joins in Entity' ).
           lo_col->set_optimized( ).
 
-        WHEN 'USED_UNION_COUNT'.
-          lo_col->set_descriptions( iv_long = 'Used Unions' iv_tooltip = 'Number of Unions in Entity' ).
+        WHEN 'SET_OPERATION_COUNT'.
+          lo_col->set_descriptions( iv_long = 'Used Set Operations' iv_tooltip = 'Number of Set Operations in Entity' ).
           lo_col->set_optimized( ).
 
         WHEN OTHERS.

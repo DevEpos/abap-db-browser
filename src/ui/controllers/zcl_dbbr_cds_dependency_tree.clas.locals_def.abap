@@ -47,7 +47,7 @@
          ev_entity_type TYPE ZSAT_ENTITY_TYPE.
    PRIVATE SECTION.
      TYPES: BEGIN OF ty_s_dependency_usage.
-         INCLUDE TYPE ZCL_SAT_CDS_DEP_ANALYZER=>ty_s_dependency.
+         INCLUDE TYPE zcl_sat_cds_usage_analyzer=>ty_dependency.
      TYPES: type_icon TYPE char40.
      TYPES: END OF ty_s_dependency_usage.
 
