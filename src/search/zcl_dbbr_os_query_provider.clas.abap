@@ -20,7 +20,7 @@ CLASS zcl_dbbr_os_query_provider IMPLEMENTATION.
                            iv_alias  = c_base_table ).
 
     IF mo_search_query->has_search_terms( ).
-      add_search_terms_to_search( it_field_names = VALUE #( ( `query_name` ) ) ).
+      add_search_terms_to_search( it_fields = VALUE #( ( fieldname = `query_name` ) ) ).
     ENDIF.
 
     LOOP AT mo_search_query->mt_search_options ASSIGNING FIELD-SYMBOL(<ls_option>).
