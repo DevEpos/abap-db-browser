@@ -738,7 +738,7 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
       ro_query->set_option(
           VALUE #(
               option      = zif_sat_c_object_search=>c_general_search_params-type
-              value_range = VALUE #( ( sign = 'I' option = 'EQ' low = zif_sat_c_object_search=>c_view_class-int-database ) ) ) ).
+              value_range = VALUE #( ( sign = 'I' option = 'EQ' low = zif_sat_c_os_view_options=>c_view_class-int-database ) ) ) ).
     ENDIF.
   ENDMETHOD.
 
