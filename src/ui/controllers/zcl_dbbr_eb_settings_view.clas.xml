@@ -21,7 +21,7 @@
     <item>
      <ID>I</ID>
      <KEY>002</KEY>
-     <ENTRY>Find Database Tables/Views</ENTRY>
+     <ENTRY>Find Database Tables</ENTRY>
      <LENGTH>52</LENGTH>
     </item>
     <item>
@@ -29,6 +29,12 @@
      <KEY>003</KEY>
      <ENTRY>Find Queries</ENTRY>
      <LENGTH>22</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Find Database Views</ENTRY>
+     <LENGTH>29</LENGTH>
     </item>
    </TPOOL>
    <DESCRIPTIONS>

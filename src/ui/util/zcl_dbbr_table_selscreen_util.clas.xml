@@ -15,7 +15,7 @@
     <item>
      <ID>I</ID>
      <KEY>001</KEY>
-     <ENTRY>Table</ENTRY>
+     <ENTRY>Table/View</ENTRY>
      <LENGTH>15</LENGTH>
     </item>
     <item>
@@ -29,6 +29,18 @@
      <KEY>003</KEY>
      <ENTRY>Where-Used-List for Table</ENTRY>
      <LENGTH>56</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Table</ENTRY>
+     <LENGTH>15</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>005</KEY>
+     <ENTRY>View</ENTRY>
+     <LENGTH>14</LENGTH>
     </item>
    </TPOOL>
    <DESCRIPTIONS>

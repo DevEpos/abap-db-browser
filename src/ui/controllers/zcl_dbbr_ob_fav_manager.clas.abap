@@ -133,10 +133,11 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
     DATA(lt_favorites) = zcl_dbbr_ob_fav_factory=>get_favorites( ).
 
     lt_fav_groups = VALUE #(
-      ( type = zif_dbbr_c_object_browser_mode=>cds_view            name = 'CDS view' )
-      ( type = zif_dbbr_c_object_browser_mode=>database_table_view name = 'Database Table/View' )
-      ( type = zif_dbbr_c_object_browser_mode=>query               name = 'Query' )
-      ( type = zif_dbbr_c_object_browser_mode=>package             name = 'Package' )
+      ( type = zif_dbbr_c_object_browser_mode=>cds_view       name = 'CDS view' )
+      ( type = zif_dbbr_c_object_browser_mode=>database_table name = 'Database Table' )
+      ( type = zif_dbbr_c_object_browser_mode=>database_view  name = 'Database View' )
+      ( type = zif_dbbr_c_object_browser_mode=>query          name = 'Query' )
+      ( type = zif_dbbr_c_object_browser_mode=>package        name = 'Package' )
     ).
 
     DATA(lo_nodes) = mo_tree->get_nodes( ).

@@ -139,9 +139,10 @@ CLASS zcl_dbbr_eb_settings_view IMPLEMENTATION.
 
     IF mf_first_call = abap_true.
       lt_list = VALUE #(
-        ( key = zif_dbbr_c_object_browser_mode=>cds_view            text = 'Find CDS Views'(001) )
-        ( key = zif_dbbr_c_object_browser_mode=>database_table_view text = 'Find Database Tables/Views'(002) )
-        ( key = zif_dbbr_c_object_browser_mode=>query               text = 'Find Queries'(003) )
+        ( key = zif_dbbr_c_object_browser_mode=>cds_view       text = 'Find CDS Views'(001) )
+        ( key = zif_dbbr_c_object_browser_mode=>database_table text = 'Find Database Tables'(002) )
+        ( key = zif_dbbr_c_object_browser_mode=>database_view  text = 'Find Database Views'(004) )
+        ( key = zif_dbbr_c_object_browser_mode=>query          text = 'Find Queries'(003) )
       ).
       CALL FUNCTION 'VRM_SET_VALUES'
         EXPORTING

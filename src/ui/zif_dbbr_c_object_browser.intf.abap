@@ -1,6 +1,6 @@
-"! <p class="shorttext synchronized" lang="en">Constants for Object Browser</p>
+"! <p class="shorttext synchronized">Constants for Object Browser</p>
 INTERFACE zif_dbbr_c_object_browser
-  PUBLIC .
+  PUBLIC.
 
   CONSTANTS:
     BEGIN OF c_search_type,
@@ -10,7 +10,7 @@ INTERFACE zif_dbbr_c_object_browser
 
   CONSTANTS:
     BEGIN OF c_query_options,
-      from type string value 'selectFrom',
+      from TYPE string VALUE 'from',
     END OF c_query_options.
 
   CONSTANTS:

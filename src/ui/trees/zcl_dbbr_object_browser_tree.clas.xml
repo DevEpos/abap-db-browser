@@ -27,7 +27,7 @@
     <item>
      <ID>I</ID>
      <KEY>003</KEY>
-     <ENTRY>Database Table/View</ENTRY>
+     <ENTRY>Database Table</ENTRY>
      <LENGTH>29</LENGTH>
     </item>
     <item>
@@ -281,6 +281,12 @@
      <KEY>045</KEY>
      <ENTRY>Not Released</ENTRY>
      <LENGTH>22</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>046</KEY>
+     <ENTRY>Database View</ENTRY>
+     <LENGTH>23</LENGTH>
     </item>
    </TPOOL>
    <DESCRIPTIONS>
@@ -565,6 +571,14 @@
      <DESCRIPT>Update toolbar for tree</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>CREATE_INPUT_DD</CMPNAME>
+     <SCONAME>IV_INITIAL_VALUE</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>the initial value</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
   </asx:values>
  </asx:abap>
 </abapGit>

@@ -33,7 +33,7 @@
     <item>
      <ID>I</ID>
      <KEY>004</KEY>
-     <ENTRY>Database Table/View</ENTRY>
+     <ENTRY>Database Table</ENTRY>
      <LENGTH>29</LENGTH>
     </item>
     <item>
@@ -113,6 +113,12 @@
      <KEY>017</KEY>
      <ENTRY>Additional Search Settings</ENTRY>
      <LENGTH>52</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>018</KEY>
+     <ENTRY>Database View</ENTRY>
+     <LENGTH>23</LENGTH>
     </item>
    </TPOOL>
    <DESCRIPTIONS>

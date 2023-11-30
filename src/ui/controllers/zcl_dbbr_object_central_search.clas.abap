@@ -222,9 +222,9 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
 
     ELSE.
       DATA(lo_variant_starter) = zcl_dbbr_variant_starter_fac=>create_variant_starter(
-          iv_variant_id        = zif_dbbr_c_global=>c_dummy_variant
-          iv_entity_type       = iv_entity_type
-          iv_variant_entity_id = |{ iv_entity_id }|
+        iv_variant_id        = zif_dbbr_c_global=>c_dummy_variant
+        iv_entity_type       = iv_entity_type
+        iv_variant_entity_id = |{ iv_entity_id }|
       ).
 
       lo_variant_starter->initialize( ).
@@ -272,12 +272,12 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
 *........ Open the chosen entity with ADT Tools
           TRY .
               zcl_sat_adt_util=>jump_adt(
-                  iv_obj_name        = CONV #( to_upper( iv_entity_id ) )
-                  iv_obj_type        = SWITCH #( iv_entity_type
-                    WHEN zif_sat_c_entity_type=>table THEN 'TABL'
-                    WHEN zif_sat_c_entity_type=>view THEN 'VIEW'
-                    WHEN zif_sat_c_entity_type=>cds_view THEN 'DDLS'
-                  )
+                iv_obj_name = CONV #( to_upper( iv_entity_id ) )
+                iv_obj_type = SWITCH #( iv_entity_type
+           WHEN zif_sat_c_entity_type=>table THEN 'TABL'
+           WHEN zif_sat_c_entity_type=>view THEN 'VIEW'
+           WHEN zif_sat_c_entity_type=>cds_view THEN 'DDLS'
+         )
               ).
             CATCH zcx_sat_adt_error INTO DATA(lx_adt_error).
               lx_adt_error->zif_sat_exception_message~print( ).
@@ -285,15 +285,15 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
 
         WHEN zif_dbbr_c_eb_link_mode=>show_content.
           show_content(
-              iv_entity_type = iv_entity_type
-              iv_entity_id   = iv_entity_id
-              if_new_window  = abap_false
+            iv_entity_type = iv_entity_type
+            iv_entity_id   = iv_entity_id
+            if_new_window  = abap_false
           ).
         WHEN zif_dbbr_c_eb_link_mode=>show_content_new_window.
           show_content(
-              iv_entity_type = iv_entity_type
-              iv_entity_id   = iv_entity_id
-              if_new_window  = abap_true
+            iv_entity_type = iv_entity_type
+            iv_entity_id   = iv_entity_id
+            if_new_window  = abap_true
           ).
 
       ENDCASE.
@@ -319,7 +319,7 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
   METHOD create_dd_input.
     mo_input_dd = NEW cl_dd_document( ).
 
-    mo_input_dd->initialize_document(  no_margins = abap_true ).
+    mo_input_dd->initialize_document( no_margins = abap_true ).
 
 *.. Fill the document
     mo_input_dd->add_form( IMPORTING formarea = DATA(lo_form) ).
@@ -328,9 +328,10 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
       EXPORTING
         tooltip        = |{ 'Object Category'(002) }|
         options        = VALUE #(
-          ( value = zif_dbbr_c_object_browser_mode=>cds_view            text = 'CDS View'(003) )
-          ( value = zif_dbbr_c_object_browser_mode=>database_table_view text = 'Database Table/View'(004) )
-          ( value = zif_dbbr_c_object_browser_mode=>query               text = 'Query'(005) )
+          ( value = zif_dbbr_c_object_browser_mode=>cds_view       text = 'CDS View'(003) )
+          ( value = zif_dbbr_c_object_browser_mode=>database_table text = 'Database Table/View'(004) )
+          ( value = zif_dbbr_c_object_browser_mode=>database_view  text = 'Database View'(018) )
+          ( value = zif_dbbr_c_object_browser_mode=>query          text = 'Query'(005) )
         )
       IMPORTING
         select_element = mo_search_type_select
@@ -342,7 +343,10 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
         mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>cds_view }| ).
 
       WHEN zif_sat_c_entity_type=>table.
-        mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>database_table_view }| ).
+        mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>database_table }| ).
+
+      WHEN zif_sat_c_entity_type=>view.
+        mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>database_view }| ).
 
       WHEN zif_sat_c_entity_type=>query.
         mo_search_type_select->set_value( |{ zif_dbbr_c_object_browser_mode=>query }| ).
@@ -401,7 +405,7 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
       if_editable  = abap_false
     ).
 
-    mo_alv->get_selections(  )->set_mode( value = zif_uitb_c_alv_selection=>cell ).
+    mo_alv->get_selections( )->set_mode( value = zif_uitb_c_alv_selection=>cell ).
 
     SET HANDLER:
       on_user_command FOR mo_alv->get_events( ),
@@ -441,8 +445,8 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
 
         DATA(lo_sorts) = mo_alv->get_sorting( ).
         lo_sorts->add_sort(
-            iv_column_name        = 'ENTITY_ID_RAW'
-            iv_sequence           = zif_uitb_c_alv_sorting=>descending
+          iv_column_name = 'ENTITY_ID_RAW'
+          iv_sequence    = zif_uitb_c_alv_sorting=>descending
         ).
 
         mo_alv->display( ).
@@ -462,22 +466,22 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
     lo_functions->set_quickfilter( ).
 
     lo_functions->add_function(
-        iv_name    = c_functions-settings
-        iv_icon    = |{ icon_personal_settings }|
-        iv_tooltip = |{ 'Customize Search Settings'(014) }|
+      iv_name    = c_functions-settings
+      iv_icon    = |{ icon_personal_settings }|
+      iv_tooltip = |{ 'Customize Search Settings'(014) }|
     ).
     update_search_settings_menu( ).
     lo_functions->add_function(
-        iv_name    = c_functions-search_settings
-        iv_icon    = |{ icon_settings }|
-        iv_type    = zcl_uitb_alv_functions=>menu_button
-        ir_menu    = mo_search_settings_menu
-        iv_tooltip = |{ 'Additional Search Settings'(017) }|
+      iv_name    = c_functions-search_settings
+      iv_icon    = |{ icon_settings }|
+      iv_type    = zcl_uitb_alv_functions=>menu_button
+      ir_menu    = mo_search_settings_menu
+      iv_tooltip = |{ 'Additional Search Settings'(017) }|
     ).
     lo_functions->add_function(
-        iv_name    = c_functions-show_help
-        iv_icon    = |{ icon_information }|
-        iv_tooltip = |{ 'Show Help'(015) }|
+      iv_name    = c_functions-show_help
+      iv_icon    = |{ icon_information }|
+      iv_tooltip = |{ 'Show Help'(015) }|
     ).
   ENDMETHOD.
 
@@ -486,8 +490,8 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
 
     TRY.
         mo_search_query = parse_query(
-           iv_query        = |{ mo_search_input->value }|
-           iv_browser_mode = mv_current_search_type
+          iv_query        = |{ mo_search_input->value }|
+          iv_browser_mode = mv_current_search_type
         ).
       CATCH zcx_sat_object_search INTO DATA(lx_parse_error).
         MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
@@ -503,8 +507,8 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
 
     TRY.
         mo_search_query = parse_query(
-           iv_query        = |{ mo_search_input->value }|
-           iv_browser_mode = mv_current_search_type
+          iv_query        = |{ mo_search_input->value }|
+          iv_browser_mode = mv_current_search_type
         ).
       CATCH zcx_sat_object_search INTO DATA(lx_parse_error).
         MESSAGE lx_parse_error TYPE 'S' DISPLAY LIKE 'E'.
@@ -523,37 +527,28 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD trigger_new_search.
-    DATA: lt_search_result TYPE zsat_entity_t,
-          lv_found_lines   TYPE sy-tabix.
+    DATA lt_search_result TYPE zsat_entity_t.
+    DATA lv_found_lines   TYPE sy-tabix.
 
     zcl_dbbr_screen_helper=>show_progress( iv_progress = 1 iv_text     = 'Searching...' ).
 
-    DATA(ls_max_option) = mo_search_query->get_option( zif_sat_c_object_search=>c_general_search_params-max_rows ).
-*.. Automatically fill max rows option from search settings
-    IF ls_max_option IS INITIAL.
-      mo_search_query->set_option( VALUE #( option = zif_sat_c_object_search=>c_general_search_params-max_rows
-                                            value_range = VALUE #( ( sign = 'I' option = 'EQ' low = |{ ms_settings-max_hits }| ) )
-                                          ) ).
+    " Automatically fill max rows option from search settings
+    IF mo_search_query->mv_max_rows IS INITIAL.
+      mo_search_query->set_max_rows( CONV #( ms_settings-max_hits ) ).
     ENDIF.
 
     TRY.
         CASE mv_current_search_type.
 
-*........ New CDS View Search
-          WHEN zif_dbbr_c_object_browser_mode=>cds_view.
-            search_objects( IMPORTING et_results = lt_search_result ).
-
-*........ New Package search
+          " New Package search
           WHEN zif_dbbr_c_object_browser_mode=>package.
 
-*........ New Database Table/View search
-          WHEN zif_dbbr_c_object_browser_mode=>database_table_view.
+          " New CDS View Search
+          WHEN zif_dbbr_c_object_browser_mode=>cds_view or
+               zif_dbbr_c_object_browser_mode=>database_view or
+               zif_dbbr_c_object_browser_mode=>database_table or
+               zif_dbbr_c_object_browser_mode=>query.
             search_objects( IMPORTING et_results = lt_search_result ).
-
-*........ New Query search
-          WHEN zif_dbbr_c_object_browser_mode=>query.
-            search_objects( IMPORTING et_results = lt_search_result ).
-
         ENDCASE.
 
         mt_result = CORRESPONDING #( lt_search_result ).
@@ -586,32 +581,32 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
     er_menu->add_separator( ).
     IF mr_current_selected->entity_type = zif_sat_c_entity_type=>cds_view.
       er_menu->add_function(
-          fcode = zcl_dbbr_object_central_search=>c_functions-show_cds_source
-          text  = |{ 'Show CDS Source'(008) }|
+        fcode = zcl_dbbr_object_central_search=>c_functions-show_cds_source
+        text  = |{ 'Show CDS Source'(008) }|
       ).
       er_menu->add_separator( ).
     ENDIF.
 
     er_menu->add_function(
-        fcode = zcl_dbbr_object_central_search=>c_functions-db_browser_content
-        text  = |{ 'Show Content'(012) }|
+      fcode = zcl_dbbr_object_central_search=>c_functions-db_browser_content
+      text  = |{ 'Show Content'(012) }|
     ).
     er_menu->add_function(
-        fcode = zcl_dbbr_object_central_search=>c_functions-db_browser_content_new_task
-        text  = |{ 'Show Content (New Window)'(013) }|
+      fcode = zcl_dbbr_object_central_search=>c_functions-db_browser_content_new_task
+      text  = |{ 'Show Content (New Window)'(013) }|
     ).
     er_menu->add_separator( ).
     er_menu->add_function(
-        fcode = zcl_dbbr_object_central_search=>c_functions-adt
-        text  = |{ 'Open with ADT Tools'(009) }|
+      fcode = zcl_dbbr_object_central_search=>c_functions-adt
+      text  = |{ 'Open with ADT Tools'(009) }|
     ).
     er_menu->add_function(
-        fcode = zcl_dbbr_object_central_search=>c_functions-db_browser
-        text  = |{ 'Open with DB Browser'(010) }|
+      fcode = zcl_dbbr_object_central_search=>c_functions-db_browser
+      text  = |{ 'Open with DB Browser'(010) }|
     ).
     er_menu->add_function(
-        fcode = zcl_dbbr_object_central_search=>c_functions-db_browser_new_task
-        text  = |{ 'Open with DB Browser (New Window)'(011) }|
+      fcode = zcl_dbbr_object_central_search=>c_functions-db_browser_new_task
+      text  = |{ 'Open with DB Browser (New Window)'(011) }|
     ).
   ENDMETHOD.
 
@@ -642,9 +637,9 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
     DATA(lr_selected) = REF #( mt_result[ lv_selected_row ] ).
 
     navigate_on_chosen_result(
-        iv_entity_id   = lr_selected->entity_id
-        iv_entity_type = lr_selected->entity_type
-        iv_action      = iv_action
+      iv_entity_id   = lr_selected->entity_id
+      iv_entity_type = lr_selected->entity_type
+      iv_action      = iv_action
     ).
   ENDMETHOD.
 
@@ -679,9 +674,9 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
       WHEN c_functions-show_cds_source.
         TRY.
             zcl_uitb_abap_code_viewer=>show_code(
-                iv_title  = |CDS Source Code of { mr_current_selected->entity_id_raw }|
-                iv_theme  = zcl_dbbr_usersettings_factory=>get_settings( )-code_viewer_theme
-                iv_code   = zcl_sat_cds_view_factory=>read_ddls_source( mr_current_selected->entity_id )
+              iv_title = |CDS Source Code of { mr_current_selected->entity_id_raw }|
+              iv_theme = zcl_dbbr_usersettings_factory=>get_settings( )-code_viewer_theme
+              iv_code  = zcl_sat_cds_view_factory=>read_ddls_source( mr_current_selected->entity_id )
             ).
           CATCH zcx_sat_application_exc.
             "handle exception
@@ -716,9 +711,9 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
     ENDIF.
 
     mo_search_settings_menu->add_function(
-        fcode   = c_functions-use_and_instead_of_or
-        text    = |{ 'Use "AND" for search options'(016) }|
-        checked = mf_use_and_for_filter_opt
+      fcode   = c_functions-use_and_instead_of_or
+      text    = |{ 'Use "AND" for search options'(016) }|
+      checked = mf_use_and_for_filter_opt
     ).
     CLEAR mo_search_query.
   ENDMETHOD.
@@ -726,17 +721,25 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
   METHOD parse_query.
     DATA(lv_search_type) = SWITCH zif_sat_ty_object_search=>ty_search_type( iv_browser_mode
       WHEN zif_dbbr_c_object_browser_mode=>cds_view THEN zif_sat_c_object_search=>c_search_type-cds_view
-      WHEN zif_dbbr_c_object_browser_mode=>database_table_view THEN zif_sat_c_object_search=>c_search_type-db_tab_view
+      WHEN zif_dbbr_c_object_browser_mode=>database_table THEN zif_sat_c_object_search=>c_search_type-db_tab
+      WHEN zif_dbbr_c_object_browser_mode=>database_view THEN zif_sat_c_object_search=>c_search_type-ddic_view
       WHEN zif_dbbr_c_object_browser_mode=>query THEN zif_dbbr_c_object_browser=>c_search_type-query
       WHEN zif_dbbr_c_object_browser_mode=>package THEN zif_dbbr_c_object_browser=>c_search_type-package
-
     ).
     DATA(lo_search_engine) = CAST zif_sat_search_engine( zcl_sat_ioc_lookup=>get_instance(
                                                            iv_contract = 'zif_sat_search_engine' ) ).
     ro_query = lo_search_engine->parse_query(
-        iv_search_query = iv_query
-        iv_search_type  = lv_search_type
+      iv_search_query = iv_query
+      iv_search_type  = lv_search_type
     ).
+
+    IF lv_search_type = zif_sat_c_object_search=>c_search_type-ddic_view.
+      " Non database views are not of interest in DB Browser
+      ro_query->set_option(
+          VALUE #(
+              option      = zif_sat_c_object_search=>c_general_search_params-type
+              value_range = VALUE #( ( sign = 'I' option = 'EQ' low = zif_sat_c_os_view_options=>c_view_class-int-database ) ) ) ).
+    ENDIF.
   ENDMETHOD.
 
   METHOD search_objects.
@@ -745,10 +748,17 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
                                   iv_filter   = |{ mo_search_query->mv_type }| )
                                 ).
     lo_search_engine->search_objects_by_query(
-      EXPORTING io_query                = mo_search_query
-                is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
-      IMPORTING et_results              = et_results
+      EXPORTING
+        io_query                = mo_search_query
+        is_search_engine_params = VALUE #( use_and_cond_for_options = mf_use_and_for_filter_opt )
+      IMPORTING
+        et_results              = DATA(lt_results)
     ).
+
+    et_results = CORRESPONDING #( lt_results MAPPING entity_id           = object_name
+                                                     entity_id_raw       = raw_object_name
+                                                     secondary_entity_id = alt_object_name
+                                                     source_type         = cds_source_type ).
 
   ENDMETHOD.
 
