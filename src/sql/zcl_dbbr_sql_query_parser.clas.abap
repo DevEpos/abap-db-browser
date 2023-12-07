@@ -190,7 +190,8 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
       ( sign = 'I' option = 'EQ' low = 'SUM' )
       ( sign = 'I' option = 'EQ' low = 'MAX' )
       ( sign = 'I' option = 'EQ' low = 'MIN' )
-      ( sign = 'I' option = 'EQ' low = 'AVG' ) ).
+      ( sign = 'I' option = 'EQ' low = 'AVG' )
+      ( sign = 'I' option = 'EQ' low = 'SINGLE' ) ).
 
     gt_aggregate_func_range = VALUE #(
       ( sign = 'I' option = 'EQ' low = 'GROUP' ) ).
