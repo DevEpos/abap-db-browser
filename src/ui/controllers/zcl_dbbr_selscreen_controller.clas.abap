@@ -96,8 +96,9 @@ CLASS zcl_dbbr_selscreen_controller DEFINITION
     METHODS edit_alternative_col_texts .
     METHODS execute_selection
       IMPORTING
-        !if_count_lines_only TYPE boolean OPTIONAL
-        !if_no_grouping      TYPE boolean OPTIONAL .
+        if_count_lines_only  TYPE boolean OPTIONAL
+        if_no_grouping       TYPE boolean OPTIONAL
+        if_delete_db_content TYPE boolean OPTIONAL.
 
     "! <p class="shorttext synchronized" lang="en">Handles pressed function for possible parameter field</p>
     METHODS handle_parameter_line
@@ -345,8 +346,7 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
 
   METHOD clear_edit_flags.
-    CLEAR: mo_data->mr_s_global_data->edit,
-           mo_data->mr_s_global_data->delete_mode.
+    CLEAR mo_data->mr_s_global_data->edit.
   ENDMETHOD.
 
 
@@ -579,23 +579,21 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
         DATA(mr_t_multi_or) = mo_data->get_multi_or_all( ).
 
         DATA(lr_controller) = zcl_dbbr_selection_controller=>create_controller(
-          VALUE #(
-              entity_type          = mo_data->get_mode( )
-              entity_id            = lv_entity_id
-              selection_fields     = lt_selfields
-              technical_infos      = CORRESPONDING #( mo_data->mr_s_global_data->* )
-              no_grouping          = if_no_grouping
-              grouping_minimum     = mo_data->mr_s_global_data->grouping_minimum
-              multi_or             = mr_t_multi_or->*
-              edit_mode            = mo_data->mr_s_global_data->edit
-              delete_mode_active   = mo_data->mr_s_global_data->delete_mode
-              selfields_multi      = mo_data->mr_t_selfields_multi->*
-              tabfields            = <lr_tabfields>->copy( )
-              tabfields_all        = <lr_tabfields_all>->copy( )
-              join_def             = mo_data->mr_s_join_def->*
-              formula              = lr_valid_formula
-          )
-        ).
+            VALUE #(
+                entity_type        = mo_data->get_mode( )
+                entity_id          = lv_entity_id
+                selection_fields   = lt_selfields
+                technical_infos    = CORRESPONDING #( mo_data->mr_s_global_data->* )
+                no_grouping        = if_no_grouping
+                grouping_minimum   = mo_data->mr_s_global_data->grouping_minimum
+                multi_or           = mr_t_multi_or->*
+                edit_mode          = COND #( WHEN if_delete_db_content = abap_false THEN mo_data->mr_s_global_data->edit )
+                delete_mode_active = if_delete_db_content
+                selfields_multi    = mo_data->mr_t_selfields_multi->*
+                tabfields          = <lr_tabfields>->copy( )
+                tabfields_all      = <lr_tabfields_all>->copy( )
+                join_def           = mo_data->mr_s_join_def->*
+                formula            = lr_valid_formula ) ).
 
         lr_controller->execute_selection( if_count_lines_only ).
 
@@ -1662,6 +1660,10 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
               MESSAGE s080(zdbbr_info) WITH 'on'(009).
             ENDIF.
 
+          when zif_dbbr_c_selscreen_functions=>delete_db_content.
+            mo_util->delete_join_definition( ). " just for safety
+            execute_selection( if_delete_db_content = abap_true ).
+
           WHEN zif_dbbr_c_selscreen_functions=>count_lines.
             execute_selection( if_count_lines_only = abap_true ).
 
@@ -1720,7 +1722,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
           WHEN zif_dbbr_c_selscreen_functions=>check_edit_option.
             IF mo_data->mr_s_global_data->edit = abap_true.
-              CLEAR: mo_data->mr_s_global_data->delete_mode.
               mo_util->delete_join_definition( ).
             ENDIF.
 
@@ -1776,13 +1777,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
 
           WHEN zif_dbbr_c_selscreen_functions=>display_entity_navigator.
             show_object_navigator( ).
-
-          WHEN zif_dbbr_c_selscreen_functions=>delete_mode.
-            IF mo_data->mr_s_global_data->delete_mode = abap_true.
-              CLEAR mo_data->mr_s_global_data->edit.
-              " delete existing join
-              mo_util->delete_join_definition( ).
-            ENDIF.
 
           WHEN zif_dbbr_c_selscreen_functions=>pick_navigation.
             pick_navigate( ).
@@ -1922,11 +1916,6 @@ CLASS zcl_dbbr_selscreen_controller IMPLEMENTATION.
       IF screen-name = 'GS_DATA-EDIT'.
         screen-input = COND #( WHEN zcl_dbbr_dep_feature_util=>is_se16n_available( ) AND
                                     lf_no_editing_possible = abap_false THEN 1 ELSE 0 ).
-        MODIFY SCREEN.
-      ENDIF.
-
-      IF screen-name = 'GS_DATA-DELETE_MODE'.
-        screen-active = COND #( WHEN mo_data->mr_s_global_data->advanced_mode = abap_false THEN 0 ELSE 1 ).
         MODIFY SCREEN.
       ENDIF.
 

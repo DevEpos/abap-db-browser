@@ -220,9 +220,11 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
     mo_data->mr_s_entity_function2->text = 'Where-Used-List for Table'(003).
   ENDMETHOD.
 
-
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
     result = super->get_deactivated_functions( ).
+    IF mo_data->is_join_active( ).
+      result = VALUE #( BASE result ( zif_dbbr_c_selscreen_functions=>delete_db_content ) ).
+    ENDIF.
   ENDMETHOD.
 
 

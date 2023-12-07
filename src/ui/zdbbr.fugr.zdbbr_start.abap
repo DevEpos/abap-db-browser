@@ -1,4 +1,4 @@
-FUNCTION ZDBBR_START.
+FUNCTION zdbbr_start.
 *"----------------------------------------------------------------------
 *"*"Local Interface:
 *"  IMPORTING
@@ -11,8 +11,7 @@ FUNCTION ZDBBR_START.
 
   IF if_initialize = abap_true.
     " clear edit flags
-    CLEAR: gs_data-edit,
-           gs_data-delete_mode.
+    CLEAR gs_data-edit.
   ENDIF.
 
 * initialize some global fields

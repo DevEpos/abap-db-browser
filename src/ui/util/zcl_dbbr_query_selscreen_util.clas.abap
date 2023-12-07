@@ -354,7 +354,8 @@ CLASS zcl_dbbr_query_selscreen_util IMPLEMENTATION.
 
 
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
-    result = super->get_deactivated_functions( ).
+    result = VALUE #( ( LINES OF super->get_deactivated_functions( ) )
+                      ( zif_dbbr_c_selscreen_functions=>delete_db_content ) ).
 
     IF mv_query_name IS NOT INITIAL AND
        mo_data->mr_s_query_info->source IS NOT INITIAL.

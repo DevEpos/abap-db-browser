@@ -312,10 +312,9 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
 
 
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
-    result = VALUE #(
-      ( LINES OF super->get_deactivated_functions( ) )
-      ( zif_dbbr_c_selscreen_functions=>select_additional_texts )
-    ).
+    result = VALUE #( ( LINES OF super->get_deactivated_functions( ) )
+                      ( zif_dbbr_c_selscreen_functions=>select_additional_texts )
+                      ( zif_dbbr_c_selscreen_functions=>delete_db_content ) ).
 
     IF mo_cds_view IS BOUND.
       DATA(lv_source_type) = mo_cds_view->get_header( )-source_type.

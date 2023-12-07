@@ -882,23 +882,6 @@
       <RPY_DYFATC>
        <CONT_TYPE>SCREEN</CONT_TYPE>
        <CONT_NAME>SCREEN</CONT_NAME>
-       <TYPE>CHECK</TYPE>
-       <NAME>GS_DATA-DELETE_MODE</NAME>
-       <TEXT>Delete_Entries__</TEXT>
-       <LINE>004</LINE>
-       <COLUMN>059</COLUMN>
-       <LENGTH>018</LENGTH>
-       <VISLENGTH>018</VISLENGTH>
-       <HEIGHT>001</HEIGHT>
-       <GROUP4>EDT</GROUP4>
-       <PUSH_FCODE>DEL_MODE</PUSH_FCODE>
-       <FORMAT>CHAR</FORMAT>
-       <INPUT_FLD>X</INPUT_FLD>
-       <OUTPUT_FLD>X</OUTPUT_FLD>
-      </RPY_DYFATC>
-      <RPY_DYFATC>
-       <CONT_TYPE>SCREEN</CONT_TYPE>
-       <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>TXT_GROUPING_MINIMUM</NAME>
        <TEXT>Grouping_Minimum</TEXT>
@@ -4412,6 +4395,12 @@
       <FUN_TEXT>Delete all Criteria</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
+      <CODE>DELDBCONT</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>Delete DB Content</FUN_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
       <CODE>DELETE</CODE>
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
@@ -6073,35 +6062,42 @@
      <RSMPE_MEN>
       <CODE>000001</CODE>
       <NO>03</NO>
-      <REF_TYPE>S</REF_TYPE>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>DELDBCONT</REF_CODE>
+      <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000001</CODE>
       <NO>04</NO>
+      <REF_TYPE>S</REF_TYPE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000001</CODE>
+      <NO>05</NO>
       <REF_TYPE>F</REF_TYPE>
       <REF_CODE>SAVESCRIPT</REF_CODE>
       <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000001</CODE>
-      <NO>05</NO>
+      <NO>06</NO>
       <REF_TYPE>S</REF_TYPE>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000001</CODE>
-      <NO>06</NO>
+      <NO>07</NO>
       <REF_TYPE>F</REF_TYPE>
       <REF_CODE>SHOWVERSIO</REF_CODE>
       <REF_NO>001</REF_NO>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000001</CODE>
-      <NO>07</NO>
+      <NO>08</NO>
       <REF_TYPE>S</REF_TYPE>
      </RSMPE_MEN>
      <RSMPE_MEN>
       <CODE>000001</CODE>
-      <NO>08</NO>
+      <NO>09</NO>
       <REF_TYPE>F</REF_TYPE>
       <REF_CODE>&amp;F15</REF_CODE>
       <REF_NO>001</REF_NO>
@@ -12440,6 +12436,10 @@
      <RSMPE_STAF>
       <STATUS>0100</STATUS>
       <FUNCTION>DELALLCRIT</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>DELDBCONT</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>0100</STATUS>

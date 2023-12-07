@@ -618,8 +618,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
 
   METHOD clear_edit_flags.
-    CLEAR: mo_data->mr_s_global_data->edit,
-           mo_data->mr_s_global_data->delete_mode.
+    CLEAR mo_data->mr_s_global_data->edit.
   ENDMETHOD.
 
   METHOD convert_to_selfield.
@@ -1247,7 +1246,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         ( zif_dbbr_c_selscreen_functions=>execute_selection )
         ( zif_dbbr_c_selscreen_functions=>count_lines )
         ( zif_dbbr_c_selscreen_functions=>check_edit_option )
-        ( zif_dbbr_c_selscreen_functions=>delete_mode )
+        ( zif_dbbr_c_selscreen_functions=>delete_db_content )
         ( zif_dbbr_c_selscreen_functions=>define_joins )
         ( zif_dbbr_c_selscreen_functions=>edit_alternative_coltexts )
         ( zif_dbbr_c_selscreen_functions=>activate_optional_or_select )
@@ -1271,14 +1270,13 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         ( zif_dbbr_c_selscreen_functions=>show_ddls_source )
         ( zif_dbbr_c_selscreen_functions=>go_to_ddic_view_of_cds )
         ( zif_dbbr_c_selscreen_functions=>open_cds_view_with_adt )
-
       ).
     ELSE.
 *.... deactivate functions if advanced mode is not activated
       IF mo_data->mr_s_global_data->settings-advanced_mode = abap_false.
         result = VALUE #(
-          ( zif_dbbr_c_selscreen_functions=>delete_mode )
           ( zif_dbbr_c_selscreen_functions=>define_joins )
+          ( zif_dbbr_c_selscreen_functions=>delete_db_content )
           ( zif_dbbr_c_selscreen_functions=>delete_joins )
           ( zif_dbbr_c_selscreen_functions=>save_query )
           ( zif_dbbr_c_selscreen_functions=>define_sub_queries )
