@@ -198,13 +198,13 @@ CLASS zcl_dbbr_base_select_tc IMPLEMENTATION.
        ( is_selfield-domname = zif_dbbr_c_global=>c_domain_names-timestamp OR
          is_selfield-domname = zif_dbbr_c_global=>c_domain_names-timestamp_long ) AND
        get_util( )->mo_data->mr_s_global_data->settings-disable_date_to_times_conv = abap_false )
-         AND cv_value = 'SY-DATUM'.
+         AND ( cv_value = 'SY-DATUM' OR cv_value = 'TODAY' ).
       cv_value = |{ sy-datum DATE = USER }|.
     ENDIF.
 
     IF is_selfield-datatype = 'CHAR' AND
        is_selfield-intlen >= 12 AND
-       cv_value = 'SY-UNAME'.
+       ( cv_value = 'SY-UNAME' OR cv_value = 'ME' ).
       cv_value = sy-uname.
     ENDIF.
 

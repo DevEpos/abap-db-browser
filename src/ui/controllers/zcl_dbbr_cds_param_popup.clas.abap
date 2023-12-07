@@ -315,7 +315,7 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
 *.... Consider sy-datum
       IF ls_param_field-inttype = cl_abap_typedescr=>typekind_date.
         DATA(lv_system_date_value) = to_upper( lv_value ).
-        IF lv_system_date_value = 'SY-DATUM'.
+        IF lv_system_date_value = 'SY-DATUM' OR lv_system_date_value = 'TODAY'.
           lv_value = |{ sy-datum DATE = USER }|.
         ENDIF.
       ENDIF.
