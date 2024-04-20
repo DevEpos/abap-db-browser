@@ -191,6 +191,9 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         text      = |{ TEXT-022 }|
         quickinfo = |{ TEXT-023 }|
         fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f8 )
+      ( function  = zif_dbbr_c_selection_functions=>export_json_data
+        text      = |{ 'Export as JSON' }|
+        icon      = icon_export )
       ( function  = cl_gui_alv_grid=>mc_fc_current_variant
         icon      = icon_alv_variants
         quickinfo = |{ TEXT-024 }|

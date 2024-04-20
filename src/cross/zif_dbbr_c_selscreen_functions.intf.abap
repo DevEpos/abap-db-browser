@@ -32,6 +32,7 @@ INTERFACE zif_dbbr_c_selscreen_functions
   CONSTANTS copy_query TYPE sy-ucomm VALUE 'ENTITYFC02' ##NO_TEXT.
   CONSTANTS count_lines TYPE sy-ucomm VALUE 'LINE_COUNT' ##NO_TEXT.
   CONSTANTS cross_reference_table TYPE sy-ucomm VALUE 'ENTITYFC02' ##NO_TEXT.
+  CONSTANTS import_json_data type sy-ucomm value 'ENTITYFC04'.
   CONSTANTS deactiv_optl_or_select TYPE sy-ucomm VALUE 'OR_SEL_OFF' ##NO_TEXT.
   CONSTANTS define_joins TYPE sy-ucomm VALUE 'SET_JOINS' ##NO_TEXT.
   CONSTANTS define_sub_queries TYPE sy-ucomm VALUE 'DEFSUBQURY' ##NO_TEXT.

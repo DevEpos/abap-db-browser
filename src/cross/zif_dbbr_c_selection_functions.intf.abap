@@ -22,6 +22,7 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS disable_chkbox_col_style_all TYPE sy-ucomm VALUE 'DISCHKBOX_STYLE_ALL' ##NO_TEXT.
   CONSTANTS display_db_browser_version TYPE sy-ucomm VALUE 'SHOWVERSIO' ##NO_TEXT.
   CONSTANTS edit_data TYPE sy-ucomm VALUE 'EDITDATA' ##NO_TEXT.
+  CONSTANTS export_json_data TYPE sy-ucomm value 'EXPORT_AS_JSON'.
   CONSTANTS emphasize_lines TYPE sy-ucomm VALUE 'EMPH_LINES' ##NO_TEXT.
   CONSTANTS emphasize_negative_values TYPE sy-ucomm VALUE 'EMPH_NEGAT' ##NO_TEXT.
   CONSTANTS emph_blue TYPE sy-ucomm VALUE 'EMPH_BLUE' ##NO_TEXT.
