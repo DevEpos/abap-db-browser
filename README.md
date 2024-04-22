@@ -16,7 +16,7 @@ See [here](https://devepos.com/projects/sap-gui/db-browser/)
 
 ### Installation Guide
 Install this repository using [abapGit](https://github.com/abapGit/abapGit#).  
-See the [Installation Guide](https://devepos.com/projects/abap-db-browser/installation.html)
+See the [Installation Guide](https://devepos.com/projects/sap-gui/db-browser/installation.html)
 
 #### SAP NetWeaver Compatibility
 Due to some used classes which are only available starting from **v7.50** a downwards compatibility to **v7.40** in a single 
