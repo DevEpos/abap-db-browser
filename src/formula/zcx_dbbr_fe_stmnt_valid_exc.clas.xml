@@ -6,6 +6,7 @@
     <CLSNAME>ZCX_DBBR_FE_STMNT_VALID_EXC</CLSNAME>
     <LANGU>E</LANGU>
     <DESCRIPT>Validation error for formula statement</DESCRIPT>
+    <CATEGORY>40</CATEGORY>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
