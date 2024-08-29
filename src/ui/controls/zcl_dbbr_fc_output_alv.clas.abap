@@ -1,15 +1,15 @@
-"! <p class="shorttext synchronized" lang="en">Field Control: ALV for managing the output fields</p>
+"! <p class="shorttext synchronized">Field Control: ALV for managing the output fields</p>
 CLASS zcl_dbbr_fc_output_alv DEFINITION
   PUBLIC
-  INHERITING FROM zcl_dbbr_fc_generic_alv
-  FINAL
-  CREATE PUBLIC .
+  INHERITING FROM zcl_dbbr_fc_generic_alv FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
+
   PROTECTED SECTION.
+
   PRIVATE SECTION.
 ENDCLASS.
-
 
 
 CLASS zcl_dbbr_fc_output_alv IMPLEMENTATION.

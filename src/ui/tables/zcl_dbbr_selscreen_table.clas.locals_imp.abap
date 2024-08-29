@@ -3,30 +3,25 @@
 *"* declarations
 
 CLASS lcl_find_table_field_view IMPLEMENTATION.
-
   METHOD constructor.
-    super->constructor(
-        iv_title          = 'Find Field'
-        iv_filter_prompt  = 'Filter Field'
-        if_use_alv_filter = abap_true
-        iv_initial_focus  = c_focus_on_filter
-    ).
+    super->constructor( iv_title          = 'Find Field'
+                        iv_filter_prompt  = 'Filter Field'
+                        if_use_alv_filter = abap_true
+                        iv_initial_focus  = c_focus_on_filter ).
 
     mf_hide_tabname_field = if_hide_tabname_field.
     mt_col = it_col.
   ENDMETHOD.
 
   METHOD get_chosen_field_index.
-    CLEAR: mv_chosen_index.
+    CLEAR mv_chosen_index.
 
     mt_col_filtered = mt_col.
 
-    show(
-        iv_top    = 2
-        iv_left   = 20
-        iv_width  = 90
-        iv_height = 20
-    ).
+    show( iv_top    = 2
+          iv_left   = 20
+          iv_width  = 90
+          iv_height = 20 ).
 
     CLEAR mo_alv.
 
@@ -34,15 +29,15 @@ CLASS lcl_find_table_field_view IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD matches_filter.
-    FIELD-SYMBOLS: <ls_field> TYPE lty_s_col_selection.
+    FIELD-SYMBOLS <ls_field> TYPE lty_s_col_selection.
 
     ASSIGN is_data TO <ls_field>.
 
     DATA(lv_filter) = |*{ to_upper( iv_filter ) }*|.
 
-    IF to_upper( <ls_field>-fieldname ) CP lv_filter OR
-       to_upper( <ls_field>-tech_fieldname ) CP lv_filter OR
-       to_upper( <ls_field>-description ) CP lv_filter.
+    IF    to_upper( <ls_field>-fieldname )      CP lv_filter
+       OR to_upper( <ls_field>-tech_fieldname ) CP lv_filter
+       OR to_upper( <ls_field>-description )    CP lv_filter.
       rf_matches = abap_true.
     ENDIF.
   ENDMETHOD.
@@ -81,5 +76,4 @@ CLASS lcl_find_table_field_view IMPLEMENTATION.
         io_column->set_output_length( 5 ).
     ENDCASE.
   ENDMETHOD.
-
 ENDCLASS.

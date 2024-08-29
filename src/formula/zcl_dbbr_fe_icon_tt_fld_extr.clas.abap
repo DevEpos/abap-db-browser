@@ -1,27 +1,21 @@
-class ZCL_DBBR_FE_ICON_TT_FLD_EXTR definition
-  public
-  create public .
+CLASS zcl_dbbr_fe_icon_tt_fld_extr DEFINITION
+  PUBLIC
+  CREATE PUBLIC.
 
-public section.
+  PUBLIC SECTION.
+    INTERFACES zif_dbbr_fe_field_extractor.
 
-  interfaces ZIF_DBBR_FE_FIELD_EXTRACTOR .
-protected section.
-private section.
+  PROTECTED SECTION.
+
+  PRIVATE SECTION.
 ENDCLASS.
 
 
-
-CLASS ZCL_DBBR_FE_ICON_TT_FLD_EXTR IMPLEMENTATION.
-
-
-  method ZIF_DBBR_FE_FIELD_EXTRACTOR~EXTRACT_FIELD.
-
+CLASS zcl_dbbr_fe_icon_tt_fld_extr IMPLEMENTATION.
+  METHOD zif_dbbr_fe_field_extractor~extract_field.
     ASSIGN is_statement-tokens TO FIELD-SYMBOL(<lt_tokens>).
 
-    rs_field = VALUE ZIF_DBBR_fe_types=>ty_form_field(
-        field             = <lt_tokens>[ 2 ]-str
-        type_name         = zif_dbbr_c_fe_global=>c_icon_tt_type
-    ).
-
-  endmethod.
+    rs_field = VALUE zif_dbbr_fe_types=>ty_form_field( field     = <lt_tokens>[ 2 ]-str
+                                                       type_name = zif_dbbr_c_fe_global=>c_icon_tt_type ).
+  ENDMETHOD.
 ENDCLASS.

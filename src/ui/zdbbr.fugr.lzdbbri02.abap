@@ -19,15 +19,11 @@ MODULE cancel_0001 INPUT.
 ENDMODULE.
 
 MODULE field_f4_multi_low INPUT.
-  gr_multi_select_controller->call_f4_help(
-      if_for_low = abap_true
-  ).
+  gr_multi_select_controller->call_f4_help( if_for_low = abap_true ).
 ENDMODULE.
 
 MODULE field_f4_multi_high INPUT.
-  gr_multi_select_controller->call_f4_help(
-      if_for_low = abap_false
-  ).
+  gr_multi_select_controller->call_f4_help( if_for_low = abap_false ).
 ENDMODULE.
 
 MODULE field_f4_multi_or_low INPUT.

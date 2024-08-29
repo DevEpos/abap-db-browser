@@ -1,21 +1,19 @@
 CLASS zcl_dbbr_input_validator DEFINITION
   PUBLIC
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-
     CLASS-METHODS check_and_crop_input
       CHANGING
-        !cv_value TYPE zsat_value .
+        cv_value TYPE zsat_value.
+
   PROTECTED SECTION.
+
   PRIVATE SECTION.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_input_validator IMPLEMENTATION.
-
-
   METHOD check_and_crop_input.
 *&---------------------------------------------------------------------*
 *& Description: Checks if input has the correct length
@@ -30,7 +28,5 @@ CLASS zcl_dbbr_input_validator IMPLEMENTATION.
 
       MESSAGE i104(zdbbr_info).
     ENDIF.
-
-
   ENDMETHOD.
 ENDCLASS.

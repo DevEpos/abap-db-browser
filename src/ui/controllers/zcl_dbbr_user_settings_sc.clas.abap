@@ -1,11 +1,10 @@
-"! <p class="shorttext synchronized" lang="en">Controller for user settings</p>
+"! <p class="shorttext synchronized">Controller for user settings</p>
 CLASS zcl_dbbr_user_settings_sc DEFINITION
   PUBLIC
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-
-    INTERFACES zif_uitb_screen_controller .
+    INTERFACES zif_uitb_screen_controller.
 
     CONSTANTS:
       BEGIN OF c_tab_ids,
@@ -17,34 +16,33 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
         cds_view_tab       TYPE string VALUE 'CDS',
       END OF c_tab_ids.
 
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    "! <p class="shorttext synchronized">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
         is_user_settings TYPE zdbbr_user_settings_a OPTIONAL
-        iv_start_tab     TYPE string OPTIONAL
-        iv_start_dynnr   TYPE sy-dynnr OPTIONAL
-        if_disable_save  TYPE abap_bool OPTIONAL.
-    "! <p class="shorttext synchronized" lang="en">Initialize the screen during first call</p>
+        iv_start_tab     TYPE string                OPTIONAL
+        iv_start_dynnr   TYPE sy-dynnr              OPTIONAL
+        if_disable_save  TYPE abap_bool             OPTIONAL.
+
+    "! <p class="shorttext synchronized">Initialize the screen during first call</p>
     METHODS initialize_screen
       CHANGING
         cs_tabs TYPE seltabinfo.
+
     METHODS get_settings
       RETURNING
         VALUE(rs_settings) TYPE zdbbr_user_settings_a.
+
   PROTECTED SECTION.
+
   PRIVATE SECTION.
+    ALIASES get_report_id FOR zif_uitb_screen_controller~get_report_id.
+    ALIASES get_screen_id FOR zif_uitb_screen_controller~get_screen_id.
+    ALIASES mf_first_call FOR zif_uitb_screen_controller~mf_first_call.
 
-    ALIASES get_report_id
-      FOR zif_uitb_screen_controller~get_report_id .
-    ALIASES get_screen_id
-      FOR zif_uitb_screen_controller~get_screen_id .
-    ALIASES mf_first_call
-      FOR zif_uitb_screen_controller~mf_first_call.
+    TYPES lty_tab_button TYPE c LENGTH 83.
 
-    TYPES:
-      lty_tab_button TYPE c LENGTH 83 .
-
-    DATA ms_user_settings TYPE zdbbr_user_settings_a .
+    DATA ms_user_settings TYPE zdbbr_user_settings_a.
     DATA mf_disable_save TYPE abap_bool.
     DATA mv_start_tab TYPE string.
     DATA mv_start_dynnr TYPE string.
@@ -92,21 +90,19 @@ CLASS zcl_dbbr_user_settings_sc DEFINITION
         color_cds_calculated_fields   TYPE REF TO zdbbr_user_settings_a-color_cds_calculated_fields,
         async_max_rows_determination  TYPE REF TO zdbbr_user_settings_a-async_max_rows_determination,
         disable_auto_max_rows_det     TYPE REF TO zdbbr_user_settings_a-disable_auto_max_rows_det,
-      END OF ms_user_settings_refs .
-    DATA mf_data_changed TYPE abap_bool .
+      END OF ms_user_settings_refs.
+    DATA mf_data_changed TYPE abap_bool.
 
     METHODS transfer_ui_data
       IMPORTING
-        !if_from_screen TYPE abap_bool OPTIONAL
-        !if_to_screen   TYPE abap_bool OPTIONAL .
-    METHODS save_settings .
+        if_from_screen TYPE abap_bool OPTIONAL
+        if_to_screen   TYPE abap_bool OPTIONAL.
+
+    METHODS save_settings.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
-
-
   METHOD constructor.
     DEFINE read_parameter_reference.
       ms_user_settings_refs-&1 = CAST #( lr_data_cache->get_data_ref( zif_dbbr_user_settings_ids=>&2 ) ).
@@ -120,48 +116,89 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     " initialize the global data cache
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>user_settings ).
 
-    read_parameter_reference:
-        color_sort_columns            c_color_sorted_columns,
-        tech_names                    c_technical_names,
-        no_merging_on                 c_no_merging_of_srt_cols,
-        no_convexit                   c_no_conv_exit,
-        zero_val_as_blank             c_zeros_as_blanks,
-        tech_first                    c_technical_fields_first,
-        tech_view                     c_technical_view,
-        max_lines                     c_max_result_lines,
-        no_trailing_sign              c_no_trailing_sign,
-        emphasize_text_fields         c_color_add_text_fields,
-        key_cols_not_fixed            c_no_fixed_key_cols,
-        fav_user_mode                 c_favorite_mode_entry,
-        use_reduced_memory            c_use_reduced_memory,
-        auto_layout_transfer          c_auto_layout_transfer,
-        advanced_mode                 c_advanced_mode,
-        object_navigator_open         c_object_navigator_at_start,
-        initial_obj_brws_mode         c_initial_obj_browser_mode,
-        initial_obj_nav_mode          c_initial_obj_nav_mode,
-        last_used_count               c_number_fav_most_used,
-        color_formula_fields          c_color_formula_fields,
-        experimental_mode             c_experimental_mode,
-        show_db_size_in_title         c_read_db_table_length,
-        enable_alv_default_variant    c_enable_alv_default_var,
-        maintain_entries              c_activate_maintain_entries,
-        search_ignore_case            c_search_ignore_case,
-        assoc_sel_mode                c_assocation_sel_mode,
-        show_assoc_brws_at_start      c_show_assoc_sel_at_start,
-        activate_alv_live_filter      c_activate_alv_live_filter,
-        disable_date_to_times_conv    c_disable_date_to_timest_conv,
-        use_ddl_view_for_select       c_use_ddl_view_for_select,
-        deactvt_highltng_in_cqe       c_deactvt_highltng_in_cqe,
-        code_viewer_theme             c_code_viewer_theme,
-        auto_sel_filter_saving        c_auto_select_criteria_saving,
-        always_load_def_variant_first c_always_load_def_var_first,
-        dock_obj_nav_on_right         c_dock_obj_nav_on_right,
-        selscr_compact_col_widths     c_selscr_compact_col_widths,
-        auto_hide_empty_cols          c_auto_hide_empty_cols,
-        calculate_virtual_element     c_calculate_virtual_elements,
-        ignore_error_virt_elem_calc   c_ignore_error_virt_elem_calc,
-        color_cds_calculated_fields   c_color_cds_calculated_fields,
-        async_max_rows_determination  c_async_max_rows_determination,
+    read_parameter_reference
+        color_sort_columns            c_color_sorted_columns.
+    read_parameter_reference
+        tech_names                    c_technical_names.
+    read_parameter_reference
+        no_merging_on                 c_no_merging_of_srt_cols.
+    read_parameter_reference
+        no_convexit                   c_no_conv_exit.
+    read_parameter_reference
+        zero_val_as_blank             c_zeros_as_blanks.
+    read_parameter_reference
+        tech_first                    c_technical_fields_first.
+    read_parameter_reference
+        tech_view                     c_technical_view.
+    read_parameter_reference
+        max_lines                     c_max_result_lines.
+    read_parameter_reference
+        no_trailing_sign              c_no_trailing_sign.
+    read_parameter_reference
+        emphasize_text_fields         c_color_add_text_fields.
+    read_parameter_reference
+        key_cols_not_fixed            c_no_fixed_key_cols.
+    read_parameter_reference
+        fav_user_mode                 c_favorite_mode_entry.
+    read_parameter_reference
+        use_reduced_memory            c_use_reduced_memory.
+    read_parameter_reference
+        auto_layout_transfer          c_auto_layout_transfer.
+    read_parameter_reference
+        advanced_mode                 c_advanced_mode.
+    read_parameter_reference
+        object_navigator_open         c_object_navigator_at_start.
+    read_parameter_reference
+        initial_obj_brws_mode         c_initial_obj_browser_mode.
+    read_parameter_reference
+        initial_obj_nav_mode          c_initial_obj_nav_mode.
+    read_parameter_reference
+        last_used_count               c_number_fav_most_used.
+    read_parameter_reference
+        color_formula_fields          c_color_formula_fields.
+    read_parameter_reference
+        experimental_mode             c_experimental_mode.
+    read_parameter_reference
+        show_db_size_in_title         c_read_db_table_length.
+    read_parameter_reference
+        enable_alv_default_variant    c_enable_alv_default_var.
+    read_parameter_reference
+        maintain_entries              c_activate_maintain_entries.
+    read_parameter_reference
+        search_ignore_case            c_search_ignore_case.
+    read_parameter_reference
+        assoc_sel_mode                c_assocation_sel_mode.
+    read_parameter_reference
+        show_assoc_brws_at_start      c_show_assoc_sel_at_start.
+    read_parameter_reference
+        activate_alv_live_filter      c_activate_alv_live_filter.
+    read_parameter_reference
+        disable_date_to_times_conv    c_disable_date_to_timest_conv.
+    read_parameter_reference
+        use_ddl_view_for_select       c_use_ddl_view_for_select.
+    read_parameter_reference
+        deactvt_highltng_in_cqe       c_deactvt_highltng_in_cqe.
+    read_parameter_reference
+        code_viewer_theme             c_code_viewer_theme.
+    read_parameter_reference
+        auto_sel_filter_saving        c_auto_select_criteria_saving.
+    read_parameter_reference
+        always_load_def_variant_first c_always_load_def_var_first.
+    read_parameter_reference
+        dock_obj_nav_on_right         c_dock_obj_nav_on_right.
+    read_parameter_reference
+        selscr_compact_col_widths     c_selscr_compact_col_widths.
+    read_parameter_reference
+        auto_hide_empty_cols          c_auto_hide_empty_cols.
+    read_parameter_reference
+        calculate_virtual_element     c_calculate_virtual_elements.
+    read_parameter_reference
+        ignore_error_virt_elem_calc   c_ignore_error_virt_elem_calc.
+    read_parameter_reference
+        color_cds_calculated_fields   c_color_cds_calculated_fields.
+    read_parameter_reference
+        async_max_rows_determination  c_async_max_rows_determination.
+    read_parameter_reference
         disable_auto_max_rows_det     c_disable_auto_max_rows_det.
   ENDMETHOD.
 
@@ -169,7 +206,7 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     CHECK mf_first_call = abap_true.
 
     IF mv_start_tab IS NOT INITIAL.
-      cs_tabs-dynnr = mv_start_dynnr.
+      cs_tabs-dynnr     = mv_start_dynnr.
       cs_tabs-activetab = mv_start_tab.
     ENDIF.
   ENDMETHOD.
@@ -178,16 +215,12 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     rs_settings = ms_user_settings.
   ENDMETHOD.
 
-
   METHOD save_settings.
     zcl_dbbr_usersettings_factory=>save_settings( ms_user_settings ).
   ENDMETHOD.
 
-
   METHOD transfer_ui_data.
-    DATA: lr_setting_ref TYPE REF TO data.
 
-    FIELD-SYMBOLS: <lr_settings> TYPE REF TO data.
     DATA(lt_setting_comp_names) = zcl_uitb_rtti_util=>get_struct_components( ms_user_settings ).
 
     LOOP AT lt_setting_comp_names ASSIGNING FIELD-SYMBOL(<ls_setting_comp>).
@@ -207,39 +240,31 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-
   METHOD zif_uitb_screen_controller~call_screen.
     transfer_ui_data( if_to_screen = abap_true ).
     mf_first_call = abap_true.
 
-    zcl_uitb_screen_util=>call_screen(
-        iv_screen_id    = get_screen_id( )
-        iv_report_id    = get_report_id( )
-        if_selscreen    = abap_true
-        it_object_map   = VALUE #(
-          ( variable_name = zif_dbbr_user_settings_ids=>c_r_user_settings_controller
-            global_ref    = me )
-        )
-        iv_start_column = 10
-        iv_start_line   = 2
-    ).
+    zcl_uitb_screen_util=>call_screen( iv_screen_id    = get_screen_id( )
+                                       iv_report_id    = get_report_id( )
+                                       if_selscreen    = abap_true
+                                       it_object_map   = VALUE #(
+                                           ( variable_name = zif_dbbr_user_settings_ids=>c_r_user_settings_controller
+                                             global_ref    = me ) )
+                                       iv_start_column = 10
+                                       iv_start_line   = 2 ).
   ENDMETHOD.
-
 
   METHOD zif_uitb_screen_controller~cancel.
     zcl_dbbr_screen_helper=>leave_screen( ).
   ENDMETHOD.
 
-
   METHOD zif_uitb_screen_controller~get_report_id.
     result = zif_dbbr_c_report_id=>user_settings.
   ENDMETHOD.
 
-
   METHOD zif_uitb_screen_controller~get_screen_id.
     result = zif_dbbr_screen_ids=>c_user_settings-main_screen.
   ENDMETHOD.
-
 
   METHOD zif_uitb_screen_controller~handle_user_command.
     CHECK sy-dynnr = 0100.
@@ -260,7 +285,6 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
-
   METHOD zif_uitb_screen_controller~pbo.
     IF mf_first_call = abap_true.
       CLEAR mf_first_call.
@@ -275,24 +299,23 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
           MODIFY SCREEN.
         ENDIF.
       ENDIF.
-      IF mv_start_tab = c_tab_ids-output_tab AND
-         mf_disable_save = abap_true AND
-         (
-           screen-name = 'BTN_DSEL' OR
-           screen-name = 'BTN_FAV' OR
-           screen-name = 'BTN_SEL' OR
-           screen-name = 'BTN_CDS' ).
+      IF     mv_start_tab    = c_tab_ids-output_tab
+         AND mf_disable_save = abap_true
+         AND (
+               screen-name = 'BTN_DSEL'
+         OR screen-name = 'BTN_FAV'
+         OR screen-name = 'BTN_SEL'
+         OR screen-name = 'BTN_CDS' ).
         screen-active = 0.
         MODIFY SCREEN.
       ENDIF.
-      IF zcl_dbbr_dep_feature_util=>is_cds_virtelem_supported( ) = abap_false AND
-           screen-name = 'BTN_CDS'.
+      IF     zcl_dbbr_dep_feature_util=>is_cds_virtelem_supported( ) = abap_false
+         AND screen-name = 'BTN_CDS'.
         screen-active = 0.
         MODIFY SCREEN.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
-
 
   METHOD zif_uitb_screen_controller~set_status.
     CHECK sy-dynnr = zif_dbbr_screen_ids=>c_user_settings-main_screen.
@@ -300,10 +323,8 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     zcl_dbbr_screen_helper=>set_selscreen_status(
         iv_status              = '0100'
         iv_repid               = zif_dbbr_c_report_id=>user_settings
-        it_excluding_functions = COND #( WHEN mf_disable_save = abap_true THEN VALUE #( ( 'SAVE' ) ) )
-    ).
+        it_excluding_functions = COND #( WHEN mf_disable_save = abap_true THEN VALUE #( ( 'SAVE' ) ) ) ).
   ENDMETHOD.
-
 
   METHOD zif_uitb_screen_controller~was_not_cancelled.
     rf_not_cancelled = mf_data_changed.

@@ -1,133 +1,147 @@
-"! <p class="shorttext synchronized" lang="en">Util for Handling Selection Screen Logic</p>
+"! <p class="shorttext synchronized">Util for Handling Selection Screen Logic</p>
 CLASS zcl_dbbr_selscreen_util DEFINITION
-  PUBLIC
-  ABSTRACT
+  PUBLIC ABSTRACT
   CREATE PUBLIC
-
-  GLOBAL FRIENDS zcl_dbbr_base_select_tc .
+  GLOBAL FRIENDS zcl_dbbr_base_select_tc.
 
   PUBLIC SECTION.
-
     INTERFACES zif_dbbr_screen_util.
-    INTERFACES zif_dbbr_screen_table_util .
+    INTERFACES zif_dbbr_screen_table_util.
 
-    ALIASES free_resources
-      FOR zif_dbbr_screen_util~free_resources .
-    ALIASES get_deactivated_functions
-      FOR zif_dbbr_screen_util~get_deactivated_functions .
-    ALIASES handle_pbo
-      FOR zif_dbbr_screen_util~handle_pbo .
-    ALIASES handle_table_pbo
-      FOR zif_dbbr_screen_table_util~handle_pbo .
-    ALIASES handle_ui_function
-      FOR zif_dbbr_screen_util~handle_ui_function .
+    ALIASES free_resources            FOR zif_dbbr_screen_util~free_resources.
+    ALIASES get_deactivated_functions FOR zif_dbbr_screen_util~get_deactivated_functions.
+    ALIASES handle_pbo                FOR zif_dbbr_screen_util~handle_pbo.
+    ALIASES handle_table_pbo          FOR zif_dbbr_screen_table_util~handle_pbo.
+    ALIASES handle_ui_function        FOR zif_dbbr_screen_util~handle_ui_function.
 
     TYPES:
       BEGIN OF ty_s_table_info,
         tabname         TYPE tabname,
         selection_order TYPE tabfdpos,
       END OF ty_s_table_info.
-    TYPES: ty_t_table_info TYPE STANDARD TABLE OF ty_s_table_info.
+    TYPES ty_t_table_info TYPE STANDARD TABLE OF ty_s_table_info.
 
-    "! <p class="shorttext synchronized" lang="en">Requesting new entity for selection screen</p>
+    "! <p class="shorttext synchronized">Requesting new entity for selection screen</p>
     EVENTS request_new_entity
       EXPORTING
         VALUE(ev_id) TYPE zsat_entity_id
         VALUE(ev_type) TYPE zsat_entity_type
         VALUE(ef_force_loading) TYPE abap_bool OPTIONAL.
-    "! <p class="shorttext synchronized" lang="en">Entity was deleted</p>
+
+    "! <p class="shorttext synchronized">Entity was deleted</p>
     CLASS-EVENTS entity_deleted
       EXPORTING
         VALUE(ev_entity_id) TYPE zsat_entity_id
-        VALUE(ev_entity_type) TYPE zsat_entity_type .
+        VALUE(ev_entity_type) TYPE zsat_entity_type.
 
-    "! <p class="shorttext synchronized" lang="en">CLASS_CONSTRUCTOR</p>
-    CLASS-METHODS init_selscreen_table_tb .
-    "! <p class="shorttext synchronized" lang="en">Checks edit mode</p>
-    METHODS check_edit_mode .
-    "! <p class="shorttext synchronized" lang="en">Performs mandatory checks</p>
-    METHODS check_mandatory_fields .
-    "! <p class="shorttext synchronized" lang="en">Validates the primary entity (table/cds view/query table)</p>
+    "! <p class="shorttext synchronized">CLASS_CONSTRUCTOR</p>
+    CLASS-METHODS init_selscreen_table_tb.
+
+    "! <p class="shorttext synchronized">Checks edit mode</p>
+    METHODS check_edit_mode.
+    "! <p class="shorttext synchronized">Performs mandatory checks</p>
+    METHODS check_mandatory_fields.
+
+    "! <p class="shorttext synchronized">Validates the primary entity (table/cds view/query table)</p>
     METHODS check_primary_entity
       RETURNING
-        VALUE(rf_success) TYPE abap_bool .
-    "! <p class="shorttext synchronized" lang="en">Choose Sorting fields</p>
-    METHODS choose_sort_fields .
-    "! <p class="shorttext synchronized" lang="en">Choose fields for selection/output</p>
+        VALUE(rf_success) TYPE abap_bool.
+
+    "! <p class="shorttext synchronized">Choose Sorting fields</p>
+    METHODS choose_sort_fields.
+
+    "! <p class="shorttext synchronized">Choose fields for selection/output</p>
     METHODS choose_tabfields
       IMPORTING
-        !iv_mode                 TYPE zdbbr_field_chooser_mode
+        iv_mode                  TYPE zdbbr_field_chooser_mode
       RETURNING
         VALUE(rf_fields_updated) TYPE abap_bool.
-    "! <p class="shorttext synchronized" lang="en">Clear all data</p>
-    METHODS clear .
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+
+    "! <p class="shorttext synchronized">Clear all data</p>
+    METHODS clear.
+
+    "! <p class="shorttext synchronized">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
-        !ir_selscreen_data TYPE REF TO zcl_dbbr_selscreen_data
-        !iv_entity_type    TYPE zsat_entity_type .
-    "! <p class="shorttext synchronized" lang="en">Deletes and Updates the join definition</p>
-    METHODS delete_join_definition .
-    "! <p class="shorttext synchronized" lang="en">Retrieve information about current entity</p>
+        ir_selscreen_data TYPE REF TO zcl_dbbr_selscreen_data
+        iv_entity_type    TYPE zsat_entity_type.
+
+    "! <p class="shorttext synchronized">Deletes and Updates the join definition</p>
+    METHODS delete_join_definition.
+
+    "! <p class="shorttext synchronized">Retrieve information about current entity</p>
     METHODS get_entity_information
       EXPORTING
         ev_entity      TYPE tabname
         ev_entity_raw  TYPE zsat_entity_id_raw
         ev_entity_id   TYPE zsat_entity_id
         ev_type        TYPE zsat_favmenu_type
-        ev_description TYPE ddtext .
-    "! <p class="shorttext synchronized" lang="en">Retrieve the primary entity type for a join definition</p>
+        ev_description TYPE ddtext.
+
+    "! <p class="shorttext synchronized">Retrieve the primary entity type for a join definition</p>
     "!
     METHODS get_entity_type_for_join
       RETURNING
         VALUE(rv_entity_type) TYPE zsat_entity_type.
-    "! <p class="shorttext synchronized" lang="en">Returns id for variant</p>
+
+    "! <p class="shorttext synchronized">Returns id for variant</p>
     "!
-    METHODS get_id_for_variant .
-    "! <p class="shorttext synchronized" lang="en">Returns the title for the selection screen</p>
+    METHODS get_id_for_variant.
+
+    "! <p class="shorttext synchronized">Returns the title for the selection screen</p>
     "!
     METHODS get_title
       ABSTRACT
       RETURNING
-        VALUE(result) TYPE string .
-    "! <p class="shorttext synchronized" lang="en">Checks if selection screen has loaded entity content</p>
+        VALUE(result) TYPE string.
+
+    "! <p class="shorttext synchronized">Checks if selection screen has loaded entity content</p>
     METHODS has_content
       RETURNING
-        VALUE(rf_has_content) TYPE abap_bool .
-    "! <p class="shorttext synchronized" lang="en">Checks if a certain entity is already loaded into the screen</p>
+        VALUE(rf_has_content) TYPE abap_bool.
+
+    "! <p class="shorttext synchronized">Checks if a certain entity is already loaded into the screen</p>
     METHODS is_entity_loaded
       IMPORTING
-        !iv_entity_id   TYPE zsat_entity_id
-        !iv_entity_type TYPE zsat_entity_type
+        iv_entity_id   TYPE zsat_entity_id
+        iv_entity_type TYPE zsat_entity_type
       RETURNING
-        VALUE(result)   TYPE abap_bool .
-    "! <p class="shorttext synchronized" lang="en">Loads the entity into the selection screen</p>
+        VALUE(result)  TYPE abap_bool.
+
+    "! <p class="shorttext synchronized">Loads the entity into the selection screen</p>
     METHODS load_entity
       RETURNING
-        VALUE(rf_entity_loaded) TYPE abap_bool .
-    "! <p class="shorttext synchronized" lang="en">Sets custom entity functions and menus</p>
+        VALUE(rf_entity_loaded) TYPE abap_bool.
+
+    "! <p class="shorttext synchronized">Sets custom entity functions and menus</p>
     METHODS set_custom_functions
-        ABSTRACT .
-    "! <p class="shorttext synchronized" lang="en">Update entity type for dynamic search help</p>
-    METHODS update_entity_type_sh .
-    "! <p class="shorttext synchronized" lang="en">Updates the join definition</p>
+      ABSTRACT.
+
+    "! <p class="shorttext synchronized">Update entity type for dynamic search help</p>
+    METHODS update_entity_type_sh.
+
+    "! <p class="shorttext synchronized">Updates the join definition</p>
     METHODS update_join_definition
       IMPORTING
         it_table_info TYPE ty_t_table_info OPTIONAL.
-    "! <p class="shorttext synchronized" lang="en">Saves the currently entered filter criteria</p>
+
+    "! <p class="shorttext synchronized">Saves the currently entered filter criteria</p>
     METHODS save_current_criteria.
-    "! <p class="shorttext synchronized" lang="en">Update the value help status for given table field</p>
+
+    "! <p class="shorttext synchronized">Update the value help status for given table field</p>
     METHODS update_value_helps_for_field
       IMPORTING
         iv_tabname   TYPE tabname
         iv_fieldname TYPE fieldname.
-    "! <p class="shorttext synchronized" lang="en">Checks if the entity can be executed</p>
+
+    "! <p class="shorttext synchronized">Checks if the entity can be executed</p>
     METHODS can_execute
       RETURNING
         VALUE(rf_can_execute) TYPE abap_bool.
-    METHODS delete_auto_variant.
-  PROTECTED SECTION.
 
+    METHODS delete_auto_variant.
+
+  PROTECTED SECTION.
     TYPES:
       BEGIN OF ty_table_input,
         tablename       TYPE tabname,
@@ -136,119 +150,133 @@ CLASS zcl_dbbr_selscreen_util DEFINITION
         is_output       TYPE abap_bool,
         is_selection    TYPE abap_bool,
         selection_order TYPE tabfdpos,
-      END OF ty_table_input .
+      END OF ty_table_input.
 
-    DATA mo_custom_toolbar_cont TYPE REF TO cl_gui_container .
-    DATA mo_custom_toolbar TYPE REF TO cl_gui_toolbar .
-    DATA mo_data TYPE REF TO zcl_dbbr_selscreen_data .
-    DATA mo_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory .
-    "! <p class="shorttext synchronized" lang="en">Factory for favorite menu</p>
-    DATA mo_favmenu_f TYPE REF TO zcl_dbbr_favmenu_factory .
-    "! <p class="shorttext synchronized" lang="en">Information for join</p>
-    DATA ms_join_def_old TYPE zdbbr_join_data .
-    "! <p class="shorttext synchronized" lang="en">ID of an DB Browser entity</p>
-    DATA mv_entity_id TYPE zsat_entity_id .
-    "! <p class="shorttext synchronized" lang="en">Type of Entity</p>
-    DATA mv_entity_type TYPE zsat_entity_type .
-    DATA mo_custom_menu TYPE REF TO cl_ctmenu .
-    "! <p class="shorttext synchronized" lang="en">Context Menu</p>
-    CLASS-DATA go_delete_tb_menu TYPE REF TO cl_ctmenu .
+    DATA mo_custom_toolbar_cont TYPE REF TO cl_gui_container.
+    DATA mo_custom_toolbar TYPE REF TO cl_gui_toolbar.
+    DATA mo_data TYPE REF TO zcl_dbbr_selscreen_data.
+    DATA mo_altcoltext_f TYPE REF TO zcl_dbbr_altcoltext_factory.
+    "! <p class="shorttext synchronized">Factory for favorite menu</p>
+    DATA mo_favmenu_f TYPE REF TO zcl_dbbr_favmenu_factory.
+    "! <p class="shorttext synchronized">Information for join</p>
+    DATA ms_join_def_old TYPE zdbbr_join_data.
+    "! <p class="shorttext synchronized">ID of an DB Browser entity</p>
+    DATA mv_entity_id TYPE zsat_entity_id.
+    "! <p class="shorttext synchronized">Type of Entity</p>
+    DATA mv_entity_type TYPE zsat_entity_type.
+    DATA mo_custom_menu TYPE REF TO cl_ctmenu.
 
-    "! <p class="shorttext synchronized" lang="en">Internal logic to load an entity</p>
+    "! <p class="shorttext synchronized">Context Menu</p>
+    CLASS-DATA go_delete_tb_menu TYPE REF TO cl_ctmenu.
+
+    "! <p class="shorttext synchronized">Internal logic to load an entity</p>
     METHODS load_entity_internal
       ABSTRACT
       RETURNING
-        VALUE(rf_entity_loaded) TYPE abap_bool .
-    "! <p class="shorttext synchronized" lang="en">Update buttons for multiple table mode</p>
+        VALUE(rf_entity_loaded) TYPE abap_bool.
+
+    "! <p class="shorttext synchronized">Update buttons for multiple table mode</p>
     METHODS update_multiple_table_buttons
       IMPORTING
-        !if_has_multiple_tables TYPE abap_bool OPTIONAL .
-    "! <p class="shorttext synchronized" lang="en">Clear the edit flags</p>
-    METHODS clear_edit_flags .
-    "! <p class="shorttext synchronized" lang="en">convert table info field to selection table field</p>
+        if_has_multiple_tables TYPE abap_bool OPTIONAL.
+
+    "! <p class="shorttext synchronized">Clear the edit flags</p>
+    METHODS clear_edit_flags.
+
+    "! <p class="shorttext synchronized">convert table info field to selection table field</p>
     METHODS convert_to_selfield
       IMPORTING
-        !is_tablefield     TYPE zdbbr_tabfield_info_ui
+        is_tablefield      TYPE zdbbr_tabfield_info_ui
       RETURNING
-        VALUE(rs_selfield) TYPE zdbbr_selfield .
-    "! <p class="shorttext synchronized" lang="en">Create Table fields</p>
+        VALUE(rs_selfield) TYPE zdbbr_selfield.
+
+    "! <p class="shorttext synchronized">Create Table fields</p>
     "!
     METHODS create_cds_fields
       IMPORTING
         is_entity_info        TYPE zdbbr_entity_info
       RETURNING
-        VALUE(rs_entity_info) TYPE zdbbr_entity_info .
-    "! <p class="shorttext synchronized" lang="en">Create new table field</p>
+        VALUE(rs_entity_info) TYPE zdbbr_entity_info.
+
+    "! <p class="shorttext synchronized">Create new table field</p>
     "!
     METHODS create_table_field
       IMPORTING
         is_entity              TYPE zdbbr_entity_info
         is_field               TYPE dfies
         if_first_non_key_field TYPE abap_bool OPTIONAL.
-    "! <p class="shorttext synchronized" lang="en">Create Table fields</p>
+
+    "! <p class="shorttext synchronized">Create Table fields</p>
     "!
     METHODS create_table_fields
       IMPORTING
         is_entity_info        TYPE zdbbr_entity_info
       RETURNING
-        VALUE(rs_entity_info) TYPE zdbbr_entity_info .
+        VALUE(rs_entity_info) TYPE zdbbr_entity_info.
+
     METHODS create_table_header
       IMPORTING
-        !iv_tabname            TYPE tabname
-        !iv_tabname_alias      TYPE tabname
-        !iv_typename           TYPE zsat_entity_type OPTIONAL
+        iv_tabname             TYPE tabname
+        iv_tabname_alias       TYPE tabname
+        iv_typename            TYPE zsat_entity_type OPTIONAL
       RETURNING
-        VALUE(rs_table_header) TYPE zdbbr_selfield .
-    "! <p class="shorttext synchronized" lang="en">Fill the fields of the selection table</p>
+        VALUE(rs_table_header) TYPE zdbbr_selfield.
+
+    "! <p class="shorttext synchronized">Fill the fields of the selection table</p>
     "!
-    METHODS fill_selection_mask .
-    "! <p class="shorttext synchronized" lang="en">Fills the selection screen table</p>
+    METHODS fill_selection_mask.
+
+    "! <p class="shorttext synchronized">Fills the selection screen table</p>
     "!
     METHODS fill_primary_entity
       ABSTRACT
       IMPORTING
         is_primary_entity TYPE zdbbr_entity_info OPTIONAL.
-    "! <p class="shorttext synchronized" lang="en">Fills the onscreen gui toolbar</p>
+
+    "! <p class="shorttext synchronized">Fills the onscreen gui toolbar</p>
     "!
     METHODS fill_toolbar
       IMPORTING
-        !if_create_extended_search TYPE abap_bool OPTIONAL
-        it_custom_buttons          TYPE ttb_button OPTIONAL
+        if_create_extended_search TYPE abap_bool  OPTIONAL
+        it_custom_buttons         TYPE ttb_button OPTIONAL
       RETURNING
-        VALUE(ro_toolbar)          TYPE REF TO cl_gui_toolbar.
-    "! <p class="shorttext synchronized" lang="en">Complete the loading process of an entity</p>
+        VALUE(ro_toolbar)         TYPE REF TO cl_gui_toolbar.
+
+    "! <p class="shorttext synchronized">Complete the loading process of an entity</p>
     "!
-    METHODS finish_loading .
-    "! <p class="shorttext synchronized" lang="en">Trigger event that entity was deleted</p>
+    METHODS finish_loading.
+
+    "! <p class="shorttext synchronized">Trigger event that entity was deleted</p>
     METHODS notify_of_deleted_entity
       IMPORTING
-        !iv_entity_id   TYPE zsat_entity_id
-        !iv_entity_type TYPE zsat_entity_type .
+        iv_entity_id   TYPE zsat_entity_id
+        iv_entity_type TYPE zsat_entity_type.
 
-    "! <p class="shorttext synchronized" lang="en">Refresh the selection mask for a multi table setup</p>
+    "! <p class="shorttext synchronized">Refresh the selection mask for a multi table setup</p>
     "!
-    METHODS update_multi_selection_mask .
-    "! <p class="shorttext synchronized" lang="en">Refresh the selection mask for a single table setup</p>
+    METHODS update_multi_selection_mask.
+    "! <p class="shorttext synchronized">Refresh the selection mask for a single table setup</p>
     "!
-    METHODS update_selection_mask .
+    METHODS update_selection_mask.
+
   PRIVATE SECTION.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
-
   METHOD constructor.
     mo_data = ir_selscreen_data.
     mv_entity_type = iv_entity_type.
     mo_altcoltext_f = NEW #( ).
     mo_favmenu_f = NEW #( ).
 
-*... update entity type table fields
+    " ... update entity type table fields
     mo_data->mo_tabfield_aggr_list->set_entity_type( mv_entity_type ).
     mo_data->mo_tabfield_list->set_entity_type( mv_entity_type ).
 
-    zcl_dbbr_toolbar_util=>get_selscreen_table_tb( )->set_button_state( enabled = abap_true fcode = zif_dbbr_c_selscreen_functions=>control_sel_fields ).
+    zcl_dbbr_toolbar_util=>get_selscreen_table_tb( )->set_button_state(
+        enabled = abap_true
+        fcode   = zif_dbbr_c_selscreen_functions=>control_sel_fields ).
     cl_gui_cfw=>flush( ).
   ENDMETHOD.
 
@@ -256,77 +284,61 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     rf_can_execute = abap_true.
   ENDMETHOD.
 
-  METHOD check_edit_mode ##needed.
+  METHOD check_edit_mode ##NEEDED.
   ENDMETHOD.
 
   METHOD delete_auto_variant.
-    get_entity_information(
-      IMPORTING
-        ev_entity_id   = DATA(lv_entity_id)
-        ev_type        = DATA(lv_entity_type) ).
+    get_entity_information( IMPORTING ev_entity_id = DATA(lv_entity_id)
+                                      ev_type      = DATA(lv_entity_type) ).
 
-    zcl_dbbr_variant_factory=>delete_auto_variant(
-      iv_entity_id   = lv_entity_id
-      iv_entity_type = lv_entity_type ).
+    zcl_dbbr_variant_factory=>delete_auto_variant( iv_entity_id   = lv_entity_id
+                                                   iv_entity_type = lv_entity_type ).
   ENDMETHOD.
 
   METHOD save_current_criteria.
     CHECK mo_data->mr_s_global_data->auto_sel_filter_saving = abap_true.
 
-    get_entity_information(
-      IMPORTING
-        ev_entity_id   = DATA(lv_entity_id)
-        ev_type        = DATA(lv_entity_type)
-    ).
+    get_entity_information( IMPORTING ev_entity_id = DATA(lv_entity_id)
+                                      ev_type      = DATA(lv_entity_type) ).
     DATA(lr_t_multi_or) = mo_data->get_multi_or_all( ).
 
     DATA(ls_auto_variant) = zcl_dbbr_variant_creator=>create_variant(
-        iv_entity_id           = lv_entity_id
-        iv_entity_type         = lv_entity_type
-        it_selfields           = mo_data->mr_t_table_data->*
-        it_multi_selfields     = mo_data->mr_t_selfields_multi->*
-        it_multi_or            = lr_t_multi_or->*
-        is_global_data         = mo_data->mr_s_global_data->*
-    ).
+                                iv_entity_id       = lv_entity_id
+                                iv_entity_type     = lv_entity_type
+                                it_selfields       = mo_data->mr_t_table_data->*
+                                it_multi_selfields = mo_data->mr_t_selfields_multi->*
+                                it_multi_or        = lr_t_multi_or->*
+                                is_global_data     = mo_data->mr_s_global_data->* ).
 
-*.. Currently only filter criteria will be stored in automatic variant
-*... Later on it could be possible to provide settings which options should be
-*... stored inside the automatic variant
+    " .. Currently only filter criteria will be stored in automatic variant
+    " ... Later on it could be possible to provide settings which options should be
+    " ... stored inside the automatic variant
     IF ls_auto_variant-has_criteria = abap_true.
       zcl_dbbr_variant_factory=>save_auto_variant( ls_auto_variant ).
     ELSE.
-*.... No criteria found, delete any existing automatic variant
-      zcl_dbbr_variant_factory=>delete_auto_variant(
-          iv_entity_id   = lv_entity_id
-          iv_entity_type = lv_entity_type
-      ).
+      " .... No criteria found, delete any existing automatic variant
+      zcl_dbbr_variant_factory=>delete_auto_variant( iv_entity_id   = lv_entity_id
+                                                     iv_entity_type = lv_entity_type ).
     ENDIF.
   ENDMETHOD.
 
   METHOD update_value_helps_for_field.
-    mo_data->mo_custom_f4_map->clear_f4_for_field(
-        iv_tabname   = iv_tabname
-        iv_fieldname = iv_fieldname
-    ).
-    mo_data->mo_custom_f4_map->determine_f4_for_field(
-        iv_tabname   = iv_tabname
-        iv_fieldname = iv_fieldname
-    ).
+    mo_data->mo_custom_f4_map->clear_f4_for_field( iv_tabname   = iv_tabname
+                                                   iv_fieldname = iv_fieldname ).
+    mo_data->mo_custom_f4_map->determine_f4_for_field( iv_tabname   = iv_tabname
+                                                       iv_fieldname = iv_fieldname ).
     DATA(lr_t_fields) = mo_data->mo_tabfield_list->get_fields_ref( ).
-    LOOP AT lr_t_fields->* ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE tabname = iv_tabname
-                                                                AND fieldname = iv_fieldname.
+    LOOP AT lr_t_fields->* ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE     tabname   = iv_tabname
+                                                                    AND fieldname = iv_fieldname.
       DATA(lf_custom_f4_old) = <ls_field>-has_custom_f4.
-      <ls_field>-has_custom_f4 = mo_data->mo_custom_f4_map->entry_exists(
-         iv_tabname       = <ls_field>-tabname
-         iv_fieldname     = <ls_field>-fieldname
-         iv_rollname      = <ls_field>-rollname
-         is_built_in_type = VALUE #(
-           datatype = <ls_field>-datatype
-           inttype  = <ls_field>-inttype
-           leng     = <ls_field>-length
-         )
-      ).
-*.... update field on selscreen if necessary
+      <ls_field>-has_custom_f4 = mo_data->mo_custom_f4_map->entry_exists( iv_tabname       = <ls_field>-tabname
+                                                                          iv_fieldname     = <ls_field>-fieldname
+                                                                          iv_rollname      = <ls_field>-rollname
+                                                                          is_built_in_type = VALUE #(
+                                                                              datatype = <ls_field>-datatype
+                                                                              inttype  = <ls_field>-inttype
+                                                                              leng     = <ls_field>-length ) ).
+      " .... update field on selscreen if necessary
       IF <ls_field>-has_custom_f4 <> lf_custom_f4_old.
         DATA(lr_selfield) = REF #( mo_data->mr_t_table_data->*[ tabname_alias = <ls_field>-tabname_alias
                                                                 fieldname     = <ls_field>-fieldname ] ).
@@ -335,41 +347,38 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-
   METHOD check_mandatory_fields.
+    IF NOT mo_data->mo_tabfield_list->has_table( zif_dbbr_c_global=>c_parameter_dummy_table ).
+      RETURN.
+    ENDIF.
 
-    IF mo_data->mo_tabfield_list->has_table( zif_dbbr_c_global=>c_parameter_dummy_table ).
-      LOOP AT mo_data->mr_t_table_data->* ASSIGNING FIELD-SYMBOL(<ls_param>) WHERE is_parameter   =  abap_true
-                                                                               AND is_range_param =  abap_false
-                                                                               AND low            IS INITIAL.
-        EXIT.
-      ENDLOOP.
+    LOOP AT mo_data->mr_t_table_data->* ASSIGNING FIELD-SYMBOL(<ls_param>) WHERE     is_parameter    = abap_true
+                                                                                 AND is_range_param  = abap_false
+                                                                                 AND low            IS INITIAL.
+      EXIT.
+    ENDLOOP.
 
-      IF sy-subrc = 0.
-*... retrieve the correct line index
-        DATA(lv_index) = line_index( mo_data->mr_t_table_data->*[ fieldname = <ls_param>-fieldname
-                                                                  tabname   = <ls_param>-tabname ] ).
-        DATA(lv_top) = mo_data->mr_s_tableview->top_line.
-        IF lv_top > lv_index.
-          mo_data->mr_s_tableview->top_line = lv_index.
-          lv_index = 1.
-        ENDIF.
-
-        RAISE EXCEPTION TYPE zcx_sat_validation_exception
-          EXPORTING
-            textid         = zcx_sat_validation_exception=>parameter_value_missing
-            msgv1          = |{ <ls_param>-description }|
-            parameter_name = 'GS_SELFIELDS-LOW'
-            loop_line      = lv_index.
+    IF sy-subrc = 0.
+      " ... retrieve the correct line index
+      DATA(lv_index) = line_index( mo_data->mr_t_table_data->*[ fieldname = <ls_param>-fieldname
+                                                                tabname   = <ls_param>-tabname ] ).
+      DATA(lv_top) = mo_data->mr_s_tableview->top_line.
+      IF lv_top > lv_index.
+        mo_data->mr_s_tableview->top_line = lv_index.
+        lv_index = 1.
       ENDIF.
+
+      RAISE EXCEPTION TYPE zcx_sat_validation_exception
+        EXPORTING textid         = zcx_sat_validation_exception=>parameter_value_missing
+                  msgv1          = |{ <ls_param>-description }|
+                  parameter_name = 'GS_SELFIELDS-LOW'
+                  loop_line      = lv_index.
     ENDIF.
   ENDMETHOD.
-
 
   METHOD check_primary_entity.
     rf_success = abap_true.
   ENDMETHOD.
-
 
   METHOD load_entity.
     rf_entity_loaded = load_entity_internal( ).
@@ -381,37 +390,35 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     get_entity_information( IMPORTING ev_entity_id = DATA(lv_entity_id)
                                       ev_type      = DATA(lv_entity_type) ).
 
-*.. Check if there is default variant for this entity and if it should be loaded
-    DATA(lf_default_var_loaded) = zcl_dbbr_default_variant_util=>load_default_variant(
-        io_data           = mo_data
-        io_selscreen_util = me
-    ).
-    IF lf_default_var_loaded = abap_true AND
-       mo_data->mr_s_global_data->always_load_def_variant_first = abap_true.
+    " .. Check if there is default variant for this entity and if it should be loaded
+    DATA(lf_default_var_loaded) = zcl_dbbr_default_variant_util=>load_default_variant( io_data           = mo_data
+                                                                                       io_selscreen_util = me ).
+    IF     lf_default_var_loaded = abap_true
+       AND mo_data->mr_s_global_data->always_load_def_variant_first = abap_true.
       RETURN.
     ENDIF.
 
-*.. Load automatic variant
+    " .. Load automatic variant
     IF mo_data->mr_s_global_data->auto_sel_filter_saving = abap_true.
       DATA(ls_auto_variant) = zcl_dbbr_variant_loader=>create_auto_variant_loader(
-        iv_entity_type       = lv_entity_type
-        iv_entity_id         = lv_entity_id
-        ir_t_multi_or        = mo_data->get_multi_or_all( )
-        ir_t_selfields       = mo_data->mr_t_table_data
-        ir_t_selfields_multi = mo_data->mr_t_selfields_multi
-        ir_s_global_data     = mo_data->mr_s_global_data
-        ir_tabfields         = mo_data->mo_tabfield_list
-        ir_tabfields_grouped = mo_data->mo_tabfield_aggr_list
+                                  iv_entity_type       = lv_entity_type
+                                  iv_entity_id         = lv_entity_id
+                                  ir_t_multi_or        = mo_data->get_multi_or_all( )
+                                  ir_t_selfields       = mo_data->mr_t_table_data
+                                  ir_t_selfields_multi = mo_data->mr_t_selfields_multi
+                                  ir_s_global_data     = mo_data->mr_s_global_data
+                                  ir_tabfields         = mo_data->mo_tabfield_list
+                                  ir_tabfields_grouped = mo_data->mo_tabfield_aggr_list
       )->load( ).
       IF ls_auto_variant IS INITIAL.
         mo_data->mr_s_global_data->max_lines = zcl_dbbr_usersettings_factory=>get_settings( )-max_lines.
-        CLEAR: mo_data->mr_s_global_data->grouping_minimum.
+        CLEAR mo_data->mr_s_global_data->grouping_minimum.
       ENDIF.
     ENDIF.
   ENDMETHOD.
 
   METHOD choose_sort_fields.
-    FIELD-SYMBOLS: <lr_tabfields> TYPE REF TO zcl_dbbr_tabfield_list.
+    FIELD-SYMBOLS <lr_tabfields> TYPE REF TO zcl_dbbr_tabfield_list.
 
     DATA(lf_field_aggr_active) = mo_data->mo_selection_table->aggregation_is_active( ).
     IF lf_field_aggr_active = abap_true.
@@ -420,21 +427,17 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       ASSIGN mo_data->mo_tabfield_list TO <lr_tabfields>.
     ENDIF.
 
-    DATA(lr_sort_controller) = NEW zcl_dbbr_field_sorter_ctrl(
-      ir_fields = <lr_tabfields>
-    ).
+    DATA(lr_sort_controller) = NEW zcl_dbbr_field_sorter_ctrl( ir_fields = <lr_tabfields> ).
 
     lr_sort_controller->zif_uitb_screen_controller~call_screen( ).
 
     IF lr_sort_controller->was_updated( ).
       <lr_tabfields>->overwrite( lr_sort_controller->get_updated_tabfields( ) ).
     ENDIF.
-
   ENDMETHOD.
 
-
   METHOD choose_tabfields.
-    FIELD-SYMBOLS: <lo_tabfields> TYPE REF TO zcl_dbbr_tabfield_list.
+    FIELD-SYMBOLS <lo_tabfields> TYPE REF TO zcl_dbbr_tabfield_list.
 
     DATA(lf_field_aggr_active) = mo_data->mo_selection_table->aggregation_is_active( ).
     IF lf_field_aggr_active = abap_true AND iv_mode = zif_dbbr_c_global=>c_field_chooser_modes-output.
@@ -443,32 +446,33 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       ASSIGN mo_data->mo_tabfield_list TO <lo_tabfields>.
     ENDIF.
 
+    " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(lv_old_mode) = <lo_tabfields>->get_mode( ).
     <lo_tabfields>->switch_mode( iv_mode ).
 
     DATA(lo_fields) = <lo_tabfields>->copy( ).
 
-*... delete parameter fields from list if there are any
-    lo_fields->delete_where_in_tablist( VALUE #( ( sign = 'I' option = 'EQ' low = zif_dbbr_c_global=>c_parameter_dummy_table ) ) ).
+    " ... delete parameter fields from list if there are any
+    lo_fields->delete_where_in_tablist(
+        VALUE #( ( sign = 'I' option = 'EQ' low = zif_dbbr_c_global=>c_parameter_dummy_table ) ) ).
 
-    DATA(lr_tabfield_manager) = NEW zcl_dbbr_tabfield_manager(
-      io_fields            = lo_fields
-      io_original_fields   = mo_data->mo_tabfield_list
-      is_join_def          = mo_data->mr_s_join_def->*
-      if_field_aggregation = lf_field_aggr_active
-      iv_mode              = iv_mode
-      iv_entity_type       = mv_entity_type
-    ).
+    DATA(lr_tabfield_manager) = NEW zcl_dbbr_tabfield_manager( io_fields            = lo_fields
+                                                               io_original_fields   = mo_data->mo_tabfield_list
+                                                               is_join_def          = mo_data->mr_s_join_def->*
+                                                               if_field_aggregation = lf_field_aggr_active
+                                                               iv_mode              = iv_mode
+                                                               iv_entity_type       = mv_entity_type ).
 
-*... call main screen for field chooser
+    " ... call main screen for field chooser
     lr_tabfield_manager->zif_uitb_screen_controller~call_screen( ).
 
-**... get chosen fields if screen was not cancelled, otherwise leave ct_fields unchanged
+    " ... get chosen fields if screen was not cancelled, otherwise leave ct_fields unchanged
     IF lr_tabfield_manager->data_should_be_transferred( ).
       rf_fields_updated = abap_true.
-*.... Extract paramaters before they are overridden
+      " .... Extract paramaters before they are overridden
       IF lf_field_aggr_active = abap_false.
-        DATA(lo_params) = <lo_tabfields>->extract_fields( VALUE #( ( sign = 'I' option = 'EQ' low = zif_dbbr_c_global=>c_parameter_dummy_table ) ) ).
+        DATA(lo_params) = <lo_tabfields>->extract_fields(
+                              VALUE #( ( sign = 'I' option = 'EQ' low = zif_dbbr_c_global=>c_parameter_dummy_table ) ) ).
       ENDIF.
       <lo_tabfields>->overwrite( lr_tabfield_manager->retrieve_current_data( ) ).
 
@@ -477,145 +481,125 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       ENDIF.
     ENDIF.
 
-    IF iv_mode <> zif_dbbr_c_global=>c_field_chooser_modes-selection OR
-       rf_fields_updated = abap_false.
+    IF    iv_mode           <> zif_dbbr_c_global=>c_field_chooser_modes-selection
+       OR rf_fields_updated  = abap_false.
       RETURN.
     ENDIF.
 
-*... reset hiding of table fields to prevent unwanted behavior
+    " ... reset hiding of table fields to prevent unwanted behavior
     mo_data->mo_selection_table->expand_all_hidden_fields( ).
 
     fill_selection_mask( ).
   ENDMETHOD.
 
-
   METHOD init_selscreen_table_tb.
-*.. create/fill delete menu
+    " .. create/fill delete menu
     go_delete_tb_menu = NEW #( ).
 
-    go_delete_tb_menu->add_function(
-       fcode = zif_dbbr_c_selscreen_functions=>delete_all_input
-       text  = |{ 'Delete all Input'(017) }|
-    ).
-    go_delete_tb_menu->add_function(
-       fcode = zif_dbbr_c_selscreen_functions=>delete_aggregations
-       text  = |{ 'Delete all Aggregations'(003) }|
-    ).
-    go_delete_tb_menu->add_function(
-       fcode = zif_dbbr_c_selscreen_functions=>delete_all_or_tuple
-       text  = |{ 'Delete all OR Tuple'(004) }|
-    ).
+    go_delete_tb_menu->add_function( fcode = zif_dbbr_c_selscreen_functions=>delete_all_input
+                                     text  = |{ 'Delete all Input'(017) }| ).
+    go_delete_tb_menu->add_function( fcode = zif_dbbr_c_selscreen_functions=>delete_aggregations
+                                     text  = |{ 'Delete all Aggregations'(003) }| ).
+    go_delete_tb_menu->add_function( fcode = zif_dbbr_c_selscreen_functions=>delete_all_or_tuple
+                                     text  = |{ 'Delete all OR Tuple'(004) }| ).
 
     DATA(lo_default_var_menu) = NEW cl_ctmenu( ).
-    lo_default_var_menu->add_function(
-        fcode = zif_dbbr_c_selscreen_functions=>create_default_variant
-        text  = |{ 'Create Default Variant'(005) }|
-    ).
-    lo_default_var_menu->add_function(
-        fcode = zif_dbbr_c_selscreen_functions=>delete_default_variant
-        text  = |{ 'Delete Default Variant'(006) }|
-    ).
+    lo_default_var_menu->add_function( fcode = zif_dbbr_c_selscreen_functions=>create_default_variant
+                                       text  = |{ 'Create Default Variant'(005) }| ).
+    lo_default_var_menu->add_function( fcode = zif_dbbr_c_selscreen_functions=>delete_default_variant
+                                       text  = |{ 'Delete Default Variant'(006) }| ).
 
     DATA(lo_variant_menu) = NEW cl_ctmenu( ).
-    lo_variant_menu->add_function(
-        fcode = zif_dbbr_c_selscreen_functions=>save_variant
-        text  = |{ 'Save Variant' }  (Ctrl+S)|
-    ).
+    lo_variant_menu->add_function( fcode = zif_dbbr_c_selscreen_functions=>save_variant
+                                   text  = |{ 'Save Variant' }  (Ctrl+S)| ).
 
     DATA(lo_table_toolbar) = zcl_dbbr_toolbar_util=>get_selscreen_table_tb( ).
-    lo_table_toolbar->add_button_group(
-        data_table = VALUE #(
-          ( butn_type = cntb_btype_button
-            icon      = icon_expand_all
-            quickinfo = 'Expand all Tables'(007)
-            function  = zif_dbbr_c_selscreen_functions=>expand_all_tables )
-          ( butn_type = cntb_btype_button
-            icon      = icon_collapse_all
-            quickinfo = 'Collapse all tables'(008)
-            function  = zif_dbbr_c_selscreen_functions=>collapse_all_tables )
-          ( butn_type = cntb_btype_sep )
-          ( butn_type = cntb_btype_button
-            icon      = icon_previous_page
-            quickinfo = 'Go to previous table'(009)
-            function  = zif_dbbr_c_selscreen_functions=>go_to_previous_table )
-          ( butn_type = cntb_btype_button
-            icon      = icon_next_page
-            quickinfo = 'Go to next table'(010)
-            function  = zif_dbbr_c_selscreen_functions=>go_to_next_table )
-          ( butn_type = cntb_btype_sep )
-          ( butn_type = cntb_btype_button
-            icon      = icon_delete_row
-            quickinfo = 'Delete current line values'(011)
-            function  = zif_dbbr_c_selscreen_functions=>delete_line_input )
-          ( butn_type = cntb_btype_dropdown
-            text      = 'All Criteria'(012)
-            quickinfo = 'Delete all Criteria'(018)
-            icon      = icon_delete_row
-            function  = zif_dbbr_c_selscreen_functions=>delete_all_criteria )
-          ( butn_type = cntb_btype_sep )
-          ( butn_type = cntb_btype_button
-            quickinfo = 'Set Group By to all Fields'
-            icon      = icon_select_all
-            function  = zif_dbbr_c_selscreen_functions=>select_group_by_all )
-          ( butn_type = cntb_btype_button
-            quickinfo = 'Deselect all Group By Fields'
-            icon      = icon_deselect_all
-            function  = zif_dbbr_c_selscreen_functions=>unselect_group_by_all )
-          ( butn_type = cntb_btype_sep )
-          ( butn_type = cntb_btype_button
-            function  = zif_dbbr_c_selscreen_functions=>to_next_criteria
-            icon      = icon_previous_value
-            quickinfo = |{ 'Go to next filter criteria' }| )
-          ( butn_type = cntb_btype_button
-            function  = zif_dbbr_c_selscreen_functions=>to_previous_criteria
-            icon      = icon_next_value
-            quickinfo = |{ 'Go to previous filter criteria' }| )
-          ( butn_type = cntb_btype_sep )
-          ( function  = zif_dbbr_c_selscreen_functions=>get_variant
-            icon      = icon_variants
-            butn_type = cntb_btype_dropdown
-            quickinfo = |{ 'Choose Variant' } (F6)| )
-          ( butn_type = cntb_btype_dropdown
-            text      = 'Default'(013)
-            quickinfo = 'Load Default Variant'(014)
-            icon      = icon_variants
-            function  = zif_dbbr_c_selscreen_functions=>load_default_variant )
-          ( butn_type = cntb_btype_sep )
-          ( butn_type = cntb_btype_button
-            quickinfo = 'Choose Selection Fields'(015)
-            icon      = icon_align
-            function  = zif_dbbr_c_selscreen_functions=>control_sel_fields )
-          ( butn_type = cntb_btype_button
-            quickinfo = 'Technical View On/Off'(016)
-            icon      = icon_tools
-            function  = zif_dbbr_c_selscreen_functions=>activate_tech_view )
-        )
-    ).
+    lo_table_toolbar->add_button_group( data_table = VALUE #(
+                                            ( butn_type = cntb_btype_button
+                                              icon      = icon_expand_all
+                                              quickinfo = 'Expand all Tables'(007)
+                                              function  = zif_dbbr_c_selscreen_functions=>expand_all_tables )
+                                            ( butn_type = cntb_btype_button
+                                              icon      = icon_collapse_all
+                                              quickinfo = 'Collapse all tables'(008)
+                                              function  = zif_dbbr_c_selscreen_functions=>collapse_all_tables )
+                                            ( butn_type = cntb_btype_sep )
+                                            ( butn_type = cntb_btype_button
+                                              icon      = icon_previous_page
+                                              quickinfo = 'Go to previous table'(009)
+                                              function  = zif_dbbr_c_selscreen_functions=>go_to_previous_table )
+                                            ( butn_type = cntb_btype_button
+                                              icon      = icon_next_page
+                                              quickinfo = 'Go to next table'(010)
+                                              function  = zif_dbbr_c_selscreen_functions=>go_to_next_table )
+                                            ( butn_type = cntb_btype_sep )
+                                            ( butn_type = cntb_btype_button
+                                              icon      = icon_delete_row
+                                              quickinfo = 'Delete current line values'(011)
+                                              function  = zif_dbbr_c_selscreen_functions=>delete_line_input )
+                                            ( butn_type = cntb_btype_dropdown
+                                              text      = 'All Criteria'(012)
+                                              quickinfo = 'Delete all Criteria'(018)
+                                              icon      = icon_delete_row
+                                              function  = zif_dbbr_c_selscreen_functions=>delete_all_criteria )
+                                            ( butn_type = cntb_btype_sep )
+                                            ( butn_type = cntb_btype_button
+                                              quickinfo = 'Set Group By to all Fields'
+                                              icon      = icon_select_all
+                                              function  = zif_dbbr_c_selscreen_functions=>select_group_by_all )
+                                            ( butn_type = cntb_btype_button
+                                              quickinfo = 'Deselect all Group By Fields'
+                                              icon      = icon_deselect_all
+                                              function  = zif_dbbr_c_selscreen_functions=>unselect_group_by_all )
+                                            ( butn_type = cntb_btype_sep )
+                                            ( butn_type = cntb_btype_button
+                                              function  = zif_dbbr_c_selscreen_functions=>to_next_criteria
+                                              icon      = icon_previous_value
+                                              quickinfo = |{ 'Go to next filter criteria' }| )
+                                            ( butn_type = cntb_btype_button
+                                              function  = zif_dbbr_c_selscreen_functions=>to_previous_criteria
+                                              icon      = icon_next_value
+                                              quickinfo = |{ 'Go to previous filter criteria' }| )
+                                            ( butn_type = cntb_btype_sep )
+                                            ( function  = zif_dbbr_c_selscreen_functions=>get_variant
+                                              icon      = icon_variants
+                                              butn_type = cntb_btype_dropdown
+                                              quickinfo = |{ 'Choose Variant' } (F6)| )
+                                            ( butn_type = cntb_btype_dropdown
+                                              text      = 'Default'(013)
+                                              quickinfo = 'Load Default Variant'(014)
+                                              icon      = icon_variants
+                                              function  = zif_dbbr_c_selscreen_functions=>load_default_variant )
+                                            ( butn_type = cntb_btype_sep )
+                                            ( butn_type = cntb_btype_button
+                                              quickinfo = 'Choose Selection Fields'(015)
+                                              icon      = icon_align
+                                              function  = zif_dbbr_c_selscreen_functions=>control_sel_fields )
+                                            ( butn_type = cntb_btype_button
+                                              quickinfo = 'Technical View On/Off'(016)
+                                              icon      = icon_tools
+                                              function  = zif_dbbr_c_selscreen_functions=>activate_tech_view ) ) ).
 
-    lo_table_toolbar->set_static_ctxmenu( fcode = zif_dbbr_c_selscreen_functions=>get_variant ctxmenu = lo_variant_menu ).
+    lo_table_toolbar->set_static_ctxmenu( fcode   = zif_dbbr_c_selscreen_functions=>get_variant
+                                          ctxmenu = lo_variant_menu ).
 
-    lo_table_toolbar->set_static_ctxmenu(
-        fcode   = zif_dbbr_c_selscreen_functions=>delete_all_criteria
-        ctxmenu = go_delete_tb_menu
-    ).
-    lo_table_toolbar->set_static_ctxmenu(
-        fcode   = zif_dbbr_c_selscreen_functions=>load_default_variant
-        ctxmenu = lo_default_var_menu
-    ).
+    lo_table_toolbar->set_static_ctxmenu( fcode   = zif_dbbr_c_selscreen_functions=>delete_all_criteria
+                                          ctxmenu = go_delete_tb_menu ).
+    lo_table_toolbar->set_static_ctxmenu( fcode   = zif_dbbr_c_selscreen_functions=>load_default_variant
+                                          ctxmenu = lo_default_var_menu ).
   ENDMETHOD.
-
 
   METHOD clear.
     CLEAR: ms_join_def_old,
            mv_entity_id.
 
-*... Clear all data from data class
+    " ... Clear all data from data class
     mo_data->clear( ).
 
     DATA(lr_toolbar) = zcl_dbbr_toolbar_util=>get_selscreen_entity_tb( ).
-    lr_toolbar->set_button_visible( fcode = 'CUST_FUNC' visible = abap_false ).
+    lr_toolbar->set_button_visible( fcode   = 'CUST_FUNC'
+                                    visible = abap_false ).
   ENDMETHOD.
-
 
   METHOD clear_edit_flags.
     CLEAR mo_data->mr_s_global_data->edit.
@@ -632,7 +616,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
               has_cust_f4_help = has_custom_f4
               virtual_element  = is_virtual_element ).
 
-*... fill descriptions
+    " ... fill descriptions
     IF is_tablefield-alt_long_text IS NOT INITIAL.
       rs_selfield-description = is_tablefield-alt_long_text.
     ELSEIF is_tablefield-std_long_text IS NOT INITIAL.
@@ -642,10 +626,7 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     ELSE.
       rs_selfield-description = is_tablefield-fieldname_raw.
     ENDIF.
-
-
   ENDMETHOD.
-
 
   METHOD create_cds_fields.
     TRY.
@@ -655,76 +636,67 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         mo_data->mo_custom_f4_map->read_same_type_custom_f4_defs( ).
         zcl_dbbr_addtext_bl=>get_instance( )->determine_manual_text_fields( is_entity_info-tabname ).
 
-*...... create parameters
-        zcl_dbbr_cds_tabfield_util=>add_parameters(
-            ir_tabfield_list = mo_data->mo_tabfield_list
-            it_parameters    = lo_cds_view->get_parameters( )
-        ).
-*...... create table fields for cds view
+        " ...... create parameters
+        zcl_dbbr_cds_tabfield_util=>add_parameters( ir_tabfield_list = mo_data->mo_tabfield_list
+                                                    it_parameters    = lo_cds_view->get_parameters( ) ).
+        " ...... create table fields for cds view
+        " TODO: variable is assigned but never used (ABAP cleaner)
         DATA(ls_header) = lo_cds_view->get_header( ).
 
-        rs_entity_info = zcl_dbbr_cds_tabfield_util=>add_view_colums(
-            ir_tabfield_list = mo_data->mo_tabfield_list
-            io_custom_f4_map = mo_data->mo_custom_f4_map
-            io_cds_view      = lo_cds_view
-            iv_alias         = is_entity_info-tabname_alias
-            if_is_primary    = is_entity_info-is_primary ).
+        rs_entity_info = zcl_dbbr_cds_tabfield_util=>add_view_colums( ir_tabfield_list = mo_data->mo_tabfield_list
+                                                                      io_custom_f4_map = mo_data->mo_custom_f4_map
+                                                                      io_cds_view      = lo_cds_view
+                                                                      iv_alias         = is_entity_info-tabname_alias
+                                                                      if_is_primary    = is_entity_info-is_primary ).
       CATCH zcx_sat_data_read_error.
-        "handle exception
+        " handle exception
     ENDTRY.
   ENDMETHOD.
 
   METHOD create_table_field.
     DATA(lf_output) = abap_false.
-    DATA(ls_altcoltext) = mo_altcoltext_f->find_alternative_text(
-        iv_tabname   = is_field-tabname
-        iv_fieldname = is_field-fieldname
-    ).
+    DATA(ls_altcoltext) = mo_altcoltext_f->find_alternative_text( iv_tabname   = is_field-tabname
+                                                                  iv_fieldname = is_field-fieldname ).
 
     DATA(ls_tabfield) = VALUE zdbbr_tabfield_info_ui(
-      tabname_alias         = is_entity-tabname_alias
-      fieldname             = is_field-fieldname
-      fieldname_raw         = is_field-fieldname
-      selection_active      = is_entity-active_selection
-      ddic_order            = is_field-position
-      is_lowercase          = is_field-lowercase
+                                  tabname_alias         = is_entity-tabname_alias
+                                  fieldname             = is_field-fieldname
+                                  fieldname_raw         = is_field-fieldname
+                                  selection_active      = is_entity-active_selection
+                                  ddic_order            = is_field-position
+                                  is_lowercase          = is_field-lowercase
 *...... check if there is a custom search field for this table
-      has_custom_f4         = mo_data->mo_custom_f4_map->entry_exists(
-          iv_tabname   = is_field-tabname
-          iv_fieldname = is_field-fieldname
-          iv_rollname  = is_field-rollname
-          is_built_in_type = VALUE #(
-            datatype  = is_field-datatype
-            leng      = is_field-leng
-          )
-      )
+                                  has_custom_f4         = mo_data->mo_custom_f4_map->entry_exists(
+                                                              iv_tabname       = is_field-tabname
+                                                              iv_fieldname     = is_field-fieldname
+                                                              iv_rollname      = is_field-rollname
+                                                              is_built_in_type = VALUE #( datatype = is_field-datatype
+                                                                                          leng     = is_field-leng ) )
 *...... check if field is numeric
-      is_numeric            = zcl_dbbr_ddic_util=>is_type_numeric( is_field-inttype )
+                                  is_numeric            = zcl_dbbr_ddic_util=>is_type_numeric( is_field-inttype )
 *...... is there an F4-help for this table field
-      f4_available          = is_field-f4availabl
-      field_ddtext          = COND #( WHEN is_field-scrtext_l IS INITIAL THEN
-                                  is_field-fieldtext
-                                ELSE
-                                  is_field-scrtext_l )
-      is_key                = xsdbool( is_field-keyflag = abap_true )
+                                  f4_available          = is_field-f4availabl
+                                  field_ddtext          = COND #( WHEN is_field-scrtext_l IS INITIAL
+                                                                  THEN is_field-fieldtext
+                                                                  ELSE is_field-scrtext_l )
+                                  is_key                = xsdbool( is_field-keyflag = abap_true )
 *...... default sign is inclusive
-      default_sign          = zif_dbbr_c_global=>c_options-i
-      is_virtual_join_field = is_entity-virtual_join_table
-      is_foreign_key        = xsdbool( is_field-checktable IS NOT INITIAL )
-      std_short_text        = is_field-scrtext_s
-      std_medium_text       = is_field-scrtext_m
-      std_long_text         = is_field-scrtext_l
-      alt_long_text         = ls_altcoltext-alt_long_text
-      alt_medium_text       = ls_altcoltext-alt_short_text
-      length                = is_field-leng
-      outputlen             = is_field-outputlen
-      intlen                = is_field-intlen
-      header_text           = is_field-reptext
-      ref_field             = is_field-reffield
-      ref_tab               = is_field-reftable
-    ).
+                                  default_sign          = zif_dbbr_c_global=>c_options-i
+                                  is_virtual_join_field = is_entity-virtual_join_table
+                                  is_foreign_key        = xsdbool( is_field-checktable IS NOT INITIAL )
+                                  std_short_text        = is_field-scrtext_s
+                                  std_medium_text       = is_field-scrtext_m
+                                  std_long_text         = is_field-scrtext_l
+                                  alt_long_text         = ls_altcoltext-alt_long_text
+                                  alt_medium_text       = ls_altcoltext-alt_short_text
+                                  length                = is_field-leng
+                                  outputlen             = is_field-outputlen
+                                  intlen                = is_field-intlen
+                                  header_text           = is_field-reptext
+                                  ref_field             = is_field-reffield
+                                  ref_tab               = is_field-reftable ).
 
-*.... Take the rest of the components directly from the table field
+    " .... Take the rest of the components directly from the table field
     ls_tabfield = CORRESPONDING #( BASE ( ls_tabfield ) is_field ).
 
     DATA(lo_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
@@ -733,9 +705,9 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       ls_tabfield-field_ddtext = ls_altcoltext-alt_long_text.
     ENDIF.
 
-    IF mo_data->mr_s_global_data->primary_table = ls_tabfield-tabname OR
-       ls_tabfield-is_key = abap_true OR
-       ( if_first_non_key_field = abap_false AND ls_tabfield-is_key = abap_false ).
+    IF    mo_data->mr_s_global_data->primary_table = ls_tabfield-tabname
+       OR ls_tabfield-is_key = abap_true
+       OR ( if_first_non_key_field = abap_false AND ls_tabfield-is_key = abap_false ).
       lf_output = abap_true.
     ENDIF.
 
@@ -748,13 +720,11 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       " there is an existing text field for the current table field
       IF lo_addtext_bl->text_exists( is_data_element_info = is_field ).
 
-        lo_addtext_bl->add_text_fields_to_list(
-          ir_tabfields  = mo_data->mo_tabfield_list
-          is_ref_tabfield = ls_tabfield
-          if_post_select = is_entity-virtual_join_table
-          iv_position   = is_field-position
-          is_altcoltext = ls_altcoltext
-        ).
+        lo_addtext_bl->add_text_fields_to_list( ir_tabfields    = mo_data->mo_tabfield_list
+                                                is_ref_tabfield = ls_tabfield
+                                                if_post_select  = is_entity-virtual_join_table
+                                                iv_position     = is_field-position
+                                                is_altcoltext   = ls_altcoltext ).
 
         " connect text field and key field
         lr_new_field->has_text_field = abap_true.
@@ -766,76 +736,74 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 *& Description: Creates table fields for given table name
 *&---------------------------------------------------------------------*
     DATA(ls_table_info) = zcl_sat_ddic_repo_access=>get_table_info( is_entity_info-tabname ).
-    CHECK ls_table_info IS NOT INITIAL.
+    IF ls_table_info IS INITIAL.
+      RETURN.
+    ENDIF.
 
-*... read custom f4 helps for join table definitions
+    " ... read custom f4 helps for join table definitions
     mo_data->mo_custom_f4_map->read_custom_f4_definitions( is_entity_info-tabname ).
     mo_data->mo_custom_f4_map->read_same_type_custom_f4_defs( ).
 
+    " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(lv_join_table_text) = ls_table_info-ddtext.
 
     zcl_sat_ddic_repo_access=>get_table_field_infos( EXPORTING iv_tablename    = is_entity_info-tabname
-                                                       IMPORTING et_table_fields = DATA(lt_dfies) ).
+                                                     IMPORTING et_table_fields = DATA(lt_dfies) ).
 
     DATA(lr_addtext_bl) = zcl_dbbr_addtext_bl=>get_instance( ).
     lr_addtext_bl->determine_manual_text_fields( is_entity_info-tabname ).
-    lr_addtext_bl->determine_text_fields(
-      iv_entity      = is_entity_info-tabname
-      iv_entity_type = is_entity_info-type ).
+    lr_addtext_bl->determine_text_fields( iv_entity      = is_entity_info-tabname
+                                          iv_entity_type = is_entity_info-type ).
 
     DATA(lf_first_non_key_field) = abap_false.
 
-*... build tablefield table
+    " ... build tablefield table
     LOOP AT lt_dfies ASSIGNING FIELD-SYMBOL(<ls_data_element_field>) WHERE datatype <> 'CLNT'.
       IF <ls_data_element_field>-keyflag = abap_false.
         lf_first_non_key_field = abap_true.
       ENDIF.
-      create_table_field(
-        is_entity              = is_entity_info
-        if_first_non_key_field = lf_first_non_key_field
-        is_field               = <ls_data_element_field>
-      ).
+      create_table_field( is_entity              = is_entity_info
+                          if_first_non_key_field = lf_first_non_key_field
+                          is_field               = <ls_data_element_field> ).
     ENDLOOP.
 
     rs_entity_info = VALUE zdbbr_entity_info(
-      active_selection     = abap_true
-      tabname              = is_entity_info-tabname
-      tabname_alias        = COND #( WHEN is_entity_info-tabname_alias IS NOT INITIAL THEN
-                                        is_entity_info-tabname_alias
-                                     ELSE
-                                        is_entity_info-tabname )
-      alias                = is_entity_info-alias
-      type                 = zif_sat_c_entity_type=>table
-      description          = ls_table_info-ddtext
-      fields_are_loaded    = abap_true
-      is_primary           = is_entity_info-is_primary
-      selection_order      = is_entity_info-selection_order
-    ).
+                               active_selection  = abap_true
+                               tabname           = is_entity_info-tabname
+                               tabname_alias     = COND #( WHEN is_entity_info-tabname_alias IS NOT INITIAL
+                                                           THEN is_entity_info-tabname_alias
+                                                           ELSE is_entity_info-tabname )
+                               alias             = is_entity_info-alias
+                               type              = zif_sat_c_entity_type=>table
+                               description       = ls_table_info-ddtext
+                               fields_are_loaded = abap_true
+                               is_primary        = is_entity_info-is_primary
+                               selection_order   = is_entity_info-selection_order ).
 
     mo_data->mo_tabfield_list->add_table( rs_entity_info ).
-
   ENDMETHOD.
-
 
   METHOD create_table_header.
-    rs_table_header = VALUE zdbbr_selfield(
-      tabname              = iv_tabname
-      tabname_alias        = iv_tabname_alias
-      is_table_header      = abap_true
-      description          = iv_tabname_alias
-      fieldname_raw        = iv_tabname
-      ddic_order           = 0 ).
-  ENDMETHOD.
+    " TODO: parameter IV_TYPENAME is never used (ABAP cleaner)
 
+    rs_table_header = VALUE zdbbr_selfield( tabname         = iv_tabname
+                                            tabname_alias   = iv_tabname_alias
+                                            is_table_header = abap_true
+                                            description     = iv_tabname_alias
+                                            fieldname_raw   = iv_tabname
+                                            ddic_order      = 0 ).
+  ENDMETHOD.
 
   METHOD delete_join_definition.
     CHECK mo_data->is_join_active( ).
 
-    CLEAR: mo_data->mr_s_join_def->tables.
+    CLEAR mo_data->mr_s_join_def->tables.
 
     ASSIGN mo_data->mr_t_table_data->* TO FIELD-SYMBOL(<lt_selection_fields>).
     ASSIGN mo_data->mr_t_selfields_multi->* TO FIELD-SYMBOL(<lt_selection_fields_multi>).
+    " TODO: variable is assigned but never used (ABAP cleaner)
     ASSIGN mo_data->mr_s_join_def->* TO FIELD-SYMBOL(<ls_join_definition>).
+    " TODO: variable is assigned but never used (ABAP cleaner)
     ASSIGN mo_data->mr_s_global_data->* TO FIELD-SYMBOL(<ls_global_data>).
 
     mo_data->set_join_active( abap_false ).
@@ -849,116 +817,105 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     fill_selection_mask( ).
   ENDMETHOD.
 
-
   METHOD fill_selection_mask.
   ENDMETHOD.
 
-
   METHOD fill_toolbar.
-    DATA: lt_data_table TYPE ttb_button.
+    DATA lt_data_table TYPE ttb_button.
 
     DATA(lo_toolbar) = zcl_dbbr_toolbar_util=>get_selscreen_entity_tb( ).
-*.. clear all buttons
+    " .. clear all buttons
     lo_toolbar->delete_all_buttons( ).
     cl_gui_cfw=>flush( ).
 
     IF if_create_extended_search = abap_true.
-      lt_data_table = VALUE #(
-        ( function  = zif_dbbr_c_selscreen_functions=>open_specific_extended_search
-          icon      = icon_extended_search
-          quickinfo = |{ 'Extended Search'(001) } (Ctrl+Shift+F2)| )
-      ).
+      lt_data_table = VALUE #( ( function  = zif_dbbr_c_selscreen_functions=>open_specific_extended_search
+                                 icon      = icon_extended_search
+                                 quickinfo = |{ 'Extended Search'(001) } (Ctrl+Shift+F2)| ) ).
     ENDIF.
 
-    lo_toolbar->add_button_group(
-        data_table = VALUE #( BASE lt_data_table
-          ( LINES OF it_custom_buttons )
-          ( function  = 'CUST_FUNC'
-            icon      = icon_reference_list
-            quickinfo = |{ 'Custom Functions'(002) }|
-            butn_type = cntb_btype_menu      )
-        )
-    ).
+    lo_toolbar->add_button_group( data_table = VALUE #( BASE lt_data_table
+                                                        ( LINES OF it_custom_buttons )
+                                                        ( function  = 'CUST_FUNC'
+                                                          icon      = icon_reference_list
+                                                          quickinfo = |{ 'Custom Functions'(002) }|
+                                                          butn_type = cntb_btype_menu      ) ) ).
 
-*.... set custom menu for cust function
+    " .... set custom menu for cust function
     IF mo_custom_menu IS BOUND.
-      lo_toolbar->set_static_ctxmenu(
-          fcode   = 'CUST_FUNC'
-          ctxmenu = mo_custom_menu
-      ).
+      lo_toolbar->set_static_ctxmenu( fcode   = 'CUST_FUNC'
+                                      ctxmenu = mo_custom_menu ).
     ENDIF.
 
     ro_toolbar = lo_toolbar.
   ENDMETHOD.
 
-
   METHOD finish_loading.
     DATA(lr_toolbar) = zcl_dbbr_toolbar_util=>get_selscreen_entity_tb( ).
 
-    lr_toolbar->set_button_visible( fcode = 'CUST_FUNC' visible = abap_true ).
+    lr_toolbar->set_button_visible( fcode   = 'CUST_FUNC'
+                                    visible = abap_true ).
   ENDMETHOD.
-
 
   METHOD get_entity_information.
+    " TODO: parameter EV_ENTITY is never cleared or assigned (ABAP cleaner)
+    " TODO: parameter EV_ENTITY_RAW is never cleared or assigned (ABAP cleaner)
+    " TODO: parameter EV_ENTITY_ID is never cleared or assigned (ABAP cleaner)
+    " TODO: parameter EV_TYPE is never cleared or assigned (ABAP cleaner)
+
     ev_description = mo_data->mr_v_selmask_entity_text->*.
   ENDMETHOD.
-
 
   METHOD get_entity_type_for_join.
     rv_entity_type = mv_entity_type.
   ENDMETHOD.
 
-
   METHOD get_id_for_variant.
   ENDMETHOD.
-
 
   METHOD has_content.
     rf_has_content = xsdbool( mv_entity_id IS NOT INITIAL ).
   ENDMETHOD.
 
-
   METHOD is_entity_loaded.
     result = xsdbool( mv_entity_id = iv_entity_id AND mv_entity_type = iv_entity_type ).
   ENDMETHOD.
 
-
   METHOD notify_of_deleted_entity.
     RAISE EVENT entity_deleted
-      EXPORTING
-        ev_entity_id   = iv_entity_id
-        ev_entity_type = iv_entity_type.
+          EXPORTING
+            ev_entity_id   = iv_entity_id
+            ev_entity_type = iv_entity_type.
   ENDMETHOD.
-
 
   METHOD update_entity_type_sh.
     DATA(lr_v_entity_type) = CAST zsat_entity_type(
-      zcl_uitb_data_cache=>get_instance(
-        zif_dbbr_c_report_id=>search_help_exit
-      )->get_data_ref( zcl_dbbr_entity_sh_helper=>c_v_entity_type )
-    ).
+      zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>search_help_exit
+      )->get_data_ref( zcl_dbbr_entity_sh_helper=>c_v_entity_type ) ).
 
     lr_v_entity_type->* = mo_data->mr_s_entity_info->entity_type.
   ENDMETHOD.
 
-
   METHOD update_join_definition.
-    DATA: ls_new_entity TYPE zdbbr_entity_info.
+    " TODO: variable is assigned but never used (ABAP cleaner)
+    DATA ls_new_entity TYPE zdbbr_entity_info.
 
-    FIELD-SYMBOLS: <ls_selfield> TYPE zdbbr_selfield.
+    FIELD-SYMBOLS <ls_selfield> TYPE zdbbr_selfield.
 
+    " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(lt_join_tables_old) = mo_data->mr_s_old_join_def->tables.
     DATA(lv_old_primary_alias) = mo_data->mr_s_old_join_def->primary_table_alias.
 
     ASSIGN mo_data->mr_t_table_data->* TO FIELD-SYMBOL(<lt_selection_fields>).
     ASSIGN mo_data->mr_t_selfields_multi->* TO FIELD-SYMBOL(<lt_selection_fields_multi>).
     ASSIGN mo_data->mr_s_join_def->* TO FIELD-SYMBOL(<ls_join_definition>).
+    " TODO: variable is assigned but never used (ABAP cleaner)
     ASSIGN mo_data->mr_s_global_data->* TO FIELD-SYMBOL(<ls_global_data>).
 
     mo_data->set_join_active( xsdbool( <ls_join_definition>-tables IS NOT INITIAL ) ).
 
     IF mo_data->is_join_active( ).
-      CLEAR: mo_data->mr_s_global_data->edit.
+      CLEAR mo_data->mr_s_global_data->edit.
     ENDIF.
 
     DATA(lt_old_tablist) = mo_data->mo_tabfield_list->get_table_list( ).
@@ -966,12 +923,10 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     DATA(lv_max_index) = VALUE #( lt_old_tablist[ 1 ]-selection_order OPTIONAL ).
     SORT lt_old_tablist BY selection_order ASCENDING.
 
-*.. Handle alias change of primary table
+    " .. Handle alias change of primary table
     IF <ls_join_definition>-primary_table_alias <> lv_old_primary_alias.
-      mo_data->mo_tabfield_list->replace_table_alias(
-        iv_old_alias = lv_old_primary_alias
-        iv_new_alias = <ls_join_definition>-primary_table_alias
-      ).
+      mo_data->mo_tabfield_list->replace_table_alias( iv_old_alias = lv_old_primary_alias
+                                                      iv_new_alias = <ls_join_definition>-primary_table_alias ).
       LOOP AT <lt_selection_fields> ASSIGNING <ls_selfield> WHERE tabname_alias = lv_old_primary_alias.
         <ls_selfield>-tabname_alias = <ls_join_definition>-primary_table_alias.
       ENDLOOP.
@@ -980,84 +935,86 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
       ENDLOOP.
     ENDIF.
 
-*.. add fields of join table to selfields output
+    " .. add fields of join table to selfields output
     LOOP AT <ls_join_definition>-tables ASSIGNING FIELD-SYMBOL(<ls_join_table_info>).
+      " TODO: variable is assigned but never used (ABAP cleaner)
       DATA(lf_is_new_table) = abap_false.
 
-*..... check if fields for join table are already in selection fields table
+      " ..... check if fields for join table are already in selection fields table
 
       IF line_exists( lt_old_tablist[ tabname_alias = <ls_join_table_info>-add_table_alias
                                       tabname       = <ls_join_table_info>-add_table
                                       is_primary    = abap_false ] ).
 
-        DATA(lr_s_existing_tab) = mo_data->mo_tabfield_list->get_table_ref_by_alias( <ls_join_table_info>-add_table_alias ).
-*...... check if join table is of type 'conditional join' to prevent selection
+        DATA(lr_s_existing_tab) = mo_data->mo_tabfield_list->get_table_ref_by_alias(
+                                      <ls_join_table_info>-add_table_alias ).
+        " ...... check if join table is of type 'conditional join' to prevent selection
         IF lr_s_existing_tab->virtual_join_table = abap_true.
           lr_s_existing_tab->no_selection_allowed = abap_true.
         ENDIF.
 
         IF lr_s_existing_tab->selection_order IS INITIAL.
-          ADD 1 TO lv_max_index.
+          lv_max_index = lv_max_index + 1.
           lr_s_existing_tab->active_selection = abap_true.
-          lr_s_existing_tab->selection_order = lv_max_index.
+          lr_s_existing_tab->selection_order  = lv_max_index.
         ENDIF.
 
-*...... check if this table's join type changed to or from virtual join
+        " ...... check if this table's join type changed to or from virtual join
         IF lr_s_existing_tab->virtual_join_table <> <ls_join_table_info>-is_virtual.
 
-*........ update the is_post_join flag of all table fields for this table
+          " ........ update the is_post_join flag of all table fields for this table
           mo_data->mo_tabfield_list->update_virtual_join_for_table(
-            iv_table_name  = lr_s_existing_tab->tabname_alias
-            if_virtual_join = lr_s_existing_tab->virtual_join_table
-          ).
+              iv_table_name   = lr_s_existing_tab->tabname_alias
+              if_virtual_join = lr_s_existing_tab->virtual_join_table ).
         ENDIF.
       ELSE.
         lf_is_new_table = abap_true.
 
         IF <ls_join_table_info>-entity_type = zif_sat_c_entity_type=>cds_view.
-          ls_new_entity = create_cds_fields( VALUE #(
-            tabname            = <ls_join_table_info>-add_table
-            tabname_alias      = <ls_join_table_info>-add_table_alias
-            virtual_join_table = <ls_join_table_info>-is_virtual
-            active_selection   = abap_true
-            selection_order    = VALUE #( it_table_info[ tabname = <ls_join_table_info>-add_table ]-selection_order OPTIONAL ) )
-          ).
+          ls_new_entity = create_cds_fields(
+              VALUE #(
+                  tabname            = <ls_join_table_info>-add_table
+                  tabname_alias      = <ls_join_table_info>-add_table_alias
+                  virtual_join_table = <ls_join_table_info>-is_virtual
+                  active_selection   = abap_true
+                  selection_order    = VALUE #( it_table_info[
+                                                    tabname = <ls_join_table_info>-add_table ]-selection_order OPTIONAL ) ) ).
         ELSE.
-          ls_new_entity = create_table_fields( VALUE #(
-              tabname            = <ls_join_table_info>-add_table
-              tabname_alias      = <ls_join_table_info>-add_table_alias
-              virtual_join_table = <ls_join_table_info>-is_virtual
-              active_selection   = abap_true
-              selection_order    = VALUE #( it_table_info[ tabname = <ls_join_table_info>-add_table ]-selection_order OPTIONAL ) )
-          ).
+          ls_new_entity = create_table_fields(
+              VALUE #(
+                  tabname            = <ls_join_table_info>-add_table
+                  tabname_alias      = <ls_join_table_info>-add_table_alias
+                  virtual_join_table = <ls_join_table_info>-is_virtual
+                  active_selection   = abap_true
+                  selection_order    = VALUE #( it_table_info[
+                                                    tabname = <ls_join_table_info>-add_table ]-selection_order OPTIONAL ) ) ).
         ENDIF.
 
       ENDIF.
     ENDLOOP.
 
-    DATA(lt_add_tables_selopt) = VALUE zdbbr_tabname_range_itab(
-      FOR add_table IN <ls_join_definition>-tables
-      ( sign   = zif_dbbr_c_global=>c_options-i
-        option = zif_dbbr_c_global=>c_options-eq
-        low    = add_table-add_table_alias             )
-    ).
+    DATA(lt_add_tables_selopt) = VALUE zdbbr_tabname_range_itab( FOR add_table IN <ls_join_definition>-tables
+                                                                 ( sign   = zif_dbbr_c_global=>c_options-i
+                                                                   option = zif_dbbr_c_global=>c_options-eq
+                                                                   low    = add_table-add_table_alias             ) ).
 
-*.. update tabfield list
+    " .. update tabfield list
     mo_data->mo_tabfield_list->delete_custom(
-        it_tabname_alias_range = VALUE #( FOR table IN lt_add_tables_selopt ( sign = 'E' option = table-option low = table-low ) )
-    ).
+        it_tabname_alias_range = VALUE #( FOR table IN lt_add_tables_selopt
+                                          ( sign = 'E' option = table-option low = table-low ) ) ).
 
-*.. are there any join tables?
+    " .. are there any join tables?
     IF <ls_join_definition>-tables IS INITIAL.
       mo_data->mo_tabfield_list->clear_alias_names( ).
     ELSE.
-*.... Update table aliases from Join definition
+      " .... Update table aliases from Join definition
       DATA(lr_tables) = mo_data->mo_tabfield_list->get_tables_ref( ).
       LOOP AT lr_tables->* ASSIGNING FIELD-SYMBOL(<ls_table>) WHERE is_custom = abap_false.
         IF <ls_table>-is_primary = abap_true.
           <ls_table>-alias = <ls_join_definition>-primary_table_alias_alv.
         ELSE.
-          <ls_table>-alias = <ls_join_definition>-tables[ add_table_alias = <ls_table>-tabname_alias ]-add_table_alias_alv.
+          <ls_table>-alias = <ls_join_definition>-tables[
+                                 add_table_alias = <ls_table>-tabname_alias ]-add_table_alias_alv.
         ENDIF.
       ENDLOOP.
 
@@ -1066,51 +1023,42 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
     IF mo_data->is_join_active( ).
       mo_data->mo_tabfield_list->sort_tables_by_active( ).
-*.... manually update join table list of field list to prevent unwanted screen updates
+      " .... manually update join table list of field list to prevent unwanted screen updates
       update_multi_selection_mask( ).
     ELSE.
       update_selection_mask( ).
     ENDIF.
   ENDMETHOD.
 
-
   METHOD update_multiple_table_buttons.
     DATA(lr_table_toolbar) = zcl_dbbr_toolbar_util=>get_selscreen_table_tb( ).
 
-    lr_table_toolbar->set_button_state(
-        enabled = if_has_multiple_tables
-        fcode   = zif_dbbr_c_selscreen_functions=>expand_all_tables
-    ).
-    lr_table_toolbar->set_button_state(
-        enabled = if_has_multiple_tables
-        fcode   = zif_dbbr_c_selscreen_functions=>collapse_all_tables
-    ).
-    lr_table_toolbar->set_button_state(
-        enabled = if_has_multiple_tables
-        fcode   = zif_dbbr_c_selscreen_functions=>go_to_next_table
-    ).
-    lr_table_toolbar->set_button_state(
-        enabled = if_has_multiple_tables
-        fcode   = zif_dbbr_c_selscreen_functions=>go_to_previous_table
-    ).
+    lr_table_toolbar->set_button_state( enabled = if_has_multiple_tables
+                                        fcode   = zif_dbbr_c_selscreen_functions=>expand_all_tables ).
+    lr_table_toolbar->set_button_state( enabled = if_has_multiple_tables
+                                        fcode   = zif_dbbr_c_selscreen_functions=>collapse_all_tables ).
+    lr_table_toolbar->set_button_state( enabled = if_has_multiple_tables
+                                        fcode   = zif_dbbr_c_selscreen_functions=>go_to_next_table ).
+    lr_table_toolbar->set_button_state( enabled = if_has_multiple_tables
+                                        fcode   = zif_dbbr_c_selscreen_functions=>go_to_previous_table ).
     cl_gui_cfw=>flush( ).
   ENDMETHOD.
 
-
   METHOD update_multi_selection_mask.
-    DATA: lt_current_table_list TYPE RANGE OF tabname.
+    DATA lt_current_table_list TYPE RANGE OF tabname.
 
-*... set `selection mode` for tabfield list to prevent unwanted behaviour
+    " ... set `selection mode` for tabfield list to prevent unwanted behavior
     mo_data->mo_tabfield_list->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-selection ).
 
-*... first get all active selection tables
+    " ... first get all active selection tables
     DATA(lt_tables) = mo_data->mo_tabfield_list->get_table_list( ).
     DELETE lt_tables WHERE active_selection = abap_false. " or no_selection_allowed = abap_true.
-*.. Build range for deleting invalid selection selection fields
-    lt_current_table_list = VALUE #( FOR table IN lt_tables ( sign = 'I' option = 'EQ' low = table-tabname_alias ) ).
+    " .. Build range for deleting invalid selection selection fields
+    lt_current_table_list = VALUE #( FOR table IN lt_tables
+                                     ( sign = 'I' option = 'EQ' low = table-tabname_alias ) ).
     SORT lt_tables BY selection_order.
 
-*.. Always show parameter table at first position
+    " .. Always show parameter table at first position
     LOOP AT lt_tables INTO DATA(ls_param_table) WHERE tabname = zif_dbbr_c_global=>c_parameter_dummy_table.
       CHECK sy-tabix <> 1.
       DELETE lt_tables.
@@ -1125,13 +1073,14 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     DELETE mo_data->mr_t_table_data->* WHERE tabname_alias NOT IN lt_current_table_list.
     DELETE mo_data->mr_t_selfields_multi->* WHERE tabname_alias NOT IN lt_current_table_list.
 
-*... cache current list of selection fields
+    " ... cache current list of selection fields
     DATA(lt_selection_fields) = mo_data->mr_t_table_data->*.
     CLEAR mo_data->mr_t_table_data->*.
 
     LOOP AT lt_tables ASSIGNING FIELD-SYMBOL(<ls_table>).
 
-      DATA(lr_cache_list) = mo_data->mo_tabfield_list->extract_fields( VALUE #( ( sign = 'I' option = 'EQ' low = <ls_table>-tabname_alias ) ) ).
+      DATA(lr_cache_list) = mo_data->mo_tabfield_list->extract_fields(
+                                VALUE #( ( sign = 'I' option = 'EQ' low = <ls_table>-tabname_alias ) ) ).
 
       lr_cache_list->sort( ).
       lr_cache_list->initialize_iterator( if_for_active = abap_true ).
@@ -1144,36 +1093,30 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
         CONTINUE.
       ENDIF.
 
-*... add the table header
-      mo_data->mr_t_table_data->* = VALUE #(
-        BASE mo_data->mr_t_table_data->*
-        ( create_table_header(
-            iv_tabname       = <ls_table>-tabname
-            iv_tabname_alias = <ls_table>-tabname_alias
-            iv_typename      = <ls_table>-type
-          )
-        )
-      ).
+      " ... add the table header
+      mo_data->mr_t_table_data->* = VALUE #( BASE mo_data->mr_t_table_data->*
+                                             ( create_table_header( iv_tabname       = <ls_table>-tabname
+                                                                    iv_tabname_alias = <ls_table>-tabname_alias
+                                                                    iv_typename      = <ls_table>-type ) ) ).
 
-*... add selection fields for this table
+      " ... add selection fields for this table
       WHILE lr_cache_list->has_more_lines( ).
         DATA(lr_current_entry) = lr_cache_list->get_next_entry( ).
-*... exclude text fields
+        " ... exclude text fields
         CHECK lr_current_entry->is_text_field = abap_false.
-*... exclude technical fields
+        " ... exclude technical fields
         CHECK lr_current_entry->is_technical = abap_false.
 
-*... search for field in cache
+        " ... search for field in cache
         ASSIGN lt_selection_fields[ tabname_alias = lr_current_entry->tabname_alias
                                     tabname       = lr_current_entry->tabname
                                     fieldname     = lr_current_entry->fieldname ] TO FIELD-SYMBOL(<ls_existing_selfield>).
         IF sy-subrc = 0.
-          mo_data->mr_t_table_data->* = VALUE #( BASE mo_data->mr_t_table_data->* ( <ls_existing_selfield> ) ).
+          mo_data->mr_t_table_data->* = VALUE #( BASE mo_data->mr_t_table_data->*
+                                                 ( <ls_existing_selfield> ) ).
         ELSE.
-          mo_data->mr_t_table_data->* = VALUE #(
-            BASE mo_data->mr_t_table_data->*
-            ( convert_to_selfield( is_tablefield = lr_current_entry->* ) )
-          ).
+          mo_data->mr_t_table_data->* = VALUE #( BASE mo_data->mr_t_table_data->*
+                                                 ( convert_to_selfield( is_tablefield = lr_current_entry->* ) ) ).
         ENDIF.
       ENDWHILE.
 
@@ -1184,9 +1127,8 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     ENDLOOP. " end of table loop
   ENDMETHOD.
 
-
   METHOD update_selection_mask.
-*... set `selection mode` for tabfield list to prevent unwanted behaviour
+    " ... set `selection mode` for tabfield list to prevent unwanted behavior
     mo_data->mo_tabfield_list->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-selection ).
 
     mo_data->mo_tabfield_list->sort( ).
@@ -1198,35 +1140,29 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     WHILE mo_data->mo_tabfield_list->has_more_lines( ).
       DATA(lr_current_entry) = mo_data->mo_tabfield_list->get_next_entry( ).
 
-*... exclude text fields
+      " ... exclude text fields
       CHECK lr_current_entry->is_text_field = abap_false.
-*... exclude technical fields
+      " ... exclude technical fields
       CHECK lr_current_entry->is_technical = abap_false.
 
       IF line_exists( lt_selfields[ tabname   = lr_current_entry->tabname
                                     fieldname = lr_current_entry->fieldname ] ).
-        mo_data->mr_t_table_data->* = VALUE #(
-          BASE mo_data->mr_t_table_data->*
-          ( lt_selfields[ tabname   = lr_current_entry->tabname
-                          fieldname = lr_current_entry->fieldname ] )
-        ).
+        mo_data->mr_t_table_data->* = VALUE #( BASE mo_data->mr_t_table_data->*
+                                               ( lt_selfields[ tabname   = lr_current_entry->tabname
+                                                               fieldname = lr_current_entry->fieldname ] ) ).
       ELSE.
-        mo_data->mr_t_table_data->* = VALUE #(
-          BASE mo_data->mr_t_table_data->*
-          ( convert_to_selfield( is_tablefield = lr_current_entry->* ) )
-        ).
+        mo_data->mr_t_table_data->* = VALUE #( BASE mo_data->mr_t_table_data->*
+                                               ( convert_to_selfield( is_tablefield = lr_current_entry->* ) ) ).
       ENDIF.
     ENDWHILE.
-
   ENDMETHOD.
 
-
   METHOD zif_dbbr_screen_table_util~handle_pbo.
-*... handle expanded mode
+    " ... handle expanded mode
     DATA(lv_visibility) = COND i(
       WHEN NOT has_content( )                  THEN 1
       WHEN NOT mo_data->is_multi_table_mode( ) THEN 1
-                                               ELSE 0 ).
+      ELSE                                          0 ).
 
     LOOP AT mo_data->mr_s_tableview->cols ASSIGNING FIELD-SYMBOL(<ls_column>).
       IF <ls_column>-screen-group1 = 'EXP'.
@@ -1235,60 +1171,54 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-
   METHOD zif_dbbr_screen_util~free_resources.
   ENDMETHOD.
 
-
   METHOD zif_dbbr_screen_util~get_deactivated_functions.
     IF mv_entity_id IS INITIAL.
-      result = VALUE #(
-        ( zif_dbbr_c_selscreen_functions=>execute_selection )
-        ( zif_dbbr_c_selscreen_functions=>count_lines )
-        ( zif_dbbr_c_selscreen_functions=>check_edit_option )
-        ( zif_dbbr_c_selscreen_functions=>delete_db_content )
-        ( zif_dbbr_c_selscreen_functions=>define_joins )
-        ( zif_dbbr_c_selscreen_functions=>edit_alternative_coltexts )
-        ( zif_dbbr_c_selscreen_functions=>activate_optional_or_select )
-        ( zif_dbbr_c_selscreen_functions=>control_sel_fields )
-        ( zif_dbbr_c_selscreen_functions=>control_sort_fields )
-        ( zif_dbbr_c_selscreen_functions=>control_output_fields )
-        ( zif_dbbr_c_selscreen_functions=>select_additional_texts )
-        ( zif_dbbr_c_selscreen_functions=>get_variant )
-        ( zif_dbbr_c_selscreen_functions=>delete_variant )
-        ( zif_dbbr_c_selscreen_functions=>save_variant )
-        ( zif_dbbr_c_selscreen_functions=>get_variant )
-        ( zif_dbbr_c_selscreen_functions=>assign_built_in_f4_at_field )
-        ( zif_dbbr_c_selscreen_functions=>assign_custom_f4_at_field )
-        ( zif_dbbr_c_selscreen_functions=>delete_f4_from_field )
-        ( zif_dbbr_c_selscreen_functions=>cross_reference_table )
-        ( zif_dbbr_c_selscreen_functions=>copy_query )
-        ( zif_dbbr_c_selscreen_functions=>edit_jump_fields )
-        ( zif_dbbr_c_selscreen_functions=>multi_or_selection )
-        ( zif_dbbr_c_selscreen_functions=>save_query )
-        ( zif_dbbr_c_selscreen_functions=>show_formula_manager )
-        ( zif_dbbr_c_selscreen_functions=>show_ddls_source )
-        ( zif_dbbr_c_selscreen_functions=>go_to_ddic_view_of_cds )
-        ( zif_dbbr_c_selscreen_functions=>open_cds_view_with_adt )
-      ).
+      result = VALUE #( ( zif_dbbr_c_selscreen_functions=>execute_selection )
+                        ( zif_dbbr_c_selscreen_functions=>count_lines )
+                        ( zif_dbbr_c_selscreen_functions=>check_edit_option )
+                        ( zif_dbbr_c_selscreen_functions=>delete_db_content )
+                        ( zif_dbbr_c_selscreen_functions=>define_joins )
+                        ( zif_dbbr_c_selscreen_functions=>edit_alternative_coltexts )
+                        ( zif_dbbr_c_selscreen_functions=>activate_optional_or_select )
+                        ( zif_dbbr_c_selscreen_functions=>control_sel_fields )
+                        ( zif_dbbr_c_selscreen_functions=>control_sort_fields )
+                        ( zif_dbbr_c_selscreen_functions=>control_output_fields )
+                        ( zif_dbbr_c_selscreen_functions=>select_additional_texts )
+                        ( zif_dbbr_c_selscreen_functions=>get_variant )
+                        ( zif_dbbr_c_selscreen_functions=>delete_variant )
+                        ( zif_dbbr_c_selscreen_functions=>save_variant )
+                        ( zif_dbbr_c_selscreen_functions=>get_variant )
+                        ( zif_dbbr_c_selscreen_functions=>assign_built_in_f4_at_field )
+                        ( zif_dbbr_c_selscreen_functions=>assign_custom_f4_at_field )
+                        ( zif_dbbr_c_selscreen_functions=>delete_f4_from_field )
+                        ( zif_dbbr_c_selscreen_functions=>cross_reference_table )
+                        ( zif_dbbr_c_selscreen_functions=>copy_query )
+                        ( zif_dbbr_c_selscreen_functions=>edit_jump_fields )
+                        ( zif_dbbr_c_selscreen_functions=>multi_or_selection )
+                        ( zif_dbbr_c_selscreen_functions=>save_query )
+                        ( zif_dbbr_c_selscreen_functions=>show_formula_manager )
+                        ( zif_dbbr_c_selscreen_functions=>show_ddls_source )
+                        ( zif_dbbr_c_selscreen_functions=>go_to_ddic_view_of_cds )
+                        ( zif_dbbr_c_selscreen_functions=>open_cds_view_with_adt ) ).
     ELSE.
-*.... deactivate functions if advanced mode is not activated
+      " .... deactivate functions if advanced mode is not activated
       IF mo_data->mr_s_global_data->settings-advanced_mode = abap_false.
-        result = VALUE #(
-          ( zif_dbbr_c_selscreen_functions=>define_joins )
-          ( zif_dbbr_c_selscreen_functions=>delete_db_content )
-          ( zif_dbbr_c_selscreen_functions=>delete_joins )
-          ( zif_dbbr_c_selscreen_functions=>save_query )
-          ( zif_dbbr_c_selscreen_functions=>define_sub_queries )
-          ( zif_dbbr_c_selscreen_functions=>maintain_value_helps )
-          ( zif_dbbr_c_selscreen_functions=>edit_alternative_coltexts )
-          ( zif_dbbr_c_selscreen_functions=>activate_optional_or_select )
-          ( zif_dbbr_c_selscreen_functions=>select_additional_texts )
-          ( zif_dbbr_c_selscreen_functions=>assign_built_in_f4_at_field )
-          ( zif_dbbr_c_selscreen_functions=>delete_f4_from_field )
-          ( zif_dbbr_c_selscreen_functions=>multi_or_selection )
-          ( zif_dbbr_c_selscreen_functions=>show_formula_manager )
-        ).
+        result = VALUE #( ( zif_dbbr_c_selscreen_functions=>define_joins )
+                          ( zif_dbbr_c_selscreen_functions=>delete_db_content )
+                          ( zif_dbbr_c_selscreen_functions=>delete_joins )
+                          ( zif_dbbr_c_selscreen_functions=>save_query )
+                          ( zif_dbbr_c_selscreen_functions=>define_sub_queries )
+                          ( zif_dbbr_c_selscreen_functions=>maintain_value_helps )
+                          ( zif_dbbr_c_selscreen_functions=>edit_alternative_coltexts )
+                          ( zif_dbbr_c_selscreen_functions=>activate_optional_or_select )
+                          ( zif_dbbr_c_selscreen_functions=>select_additional_texts )
+                          ( zif_dbbr_c_selscreen_functions=>assign_built_in_f4_at_field )
+                          ( zif_dbbr_c_selscreen_functions=>delete_f4_from_field )
+                          ( zif_dbbr_c_selscreen_functions=>multi_or_selection )
+                          ( zif_dbbr_c_selscreen_functions=>show_formula_manager ) ).
       ENDIF.
 
       IF mo_data->mr_s_global_data->settings-experimental_mode = abap_false.
@@ -1302,18 +1232,14 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
 
       WHEN zif_dbbr_c_selscreen_functions=>create_default_variant.
         CLEAR cv_function.
-        zcl_dbbr_default_variant_util=>create_default_variant(
-            io_data           = mo_data
-            io_selscreen_util = me
-        ).
+        zcl_dbbr_default_variant_util=>create_default_variant( io_data           = mo_data
+                                                               io_selscreen_util = me ).
 
       WHEN zif_dbbr_c_selscreen_functions=>load_default_variant.
         CLEAR cv_function.
-        zcl_dbbr_default_variant_util=>load_default_variant(
-            if_show_loaded_message = abap_true
-            io_data                = mo_data
-            io_selscreen_util      = me
-        ).
+        zcl_dbbr_default_variant_util=>load_default_variant( if_show_loaded_message = abap_true
+                                                             io_data                = mo_data
+                                                             io_selscreen_util      = me ).
 
       WHEN zif_dbbr_c_selscreen_functions=>delete_default_variant.
         CLEAR cv_function.
@@ -1329,6 +1255,4 @@ CLASS zcl_dbbr_selscreen_util IMPLEMENTATION.
   METHOD zif_dbbr_screen_util~handle_pbo.
     update_multiple_table_buttons( mo_data->mo_tabfield_list->has_multiple_tables( ) ).
   ENDMETHOD.
-
-
 ENDCLASS.

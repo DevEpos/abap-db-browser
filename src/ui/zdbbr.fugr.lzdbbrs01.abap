@@ -1,31 +1,38 @@
-**********************************************************************
-* PAI / PBO for selection screens
-**********************************************************************
+" ---------------------------------------------------------------------
+" PAI / PBO for selection screens
+" ---------------------------------------------------------------------
 AT SELECTION-SCREEN.
   CASE sy-dynnr.
 
     WHEN zif_dbbr_screen_ids=>c_save_query.
-      gr_save_query_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = sscrfields-ucomm ).
+      gr_save_query_controller->zif_uitb_screen_controller~handle_user_command(
+        CHANGING cv_function_code = sscrfields-ucomm ).
 
     WHEN zif_dbbr_screen_ids=>c_maintain_join_table.
-      gr_edit_join_table_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = sscrfields-ucomm ).
+      gr_edit_join_table_controller->zif_uitb_screen_controller~handle_user_command(
+        CHANGING cv_function_code = sscrfields-ucomm ).
 
     WHEN zif_dbbr_screen_ids=>c_maintain_join_cond.
-      gr_edit_join_cond_view->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = sscrfields-ucomm ).
+      gr_edit_join_cond_view->zif_uitb_screen_controller~handle_user_command(
+        CHANGING cv_function_code = sscrfields-ucomm ).
 
     WHEN zif_dbbr_screen_ids=>c_table_variant OR
          zif_dbbr_screen_ids=>c_query_variant OR
          zif_dbbr_screen_ids=>c_cds_view_variant.
-      gr_variant_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = sscrfields-ucomm ).
+      gr_variant_controller->zif_uitb_screen_controller~handle_user_command(
+        CHANGING cv_function_code = sscrfields-ucomm ).
 
     WHEN zif_dbbr_screen_ids=>c_save_sql_query.
-      gr_save_sql_query_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = sscrfields-ucomm ).
+      gr_save_sql_query_controller->zif_uitb_screen_controller~handle_user_command(
+        CHANGING cv_function_code = sscrfields-ucomm ).
 
     WHEN 1300.
-      gr_addtextfield_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = sscrfields-ucomm ).
+      gr_addtextfield_controller->zif_uitb_screen_controller~handle_user_command(
+        CHANGING cv_function_code = sscrfields-ucomm ).
 
     WHEN 1400.
-      gr_copy_query_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = sscrfields-ucomm ).
+      gr_copy_query_controller->zif_uitb_screen_controller~handle_user_command(
+        CHANGING cv_function_code = sscrfields-ucomm ).
 
   ENDCASE.
 
@@ -127,4 +134,4 @@ AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_keyfld.
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_keyfd2.
   gr_addtextfield_controller->call_keyfield2_f4( ).
 
-**********************************************************************
+  " ---------------------------------------------------------------------

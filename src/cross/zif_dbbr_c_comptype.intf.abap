@@ -1,7 +1,7 @@
-interface ZIF_DBBR_C_COMPTYPE
-  public .
+INTERFACE zif_dbbr_c_comptype
+  PUBLIC.
 
 
-  constants BUILT_IN_TYPE type COMPTYPE value '' ##NO_TEXT.
-  constants DATA_ELEMENT type COMPTYPE value 'E' ##NO_TEXT.
-endinterface.
+  CONSTANTS built_in_type TYPE comptype VALUE '' ##NO_TEXT.
+  CONSTANTS data_element TYPE comptype VALUE 'E' ##NO_TEXT.
+ENDINTERFACE.

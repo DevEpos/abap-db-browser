@@ -1,22 +1,18 @@
-class ZCL_DBBR_FE_DUMMY_STB definition
-  public
-  create public .
+CLASS zcl_dbbr_fe_dummy_stb DEFINITION
+  PUBLIC
+  CREATE PUBLIC.
 
-public section.
+  PUBLIC SECTION.
+    INTERFACES zif_dbbr_stmnt_string_builder.
 
-  interfaces ZIF_DBBR_STMNT_STRING_BUILDER .
-protected section.
-private section.
+  PROTECTED SECTION.
+
+  PRIVATE SECTION.
 ENDCLASS.
 
 
-
-CLASS ZCL_DBBR_FE_DUMMY_STB IMPLEMENTATION.
-
-
-  method ZIF_DBBR_STMNT_STRING_BUILDER~BUILD_STRING.
-
+CLASS zcl_dbbr_fe_dummy_stb IMPLEMENTATION.
+  METHOD zif_dbbr_stmnt_string_builder~build_string.
     " nothing to do
-
-  endmethod.
+  ENDMETHOD.
 ENDCLASS.

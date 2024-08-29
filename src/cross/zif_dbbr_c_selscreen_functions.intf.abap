@@ -1,5 +1,5 @@
 INTERFACE zif_dbbr_c_selscreen_functions
-  PUBLIC .
+  PUBLIC.
 
   CONSTANTS show_edit_mode_info TYPE ui_func VALUE 'EDIT_MODE_INFO' ##NO_TEXT.
   CONSTANTS import_queries TYPE ui_func VALUE 'IMPORT_QUERIES' ##NO_TEXT.
@@ -8,15 +8,15 @@ INTERFACE zif_dbbr_c_selscreen_functions
   CONSTANTS load_default_variant TYPE sy-ucomm VALUE 'LOADDEFAULTVARIANT' ##NO_TEXT.
   CONSTANTS create_default_variant TYPE sy-ucomm VALUE 'CREATEDEFAULTVARIANT' ##NO_TEXT.
   CONSTANTS delete_default_variant TYPE sy-ucomm VALUE 'DELETEDEFAULTVARIANT' ##NO_TEXT.
-  CONSTANTS object_browser_search TYPE sy-ucomm VALUE 'NEWOBJSRCH' ##no_text.
+  CONSTANTS object_browser_search TYPE sy-ucomm VALUE 'NEWOBJSRCH' ##NO_TEXT.
   CONSTANTS open_cds_query_in_aox TYPE sy-ucomm VALUE 'OPENQRYINAOX' ##NO_TEXT.
   CONSTANTS open_cds_query_in_qry_mon TYPE sy-ucomm VALUE 'OPENQRTINQRYMON' ##NO_TEXT.
   CONSTANTS open_in_design_studio TYPE sy-ucomm VALUE 'OPENQUERYINDESIGNSTUDIO' ##NO_TEXT.
-  CONSTANTS edit_sql_query TYPE sy-ucomm VALUE 'EDITSQLQUERY' ##no_text.
-  CONSTANTS create_sql_query TYPE sy-ucomm VALUE 'CREATESQLQUERY' ##no_text.
-  CONSTANTS show_cds_dependency_tree TYPE sy-ucomm VALUE 'SHOWCDSDEPTREE' ##no_text.
-  CONSTANTS display_db_browser_version TYPE sy-ucomm VALUE 'SHOWVERSIO' ##no_text.
-  CONSTANTS goto_next_obj_navigator_view TYPE sy-ucomm VALUE 'NXTOBJNAVV' ##no_text.
+  CONSTANTS edit_sql_query TYPE sy-ucomm VALUE 'EDITSQLQUERY' ##NO_TEXT.
+  CONSTANTS create_sql_query TYPE sy-ucomm VALUE 'CREATESQLQUERY' ##NO_TEXT.
+  CONSTANTS show_cds_dependency_tree TYPE sy-ucomm VALUE 'SHOWCDSDEPTREE' ##NO_TEXT.
+  CONSTANTS display_db_browser_version TYPE sy-ucomm VALUE 'SHOWVERSIO' ##NO_TEXT.
+  CONSTANTS goto_next_obj_navigator_view TYPE sy-ucomm VALUE 'NXTOBJNAVV' ##NO_TEXT.
   CONSTANTS activate_optional_or_select TYPE sy-ucomm VALUE 'OR_SEL_ON' ##NO_TEXT.
   CONSTANTS activate_tech_view TYPE sy-ucomm VALUE 'TECHVIEW' ##NO_TEXT.
   CONSTANTS change_entity_type TYPE sy-ucomm VALUE 'CHANGE_ENTITY_TYPE' ##NO_TEXT.

@@ -1,23 +1,22 @@
-CLASS ZCL_DBBR_favmenu_entry DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+CLASS zcl_dbbr_favmenu_entry DEFINITION
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     METHODS constructor
       IMPORTING
-        is_favmenu_data TYPE ZDBBR_favmenu.
-    methods get_favmenu_data
-      returning
-        value(rs_favmenu_entry) type ZDBBR_favmenu.
-  PROTECTED SECTION.
+        is_favmenu_data TYPE zdbbr_favmenu.
+
+    METHODS get_favmenu_data
+      RETURNING
+        VALUE(rs_favmenu_entry) TYPE zdbbr_favmenu.
+
   PRIVATE SECTION.
-    DATA: ms_favmenu_data TYPE ZDBBR_favmenu.
+    DATA ms_favmenu_data TYPE zdbbr_favmenu.
 ENDCLASS.
 
 
-
-CLASS ZCL_DBBR_favmenu_entry IMPLEMENTATION.
+CLASS zcl_dbbr_favmenu_entry IMPLEMENTATION.
   METHOD constructor.
     ms_favmenu_data = is_favmenu_data.
   ENDMETHOD.

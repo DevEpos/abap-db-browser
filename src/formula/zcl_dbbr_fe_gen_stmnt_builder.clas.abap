@@ -1,29 +1,25 @@
-"! <p class="shorttext synchronized" lang="en">Generic statement builder</p>
+"! <p class="shorttext synchronized">Generic statement builder</p>
 CLASS zcl_dbbr_fe_gen_stmnt_builder DEFINITION
   PUBLIC
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
+    INTERFACES zif_dbbr_stmnt_string_builder.
 
-    INTERFACES zif_dbbr_stmnt_string_builder .
   PROTECTED SECTION.
+
   PRIVATE SECTION.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_fe_gen_stmnt_builder IMPLEMENTATION.
-
-
   METHOD zif_dbbr_stmnt_string_builder~build_string.
-
-    DATA: lv_stringform            TYPE string,
-          lv_stringform_subroutine TYPE string,
-          lv_translated_token      TYPE string,
-          lv_old_row               TYPE sy-tabix.
+    DATA lv_stringform TYPE string.
+    DATA lv_stringform_subroutine TYPE string.
+    DATA lv_old_row TYPE sy-tabix.
 
     LOOP AT cs_statement-tokens ASSIGNING FIELD-SYMBOL(<ls_token>).
-      DATA(lv_token) =  <ls_token>-str.
+      DATA(lv_token) = <ls_token>-str.
       IF lv_token = '|'.
         lv_stringform = |{ lv_stringform }{ lv_token }|.
         lv_stringform_subroutine = |{ lv_stringform_subroutine }{ lv_token }|.
@@ -36,8 +32,8 @@ CLASS zcl_dbbr_fe_gen_stmnt_builder IMPLEMENTATION.
           lv_token = |<{ zcl_dbbr_formula_helper=>get_raw_row_field( lv_token ) }>|.
         ENDIF.
 
-        IF lv_old_row = 0 OR
-           lv_old_row = <ls_token>-row.
+        IF    lv_old_row = 0
+           OR lv_old_row = <ls_token>-row.
           lv_stringform_subroutine = |{ lv_stringform_subroutine } { lv_token }|.
         ELSE.
           lv_stringform_subroutine = |{ lv_stringform_subroutine }{ cl_abap_char_utilities=>cr_lf }    { lv_token }|.
@@ -48,8 +44,7 @@ CLASS zcl_dbbr_fe_gen_stmnt_builder IMPLEMENTATION.
     ENDLOOP.
 
     " close string with termination sign
-    cs_statement-stringform = |{ lv_stringform }{ cs_statement-terminator }|.
+    cs_statement-stringform            = |{ lv_stringform }{ cs_statement-terminator }|.
     cs_statement-stringform_subroutine = |{ lv_stringform_subroutine }{ cs_statement-terminator }|.
-
   ENDMETHOD.
 ENDCLASS.

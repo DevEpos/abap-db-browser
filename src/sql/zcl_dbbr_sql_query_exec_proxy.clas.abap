@@ -1,14 +1,14 @@
 CLASS zcl_dbbr_sql_query_exec_proxy DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     METHODS constructor
       IMPORTING
         is_query      TYPE zdbbr_sql_query
         it_parameters TYPE zdbbr_query_parameter_t.
-    "! <p class="shorttext synchronized" lang="en">Execute Sql SELECT</p>
+
+    "! <p class="shorttext synchronized">Execute Sql SELECT</p>
     "!
     METHODS execute_select
       IMPORTING
@@ -17,28 +17,30 @@ CLASS zcl_dbbr_sql_query_exec_proxy DEFINITION
         VALUE(rs_table_result) TYPE zdbbr_dp_table_data
       RAISING
         zcx_dbbr_sql_query_error.
-    "! <p class="shorttext synchronized" lang="en">Execute Sql COUNT</p>
+
+    "! <p class="shorttext synchronized">Execute Sql COUNT</p>
     "!
     METHODS execute_count
       RETURNING
         VALUE(rs_table_result) TYPE zdbbr_dp_table_data
       RAISING
         zcx_dbbr_sql_query_error.
-  PROTECTED SECTION.
+
   PRIVATE SECTION.
     DATA mt_parameter TYPE zdbbr_query_parameter_t.
     DATA ms_query TYPE zdbbr_sql_query.
 
-    "! <p class="shorttext synchronized" lang="en">Create subroutine for sql statment</p>
+    "! <p class="shorttext synchronized">Create subroutine for sql statement</p>
     "!
     METHODS create_subroutine_code
       IMPORTING
-        iv_row_count      TYPE i OPTIONAL
+        iv_row_count      TYPE i         OPTIONAL
         if_count_only     TYPE abap_bool OPTIONAL
       EXPORTING
         VALUE(ev_program) TYPE program
         VALUE(ev_message) TYPE string.
-    "! <p class="shorttext synchronized" lang="en">Check and correct the query result</p>
+
+    "! <p class="shorttext synchronized">Check and correct the query result</p>
     "!
     CLASS-METHODS check_and_correct_result
       IMPORTING
@@ -47,40 +49,34 @@ CLASS zcl_dbbr_sql_query_exec_proxy DEFINITION
         cs_result       TYPE zdbbr_dp_table_data
       RAISING
         zcx_dbbr_sql_query_error.
-    "! <p class="shorttext synchronized" lang="en">Remove/adjust NULL values</p>
+
+    "! <p class="shorttext synchronized">Remove/adjust NULL values</p>
     "!
     CLASS-METHODS remove_null
       IMPORTING
-        !i_lv_col_value TYPE string
+        i_lv_col_value  TYPE string
       RETURNING
         VALUE(r_result) TYPE string.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
-
   METHOD constructor.
     ms_query = is_query.
     mt_parameter = it_parameters.
   ENDMETHOD.
 
   METHOD execute_count.
-
   ENDMETHOD.
 
   METHOD execute_select.
-    DATA: lr_query_result TYPE REF TO data.
+    DATA lr_query_result TYPE REF TO data.
 
     zcl_uitb_screen_util=>show_progress( iv_text = 'Executing Query...' ).
 
-    create_subroutine_code(
-      EXPORTING
-        iv_row_count = iv_row_count
-      IMPORTING
-        ev_program   = DATA(lv_program)
-        ev_message   = rs_table_result-message
-    ).
+    create_subroutine_code( EXPORTING iv_row_count = iv_row_count
+                            IMPORTING ev_program   = DATA(lv_program)
+                                      ev_message   = rs_table_result-message ).
 
     IF rs_table_result-message IS NOT INITIAL.
       RETURN.
@@ -92,42 +88,42 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
 **    IF ms_query-is_single_result_query = abap_true.
 **      CALL METHOD (lv_class)=>execute RECEIVING rv_count = rs_table_result-line_count.
 **    ELSE.
-    CALL METHOD (lv_class)=>execute RECEIVING rr_result = lr_query_result .
+    CALL METHOD (lv_class)=>execute
+      RECEIVING rr_result = lr_query_result.
 **    ENDIF.
     lo_timer->stop( ).
 
     rs_table_result-query_execution_time = lo_timer->get_duration_string( ).
 
 **    IF ms_query-is_single_result_query = abap_false.
-    check_and_correct_result(
-      EXPORTING ir_query_result = lr_query_result
-      CHANGING  cs_result       = rs_table_result
-    ).
+    check_and_correct_result( EXPORTING ir_query_result = lr_query_result
+                              CHANGING  cs_result       = rs_table_result ).
 **    ENDIF.
   ENDMETHOD.
 
   METHOD create_subroutine_code.
-    DATA: lt_lines      TYPE string_table,
-          lt_lines_temp TYPE string_table.
+    " TODO: parameter IF_COUNT_ONLY is never used (ABAP cleaner)
 
-    lt_lines = VALUE #(
-      ( |REPORT ZSQL_QUERY.| )
-      ( )
-      ( |CLASS main DEFINITION.| )
-      ( |  PUBLIC SECTION.| )
-      ( |    CLASS-METHODS execute| )
-      ( |      RETURNING| )
-      ( |        VALUE(rr_result) TYPE REF TO data| )
-      ( |      RAISING| )
-      ( |        ZCX_DBBR_SQL_QUERY_ERROR.| )
-      ( |ENDCLASS.| )
-      ( )
-      ( |CLASS main IMPLEMENTATION.| )
-      ( |  METHOD execute.| )
-      ( |    FIELD-SYMBOLS: <lt_result> TYPE TABLE.| )
-      ( ) ).
+    DATA lt_lines TYPE string_table.
+    DATA lt_lines_temp TYPE string_table.
 
-*.. Add parameters with their chosen values
+    lt_lines = VALUE #( ( |REPORT ZSQL_QUERY.| )
+                        ( )
+                        ( |CLASS main DEFINITION.| )
+                        ( |  PUBLIC SECTION.| )
+                        ( |    CLASS-METHODS execute| )
+                        ( |      RETURNING| )
+                        ( |        VALUE(rr_result) TYPE REF TO data| )
+                        ( |      RAISING| )
+                        ( |        ZCX_DBBR_SQL_QUERY_ERROR.| )
+                        ( |ENDCLASS.| )
+                        ( )
+                        ( |CLASS main IMPLEMENTATION.| )
+                        ( |  METHOD execute.| )
+                        ( |    FIELD-SYMBOLS: <lt_result> TYPE TABLE.| )
+                        ( ) ).
+
+    " .. Add parameters with their chosen values
     LOOP AT mt_parameter ASSIGNING FIELD-SYMBOL(<ls_parameter>).
       DATA(lv_param_line) = |    DATA { <ls_parameter>-name } TYPE|.
 
@@ -144,7 +140,7 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
         ENDIF.
       ENDIF.
 
-*.... Fill the value for the parameter
+      " .... Fill the value for the parameter
       IF <ls_parameter>-value IS NOT INITIAL.
         lv_param_line = |{ lv_param_line } VALUE '{ <ls_parameter>-value }'|.
       ELSEIF <ls_parameter>-default_value_raw IS NOT INITIAL.
@@ -152,18 +148,19 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
       ENDIF.
       lv_param_line = |{ lv_param_line }.|.
       lt_lines = VALUE #( BASE lt_lines
-        ( lv_param_line )
-      ).
+                          ( lv_param_line ) ).
     ENDLOOP.
 
-    lt_lines = VALUE #( BASE lt_lines ( ) ).
+    lt_lines = VALUE #( BASE lt_lines
+                        ( ) ).
     CLEAR lt_lines_temp.
 
-*.. Fill range parameters with values
+    " .. Fill range parameters with values
     LOOP AT mt_parameter ASSIGNING <ls_parameter> WHERE value_list IS NOT INITIAL.
-      lt_lines = VALUE #( BASE lt_lines ( |    { <ls_parameter>-name } = VALUE #( | ) ).
+      lt_lines = VALUE #( BASE lt_lines
+                          ( |    { <ls_parameter>-name } = VALUE #( | ) ).
 
-*      clear lt_lines_temp
+      " clear lt_lines_temp
       LOOP AT <ls_parameter>-value_list ASSIGNING FIELD-SYMBOL(<ls_range_value>).
 
         DATA(lv_line) = |      ( sign = '{ <ls_range_value>-sign }' option = '{ <ls_range_value>-option }' low = '{ <ls_range_value>-low }'|.
@@ -172,15 +169,18 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
         ENDIF.
         lv_line = |{ lv_line } )|.
 
-        lt_lines = VALUE #( BASE lt_lines ( lv_line ) ).
+        lt_lines = VALUE #( BASE lt_lines
+                            ( lv_line ) ).
       ENDLOOP.
 
-      lt_lines = VALUE #( BASE lt_lines ( |{ lv_line } ).| ) ).
+      lt_lines = VALUE #( BASE lt_lines
+                          ( |{ lv_line } ).| ) ).
     ENDLOOP.
 
-    lt_lines = VALUE #( BASE lt_lines ( ) ).
+    lt_lines = VALUE #( BASE lt_lines
+                        ( ) ).
 
-*.. Add lines of the select statement
+    " .. Add lines of the select statement
     SPLIT ms_query-select_source AT cl_abap_char_utilities=>cr_lf INTO TABLE lt_lines_temp.
 
     ASSIGN lt_lines_temp[ ms_query-last_row_in_select_stmnt ] TO FIELD-SYMBOL(<lv_last_query_line>).
@@ -189,110 +189,111 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
     ELSE.
       <lv_last_query_line> = |{ <lv_last_query_line>(ms_query-last_row_offset) } INTO TABLE @DATA(result)|.
     ENDIF.
-    IF  iv_row_count IS SUPPLIED AND
-        iv_row_count > 0 AND
-        ms_query-is_single_result_query = abap_false AND
-        ms_query-main_select_stmnt_type <> zcl_dbbr_sql_query_parser=>c_keywords-union.
+    IF     iv_row_count                    IS SUPPLIED
+       AND iv_row_count > 0
+       AND ms_query-is_single_result_query  = abap_false
+       AND ms_query-main_select_stmnt_type <> zcl_dbbr_sql_query_parser=>c_keywords-union.
       <lv_last_query_line> = |{ <lv_last_query_line> } UP TO { iv_row_count } ROWS.|.
     ELSE.
       <lv_last_query_line> = |{ <lv_last_query_line> }.|.
     ENDIF.
 
-    DATA: lr_result TYPE REF TO data.
-
     lt_lines = VALUE #( BASE lt_lines
-      ( |    TRY.| )
-      ( LINES OF lt_lines_temp ) ).
+                        ( |    TRY.| )
+                        ( LINES OF lt_lines_temp ) ).
 
     IF ms_query-is_single_result_query = abap_true.
       lt_lines = VALUE #( BASE lt_lines
-       ( |        CREATE DATA rr_result LIKE TABLE OF result.| ) ).
+                          ( |        CREATE DATA rr_result LIKE TABLE OF result.| ) ).
     ELSE.
       lt_lines = VALUE #( BASE lt_lines
-       ( |        CREATE DATA rr_result LIKE result.| ) ).
+                          ( |        CREATE DATA rr_result LIKE result.| ) ).
     ENDIF.
 
     lt_lines = VALUE #( BASE lt_lines
-      ( |        ASSIGN rr_result->* to <lt_result>.| ) ).
+                        ( |        ASSIGN rr_result->* to <lt_result>.| ) ).
 
     IF ms_query-is_single_result_query = abap_true.
       lt_lines = VALUE #( BASE lt_lines
-        ( |      INSERT result INTO TABLE <lt_result>.| ) ).
+                          ( |      INSERT result INTO TABLE <lt_result>.| ) ).
     ELSE.
       lt_lines = VALUE #( BASE lt_lines
-        ( |      <lt_result> = result.| ) ).
+                          ( |      <lt_result> = result.| ) ).
     ENDIF.
 
     lt_lines = VALUE #( BASE lt_lines
-      ( |      CATCH cx_root INTO DATA(lx_root).| )
-      ( |        RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error| )
-      ( |          EXPORTING| )
-      ( |            previous = lx_root.| )
-      ( |    ENDTRY.| )
-      ( |  ENDMETHOD.| )
-      ( |ENDCLASS.| ) ).
+                        ( |      CATCH cx_root INTO DATA(lx_root).| )
+                        ( |        RAISE EXCEPTION TYPE zcx_dbbr_sql_query_error| )
+                        ( |          EXPORTING| )
+                        ( |            previous = lx_root.| )
+                        ( |    ENDTRY.| )
+                        ( |  ENDMETHOD.| )
+                        ( |ENDCLASS.| ) ).
 
-*.. Generate the subroutine
+    " .. Generate the subroutine
     GENERATE SUBROUTINE POOL lt_lines
-                        NAME ev_program
-                        MESSAGE ev_message
-                        LINE    DATA(lv_error_line)
-                        OFFSET  DATA(lv_error_offset)
-                        WORD    DATA(lv_error_word).   "#EC CI_GENERATE
+             NAME ev_program
+             MESSAGE ev_message
+             " TODO: variable is assigned but never used (ABAP cleaner)
+             LINE    DATA(lv_error_line)
+             " TODO: variable is assigned but never used (ABAP cleaner)
+             OFFSET  DATA(lv_error_offset)
+             " TODO: variable is assigned but never used (ABAP cleaner)
+             WORD    DATA(lv_error_word).   "#EC CI_GENERATE
   ENDMETHOD.
 
   METHOD remove_null.
-    DATA:           null_char    TYPE c.
-    FIELD-SYMBOLS:  <ls_help>     TYPE x.
+    DATA null_char TYPE c LENGTH 1.
+    FIELD-SYMBOLS <ls_help> TYPE x.
 
-*.. generate a 'null'-character
+    " .. generate a 'null'-character
     ASSIGN null_char TO <ls_help> CASTING.
     IF sy-subrc = 0.
       CLEAR <ls_help>.
     ENDIF.
-    r_result = translate( val = i_lv_col_value  from = null_char  to = '' ).
+    r_result = translate( val  = i_lv_col_value
+                          from = null_char
+                          to   = '' ).
   ENDMETHOD.
 
-
   METHOD check_and_correct_result.
-    DATA: lo_ref_table_des       TYPE REF TO cl_abap_tabledescr,
-          lo_ref_table_line_des  TYPE REF TO cl_abap_structdescr,
-          lo_data_ref            TYPE REF TO cl_abap_structdescr,
-          lt_table_field_details TYPE abap_compdescr_tab,
-          ls_table_field_details TYPE abap_compdescr,
-          lt_data_fields         TYPE abap_compdescr_tab,
-          ls_data_field          TYPE abap_compdescr,
-          lf_is_elementary_table TYPE abap_bool,
-          lv_col_value           TYPE string,
-          lv_data_cell_col_val   TYPE string,
+    DATA lo_ref_table_des TYPE REF TO cl_abap_tabledescr.
+    DATA lo_ref_table_line_des TYPE REF TO cl_abap_structdescr.
+    DATA lo_data_ref TYPE REF TO cl_abap_structdescr.
+    DATA lt_table_field_details TYPE abap_compdescr_tab.
+    DATA ls_table_field_details TYPE abap_compdescr.
+    DATA lt_data_fields TYPE abap_compdescr_tab.
+    DATA ls_data_field TYPE abap_compdescr.
+    DATA lf_is_elementary_table TYPE abap_bool.
+    DATA lv_col_value TYPE string.
+    DATA lv_data_cell_col_val TYPE string.
 
-          lt_types               TYPE RANGE OF abap_typekind.
+    DATA lt_types TYPE RANGE OF abap_typekind.
 
-    FIELD-SYMBOLS: <lt_dyn_table>         TYPE ANY TABLE,
-                   <la_dyn_table_row>     TYPE any,
-                   <la_column_value>      TYPE any,
-                   <ls_data_cell_col_val> TYPE any,
-                   <ls_table_col>         TYPE zdbbr_dp_column.
+    FIELD-SYMBOLS <lt_dyn_table> TYPE ANY TABLE.
+    FIELD-SYMBOLS <la_dyn_table_row> TYPE any.
+    FIELD-SYMBOLS <la_column_value> TYPE any.
+    FIELD-SYMBOLS <ls_data_cell_col_val> TYPE any.
+    FIELD-SYMBOLS <ls_table_col> TYPE zdbbr_dp_column.
 
-    lt_types = VALUE #(
-      ( sign = 'I' option = 'EQ' low = cl_abap_typedescr=>typekind_char   )
-      ( sign = 'I' option = 'EQ' low = cl_abap_typedescr=>typekind_date   )
-      ( sign = 'I' option = 'EQ' low = cl_abap_typedescr=>typekind_string )
-      ( sign = 'I' option = 'EQ' low = cl_abap_typedescr=>typekind_num    )
-      ( sign = 'I' option = 'EQ' low = cl_abap_typedescr=>typekind_time   )
-    ).
+    lt_types = VALUE #( sign   = 'I'
+                        option = 'EQ'
+                        ( low = cl_abap_typedescr=>typekind_char   )
+                        ( low = cl_abap_typedescr=>typekind_date   )
+                        ( low = cl_abap_typedescr=>typekind_string )
+                        ( low = cl_abap_typedescr=>typekind_num    )
+                        ( low = cl_abap_typedescr=>typekind_time   ) ).
 
-    lo_ref_table_des ?=  cl_abap_typedescr=>describe_by_data_ref( p_data_ref = ir_query_result ).
+    lo_ref_table_des ?= cl_abap_typedescr=>describe_by_data_ref( p_data_ref = ir_query_result ).
 
     DATA(lo_line_descr) = lo_ref_table_des->get_table_line_type( ).
 
     IF lo_line_descr->kind = cl_abap_typedescr=>kind_elem.
       lf_is_elementary_table = abap_true.
-      lt_table_field_details = VALUE #(
-        ( name      = 'VALUE'
-          decimals  = lo_line_descr->decimals
-          length    = lo_line_descr->length
-          type_kind = lo_line_descr->type_kind ) ).
+      lt_table_field_details = VALUE #( ( name      = 'VALUE'
+                                          decimals  = lo_line_descr->decimals
+                                          length    = lo_line_descr->length
+                                          type_kind = lo_line_descr->type_kind ) ).
     ELSEIF lo_line_descr->kind = cl_abap_typedescr=>kind_struct.
       lt_table_field_details = CAST cl_abap_structdescr( lo_line_descr )->components.
       lo_ref_table_line_des ?= lo_line_descr.
@@ -309,8 +310,9 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
       DATA(lv_description) = VALUE ddtext( ).
 
       DATA(lo_comp_type) = SWITCH #( lf_is_elementary_table
-       WHEN abap_true THEN lo_line_descr
-                      ELSE lo_ref_table_line_des->get_component_type( p_name = ls_table_field_details-name ) ).
+                                     WHEN abap_true
+                                     THEN lo_line_descr
+                                     ELSE lo_ref_table_line_des->get_component_type( p_name = ls_table_field_details-name ) ).
 
       IF lo_comp_type->is_ddic_type( ) AND lo_comp_type->kind <> lo_comp_type->kind_struct.
         DATA(ls_ddic_header) = CAST cl_abap_elemdescr( lo_comp_type )->get_ddic_field( ).
@@ -324,8 +326,7 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
           WHEN ls_ddic_header-scrtext_m IS NOT INITIAL THEN ls_ddic_header-scrtext_m
           WHEN ls_ddic_header-scrtext_l IS NOT INITIAL THEN ls_ddic_header-scrtext_l
           WHEN ls_ddic_header-scrtext_s IS NOT INITIAL THEN ls_ddic_header-scrtext_s
-          ELSE ls_ddic_header-fieldname
-        ).
+          ELSE                                              ls_ddic_header-fieldname ).
       ELSE.
         lv_decimals = lo_comp_type->decimals.
         lv_description = ls_table_field_details-name.
@@ -333,31 +334,28 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
         lv_int_length = lo_comp_type->length.
       ENDIF.
 
-*.... add metadata
+      " .... add metadata
       cs_result-columns = VALUE #( BASE cs_result-columns
-        ( metadata = VALUE #(
-            name        = ls_table_field_details-name
-            description = lv_description
-            length      = lv_length
-            int_length  = lv_int_length
-            domname     = lv_domname
-            rollname    = lv_rollname
-            decimals    = lv_decimals
-            typekind    = ls_table_field_details-type_kind )
-        )
-      ).
+                                   ( metadata = VALUE #( name        = ls_table_field_details-name
+                                                         description = lv_description
+                                                         length      = lv_length
+                                                         int_length  = lv_int_length
+                                                         domname     = lv_domname
+                                                         rollname    = lv_rollname
+                                                         decimals    = lv_decimals
+                                                         typekind    = ls_table_field_details-type_kind ) ) ).
     ENDLOOP.
 
     ASSIGN ir_query_result->* TO <lt_dyn_table>.
 
     cs_result-line_count = lines( <lt_dyn_table> ).
 
-*.. Fill the data sets of the columns
+    " .. Fill the data sets of the columns
     LOOP AT <lt_dyn_table> ASSIGNING <la_dyn_table_row>.
 
       LOOP AT lt_table_field_details INTO ls_table_field_details.
 
-        CLEAR  lv_col_value .
+        CLEAR lv_col_value.
         UNASSIGN <la_column_value>.
 
         IF lf_is_elementary_table = abap_true.
@@ -368,57 +366,57 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
 
         ASSIGN cs_result-columns[ metadata-name = ls_table_field_details-name ] TO <ls_table_col>.
 
-        IF <ls_table_col>  IS ASSIGNED.
-
-          IF <la_column_value> IS ASSIGNED.
-
-            IF ls_table_field_details-type_kind EQ cl_abap_typedescr=>typekind_struct1 OR
-               ls_table_field_details-type_kind EQ cl_abap_typedescr=>typekind_struct2.
-              TRY.
-                  lo_data_ref ?= cl_abap_typedescr=>describe_by_data( p_data = <la_column_value>  ).
-                  lt_data_fields = lo_data_ref->components.
-
-                  LOOP AT lt_data_fields INTO ls_data_field.
-                    CLEAR lv_data_cell_col_val.
-                    ASSIGN COMPONENT ls_data_field-name OF STRUCTURE <la_column_value>  TO <ls_data_cell_col_val>.
-
-                    IF <ls_data_cell_col_val> IS ASSIGNED.
-                      lv_data_cell_col_val = <ls_data_cell_col_val>.
-                      CONCATENATE lv_col_value lv_data_cell_col_val INTO lv_col_value SEPARATED BY space.
-
-                      IF strlen( lv_col_value ) > 97.
-                        EXIT.
-                      ENDIF.
-                    ENDIF.
-                  ENDLOOP.
-
-                  IF strlen( lv_col_value ) > 97.
-                    lv_col_value = lv_col_value+0(97).
-                  ENDIF.
-                  lv_col_value = |{ lv_col_value }...|.
-
-                CATCH cx_sy_move_cast_error.
-
-              ENDTRY.
-            ELSE.
-              lv_col_value = <la_column_value>.
-
-            ENDIF.
-          ENDIF.
-
-          IF lv_col_value IS NOT INITIAL.
-            IF ls_table_field_details-type_kind IN lt_types.
-              lv_col_value = remove_null( lv_col_value ).
-            ENDIF.
-
-          ENDIF.
-
-          APPEND lv_col_value TO <ls_table_col>-dataset.
+        IF <ls_table_col> IS NOT ASSIGNED.
+          CONTINUE.
         ENDIF.
+
+        IF <la_column_value> IS ASSIGNED.
+
+          IF    ls_table_field_details-type_kind = cl_abap_typedescr=>typekind_struct1
+             OR ls_table_field_details-type_kind = cl_abap_typedescr=>typekind_struct2.
+            TRY.
+                lo_data_ref ?= cl_abap_typedescr=>describe_by_data( p_data = <la_column_value>  ).
+                lt_data_fields = lo_data_ref->components.
+
+                LOOP AT lt_data_fields INTO ls_data_field.
+                  CLEAR lv_data_cell_col_val.
+                  ASSIGN COMPONENT ls_data_field-name OF STRUCTURE <la_column_value> TO <ls_data_cell_col_val>.
+
+                  IF <ls_data_cell_col_val> IS ASSIGNED.
+                    lv_data_cell_col_val = <ls_data_cell_col_val>.
+                    CONCATENATE lv_col_value lv_data_cell_col_val INTO lv_col_value SEPARATED BY space.
+
+                    IF strlen( lv_col_value ) > 97.
+                      EXIT.
+                    ENDIF.
+                  ENDIF.
+                ENDLOOP.
+
+                IF strlen( lv_col_value ) > 97.
+                  lv_col_value = lv_col_value+0(97).
+                ENDIF.
+                lv_col_value = |{ lv_col_value }...|.
+
+              CATCH cx_sy_move_cast_error.
+
+            ENDTRY.
+          ELSE.
+            lv_col_value = <la_column_value>.
+
+          ENDIF.
+        ENDIF.
+
+        IF lv_col_value IS NOT INITIAL.
+          IF ls_table_field_details-type_kind IN lt_types.
+            lv_col_value = remove_null( lv_col_value ).
+          ENDIF.
+
+        ENDIF.
+
+        APPEND lv_col_value TO <ls_table_col>-dataset.
 
       ENDLOOP.
 
     ENDLOOP.
   ENDMETHOD.
-
 ENDCLASS.

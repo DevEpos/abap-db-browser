@@ -9,7 +9,7 @@ CONSTANTS:
     value       TYPE tv_itmname VALUE 'VALUE',
     comparator2 TYPE tv_itmname VALUE 'COMP2',
     value2      TYPE tv_itmname VALUE 'VALUE2',
-  END OF c_columns .
+  END OF c_columns.
 
 TYPES:
   BEGIN OF lty_s_node_to_update,
@@ -18,9 +18,9 @@ TYPES:
     new_value TYPE string,
   END OF lty_s_node_to_update.
 
-TYPES: lty_t_node_to_update TYPE STANDARD TABLE OF lty_s_node_to_update WITH KEY node_key item_key.
+TYPES lty_t_node_to_update TYPE STANDARD TABLE OF lty_s_node_to_update WITH KEY node_key item_key.
 
-TYPES: lty_node_type TYPE char20.
+TYPES lty_node_type TYPE char20.
 
 TYPES:
   BEGIN OF lty_s_node_map,
@@ -30,7 +30,7 @@ TYPES:
     node_type TYPE lty_node_type,
   END OF lty_s_node_map.
 
-TYPES: lty_t_node_type_range TYPE RANGE OF lty_node_type.
+TYPES lty_t_node_type_range TYPE RANGE OF lty_node_type.
 
 CONSTANTS:
   BEGIN OF c_node_type,
@@ -55,6 +55,7 @@ CLASS lcl_join DEFINITION DEFERRED.
 CLASS lcl_join_field DEFINITION
   FRIENDS lcl_join_table
           lcl_join.
+
   PUBLIC SECTION.
     INTERFACES lif_tree_node_events.
 
@@ -68,23 +69,27 @@ CLASS lcl_join_field DEFINITION
         iv_table    TYPE tabname
         iv_alias    TYPE zsat_entity_alias
         iv_node_key TYPE tm_nodekey.
+
     METHODS get_field
       RETURNING
         VALUE(result) TYPE zdbbr_joinfld.
+
     METHODS update_field
       IMPORTING
-        value             TYPE zdbbr_joinfld
+        !value            TYPE zdbbr_joinfld
       RETURNING
         VALUE(rf_changed) TYPE abap_bool.
-  PROTECTED SECTION.
+
   PRIVATE SECTION.
     DATA ms_field TYPE zdbbr_joinfld.
     DATA mf_changed TYPE abap_bool.
 ENDCLASS.
 
+
 CLASS lcl_join_filter DEFINITION
   FRIENDS lcl_join_table
           lcl_join.
+
   PUBLIC SECTION.
     INTERFACES lif_tree_node_events.
 
@@ -98,30 +103,36 @@ CLASS lcl_join_filter DEFINITION
         iv_table    TYPE tabname
         iv_alias    TYPE zsat_entity_alias
         iv_node_key TYPE tm_nodekey.
+
     METHODS set_and_or
       IMPORTING
-        value TYPE vsconj DEFAULT zif_sat_c_selection_condition=>and.
+        !value TYPE vsconj DEFAULT zif_sat_c_selection_condition=>and.
+
     METHODS set_or_group_node
       IMPORTING
         iv_node_key TYPE tm_nodekey.
+
     METHODS get_filter
       RETURNING
         VALUE(result) TYPE zdbbr_joinfil.
+
     METHODS update_filter
       IMPORTING
-        value             TYPE zdbbr_joinfil
+        !value            TYPE zdbbr_joinfil
       RETURNING
         VALUE(rf_changed) TYPE abap_bool.
-  PROTECTED SECTION.
+
   PRIVATE SECTION.
     DATA ms_filter TYPE zdbbr_joinfil.
     DATA mv_or_group_node TYPE tm_nodekey.
     DATA mf_changed TYPE abap_bool.
 ENDCLASS.
 
+
 CLASS lcl_join_table DEFINITION.
   PUBLIC SECTION.
     INTERFACES lif_tree_node_events.
+
     TYPES:
       BEGIN OF ty_s_filter_cond,
         node_key   TYPE tm_nodekey,
@@ -146,61 +157,75 @@ CLASS lcl_join_table DEFINITION.
       IMPORTING
         is_join_table TYPE zdbbr_joint
         iv_node_key   TYPE tm_nodekey.
+
     METHODS clear_offset_from_fields.
+
     METHODS has_changes
       RETURNING
         VALUE(result) TYPE abap_bool.
+
     METHODS to_structure
       IMPORTING
         io_tree         TYPE REF TO zcl_uitb_column_tree_model
       RETURNING
         VALUE(rs_table) TYPE zdbbr_join_table_ui.
+
     METHODS get_tab_info
       RETURNING
         VALUE(result) TYPE zdbbr_joint.
+
     METHODS delete_dependent
       IMPORTING
         iv_table TYPE tabname.
+
     METHODS set_tab_info
       IMPORTING
-        value             TYPE zdbbr_joint
+        !value            TYPE zdbbr_joint
       RETURNING
         VALUE(rf_changed) TYPE abap_bool.
+
     METHODS add_filter
       IMPORTING
         io_filter      TYPE REF TO lcl_join_filter
         io_filter_node TYPE REF TO zcl_uitb_ctm_node.
+
     METHODS add_field
       IMPORTING
         io_field      TYPE REF TO lcl_join_field
         io_field_node TYPE REF TO zcl_uitb_ctm_node.
+
     METHODS has_references_to_table
       IMPORTING
         iv_table                     TYPE tabname
       RETURNING
         VALUE(rf_dependencies_exist) TYPE abap_bool.
+
     METHODS delete_filter
       IMPORTING
         iv_node_key TYPE tm_nodekey.
+
     METHODS delete_field
       IMPORTING
         iv_node_key TYPE tm_nodekey.
+
     METHODS validate.
     METHODS clear_changed_flag.
     "! Delete all filter conditions in this join table
     METHODS delete_filters.
     "! Delete all field conditions in this join table
     METHODS delete_fields.
+
     METHODS update_alias
       IMPORTING
         iv_old_alias              TYPE zsat_entity_alias
         iv_new_alias              TYPE zsat_entity_alias
       RETURNING
         VALUE(rt_nodes_to_update) TYPE lty_t_node_to_update.
-  PROTECTED SECTION.
+
   PRIVATE SECTION.
     DATA mf_changed TYPE abap_bool.
 ENDCLASS.
+
 
 CLASS lcl_join DEFINITION.
   PUBLIC SECTION.
@@ -223,50 +248,60 @@ CLASS lcl_join DEFINITION.
     METHODS constructor
       IMPORTING
         is_primary_entity TYPE zsat_entity.
+
     METHODS update_primary_alias
       IMPORTING
         iv_alias                  TYPE zsat_entity_alias
       RETURNING
         VALUE(rt_nodes_to_update) TYPE lty_t_node_to_update.
+
     METHODS update_table_alias
       IMPORTING
         iv_old_alias              TYPE zsat_entity_alias
         iv_new_alias              TYPE zsat_entity_alias
       RETURNING
         VALUE(rt_nodes_to_update) TYPE lty_t_node_to_update.
+
     METHODS has_changes
       RETURNING
         VALUE(result) TYPE abap_bool.
+
     METHODS to_structure
       IMPORTING
         io_tree            TYPE REF TO zcl_uitb_column_tree_model
       RETURNING
         VALUE(rs_join_def) TYPE zdbbr_join_def.
+
     METHODS get_possible_entities_for_f4
       IMPORTING
         iv_entity_alias    TYPE zsat_entity_alias
       RETURNING
         VALUE(rt_entities) TYPE zsat_entity_t.
+
     METHODS has_entity
       IMPORTING
         iv_alias         TYPE zsat_entity_alias
       RETURNING
         VALUE(rf_exists) TYPE abap_bool.
+
     METHODS get_entity
       IMPORTING
         iv_alias        TYPE zsat_entity_alias
       RETURNING
         VALUE(rr_table) TYPE REF TO lcl_join_table.
+
     METHODS add_table
       IMPORTING
         io_table TYPE REF TO lcl_join_table.
+
     METHODS delete_table
       IMPORTING
         iv_table TYPE tabname.
+
     METHODS delete_all_tables.
     METHODS clear_changed_flag.
     METHODS validate.
-  PROTECTED SECTION.
+
   PRIVATE SECTION.
     DATA mf_changed TYPE abap_bool.
 ENDCLASS.

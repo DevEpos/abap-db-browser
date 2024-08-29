@@ -1,15 +1,11 @@
-"! <p class="shorttext synchronized" lang="en">String Builder for Formula Comments</p>
+"! <p class="shorttext synchronized">String Builder for Formula Comments</p>
 CLASS zcl_dbbr_fe_comment_stb DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-    INTERFACES zif_dbbr_stmnt_string_builder .
-  PROTECTED SECTION.
-  PRIVATE SECTION.
+    INTERFACES zif_dbbr_stmnt_string_builder.
 ENDCLASS.
-
 
 
 CLASS zcl_dbbr_fe_comment_stb IMPLEMENTATION.
@@ -21,5 +17,4 @@ CLASS zcl_dbbr_fe_comment_stb IMPLEMENTATION.
       ENDIF.
     ENDLOOP.
   ENDMETHOD.
-
 ENDCLASS.

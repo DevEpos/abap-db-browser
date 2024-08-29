@@ -1,4 +1,4 @@
-interface ZIF_DBBR_DATA_ENRICHER
-  public .
+INTERFACE zif_dbbr_data_enricher
+  PUBLIC.
 
-endinterface.
+ENDINTERFACE.

@@ -1,43 +1,42 @@
-FUNCTION-POOL zdbbr_user_settings.         "MESSAGE-ID ..
+FUNCTION-POOL zdbbr_user_settings.         " MESSAGE-ID ..
 
-* INCLUDE LZDBBR_USER_SETTINGSD...          " Local class definition
+" INCLUDE LZDBBR_USER_SETTINGSD...          " Local class definition
 
 " table declarations
-TABLES: sscrfields.
+TABLES sscrfields.
 
 " global data definitions
-DATA: gr_user_settings_controller TYPE REF TO zcl_dbbr_user_settings_sc,
-      gr_eb_settings_view         TYPE REF TO zcl_dbbr_eb_settings_view.
-
+DATA gr_user_settings_controller TYPE REF TO zcl_dbbr_user_settings_sc.
+DATA gr_eb_settings_view TYPE REF TO zcl_dbbr_eb_settings_view.
 
 SELECTION-SCREEN BEGIN OF SCREEN 100 TITLE TEXT-s01 AS WINDOW.
   SELECTION-SCREEN BEGIN OF TABBED BLOCK setting_type FOR 15 LINES.
 
     " settings for intro screen / general settings
     SELECTION-SCREEN TAB (30) btn_intr USER-COMMAND intro
-      DEFAULT SCREEN 101.
+                     DEFAULT SCREEN 101.
     " settings for favorites
     SELECTION-SCREEN TAB (30) btn_fav USER-COMMAND favs
-      DEFAULT SCREEN 103.
+                     DEFAULT SCREEN 103.
     " settings for selection screen
     SELECTION-SCREEN TAB (30) btn_sel USER-COMMAND sel
-      DEFAULT SCREEN 102.
+                     DEFAULT SCREEN 102.
     " settings for data selection
     SELECTION-SCREEN TAB (30) btn_dsel USER-COMMAND dsel
-      DEFAULT SCREEN 105.
+                     DEFAULT SCREEN 105.
     " settings for alv list output
     SELECTION-SCREEN TAB (30) btn_alv USER-COMMAND alv
-      DEFAULT SCREEN 104.
+                     DEFAULT SCREEN 104.
     " settings for cds view
     SELECTION-SCREEN TAB (30) btn_cds USER-COMMAND cds
-      DEFAULT SCREEN 106.
+                     DEFAULT SCREEN 106.
 
   SELECTION-SCREEN END OF BLOCK setting_type.
 
 SELECTION-SCREEN END OF SCREEN 100.
 
-*** SETTINGS FOR INTRO SCREEN / GENERAL SETTINGS
-******************************************************
+" SETTINGS FOR INTRO SCREEN / GENERAL SETTINGS
+" -----------------------------------------------------
 SELECTION-SCREEN BEGIN OF SCREEN 101 AS SUBSCREEN.
 
   " Experimental mode
@@ -63,14 +62,14 @@ SELECTION-SCREEN BEGIN OF SCREEN 101 AS SUBSCREEN.
     SELECTION-SCREEN COMMENT 1(40) TEXT-t30 FOR FIELD p_cvthme.
     SELECTION-SCREEN POSITION 41.
     PARAMETERS p_cvthme TYPE zuitb_code_viewer_theme OBLIGATORY
-       AS LISTBOX VISIBLE LENGTH 20 DEFAULT zif_uitb_c_code_viewer_themes=>default.
+               AS LISTBOX VISIBLE LENGTH 20 DEFAULT zif_uitb_c_code_viewer_themes=>default.
   SELECTION-SCREEN END OF LINE.
 
 SELECTION-SCREEN END OF SCREEN 101.
-******************************************************
+" -----------------------------------------------------
 
-**** SETTINGS FOR OBJECT NAVIGATOR
-******************************************************
+" SETTINGS FOR OBJECT NAVIGATOR
+" -----------------------------------------------------
 SELECTION-SCREEN BEGIN OF SCREEN 103 AS SUBSCREEN.
   " show object navigator at start
   SELECTION-SCREEN BEGIN OF LINE.
@@ -89,7 +88,7 @@ SELECTION-SCREEN BEGIN OF SCREEN 103 AS SUBSCREEN.
     SELECTION-SCREEN COMMENT (36) TEXT-t33 FOR FIELD p_iobjm.
     SELECTION-SCREEN POSITION 37.
     PARAMETERS p_iobjm TYPE zdbbr_obj_navigator_mode OBLIGATORY
-       AS LISTBOX VISIBLE LENGTH 20 DEFAULT zif_dbbr_c_obj_navigator_mode=>favorites.
+               AS LISTBOX VISIBLE LENGTH 20 DEFAULT zif_dbbr_c_obj_navigator_mode=>favorites.
   SELECTION-SCREEN END OF LINE.
 
   SELECTION-SCREEN SKIP.
@@ -110,7 +109,7 @@ SELECTION-SCREEN BEGIN OF SCREEN 103 AS SUBSCREEN.
       SELECTION-SCREEN COMMENT (34) TEXT-t35 FOR FIELD p_favmo.
       SELECTION-SCREEN POSITION 35.
       PARAMETERS p_favmo TYPE zdbbr_fav_user_mode OBLIGATORY
-         AS LISTBOX VISIBLE LENGTH 20 DEFAULT zif_dbbr_c_global=>c_fav_user_modes-global.
+                 AS LISTBOX VISIBLE LENGTH 20 DEFAULT zif_dbbr_c_global=>c_fav_user_modes-global.
     SELECTION-SCREEN END OF LINE.
 
   SELECTION-SCREEN END OF BLOCK favorites.
@@ -121,15 +120,15 @@ SELECTION-SCREEN BEGIN OF SCREEN 103 AS SUBSCREEN.
       SELECTION-SCREEN COMMENT (34) TEXT-t36 FOR FIELD p_iobbrm.
       SELECTION-SCREEN POSITION 35.
       PARAMETERS p_iobbrm TYPE zdbbr_obj_browser_mode OBLIGATORY
-         AS LISTBOX VISIBLE LENGTH 20 DEFAULT zif_dbbr_c_object_browser_mode=>package.
+                 AS LISTBOX VISIBLE LENGTH 20 DEFAULT zif_dbbr_c_object_browser_mode=>package.
     SELECTION-SCREEN END OF LINE.
   SELECTION-SCREEN END OF BLOCK object_browser.
 
 SELECTION-SCREEN END OF SCREEN 103.
-******************************************************
+" -----------------------------------------------------
 
-*** SETTINGS FOR SELECTION SCREEN
-******************************************************
+" SETTINGS FOR SELECTION SCREEN
+" -----------------------------------------------------
 SELECTION-SCREEN BEGIN OF SCREEN 102 AS SUBSCREEN.
 
   " technical view
@@ -194,10 +193,10 @@ SELECTION-SCREEN BEGIN OF SCREEN 102 AS SUBSCREEN.
   SELECTION-SCREEN END OF LINE.
 
 SELECTION-SCREEN END OF SCREEN 102.
-******************************************************
+" -----------------------------------------------------
 
-*** SETTINGS FOR DATA SELECTION
-**********************************************************************
+" SETTINGS FOR DATA SELECTION
+" ---------------------------------------------------------------------
 " use reduced memory consumption
 SELECTION-SCREEN BEGIN OF SCREEN 105 AS SUBSCREEN.
 
@@ -232,12 +231,11 @@ SELECTION-SCREEN BEGIN OF SCREEN 105 AS SUBSCREEN.
     SELECTION-SCREEN END OF LINE.
   SELECTION-SCREEN END OF BLOCK row_count_settings.
 
-
 SELECTION-SCREEN END OF SCREEN 105.
-**********************************************************************
+" ---------------------------------------------------------------------
 
-*** SETTINGS FOR ALV LIST OUTPUT
-******************************************************
+" SETTINGS FOR ALV LIST OUTPUT
+" -----------------------------------------------------
 SELECTION-SCREEN BEGIN OF SCREEN 104 AS SUBSCREEN.
   " show technical names in alv
   SELECTION-SCREEN BEGIN OF LINE.
@@ -301,17 +299,17 @@ SELECTION-SCREEN BEGIN OF SCREEN 104 AS SUBSCREEN.
 
   SELECTION-SCREEN SKIP.
 
-*... Navigation via associations settings
+  " ... Navigation via associations settings
   SELECTION-SCREEN BEGIN OF BLOCK navigation WITH FRAME TITLE TEXT-b02 NO INTERVALS.
     SELECTION-SCREEN BEGIN OF LINE.
       SELECTION-SCREEN COMMENT (34) TEXT-t31 FOR FIELD p_asnvmo.
       SELECTION-SCREEN POSITION 35.
       PARAMETERS p_asnvmo TYPE zdbbr_assoc_selection_mode OBLIGATORY
-        AS LISTBOX VISIBLE LENGTH 25 DEFAULT zif_dbbr_c_assoc_select_mode=>popup.
+                 AS LISTBOX VISIBLE LENGTH 25 DEFAULT zif_dbbr_c_assoc_select_mode=>popup.
     SELECTION-SCREEN END OF LINE.
 
-*... Show association browser immediately at start of output
-*... if associations exist (i.e. currently only for cds views)
+    " ... Show association browser immediately at start of output
+    " ... if associations exist (i.e. currently only for cds views)
     SELECTION-SCREEN BEGIN OF LINE.
       PARAMETERS p_asslst TYPE abap_bool AS CHECKBOX.
       SELECTION-SCREEN COMMENT 3(50) TEXT-t25 FOR FIELD p_asslst.
@@ -340,10 +338,10 @@ SELECTION-SCREEN BEGIN OF SCREEN 104 AS SUBSCREEN.
 
   SELECTION-SCREEN END OF BLOCK colors.
 SELECTION-SCREEN END OF SCREEN 104.
-******************************************************
+" -----------------------------------------------------
 
-*** SETTINGS FOR CDS VIEW
-**********************************************************************
+" SETTINGS FOR CDS VIEW
+" ---------------------------------------------------------------------
 " use reduced memory consumption
 SELECTION-SCREEN BEGIN OF SCREEN 106 AS SUBSCREEN.
 
@@ -366,10 +364,10 @@ SELECTION-SCREEN BEGIN OF SCREEN 106 AS SUBSCREEN.
     SELECTION-SCREEN END OF LINE.
   SELECTION-SCREEN END OF BLOCK virtelem.
 SELECTION-SCREEN END OF SCREEN 106.
-**********************************************************************
+" ---------------------------------------------------------------------
 
-*... Screen for user settings of entity browser
-******************************************************
+" ... Screen for user settings of entity browser
+" -----------------------------------------------------
 SELECTION-SCREEN BEGIN OF SCREEN 200 TITLE TEXT-s02 AS WINDOW.
 
   SELECTION-SCREEN BEGIN OF BLOCK search_settings WITH FRAME TITLE TEXT-b03.
@@ -379,4 +377,4 @@ SELECTION-SCREEN BEGIN OF SCREEN 200 TITLE TEXT-s02 AS WINDOW.
   SELECTION-SCREEN END OF BLOCK search_settings.
 
 SELECTION-SCREEN END OF SCREEN 200.
-******************************************************
+" -----------------------------------------------------

@@ -4,7 +4,6 @@
 
 
 CLASS lcl_token_parser IMPLEMENTATION.
-
   METHOD constructor.
     mt_token = it_token.
     mv_count = lines( mt_token ).
@@ -16,9 +15,7 @@ CLASS lcl_token_parser IMPLEMENTATION.
     mt_token[ mv_current_index ] = ms_current_token.
   ENDMETHOD.
 
-
   METHOD is_next_token.
-
     CHECK has_next_token( ).
 
     DATA(lv_token) = mt_token[ mv_current_index + 1 ]-value.
@@ -29,11 +26,9 @@ CLASS lcl_token_parser IMPLEMENTATION.
     ELSE.
       rf_is_next = xsdbool( lv_token = iv_next_token ).
     ENDIF.
-
   ENDMETHOD.
 
   METHOD is_previous_token.
-
     CHECK has_previous_token( ).
 
     DATA(lv_token) = mt_token[ mv_current_index - 1 ]-value.
@@ -44,13 +39,12 @@ CLASS lcl_token_parser IMPLEMENTATION.
     ELSE.
       rf_is_previous = xsdbool( lv_token = iv_previous_token ).
     ENDIF.
-
   ENDMETHOD.
 
   METHOD next_token.
     CHECK has_next_token( ).
 
-    ADD 1 TO mv_current_index.
+    mv_current_index = mv_current_index + 1.
     ms_current_token = mt_token[ mv_current_index ].
   ENDMETHOD.
 
@@ -63,21 +57,19 @@ CLASS lcl_token_parser IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_token.
-    DATA: lt_token_list  TYPE string_table,
-          lt_token_range TYPE RANGE OF string.
+    DATA lt_token_list TYPE string_table.
+    DATA lt_token_range TYPE RANGE OF string.
 
     DATA(lv_start_index) = COND #( WHEN if_from_current = abap_true THEN mv_current_index ELSE 1 ).
 
     IF iv_token CS ','.
       SPLIT iv_token AT ',' INTO TABLE lt_token_list.
-      lt_token_range = VALUE #(
-        LET i = 'I' eq = 'EQ' IN
-        FOR token IN lt_token_list ( sign = i option = eq low = token )
-      ).
+      lt_token_range = VALUE #( LET i  = 'I'
+                                    eq = 'EQ' IN
+                                FOR token IN lt_token_list
+                                ( sign = i option = eq low = token ) ).
     ELSE.
-      lt_token_range = VALUE #(
-        ( sign = 'I' option = 'EQ' low = iv_token )
-      ).
+      lt_token_range = VALUE #( ( sign = 'I' option = 'EQ' low = iv_token ) ).
     ENDIF.
 
     LOOP AT mt_token ASSIGNING FIELD-SYMBOL(<ls_token>) FROM lv_start_index WHERE value IN lt_token_range.
@@ -119,7 +111,7 @@ CLASS lcl_token_parser IMPLEMENTATION.
   METHOD previous_token.
     CHECK mv_current_index > 1.
 
-    SUBTRACT 1 FROM mv_current_index.
+    mv_current_index = mv_current_index - 1.
     ms_current_token = mt_token[ mv_current_index ].
   ENDMETHOD.
 
@@ -127,24 +119,27 @@ CLASS lcl_token_parser IMPLEMENTATION.
     CHECK mv_current_index - 1 >= 1.
 
     DELETE mt_token INDEX mv_current_index - 1.
-    SUBTRACT 1 FROM mv_current_index.
+    mv_current_index = mv_current_index - 1.
   ENDMETHOD.
 
   METHOD token_matches.
-    DATA(lv_token_check) = replace( val = iv_check_list sub = ',' with = '|' occ = 0 ).
+    DATA(lv_token_check) = replace( val  = iv_check_list
+                                    sub  = ','
+                                    with = '|'
+                                    occ  = 0 ).
     lv_token_check = |({ lv_token_check })|.
 
-    rf_matches = xsdbool( count( val = iv_token_to_check regex = lv_token_check  ) > 0 ).
+    rf_matches = xsdbool( count( val   = iv_token_to_check
+                                 regex = lv_token_check  ) > 0 ).
   ENDMETHOD.
-
 ENDCLASS.
 
-CLASS lcl_query_param_parser IMPLEMENTATION.
 
+CLASS lcl_query_param_parser IMPLEMENTATION.
   METHOD lif_statement_parser~parse.
     mr_parameter = NEW #( ).
 
-*.. First token is always the DATA token so jump immediately to second
+    " .. First token is always the DATA token so jump immediately to second
     next_token( ).
     parse_name( ).
     parse_type( ).
@@ -157,12 +152,15 @@ CLASS lcl_query_param_parser IMPLEMENTATION.
 
   METHOD parse_name.
     IF ms_current_token-value CS '('. " length declaration inside parenthesis
-      DATA(lv_parenthesis_left) = find( val = ms_current_token-value sub = '(' ).
-      DATA(lv_parenthesis_right) = find( val = ms_current_token-value sub = ')' ).
-      mr_parameter->name = substring( val = ms_current_token-value len = lv_parenthesis_left ).
+      DATA(lv_parenthesis_left) = find( val = ms_current_token-value
+                                        sub = '(' ).
+      DATA(lv_parenthesis_right) = find( val = ms_current_token-value
+                                         sub = ')' ).
+      mr_parameter->name   = substring( val = ms_current_token-value
+                                        len = lv_parenthesis_left ).
       mr_parameter->length = substring( val = ms_current_token-value
-                                   off = lv_parenthesis_left + 1
-                                   len = lv_parenthesis_right - lv_parenthesis_left - 1 ).
+                                        off = lv_parenthesis_left + 1
+                                        len = lv_parenthesis_right - lv_parenthesis_left - 1 ).
     ELSE.
       mr_parameter->name = ms_current_token-value.
     ENDIF.
@@ -176,8 +174,8 @@ CLASS lcl_query_param_parser IMPLEMENTATION.
 
     mr_parameter->decimals = ms_current_token-value.
 
-    data(lv_val) = sana_tok_alias_def.
-
+    " TODO: variable is assigned but never used (ABAP cleaner)
+    DATA(lv_val) = sana_tok_alias_def.
   ENDMETHOD.
 
   METHOD parse_length.
@@ -186,17 +184,16 @@ CLASS lcl_query_param_parser IMPLEMENTATION.
     IF get_token( 'LENGTH' ).
       next_token( ).
       mr_parameter->length = ms_current_token-value.
-    ELSEIF mr_parameter->length IS INITIAL AND
-           mr_parameter->type = cl_abap_typedescr=>typekind_char.
+    ELSEIF     mr_parameter->length IS INITIAL
+           AND mr_parameter->type    = cl_abap_typedescr=>typekind_char.
       mr_parameter->length = 1.
     ENDIF.
-
   ENDMETHOD.
 
   METHOD parse_type.
     IF get_token( 'TYPE' ).
       IF is_next_token( 'RANGE' ).
-*...... skip an extra token to set current token to type of range
+        " ...... skip an extra token to set current token to type of range
         next_token( ).
         next_token( ).
         mr_parameter->is_range = abap_true.
@@ -204,26 +201,27 @@ CLASS lcl_query_param_parser IMPLEMENTATION.
       next_token( ).
       mr_parameter->type = ms_current_token-value.
     ELSE.
-*... no concrete type specified so the default type 'C' will be used
+      " ... no concrete type specified so the default type 'C' will be used
       mr_parameter->type = cl_abap_typedescr=>typekind_char.
     ENDIF.
   ENDMETHOD.
 
   METHOD parse_value.
     CHECK: get_token( 'VALUE' ),
-           NOT is_next_token( 'IS' ).
+         NOT is_next_token( 'IS' ).
 
     next_token( ).
 
-    mr_parameter->default_value = replace( val = ms_current_token-value sub = `'` occ = 0 with = space ).
+    mr_parameter->default_value     = replace( val  = ms_current_token-value
+                                               sub  = `'`
+                                               occ  = 0
+                                               with = space ).
     mr_parameter->default_value_raw = ms_current_token-value.
   ENDMETHOD.
-
-
 ENDCLASS.
 
-CLASS lcl_query_token_simplifier IMPLEMENTATION.
 
+CLASS lcl_query_token_simplifier IMPLEMENTATION.
   METHOD simplify.
     simplify_by_clause( iv_clause     = 'ORDER'
                         iv_simplified = zcl_dbbr_sql_query_parser=>c_keywords-order_by ).
@@ -234,29 +232,26 @@ CLASS lcl_query_token_simplifier IMPLEMENTATION.
     rt_tokens = mt_token.
   ENDMETHOD.
 
-
   METHOD simplify_by_clause.
     WHILE get_token( iv_clause ).
       IF NOT is_next_token( 'BY' ).
         EXIT.
       ENDIF.
 
-      ms_current_token-value =
-      ms_current_token-value_no_modifier = iv_simplified .
+      ms_current_token-value_no_modifier = iv_simplified.
+      ms_current_token-value             = ms_current_token-value_no_modifier.
 
       update_from_current( ).
       delete_next( ).
     ENDWHILE.
   ENDMETHOD.
 
-
   METHOD simplify_joins.
-
     WHILE get_token( 'JOIN' ).
       previous_token( ).
 
       IF ms_current_token-value = 'INNER'.
-        ms_current_token-value = zcl_dbbr_sql_query_parser=>c_keywords-inner_join.
+        ms_current_token-value             = zcl_dbbr_sql_query_parser=>c_keywords-inner_join.
         ms_current_token-value_no_modifier = 'JOIN'.
         update_from_current( ).
         delete_next( ).
@@ -264,25 +259,25 @@ CLASS lcl_query_token_simplifier IMPLEMENTATION.
         delete_next( ).
         previous_token( ).
         delete_next( ).
-        ms_current_token-value = |{ ms_current_token-value } OUTER JOIN|.
+        ms_current_token-value             = |{ ms_current_token-value } OUTER JOIN|.
         ms_current_token-value_no_modifier = 'JOIN'.
         update_from_current( ).
-*..... Abbreviated form of outer join
-      ELSEIF ms_current_token-value = 'LEFT' OR
-             ms_current_token-value = 'RIGHT'.
-        ms_current_token-value = |{ ms_current_token-value } OUTER JOIN|.
+        " ..... Abbreviated form of outer join
+      ELSEIF    ms_current_token-value = 'LEFT'
+             OR ms_current_token-value = 'RIGHT'.
+        ms_current_token-value             = |{ ms_current_token-value } OUTER JOIN|.
         ms_current_token-value_no_modifier = 'JOIN'.
         update_from_current( ).
         delete_next( ).
       ELSEIF ms_current_token-value = 'CROSS'.
-        ms_current_token-value = |{ ms_current_token-value } JOIN|.
+        ms_current_token-value             = |{ ms_current_token-value } JOIN|.
         ms_current_token-value_no_modifier = 'JOIN'.
         update_from_current( ).
         delete_next( ).
       ELSE.
-*...... This is also an inner join
+        " ...... This is also an inner join
         next_token( ).
-        ms_current_token-value = zcl_dbbr_sql_query_parser=>c_keywords-inner_join.
+        ms_current_token-value             = zcl_dbbr_sql_query_parser=>c_keywords-inner_join.
         ms_current_token-value_no_modifier = 'JOIN'.
         update_from_current( ).
       ENDIF.
@@ -290,39 +285,37 @@ CLASS lcl_query_token_simplifier IMPLEMENTATION.
     ENDWHILE.
   ENDMETHOD.
 
-
   METHOD simplify_conditions.
-
     WHILE get_token( 'NULL,INITIAL' ).
       IF is_previous_token( 'NOT' ).
         delete_previous( ).
         delete_previous( ).
         ms_current_token-value_no_modifier = ms_current_token-value.
-        ms_current_token-value = |IS NOT { ms_current_token-value }|.
+        ms_current_token-value             = |IS NOT { ms_current_token-value }|.
         update_from_current( ).
       ELSE.
         delete_previous( ).
         ms_current_token-value_no_modifier = ms_current_token-value.
-        ms_current_token-value = |IS { ms_current_token-value }|.
+        ms_current_token-value             = |IS { ms_current_token-value }|.
         update_from_current( ).
       ENDIF.
     ENDWHILE.
 
-    WHILE get_token( iv_token = 'NOT' if_from_current = abap_true ).
+    WHILE get_token( iv_token        = 'NOT'
+                     if_from_current = abap_true ).
 
       next_token( ).
 
-      IF ms_current_token-value = 'EXISTS' OR
-         ms_current_token-value = 'IN' OR
-         ms_current_token-value = 'BETWEEN' OR
-         ms_current_token-value = 'LIKE'.
+      IF    ms_current_token-value = 'EXISTS'
+         OR ms_current_token-value = 'IN'
+         OR ms_current_token-value = 'BETWEEN'
+         OR ms_current_token-value = 'LIKE'.
         ms_current_token-value_no_modifier = ms_current_token-value.
-        ms_current_token-value = |NOT { ms_current_token-value }|.
+        ms_current_token-value             = |NOT { ms_current_token-value }|.
         update_from_current( ).
         delete_previous( ).
 
       ENDIF.
     ENDWHILE.
   ENDMETHOD.
-
 ENDCLASS.

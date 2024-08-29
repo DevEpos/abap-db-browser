@@ -1,4 +1,4 @@
-"! <p class="shorttext synchronized" lang="en">Function codes for Selection/Output</p>
+"! <p class="shorttext synchronized">Function codes for Selection/Output</p>
 INTERFACE zif_dbbr_c_selection_functions
   PUBLIC.
 
@@ -45,7 +45,7 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS hide_cols_without_values TYPE sy-ucomm VALUE 'HIDECOLNVL' ##NO_TEXT.
   CONSTANTS hide_columns TYPE sy-ucomm VALUE '&COL_INV' ##NO_TEXT.
   CONSTANTS hide_lines TYPE sy-ucomm VALUE 'HIDE_SELECTED' ##NO_TEXT.
-  "! <p class="shorttext synchronized" lang="en">ABAP System Field: PAI-Triggering Function Code</p>
+  "! <p class="shorttext synchronized">ABAP System Field: PAI-Triggering Function Code</p>
   CONSTANTS hide_other_columns TYPE sy-ucomm VALUE 'HIDE_OTHERS' ##NO_TEXT.
   CONSTANTS keep_lines TYPE sy-ucomm VALUE 'KEEP_SELECTED' ##NO_TEXT.
   CONSTANTS leave_screen_with_layout TYPE sy-ucomm VALUE 'BACKWLAYOT' ##NO_TEXT.
@@ -69,7 +69,7 @@ INTERFACE zif_dbbr_c_selection_functions
   CONSTANTS show_active_formula TYPE sy-ucomm VALUE 'SHOWFORM' ##NO_TEXT.
   CONSTANTS show_all_columns TYPE sy-ucomm VALUE 'SHOW_ALL_COLS' ##NO_TEXT.
   CONSTANTS show_cds_source TYPE sy-ucomm VALUE 'SHOWCDSSRC' ##NO_TEXT.
-  "! <p class="shorttext synchronized" lang="en">ABAP System Field: PAI-Triggering Function Code</p>
+  "! <p class="shorttext synchronized">ABAP System Field: PAI-Triggering Function Code</p>
   CONSTANTS show_details TYPE sy-ucomm VALUE 'DETAILS' ##NO_TEXT.
   CONSTANTS show_hidden_lines TYPE sy-ucomm VALUE 'DISP_HIDRO' ##NO_TEXT.
   CONSTANTS show_shortcuts TYPE sy-ucomm VALUE 'SHORTCUTS' ##NO_TEXT.

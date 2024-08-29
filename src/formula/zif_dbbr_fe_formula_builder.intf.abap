@@ -1,6 +1,6 @@
 INTERFACE zif_dbbr_fe_formula_builder
-  PUBLIC .
-  "! <p class="shorttext synchronized" lang="en">Builds lines of code for formula</p>
+  PUBLIC.
+  "! <p class="shorttext synchronized">Builds lines of code for formula</p>
   "!
   METHODS build_formula
     EXPORTING

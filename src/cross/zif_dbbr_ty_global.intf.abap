@@ -1,6 +1,6 @@
-"! <p class="shorttext synchronized" lang="en">Global Type definitions for DB Browser</p>
+"! <p class="shorttext synchronized">Global Type definitions for DB Browser</p>
 INTERFACE zif_dbbr_ty_global
-  PUBLIC .
+  PUBLIC.
   TYPES:
     "! <p class="shorttext synchronized" lang="en">Text Field status</p>
     BEGIN OF ty_s_text_field,

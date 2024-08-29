@@ -1,23 +1,24 @@
-"! <p class="shorttext synchronized" lang="en">Duration for measurements</p>
+"! <p class="shorttext synchronized">Duration for measurements</p>
 CLASS zcl_dbbr_timer DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-    "! <p class="shorttext synchronized" lang="en">Starts timer</p>
+    "! <p class="shorttext synchronized">Starts timer</p>
     METHODS start.
-    "! <p class="shorttext synchronized" lang="en">Stops timer</p>
+    "! <p class="shorttext synchronized">Stops timer</p>
     METHODS stop.
-    "! <p class="shorttext synchronized" lang="en">Retrieves duration in milliseconds</p>
+
+    "! <p class="shorttext synchronized">Retrieves duration in milliseconds</p>
     METHODS get_duration
       RETURNING
         VALUE(rv_duration_in_ms) TYPE i.
-    "! <p class="shorttext synchronized" lang="en">Retrieves duration as string</p>
+
+    "! <p class="shorttext synchronized">Retrieves duration as string</p>
     METHODS get_duration_string
       RETURNING
         VALUE(rv_duration_in_ms) TYPE string.
-  PROTECTED SECTION.
+
   PRIVATE SECTION.
     DATA mv_start TYPE timestampl.
     DATA mv_stop TYPE timestampl.
@@ -25,9 +26,7 @@ CLASS zcl_dbbr_timer DEFINITION
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_timer IMPLEMENTATION.
-
   METHOD get_duration.
     rv_duration_in_ms = mv_duration.
   ENDMETHOD.
@@ -41,17 +40,11 @@ CLASS zcl_dbbr_timer IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD stop.
-    DATA: lv_seconds TYPE timestampl.
+    DATA lv_seconds TYPE timestampl.
 
     GET TIME STAMP FIELD mv_stop.
-    cl_abap_tstmp=>subtract(
-      EXPORTING
-        tstmp1                     =   mv_stop
-        tstmp2                     =   mv_start
-      RECEIVING
-        r_secs                     =   lv_seconds
-    ).
+    lv_seconds = cl_abap_tstmp=>subtract( tstmp1 = mv_stop
+                                          tstmp2 = mv_start ).
     mv_duration = lv_seconds * 1000.
   ENDMETHOD.
-
 ENDCLASS.

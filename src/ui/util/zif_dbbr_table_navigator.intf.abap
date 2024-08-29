@@ -1,8 +1,8 @@
-interface ZIF_DBBR_TABLE_NAVIGATOR
-  public .
+INTERFACE zif_dbbr_table_navigator
+  PUBLIC.
 
 
-  methods NAVIGATE
-    raising
-      ZCX_DBBR_ASSOCIATION_NAV_ERROR .
-endinterface.
+  METHODS navigate
+    RAISING
+      zcx_dbbr_association_nav_error.
+ENDINTERFACE.

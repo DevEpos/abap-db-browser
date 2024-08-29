@@ -1,10 +1,10 @@
 INTERFACE zif_dbbr_screen_ids
-  PUBLIC .
+  PUBLIC.
 
 
   CONSTANTS c_choose_table_query TYPE dynnr VALUE 0105 ##NO_TEXT.
-  CONSTANTS c_save_query TYPE dynnr VALUE 1100 ##no_text.
-  CONSTANTS c_save_sql_query TYPE dynnr VALUE 1800 ##no_text.
+  CONSTANTS c_save_query TYPE dynnr VALUE 1100 ##NO_TEXT.
+  CONSTANTS c_save_sql_query TYPE dynnr VALUE 1800 ##NO_TEXT.
   CONSTANTS c_choose_table_fields TYPE dynnr VALUE 0800 ##NO_TEXT.
   CONSTANTS c_table_variant TYPE dynnr VALUE 1200 ##NO_TEXT.
   CONSTANTS c_query_variant TYPE dynnr VALUE 1201 ##NO_TEXT.
@@ -15,7 +15,7 @@ INTERFACE zif_dbbr_screen_ids
   CONSTANTS c_selection_screen TYPE dynnr VALUE 0100 ##NO_TEXT.
   CONSTANTS c_define_field_sorting TYPE dynnr VALUE 0820 ##NO_TEXT.
   CONSTANTS c_define_additional_texts TYPE dynnr VALUE 1300 ##NO_TEXT.
-  CONSTANTS c_copy_query TYPE dynnr VALUE 1400 ##no_text.
+  CONSTANTS c_copy_query TYPE dynnr VALUE 1400 ##NO_TEXT.
   CONSTANTS c_join_field_f4 TYPE dynnr VALUE 0104 ##NO_TEXT.
   CONSTANTS c_define_built_in_f4 TYPE dynnr VALUE 0101 ##NO_TEXT.
   CONSTANTS c_show_custom_f4_help TYPE dynnr VALUE 0202 ##NO_TEXT.
@@ -31,7 +31,7 @@ INTERFACE zif_dbbr_screen_ids
       data_selection_tab TYPE dynnr VALUE '0105' ##NO_TEXT,
       favorites_tab      TYPE dynnr VALUE '0103' ##NO_TEXT,
       output_tab         TYPE dynnr VALUE '0104' ##NO_TEXT,
-      cds_view_settings  type dynnr value '0106' ##NO_TEXT,
+      cds_view_settings  TYPE dynnr VALUE '0106' ##NO_TEXT,
     END OF c_user_settings.
   CONSTANTS c_show_eb_settings TYPE dynnr VALUE '0200' ##NO_TEXT.
   CONSTANTS c_maintain_join_table TYPE dynnr VALUE 1700 ##NO_TEXT.

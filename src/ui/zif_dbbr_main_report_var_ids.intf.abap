@@ -1,5 +1,5 @@
 INTERFACE zif_dbbr_main_report_var_ids
-  PUBLIC .
+  PUBLIC.
 
 
   "! Type - ZDBBR_button

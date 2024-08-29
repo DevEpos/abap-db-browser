@@ -1,153 +1,157 @@
 CLASS zcl_dbbr_query_factory DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-
-    "! <p class="shorttext synchronized" lang="en">Check if user has authority for query</p>
+    "! <p class="shorttext synchronized">Check if user has authority for query</p>
     "!
-    "! @parameter iv_query_id | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter iv_query_id | <p class="shorttext synchronized"></p>
     METHODS check_query_authority
       IMPORTING
-        !iv_query_id TYPE zdbbr_query_id .
-    "! <p class="shorttext synchronized" lang="en">Retrieve join tables of query</p>
+        iv_query_id TYPE zdbbr_query_id.
+
+    "! <p class="shorttext synchronized">Retrieve join tables of query</p>
     "!
-    "! @parameter iv_query_name | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter rt_entities | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter iv_query_name | <p class="shorttext synchronized"></p>
+    "! @parameter rt_entities   | <p class="shorttext synchronized"></p>
     METHODS get_tables_of_query
       IMPORTING
-        iv_query_name      TYPE ZSAT_QUERY_NAME
+        iv_query_name      TYPE zsat_query_name
       RETURNING
-        VALUE(rt_entities) TYPE ZSAT_ENTITY_T.
-    "! <p class="shorttext synchronized" lang="en">Find queries by name/primary table</p>
+        VALUE(rt_entities) TYPE zsat_entity_t.
+
+    "! <p class="shorttext synchronized">Find queries by name/primary table</p>
     "!
-    "! @parameter iv_query_name | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter iv_primary_table | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter et_queries | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter iv_query_name    | <p class="shorttext synchronized"></p>
+    "! @parameter iv_primary_table | <p class="shorttext synchronized"></p>
+    "! @parameter et_queries       | <p class="shorttext synchronized"></p>
     METHODS find_queries
       IMPORTING
-        !iv_query_name    TYPE ZSAT_QUERY_NAME OPTIONAL
-        !iv_primary_table TYPE tabname OPTIONAL
+        iv_query_name    TYPE zsat_query_name OPTIONAL
+        iv_primary_table TYPE tabname         OPTIONAL
       EXPORTING
-        !et_queries       TYPE zdbbr_query_info_itab .
-    "! <p class="shorttext synchronized" lang="en">Checks if query exists</p>
+        et_queries       TYPE zdbbr_query_info_itab.
+
+    "! <p class="shorttext synchronized">Checks if query exists</p>
     "!
-    "! @parameter iv_query_name | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter if_global | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter iv_created_by | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter if_saving_context | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter rf_exists | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter iv_query_name     | <p class="shorttext synchronized"></p>
+    "! @parameter if_global         | <p class="shorttext synchronized"></p>
+    "! @parameter iv_created_by     | <p class="shorttext synchronized"></p>
+    "! @parameter if_saving_context | <p class="shorttext synchronized"></p>
+    "! @parameter rf_exists         | <p class="shorttext synchronized"></p>
     METHODS query_exists
       IMPORTING
-        !iv_query_name     TYPE ZSAT_QUERY_NAME
-        !if_global         TYPE boolean OPTIONAL
-        !iv_created_by     TYPE zsat_created_by OPTIONAL
-        !if_saving_context TYPE abap_bool OPTIONAL
+        iv_query_name     TYPE zsat_query_name
+        if_global         TYPE boolean         OPTIONAL
+        iv_created_by     TYPE zsat_created_by OPTIONAL
+        if_saving_context TYPE abap_bool       OPTIONAL
       RETURNING
-        VALUE(rf_exists)   TYPE boolean .
-    "! <p class="shorttext synchronized" lang="en">Retrieve the query by name</p>
+        VALUE(rf_exists)  TYPE boolean.
+
+    "! <p class="shorttext synchronized">Retrieve the query by name</p>
     "!
-    "! @parameter iv_query_name | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter if_load_completely | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter rs_query | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter iv_query_name      | <p class="shorttext synchronized"></p>
+    "! @parameter if_load_completely | <p class="shorttext synchronized"></p>
+    "! @parameter rs_query           | <p class="shorttext synchronized"></p>
     METHODS get_query
       IMPORTING
-        !iv_query_name      TYPE ZSAT_QUERY_NAME
-        !if_load_completely TYPE boolean DEFAULT abap_true
+        iv_query_name      TYPE zsat_query_name
+        if_load_completely TYPE boolean DEFAULT abap_true
       RETURNING
-        VALUE(rs_query)     TYPE zdbbr_query_data .
-    "! <p class="shorttext synchronized" lang="en">Retriev the query by id</p>
+        VALUE(rs_query)    TYPE zdbbr_query_data.
+
+    "! <p class="shorttext synchronized">Retriev the query by id</p>
     "!
-    "! @parameter iv_query_id | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter if_load_jump_destinations | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter if_load_formulas | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter if_load_variants | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter if_load_completely | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter rs_query | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter iv_query_id               | <p class="shorttext synchronized"></p>
+    "! @parameter if_load_jump_destinations | <p class="shorttext synchronized"></p>
+    "! @parameter if_load_formulas          | <p class="shorttext synchronized"></p>
+    "! @parameter if_load_variants          | <p class="shorttext synchronized"></p>
+    "! @parameter if_load_completely        | <p class="shorttext synchronized"></p>
+    "! @parameter rs_query                  | <p class="shorttext synchronized"></p>
     METHODS get_query_by_id
       IMPORTING
-        !iv_query_id               TYPE zdbbr_query_id
-        !if_load_jump_destinations TYPE boolean OPTIONAL
-        !if_load_formulas          TYPE boolean OPTIONAL
-        !if_load_variants          TYPE boolean OPTIONAL
-        !if_load_completely        TYPE boolean DEFAULT abap_true
+        iv_query_id               TYPE zdbbr_query_id
+        if_load_jump_destinations TYPE boolean OPTIONAL
+        if_load_formulas          TYPE boolean OPTIONAL
+        if_load_variants          TYPE boolean OPTIONAL
+        if_load_completely        TYPE boolean DEFAULT abap_true
       RETURNING
-        VALUE(rs_query)            TYPE zdbbr_query_data .
-    "! <p class="shorttext synchronized" lang="en">Saves the given query</p>
+        VALUE(rs_query)           TYPE zdbbr_query_data.
+
+    "! <p class="shorttext synchronized">Saves the given query</p>
     "!
-    "! @parameter is_query | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter rv_query_id | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter is_query    | <p class="shorttext synchronized"></p>
+    "! @parameter rv_query_id | <p class="shorttext synchronized"></p>
     METHODS save_query
       IMPORTING
-        !is_query          TYPE zdbbr_query_data
+        is_query           TYPE zdbbr_query_data
       RETURNING
-        VALUE(rv_query_id) TYPE zdbbr_query_id .
-    "! <p class="shorttext synchronized" lang="en">Delete query for the given id</p>
+        VALUE(rv_query_id) TYPE zdbbr_query_id.
+
+    "! <p class="shorttext synchronized">Delete query for the given id</p>
     "!
-    "! @parameter iv_query_id | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter iv_query_id | <p class="shorttext synchronized"></p>
     METHODS delete_query_by_id
       IMPORTING
-        !iv_query_id TYPE zdbbr_query_id .
-    "! <p class="shorttext synchronized" lang="en">Update flags of query</p>
+        iv_query_id TYPE zdbbr_query_id.
+
+    "! <p class="shorttext synchronized">Update flags of query</p>
     "!
-    "! @parameter iv_query_id | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter if_has_jump_fields | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter if_has_output_fields | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter if_has_sort_fields | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter iv_query_id          | <p class="shorttext synchronized"></p>
+    "! @parameter if_has_jump_fields   | <p class="shorttext synchronized"></p>
+    "! @parameter if_has_output_fields | <p class="shorttext synchronized"></p>
+    "! @parameter if_has_sort_fields   | <p class="shorttext synchronized"></p>
     METHODS update_query_flags
       IMPORTING
-        !iv_query_id          TYPE zdbbr_query_info_ui-query_id
-        !if_has_jump_fields   TYPE abap_bool OPTIONAL
-        !if_has_output_fields TYPE abap_bool OPTIONAL
-        !if_has_sort_fields   TYPE abap_bool OPTIONAL .
-    "! <p class="shorttext synchronized" lang="en">Retrieve query id for query name</p>
+        iv_query_id          TYPE zdbbr_query_info_ui-query_id
+        if_has_jump_fields   TYPE abap_bool OPTIONAL
+        if_has_output_fields TYPE abap_bool OPTIONAL
+        if_has_sort_fields   TYPE abap_bool OPTIONAL.
+
+    "! <p class="shorttext synchronized">Retrieve query id for query name</p>
     "!
-    "! @parameter iv_query_name | <p class="shorttext synchronized" lang="en"></p>
-    "! @parameter rv_query_id | <p class="shorttext synchronized" lang="en"></p>
+    "! @parameter iv_query_name | <p class="shorttext synchronized"></p>
+    "! @parameter rv_query_id   | <p class="shorttext synchronized"></p>
     METHODS get_query_id
       IMPORTING
-        !iv_query_name     TYPE ZSAT_QUERY_NAME
+        iv_query_name      TYPE zsat_query_name
       RETURNING
-        VALUE(rv_query_id) TYPE zdbbr_query_id .
-  PROTECTED SECTION.
-  PRIVATE SECTION.
+        VALUE(rv_query_id) TYPE zdbbr_query_id.
 
+  PRIVATE SECTION.
     METHODS delete_related_by_query_name
       IMPORTING
-        !iv_query_name TYPE ZSAT_QUERY_NAME .
+        iv_query_name TYPE zsat_query_name.
+
     METHODS delete_related_by_query_id
       IMPORTING
-        !iv_query_id   TYPE zdbbr_query_id
-        !if_delete_all TYPE boolean OPTIONAL .
+        iv_query_id   TYPE zdbbr_query_id
+        if_delete_all TYPE boolean OPTIONAL.
+
     METHODS fill_corresponding_data
       IMPORTING
-        !if_load_formulas          TYPE abap_bool OPTIONAL
-        !if_load_jump_destinations TYPE abap_bool OPTIONAL
-        !if_load_variants          TYPE abap_bool OPTIONAL
+        if_load_formulas          TYPE abap_bool OPTIONAL
+        if_load_jump_destinations TYPE abap_bool OPTIONAL
+        if_load_variants          TYPE abap_bool OPTIONAL
       CHANGING
-        !cs_query_data             TYPE zdbbr_query_data .
+        cs_query_data             TYPE zdbbr_query_data.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_query_factory IMPLEMENTATION.
-
-
   METHOD check_query_authority.
-    SELECT SINGLE * FROM zdbbr_queryh INTO @DATA(ls_query)
+    SELECT SINGLE * FROM zdbbr_queryh
+      INTO @DATA(ls_query)
       WHERE query_id = @iv_query_id.
 
-    IF ls_query IS NOT INITIAL AND
-       ls_query-is_global = abap_false AND
-       ls_query-created_by <> sy-uname.
+    IF     ls_query            IS NOT INITIAL
+       AND ls_query-is_global   = abap_false
+       AND ls_query-created_by <> sy-uname.
       RAISE EXCEPTION TYPE zcx_dbbr_exception
-        EXPORTING
-          textid = zcx_dbbr_exception=>query_no_authority
-          msgv1  = |{ ls_query-query_name }|.
+        EXPORTING textid = zcx_dbbr_exception=>query_no_authority
+                  msgv1  = |{ ls_query-query_name }|.
     ENDIF.
   ENDMETHOD.
-
 
   METHOD delete_related_by_query_id.
     DELETE FROM zdbbr_queryt WHERE ref_query_id = iv_query_id.
@@ -165,7 +169,6 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     COMMIT WORK.
   ENDMETHOD.
 
-
   METHOD delete_related_by_query_name.
     DELETE FROM zdbbr_favmenu WHERE fav_entry = iv_query_name
                                 AND favtype   = zif_dbbr_c_favmenu_type=>query.
@@ -174,9 +177,9 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
                                  AND type            = zif_dbbr_c_favmenu_type=>query.
   ENDMETHOD.
 
-
   METHOD delete_query_by_id.
-    SELECT SINGLE * FROM zdbbr_queryh INTO @DATA(ls_query)
+    SELECT SINGLE * FROM zdbbr_queryh
+      INTO @DATA(ls_query)
       WHERE query_id = @iv_query_id.
 
     IF sy-subrc <> 0.
@@ -184,14 +187,12 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     ENDIF.
 
     IF ls_query-ref_join_id IS NOT INITIAL.
-      NEW zcl_dbbr_join_factory( )->delete_join(
-          iv_join_id      = ls_query-ref_join_id
-      ).
+      NEW zcl_dbbr_join_factory( )->delete_join( iv_join_id = ls_query-ref_join_id ).
     ENDIF.
 
     delete_related_by_query_name( iv_query_name = ls_query-query_name ).
-    delete_related_by_query_id( iv_query_id = iv_query_id
-                               if_delete_all = abap_true ).
+    delete_related_by_query_id( iv_query_id   = iv_query_id
+                                if_delete_all = abap_true ).
 
     " delete the query head
     DELETE FROM zdbbr_queryh WHERE query_id = iv_query_id.
@@ -199,8 +200,9 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     COMMIT WORK.
   ENDMETHOD.
 
-
   METHOD fill_corresponding_data.
+    " TODO: parameter IF_LOAD_FORMULAS is never used (ABAP cleaner)
+
 *&---------------------------------------------------------------------*
 *& Author:    stockbal     Date: 2016/12/04
 *&---------------------------------------------------------------------*
@@ -215,24 +217,26 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
       ENDIF.
 
       IF cs_query_data-entity_type IS INITIAL.
-        SELECT SINGLE type
-          FROM zsat_i_databaseentity
+        SELECT SINGLE type FROM zsat_i_databaseentity
           WHERE entity = @cs_query_data-primary_table
-        INTO @cs_query_data-entity_type.
+          INTO @cs_query_data-entity_type.
       ENDIF.
     ENDIF.
 
     " 2) read tables
-    SELECT * FROM zdbbr_queryt INTO CORRESPONDING FIELDS OF TABLE cs_query_data-tables
+    SELECT * FROM zdbbr_queryt
+      INTO CORRESPONDING FIELDS OF TABLE cs_query_data-tables
       WHERE ref_query_id = cs_query_data-query_id
       ORDER BY selection_order ASCENDING.
 
     " 3) read table fields
-    SELECT * FROM zdbbr_tabf INTO CORRESPONDING FIELDS OF TABLE cs_query_data-fields
+    SELECT * FROM zdbbr_tabf
+      INTO CORRESPONDING FIELDS OF TABLE cs_query_data-fields
       WHERE ref_id = cs_query_data-query_id.
 
     " read existing parameters
-    SELECT * FROM zdbbr_queryp INTO CORRESPONDING FIELDS OF TABLE cs_query_data-parameters
+    SELECT * FROM zdbbr_queryp
+      INTO CORRESPONDING FIELDS OF TABLE cs_query_data-parameters
       WHERE ref_query_id = cs_query_data-query_id.
 
     " 4) read existing variants
@@ -243,24 +247,23 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     " 6) load jump fields
     IF if_load_jump_destinations = abap_true AND cs_query_data-has_jump_fields = abap_true.
       cs_query_data-jump_fields = CORRESPONDING #(
-        NEW zcl_dbbr_jump_destination_f( )->get_jump_destinations( cs_query_data-query_id )
-      ).
+        NEW zcl_dbbr_jump_destination_f( )->get_jump_destinations( cs_query_data-query_id ) ).
     ENDIF.
   ENDMETHOD.
 
-
   METHOD find_queries.
+    " TODO: parameter IV_PRIMARY_TABLE is never used (ABAP cleaner)
+
 *&---------------------------------------------------------------------*
 *& Description: Finds querys for given name / primary_table
 *& V001 - 2016/11/27: All querys are selected, regardless of filled
 *&                    parameters
 *&---------------------------------------------------------------------*
-    DATA(lt_query_name_selopt) = COND ZIF_SAT_TY_GLOBAL=>ty_t_selopt(
+    DATA(lt_query_name_selopt) = COND zif_sat_ty_global=>ty_t_selopt(
       WHEN iv_query_name IS NOT INITIAL AND iv_query_name CS '*' THEN
         VALUE #( ( sign = 'I' option = 'CP' low = iv_query_name ) )
       WHEN iv_query_name IS NOT INITIAL AND iv_query_name NS '*' THEN
-        VALUE #( ( sign = 'I' option = 'EQ' low = iv_query_name ) )
-    ).
+        VALUE #( ( sign = 'I' option = 'EQ' low = iv_query_name ) ) ).
 
     SELECT * INTO TABLE @DATA(lt_query)
       FROM zdbbr_queryh
@@ -275,16 +278,15 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     " remove skripts that are not global and are not created by the user
     DELETE lt_query WHERE is_global = abap_false AND created_by <> sy-uname.
     et_queries = CORRESPONDING zdbbr_query_info_itab( lt_query ).
-
   ENDMETHOD.
-
 
   METHOD get_query.
 *&---------------------------------------------------------------------*
 *& Description: Returns complete query data for a given table name
 *&---------------------------------------------------------------------*
     " 1) find query header
-    SELECT SINGLE * FROM zdbbr_queryh INTO CORRESPONDING FIELDS OF rs_query
+    SELECT SINGLE * FROM zdbbr_queryh
+      INTO CORRESPONDING FIELDS OF rs_query
       WHERE query_name = iv_query_name.
 
     IF sy-subrc <> 0.
@@ -296,13 +298,13 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-
   METHOD get_query_by_id.
 *&---------------------------------------------------------------------*
 *& Description: Returns complete query data for a given query id
 *&---------------------------------------------------------------------*
     " 1) find query header
-    SELECT SINGLE * FROM zdbbr_queryh INTO CORRESPONDING FIELDS OF rs_query
+    SELECT SINGLE * FROM zdbbr_queryh
+      INTO CORRESPONDING FIELDS OF rs_query
       WHERE query_id = iv_query_id.
 
     IF sy-subrc <> 0.
@@ -310,24 +312,22 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     ENDIF.
 
     IF if_load_completely = abap_true.
-      fill_corresponding_data(
-        EXPORTING if_load_variants          = if_load_variants
-                  if_load_formulas          = if_load_formulas
-                  if_load_jump_destinations = if_load_jump_destinations
-        CHANGING  cs_query_data            = rs_query ).
+      fill_corresponding_data( EXPORTING if_load_variants          = if_load_variants
+                                         if_load_formulas          = if_load_formulas
+                                         if_load_jump_destinations = if_load_jump_destinations
+                               CHANGING  cs_query_data             = rs_query ).
     ENDIF.
   ENDMETHOD.
 
-
   METHOD get_query_id.
-    SELECT SINGLE query_id FROM zdbbr_queryh INTO rv_query_id
+    SELECT SINGLE query_id FROM zdbbr_queryh
+      INTO rv_query_id
       WHERE query_name = iv_query_name.
   ENDMETHOD.
 
-
   METHOD save_query.
-    DATA: lt_query_fields     TYPE STANDARD TABLE OF zdbbr_tabf,
-          lt_query_parameters TYPE TABLE OF zdbbr_queryp.
+    DATA lt_query_fields TYPE STANDARD TABLE OF zdbbr_tabf.
+    DATA lt_query_parameters TYPE TABLE OF zdbbr_queryp.
 
     DATA(ls_join_def) = is_query-join_def.
     DATA(lt_query_tables) = is_query-tables.
@@ -339,16 +339,17 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
 
     DATA(lr_join_factory) = NEW zcl_dbbr_join_factory( ).
 
-*.. 1) is there already existing data for this query?
-*.. possible invalidation of data of existing query variants !!!!
+    " .. 1) is there already existing data for this query?
+    " .. possible invalidation of data of existing query variants !!!!
     IF ls_query-query_id IS NOT INITIAL.
-      delete_related_by_query_id( iv_query_id = ls_query-query_id if_delete_all = abap_true ).
+      delete_related_by_query_id( iv_query_id   = ls_query-query_id
+                                  if_delete_all = abap_true ).
     ELSE.
-      ls_query-query_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
+      ls_query-query_id = zcl_sat_system_helper=>create_guid_22( ).
       CLEAR ls_join_def-join_id.
     ENDIF.
 
-*.. delete existing join
+    " .. delete existing join
     IF ls_query-ref_join_id IS NOT INITIAL.
       lr_join_factory->delete_join( ls_query-ref_join_id ).
 
@@ -356,39 +357,38 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
              ls_join_def-join_id.
     ENDIF.
 
-*.. save new data
-*.. save join
+    " .. save new data
+    " .. save join
     IF ls_join_def-tables IS NOT INITIAL.
       ls_query-ref_join_id = lr_join_factory->save_join( ls_join_def ).
     ENDIF.
 
-*.. save query
+    " .. save query
     MODIFY zdbbr_queryh FROM ls_query.
     IF sy-subrc = 0.
       rv_query_id = ls_query-query_id.
     ENDIF.
 
-*.. > save query tables
+    " .. > save query tables
     LOOP AT lt_query_tables ASSIGNING FIELD-SYMBOL(<ls_query_table>).
-      <ls_query_table>-ref_query_id = ls_query-query_id.
-      <ls_query_table>-query_table_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
+      <ls_query_table>-ref_query_id   = ls_query-query_id.
+      <ls_query_table>-query_table_id = zcl_sat_system_helper=>create_guid_22( ).
     ENDLOOP.
 
     INSERT zdbbr_queryt FROM TABLE lt_query_tables.
 
-*.. > save query fields
+    " .. > save query fields
     LOOP AT lt_query_fields ASSIGNING FIELD-SYMBOL(<ls_query_field>).
-      <ls_query_field>-table_field_id = ZCL_SAT_SYSTEM_HELPER=>create_guid_22( ).
-      <ls_query_field>-ref_id = ls_query-query_id.
+      <ls_query_field>-table_field_id = zcl_sat_system_helper=>create_guid_22( ).
+      <ls_query_field>-ref_id         = ls_query-query_id.
     ENDLOOP.
 
     INSERT zdbbr_tabf FROM TABLE lt_query_fields.
 
-*.. > Save query parameters
+    " .. > Save query parameters
     LOOP AT lt_query_parameters ASSIGNING FIELD-SYMBOL(<ls_param>).
       <ls_param>-ref_query_id = ls_query-query_id.
     ENDLOOP.
-
 
     INSERT zdbbr_queryp FROM TABLE lt_query_parameters.
 
@@ -401,34 +401,36 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
     IF is_query-jump_fields IS NOT INITIAL.
       DATA(lt_jump_destinations) = CORRESPONDING zdbbr_jumpdest_data_ui_itab( DEEP is_query-jump_fields ).
       NEW zcl_dbbr_jump_destination_f( )->save_jump_destinations(
-        EXPORTING iv_query_id         = ls_query-query_id
-        CHANGING  ct_jump_destinations = lt_jump_destinations
-      ).
+            EXPORTING iv_query_id          = ls_query-query_id
+            CHANGING  ct_jump_destinations = lt_jump_destinations ).
     ENDIF.
-
   ENDMETHOD.
 
-
   METHOD query_exists.
+    " TODO: parameter IF_GLOBAL is never used (ABAP cleaner)
+    " TODO: parameter IV_CREATED_BY is never used (ABAP cleaner)
+    " TODO: parameter IF_SAVING_CONTEXT is never used (ABAP cleaner)
+
 *&---------------------------------------------------------------------*
 *& Description: Returns abap_true if the query exists
 *&---------------------------------------------------------------------*
+    " TODO: variable is assigned but never used (ABAP cleaner)
     SELECT COUNT( * ) INTO @DATA(lv_count)
       FROM zdbbr_queryh
-      WHERE query_name  = @iv_query_name.
+      WHERE query_name = @iv_query_name.
     rf_exists = xsdbool( sy-subrc = 0 ).
   ENDMETHOD.
 
-
   METHOD update_query_flags.
-    IF if_has_jump_fields IS NOT SUPPLIED AND
-       if_has_output_fields IS NOT SUPPLIED AND
-       if_has_sort_fields IS NOT SUPPLIED.
+    IF     if_has_jump_fields   IS NOT SUPPLIED
+       AND if_has_output_fields IS NOT SUPPLIED
+       AND if_has_sort_fields   IS NOT SUPPLIED.
       RETURN.
     ENDIF.
 
     " find query with id
-    SELECT SINGLE * FROM zdbbr_queryh INTO @DATA(ls_query_head)
+    SELECT SINGLE * FROM zdbbr_queryh
+      INTO @DATA(ls_query_head)
       WHERE query_id = @iv_query_id.
 
     IF if_has_jump_fields IS SUPPLIED.
@@ -449,24 +451,25 @@ CLASS zcl_dbbr_query_factory IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_tables_of_query.
-    SELECT SINGLE query_id, primary_table AS tabname
+    SELECT SINGLE query_id,
+                  primary_table AS tabname
       FROM zdbbr_queryh
       WHERE query_name = @iv_query_name
-    INTO @DATA(ls_query).
+      INTO @DATA(ls_query).
 
-    SELECT tabname
-     FROM zdbbr_queryt
-    WHERE ref_query_id = @ls_query-query_id
-    INTO TABLE @DATA(lt_join_tables).
+    SELECT tabname FROM zdbbr_queryt
+      WHERE ref_query_id = @ls_query-query_id
+      INTO TABLE @DATA(lt_join_tables).
 
-    DATA(lt_range) = VALUE ZIF_SAT_TY_GLOBAL=>ty_t_tabname_range(
-      ( sign = 'I' option = 'EQ' low = ls_query-tabname )
-      ( LINES OF VALUE #( FOR table IN lt_join_tables ( sign = 'I' option = 'EQ' low = table-tabname ) ) )
-    ).
+    DATA(lt_range) = VALUE zif_sat_ty_global=>ty_t_tabname_range(
+                               ( sign = 'I' option = 'EQ' low = ls_query-tabname )
+                               ( LINES OF VALUE #( FOR table IN lt_join_tables
+                                                   ( sign = 'I' option = 'EQ' low = table-tabname ) ) ) ).
 
-    CHECK lt_range IS NOT INITIAL.
+    IF lt_range IS INITIAL.
+      RETURN.
+    ENDIF.
 
-    rt_entities = zcl_sat_ddic_repo_access=>get_entity_by_range( EXPORTING it_entity_range = lt_range ).
+    rt_entities = zcl_sat_ddic_repo_access=>get_entity_by_range( it_entity_range = lt_range ).
   ENDMETHOD.
-
 ENDCLASS.

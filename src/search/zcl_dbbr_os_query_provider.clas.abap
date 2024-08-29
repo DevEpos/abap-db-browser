@@ -1,8 +1,8 @@
 "! <p class="shorttext synchronized">Query searcher for Object Browser</p>
 CLASS zcl_dbbr_os_query_provider DEFINITION
   PUBLIC
-  CREATE PUBLIC
-  INHERITING FROM zcl_sat_base_search_provider.
+  INHERITING FROM zcl_sat_base_search_provider
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
 
@@ -52,13 +52,18 @@ CLASS zcl_dbbr_os_query_provider IMPLEMENTATION.
 
     ENDLOOP.
 
-    add_select_field( iv_fieldname = 'created_by' iv_fieldname_alias = c_result_fields-created_by ).
-    add_select_field( iv_fieldname = 'query_name' iv_fieldname_alias = c_result_fields-object_name ).
-    add_select_field( iv_fieldname = 'query_name' iv_fieldname_alias = c_result_fields-raw_object_name ).
+    add_select_field( iv_fieldname       = 'created_by'
+                      iv_fieldname_alias = c_result_fields-created_by ).
+    add_select_field( iv_fieldname       = 'query_name'
+                      iv_fieldname_alias = c_result_fields-object_name ).
+    add_select_field( iv_fieldname       = 'query_name'
+                      iv_fieldname_alias = c_result_fields-raw_object_name ).
     add_select_field( iv_fieldname = 'description' ).
-    add_select_field( iv_fieldname = |'Q'| iv_fieldname_alias = c_result_fields-entity_type ).
+    add_select_field( iv_fieldname       = |'Q'|
+                      iv_fieldname_alias = c_result_fields-entity_type ).
 
-    add_order_by( iv_entity = c_base_table iv_fieldname = 'query_name' ).
+    add_order_by( iv_entity    = c_base_table
+                  iv_fieldname = 'query_name' ).
 
     new_and_cond_list( ).
   ENDMETHOD.

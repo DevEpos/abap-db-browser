@@ -1,116 +1,111 @@
 CLASS zcl_dbbr_fe_validator DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-
     METHODS constructor
       IMPORTING
-        !iv_formula   TYPE string
-        !io_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
+        iv_formula   TYPE string
+        io_tabfields TYPE REF TO zcl_dbbr_tabfield_list.
+
     METHODS validate
       EXPORTING
-        !et_defined_fields TYPE zif_dbbr_fe_types=>tt_form_field
+        et_defined_fields TYPE zif_dbbr_fe_types=>tt_form_field
       RETURNING
-        VALUE(ro_formula)  TYPE REF TO zcl_dbbr_formula
+        VALUE(ro_formula) TYPE REF TO zcl_dbbr_formula
       RAISING
-        zcx_dbbr_formula_exception .
-  PROTECTED SECTION.
-  PRIVATE SECTION.
+        zcx_dbbr_formula_exception.
 
-    DATA mo_tabfields TYPE REF TO zcl_dbbr_tabfield_list .
-    DATA mt_formula_lines TYPE string_table .
-    DATA mv_formula_string TYPE string .
-    DATA mt_formula_stmnt TYPE zif_dbbr_fe_types=>tt_statement .
-    DATA mo_formula TYPE REF TO zcl_dbbr_formula .
-    DATA mt_calc_fields TYPE zif_dbbr_fe_types=>tt_form_calc_field .
+  PRIVATE SECTION.
+    DATA mo_tabfields TYPE REF TO zcl_dbbr_tabfield_list.
+    DATA mt_formula_lines TYPE string_table.
+    DATA mv_formula_string TYPE string.
+    DATA mt_formula_stmnt TYPE zif_dbbr_fe_types=>tt_statement.
+    DATA mo_formula TYPE REF TO zcl_dbbr_formula.
+    DATA mt_calc_fields TYPE zif_dbbr_fe_types=>tt_form_calc_field.
 
     METHODS tokenize_formula
       RAISING
-        zcx_dbbr_fe_stmnt_valid_exc .
+        zcx_dbbr_fe_stmnt_valid_exc.
+
     METHODS check_abap_syntax
       RAISING
-        zcx_dbbr_formula_exception .
+        zcx_dbbr_formula_exception.
+
     METHODS process_statements
       RAISING
-        zcx_dbbr_formula_exception .
+        zcx_dbbr_formula_exception.
+
     METHODS get_statements_from_code
       EXPORTING
-        !et_formula_lines TYPE zif_dbbr_fe_types=>tt_statement
+        et_formula_lines TYPE zif_dbbr_fe_types=>tt_statement
       RAISING
-        zcx_dbbr_fe_stmnt_valid_exc .
+        zcx_dbbr_fe_stmnt_valid_exc.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_fe_validator IMPLEMENTATION.
-
-
   METHOD check_abap_syntax.
-    DATA: lv_line TYPE i,
-          lv_word TYPE string.
+    " TODO: variable is assigned but never used (ABAP cleaner)
+    DATA lv_line TYPE i.
+    " TODO: variable is assigned but never used (ABAP cleaner)
+    DATA lv_word TYPE string.
 
     " include formula lines
-    DATA(lo_builder) = zcl_dbbr_fe_form_builder=>get_builder_for_check(
-        io_formula   = mo_formula
-        io_tabfields = mo_tabfields
-    ).
+    DATA(lo_builder) = zcl_dbbr_fe_form_builder=>get_builder_for_check( io_formula   = mo_formula
+                                                                        io_tabfields = mo_tabfields ).
 
     lo_builder->build_formula( IMPORTING et_lines         = DATA(lt_code)
+                               " TODO: variable is assigned but never used (ABAP cleaner)
                                          ev_starting_line = DATA(lv_starting_line) ).
 
-    SELECT SINGLE *
-      FROM trdir
+    SELECT SINGLE * FROM trdir
       WHERE name = @sy-repid
-    INTO @DATA(ls_dir).
+      INTO @DATA(ls_dir).
 
-    DATA: lv_message TYPE string.
+    DATA lv_message TYPE string.
 
     SYNTAX-CHECK FOR lt_code MESSAGE lv_message
-                                LINE lv_line
-                                WORD lv_word
-                                DIRECTORY ENTRY ls_dir.
+                 LINE lv_line
+                 WORD lv_word
+                 DIRECTORY ENTRY ls_dir.
 
     IF lv_message IS NOT INITIAL AND sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_dbbr_formula_exception
         EXPORTING
-*         invalid_row    = lv_line - lv_starting_line
-          syntax_message = lv_message.
+*                  invalid_row    = lv_line - lv_starting_line
+                  syntax_message = lv_message.
     ENDIF.
 
     "<< subroutine pool was generated without error >>
   ENDMETHOD.
-
 
   METHOD constructor.
     mv_formula_string = iv_formula.
     mo_tabfields = io_tabfields.
   ENDMETHOD.
 
-
   METHOD get_statements_from_code.
-    DATA: lt_tokes   TYPE stokes_tab,
-          lv_message TYPE string,
-          lv_word    TYPE char80,
-          lv_line    TYPE i,
-          lt_stmnt   TYPE sstmnt_tab.
+    DATA lt_tokes TYPE stokes_tab.
+    DATA lv_message TYPE string.
+    DATA lv_word TYPE char80.
+    DATA lv_line TYPE i.
+    DATA lt_stmnt TYPE sstmnt_tab.
 
     SCAN ABAP-SOURCE mt_formula_lines TOKENS INTO     lt_tokes
-                                      STATEMENTS INTO lt_stmnt
-                                      MESSAGE INTO    lv_message
-                                      WORD INTO       lv_word
-                                      LINE INTO       lv_line.
-*                                      with COMMENTS.
+         STATEMENTS INTO lt_stmnt
+         MESSAGE INTO    lv_message
+         WORD INTO       lv_word
+         LINE INTO       lv_line.
+    " with COMMENTS.
 
     IF lv_message IS NOT INITIAL.
       RAISE EXCEPTION TYPE zcx_dbbr_fe_stmnt_valid_exc
-        EXPORTING
-          textid      = zcx_dbbr_fe_stmnt_valid_exc=>error_at_scan_source
-          msgv1       = |{ lv_message }|
-          msgv2       = |{ lv_word }|
-          msgv3       = |{ lv_line }|
-          invalid_row = lv_line.
+        EXPORTING textid      = zcx_dbbr_fe_stmnt_valid_exc=>error_at_scan_source
+                  msgv1       = |{ lv_message }|
+                  msgv2       = |{ lv_word }|
+                  msgv3       = |{ lv_line }|
+                  invalid_row = lv_line.
     ENDIF.
 
     LOOP AT lt_stmnt ASSIGNING FIELD-SYMBOL(<ls_stmnt>) WHERE type <> 'P'. " exclude comments from further processing
@@ -122,15 +117,14 @@ CLASS zcl_dbbr_fe_validator IMPLEMENTATION.
         DATA(ls_token) = CORRESPONDING zif_dbbr_fe_types=>ty_token( <ls_tokes> ).
         ls_token-id = lv_token_id.
 
-        <ls_new_statement>-tokens = VALUE #( BASE <ls_new_statement>-tokens ( ls_token ) ).
-        ADD 1 TO lv_token_id.
+        <ls_new_statement>-tokens = VALUE #( BASE <ls_new_statement>-tokens
+                                             ( ls_token ) ).
+        lv_token_id = lv_token_id + 1.
       ENDLOOP.
 
       <ls_new_statement>-token_count = lines( <ls_new_statement>-tokens ).
     ENDLOOP.
-
   ENDMETHOD.
-
 
   METHOD process_statements.
     LOOP AT mt_formula_stmnt ASSIGNING FIELD-SYMBOL(<ls_stmnt>).
@@ -153,15 +147,16 @@ CLASS zcl_dbbr_fe_validator IMPLEMENTATION.
               mo_formula->add_field( lo_field_extractor->extract_field( <ls_stmnt> ) ).
             ENDIF.
           ELSE.
-            IF <ls_stmnt>-first_token_str = zif_dbbr_c_fe_keywords=>set_cell_color OR
-               <ls_stmnt>-first_token_str = zif_dbbr_c_fe_keywords=>set_row_color.
-              mo_formula->set_color_column_needed( EXPORTING value = abap_true ).
+            IF    <ls_stmnt>-first_token_str = zif_dbbr_c_fe_keywords=>set_cell_color
+               OR <ls_stmnt>-first_token_str = zif_dbbr_c_fe_keywords=>set_row_color.
+              mo_formula->set_color_column_needed( value = abap_true ).
             ENDIF.
           ENDIF.
 
         WHEN 'C' OR " Compute statements
              'K'.   " ABAP Keyword
-          NEW zcl_dbbr_fe_general_sv( mo_formula )->zif_dbbr_statement_validator~validate( CHANGING cs_statement = <ls_stmnt> ).
+          NEW zcl_dbbr_fe_general_sv( mo_formula )->zif_dbbr_statement_validator~validate(
+                                                   CHANGING cs_statement = <ls_stmnt> ).
       ENDCASE.
 
       " build the stringform of the statement
@@ -174,12 +169,9 @@ CLASS zcl_dbbr_fe_validator IMPLEMENTATION.
     " check if there is at least one formula field
     IF NOT mo_formula->has_executable_code( ).
       RAISE EXCEPTION TYPE zcx_dbbr_formula_exception
-        EXPORTING
-          textid = zcx_dbbr_formula_exception=>no_executable_lines.
+        EXPORTING textid = zcx_dbbr_formula_exception=>no_executable_lines.
     ENDIF.
-
   ENDMETHOD.
-
 
   METHOD tokenize_formula.
     " remove line breaks
@@ -188,16 +180,16 @@ CLASS zcl_dbbr_fe_validator IMPLEMENTATION.
     get_statements_from_code( IMPORTING et_formula_lines = mt_formula_stmnt ).
 
     CLEAR mt_formula_lines.
-
   ENDMETHOD.
 
-
   METHOD validate.
+    " TODO: parameter ET_DEFINED_FIELDS is never cleared or assigned (ABAP cleaner)
+
     TRY.
         CLEAR: mt_formula_lines,
                mt_formula_stmnt.
 
-        mo_formula = NEW #( iv_formula   = mv_formula_string ).
+        mo_formula = NEW #( iv_formula = mv_formula_string ).
 
         tokenize_formula( ).
         process_statements( ).
