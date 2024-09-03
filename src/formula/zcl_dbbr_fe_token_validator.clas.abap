@@ -1,7 +1,6 @@
 CLASS zcl_dbbr_fe_token_validator DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     CLASS-METHODS is_type_keyword
@@ -9,40 +8,40 @@ CLASS zcl_dbbr_fe_token_validator DEFINITION
         is_token      TYPE zif_dbbr_fe_types=>ty_token
       RETURNING
         VALUE(result) TYPE abap_bool.
+
     CLASS-METHODS is_string
       IMPORTING
         is_token      TYPE zif_dbbr_fe_types=>ty_token
       RETURNING
         VALUE(result) TYPE abap_bool.
+
     CLASS-METHODS is_definition_keyword
       IMPORTING
         iv_token      TYPE string
       RETURNING
         VALUE(result) TYPE abap_bool.
+
     CLASS-METHODS is_function_keyword
       IMPORTING
         iv_token      TYPE string
       RETURNING
         VALUE(result) TYPE abap_bool.
+
     CLASS-METHODS get_validator
       IMPORTING
         iv_token            TYPE string
       RETURNING
         VALUE(rr_validator) TYPE REF TO zif_dbbr_token_validator.
+
     CLASS-METHODS is_subroutine_relevant
       IMPORTING
         iv_token           TYPE string
       RETURNING
         VALUE(rf_relevant) TYPE abap_bool.
-  PROTECTED SECTION.
-  PRIVATE SECTION.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_fe_token_validator IMPLEMENTATION.
-
-
   METHOD get_validator.
     CASE iv_token.
 
@@ -59,7 +58,7 @@ CLASS zcl_dbbr_fe_token_validator IMPLEMENTATION.
         rr_validator = NEW zcl_dbbr_fe_set_icon_tv( ).
 
       WHEN zif_dbbr_c_fe_keywords=>define_unit.
-        rr_validator = new zcl_dbbr_fe_unit_def_tv( ).
+        rr_validator = NEW zcl_dbbr_fe_unit_def_tv( ).
 
       WHEN zif_dbbr_c_fe_keywords=>set_row_color.
         rr_validator = NEW zcl_dbbr_fe_set_row_color_tv( ).
@@ -74,7 +73,6 @@ CLASS zcl_dbbr_fe_token_validator IMPLEMENTATION.
         " raise exception
     ENDCASE.
   ENDMETHOD.
-
 
   METHOD is_definition_keyword.
     CASE iv_token.
@@ -91,7 +89,6 @@ CLASS zcl_dbbr_fe_token_validator IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
-
   METHOD is_function_keyword.
     CASE iv_token.
       WHEN zif_dbbr_c_fe_keywords=>set_icon_value OR
@@ -101,11 +98,9 @@ CLASS zcl_dbbr_fe_token_validator IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
-
   METHOD is_string.
     result = xsdbool( is_token-type = 'S' ).
   ENDMETHOD.
-
 
   METHOD is_subroutine_relevant.
     CASE iv_token.
@@ -120,7 +115,6 @@ CLASS zcl_dbbr_fe_token_validator IMPLEMENTATION.
       WHEN OTHERS.
     ENDCASE.
   ENDMETHOD.
-
 
   METHOD is_type_keyword.
     result = xsdbool( to_upper( is_token-str ) = zif_dbbr_c_fe_abap_keywords=>type ).

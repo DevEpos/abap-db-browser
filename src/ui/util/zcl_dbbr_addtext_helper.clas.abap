@@ -1,7 +1,6 @@
 CLASS zcl_dbbr_addtext_helper DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     CLASS-METHODS fill_text_field_value
@@ -11,6 +10,7 @@ CLASS zcl_dbbr_addtext_helper DEFINITION
         is_text_cache_row TYPE any
         ir_row            TYPE REF TO data
         it_fix_values     TYPE ddfixvalues OPTIONAL.
+
     CLASS-METHODS determine_text_field_info
       IMPORTING
         it_text_fields   TYPE zdbbr_additional_text_itab
@@ -24,6 +24,7 @@ CLASS zcl_dbbr_addtext_helper DEFINITION
         ev_text_ddtext   TYPE ddtext
         ef_domain_text   TYPE abap_bool
         ev_domain        TYPE domname.
+
     CLASS-METHODS prepare_text_fields
       IMPORTING
         ir_fields    TYPE REF TO zcl_dbbr_tabfield_list
@@ -32,10 +33,9 @@ CLASS zcl_dbbr_addtext_helper DEFINITION
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
   METHOD fill_text_field_value.
-    FIELD-SYMBOLS: <ls_row> TYPE any.
+    FIELD-SYMBOLS <ls_row> TYPE any.
 
     CHECK iv_text_field IS NOT INITIAL.
 
@@ -43,14 +43,16 @@ CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
 
     ASSIGN COMPONENT iv_alv_text_field OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_text_value>).
     ASSIGN COMPONENT iv_text_field     OF STRUCTURE is_text_cache_row TO FIELD-SYMBOL(<lv_table_text_value>).
-    IF <lv_text_value> IS ASSIGNED AND
-       <lv_table_text_value> IS ASSIGNED.
+    IF     <lv_text_value>       IS ASSIGNED
+       AND <lv_table_text_value> IS ASSIGNED.
 
       " check if there are domain fix values for this text field
       IF it_fix_values IS NOT INITIAL.
         DATA(lv_domain_fix_value) = condense( val = CONV domvalue_l( <lv_table_text_value> ) ).
         DATA(ls_text_value) = VALUE #( it_fix_values[ low = lv_domain_fix_value ] OPTIONAL ).
-        <lv_text_value> = COND string( WHEN ls_text_value IS INITIAL THEN <lv_table_text_value> ELSE ls_text_value-ddtext ).
+        <lv_text_value> = COND string( WHEN ls_text_value IS INITIAL
+                                       THEN <lv_table_text_value>
+                                       ELSE ls_text_value-ddtext ).
       ELSE.
         <lv_text_value> = <lv_table_text_value>.
       ENDIF.
@@ -58,13 +60,17 @@ CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD determine_text_field_info.
-    LOOP AT it_text_fields ASSIGNING FIELD-SYMBOL(<ls_add_text>) WHERE id_table = iv_tabname
-                                                                   AND id_field = iv_fieldname.
+    " TODO: parameter IV_ALV_FIELDNAME is never used (ABAP cleaner)
+
+    LOOP AT it_text_fields ASSIGNING FIELD-SYMBOL(<ls_add_text>) WHERE     id_table = iv_tabname
+                                                                       AND id_field = iv_fieldname.
       " get domain key value from selection table
+      " TODO: variable is assigned but never used (ABAP cleaner)
       ASSIGN COMPONENT <ls_add_text>-id_field_alv_int OF STRUCTURE is_row TO FIELD-SYMBOL(<lv_text_key_value>).
       CHECK sy-subrc = 0.
 
       IF <ls_add_text>-id_field2_alv_int IS NOT INITIAL.
+        " TODO: variable is assigned but never used (ABAP cleaner)
         ASSIGN COMPONENT <ls_add_text>-id_field2_alv_int OF STRUCTURE is_row TO FIELD-SYMBOL(<lv_text_key2_value>).
         CHECK sy-subrc = 0.
       ENDIF.
@@ -77,7 +83,7 @@ CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
         ELSE. " check the condition value
           CASE <ls_add_text>-condition_op.
             WHEN 'EQ'.
-              CHECK <lv_cond_key_value> EQ <ls_add_text>-condition_value.
+              CHECK <lv_cond_key_value> = <ls_add_text>-condition_value.
             WHEN 'CP'.
               CHECK <lv_cond_key_value> CP <ls_add_text>-condition_value.
             WHEN 'CO'.
@@ -91,12 +97,14 @@ CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
       " read corresponding text value
       IF <ls_add_text>-selection_type = zif_dbbr_c_text_selection_type=>domain_value.
         ef_domain_text = abap_true.
-        DATA(lr_dtel_descr) = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_name( |{ <ls_add_text>-id_table }-{ <ls_add_text>-id_field }| ) ).
+        DATA(lr_dtel_descr) = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_name(
+                                                          |{ <ls_add_text>-id_table }-{ <ls_add_text>-id_field }| ) ).
         ev_domain = lr_dtel_descr->get_ddic_field( )-domname.
         ev_text_ddtext = lr_dtel_descr->get_ddic_field( )-fieldtext.
         RETURN.
       ELSE.
-        lr_dtel_descr = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_name( |{ <ls_add_text>-text_table }-{ <ls_add_text>-text_field }| ) ).
+        lr_dtel_descr = CAST cl_abap_elemdescr( cl_abap_typedescr=>describe_by_name(
+                                                    |{ <ls_add_text>-text_table }-{ <ls_add_text>-text_field }| ) ).
         ev_text_field = <ls_add_text>-text_field.
 
         ev_text_table = <ls_add_text>-text_table.
@@ -104,7 +112,6 @@ CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
         RETURN.
       ENDIF.
     ENDLOOP.
-
   ENDMETHOD.
 
   METHOD prepare_text_fields.
@@ -115,12 +122,13 @@ CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
     WHILE ir_fields->has_more_lines( ).
       DATA(lr_current_field) = ir_fields->get_next_entry( ).
 
-      CHECK: lr_current_field->is_text_field = abap_true.
+      CHECK lr_current_field->is_text_field = abap_true.
 
       IF NOT line_exists( ct_add_texts[ id_table = lr_current_field->tabname
                                         id_field = lr_current_field->fieldname ] ).
-        DATA(lt_addtexts) = zcl_dbbr_addtext_bl=>get_instance( )->get_text_fields( iv_tablename = lr_current_field->tabname
-                                                                                    iv_fieldname = lr_current_field->fieldname ).
+        DATA(lt_addtexts) = zcl_dbbr_addtext_bl=>get_instance( )->get_text_fields(
+                                iv_tablename = lr_current_field->tabname
+                                iv_fieldname = lr_current_field->fieldname ).
         LOOP AT lt_addtexts ASSIGNING FIELD-SYMBOL(<ls_addtext>).
           DATA(ls_new_text_field) = CORRESPONDING zdbbr_additional_text( <ls_addtext> ).
 
@@ -139,10 +147,8 @@ CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
             TRY.
                 " it is possible because of grouping by that the condition field was
                 " not selected for the aggregation
-                DATA(lr_cond_field) = ir_fields->get_field_ref(
-                    iv_tabname_alias = ls_new_text_field-id_table
-                    iv_fieldname     = ls_new_text_field-condition_field
-                ).
+                DATA(lr_cond_field) = ir_fields->get_field_ref( iv_tabname_alias = ls_new_text_field-id_table
+                                                                iv_fieldname     = ls_new_text_field-condition_field ).
               CATCH cx_sy_itab_line_not_found.
                 " text field cannot be used
                 CONTINUE.
@@ -156,8 +162,8 @@ CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
       ENDIF.
 
       " fill alv text field names of text fields
-      LOOP AT ct_add_texts ASSIGNING FIELD-SYMBOL(<ls_addtext_info>) WHERE id_table = lr_current_field->tabname
-                                                                       AND id_field = lr_current_field->fieldname.
+      LOOP AT ct_add_texts ASSIGNING FIELD-SYMBOL(<ls_addtext_info>) WHERE     id_table = lr_current_field->tabname
+                                                                           AND id_field = lr_current_field->fieldname.
 
         <ls_addtext_info>-text_field_alv_int = lr_current_field->alv_fieldname.
       ENDLOOP.

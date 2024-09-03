@@ -1,40 +1,45 @@
 CLASS zcl_dbbr_multi_select_table DEFINITION
   PUBLIC
   INHERITING FROM zcl_dbbr_base_select_tc
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
+    METHODS change_attributes.
 
-    METHODS change_attributes .
     METHODS get_current_line
       RETURNING
-        VALUE(rv_index) LIKE sy-tabix .
-    METHODS update_fields .
-    METHODS determine_line_count .
-    METHODS display_lines .
-    METHODS delete_line .
-    METHODS delete_lines .
-    METHODS append_new_lines .
-    METHODS handle_option_selection .
-    METHODS constructor .
+        VALUE(rv_index) LIKE sy-tabix.
+
+    METHODS update_fields.
+    METHODS determine_line_count.
+    METHODS display_lines.
+    METHODS delete_line.
+    METHODS delete_lines.
+    METHODS append_new_lines.
+    METHODS handle_option_selection.
+    METHODS constructor.
+
     METHODS init_table
       IMPORTING
-        !is_template TYPE zdbbr_selfield
-        !it_multi    TYPE zdbbr_selfield_itab OPTIONAL .
+        is_template TYPE zdbbr_selfield
+        it_multi    TYPE zdbbr_selfield_itab OPTIONAL.
+
     METHODS set_template_line
       IMPORTING
-        !is_selfield TYPE zdbbr_selfield .
+        is_selfield TYPE zdbbr_selfield.
+
     METHODS get_template_line
       RETURNING
-        VALUE(rs_template) TYPE zdbbr_selfield .
+        VALUE(rs_template) TYPE zdbbr_selfield.
+
     METHODS update_option_template
       IMPORTING
-        !is_option_template TYPE zdbbr_sel_option .
+        is_option_template TYPE zdbbr_sel_option.
+
   PROTECTED SECTION.
 
   PRIVATE SECTION.
-
-    DATA ms_template TYPE zdbbr_selfield .
+    DATA ms_template TYPE zdbbr_selfield.
     DATA mr_selfield_lines TYPE REF TO zdbbr_selfield_itab.
     DATA mr_ui_multi_select_ctrl TYPE REF TO cxtab_control.
     DATA mr_ui_option_button TYPE REF TO zdbbr_button.
@@ -47,12 +52,8 @@ CLASS zcl_dbbr_multi_select_table DEFINITION
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
-
-
   METHOD append_new_lines.
-
 *&---------------------------------------------------------------------*
 *& Description: Append a number of new lines
 *&---------------------------------------------------------------------*
@@ -64,18 +65,15 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
     CLEAR: ls_new_line-low,
            ls_new_line-high.
 
-    ls_new_line-sign = ms_option_template-sign.
+    ls_new_line-sign   = ms_option_template-sign.
     ls_new_line-option = ms_option_template-option.
 
     DO 5 TIMES.
       APPEND ls_new_line TO mr_selfield_lines->*.
     ENDDO.
-
   ENDMETHOD.
 
-
   METHOD change_attributes.
-
 *&---------------------------------------------------------------------*
 *& Description: Change screen attributes
 *&---------------------------------------------------------------------*
@@ -93,20 +91,14 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
       lv_push_icon_name = 'ICON_ENTER_MORE'.
     ENDIF.
 
-    zcl_dbbr_icon_handler=>create_icon(
-      EXPORTING
-        iv_icon_name = lv_push_icon_name
-      IMPORTING
-        ev_push      = mr_ui_push_button->*
-    ).
+    zcl_dbbr_icon_handler=>create_icon( EXPORTING iv_icon_name = lv_push_icon_name
+                                        IMPORTING ev_push      = mr_ui_push_button->* ).
 
-    mr_ui_option_button->* = zcl_dbbr_selopt_util=>create_option_icon(
-      iv_option = mr_selfield_line->option
-      iv_sign   = mr_selfield_line->sign
-    ).
+    mr_ui_option_button->* = zcl_dbbr_selopt_util=>create_option_icon( iv_option = mr_selfield_line->option
+                                                                       iv_sign   = mr_selfield_line->sign ).
 
     " depending on the select option, not all fields are inputable
-    TRY .
+    TRY.
         DATA(ls_sel_init) = zcl_dbbr_selopt_util=>get_selopt_control( mr_selfield_line->option ).
         IF ls_sel_init-high <> abap_true.
           LOOP AT SCREEN.
@@ -138,16 +130,13 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
 
     " set field to outputlength of current table column field
     LOOP AT SCREEN.
-      IF screen-name = 'GS_MULTI_SELECT-LOW' OR
-         screen-name = 'GS_MULTI_SELECT-HIGH'.
+      IF    screen-name = 'GS_MULTI_SELECT-LOW'
+         OR screen-name = 'GS_MULTI_SELECT-HIGH'.
         screen-length = ms_template-outputlen.
       ENDIF.
       MODIFY SCREEN.
     ENDLOOP.
-
-
   ENDMETHOD.
-
 
   METHOD constructor.
     super->constructor( ).
@@ -155,97 +144,78 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
     mr_selfield_line = CAST zdbbr_selfield( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_s_multi_select ) ).
-    mr_selfield_lines = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_multi_select ) ).
+    mr_selfield_lines = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref(
+                                                      zif_dbbr_main_report_var_ids=>c_t_multi_select ) ).
     mr_ui_multi_select_ctrl = CAST cxtab_control( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_multi_tc ) ).
     mr_ui_push_button = CAST zdbbr_button( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_push ) ).
     mr_ui_option_button = CAST zdbbr_button( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_option ) ).
     mr_ui_linecount = CAST syst_tabix( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_linecount ) ).
-    mr_ui_multi_select_lines = CAST syst_tabix( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_multi_select_lines ) ).
+    mr_ui_multi_select_lines = CAST syst_tabix( lr_data_cache->get_data_ref(
+                                                    zif_dbbr_main_report_var_ids=>c_v_multi_select_lines ) ).
     mr_ui_opt_template = CAST #( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_v_option_template ) ).
   ENDMETHOD.
 
-
   METHOD delete_line.
-
-    DATA: lv_current_line LIKE sy-tabix.
+    DATA lv_current_line LIKE sy-tabix.
 
     GET CURSOR LINE lv_current_line.
     lv_current_line = lv_current_line + mr_ui_multi_select_ctrl->current_line - 1.
     DELETE mr_selfield_lines->* INDEX lv_current_line.
-
   ENDMETHOD.
-
 
   METHOD delete_lines.
-
     CLEAR mr_selfield_lines->*.
-
   ENDMETHOD.
 
-
   METHOD determine_line_count.
-
     mr_ui_linecount->* = lines( mr_selfield_lines->* ).
     mr_ui_multi_select_ctrl->lines = mr_ui_linecount->*.
 
     mr_ui_multi_select_lines->* = 0.
 
+    " TODO: variable is assigned but never used (ABAP cleaner)
     LOOP AT mr_selfield_lines->* ASSIGNING FIELD-SYMBOL(<ls_multi_select>)
-       WHERE low IS NOT INITIAL
-          OR high IS NOT INITIAL
-          OR option IS NOT INITIAL.
-      ADD 1 TO mr_ui_multi_select_lines->*.
+         WHERE    low    IS NOT INITIAL
+               OR high   IS NOT INITIAL
+               OR option IS NOT INITIAL.
+      mr_ui_multi_select_lines->* = mr_ui_multi_select_lines->* + 1.
     ENDLOOP.
-
   ENDMETHOD.
-
 
   METHOD display_lines.
-
     IF mr_selfield_line->is_parameter = abap_true.
       zcl_sat_data_converter=>convert_values_to_disp_format(
-        EXPORTING
-          iv_rollname = mr_selfield_line->rollname
-          iv_type     = mr_selfield_line->inttype
-          iv_length   = CONV #( mr_selfield_line->intlen )
-          iv_decimals = CONV #( mr_selfield_line->decimals )
-        CHANGING  cv_value1    = mr_selfield_line->low
-                  cv_value2    = mr_selfield_line->high
-      ).
+        EXPORTING iv_rollname = mr_selfield_line->rollname
+                  iv_type     = mr_selfield_line->inttype
+                  iv_length   = CONV #( mr_selfield_line->intlen )
+                  iv_decimals = CONV #( mr_selfield_line->decimals )
+        CHANGING  cv_value1   = mr_selfield_line->low
+                  cv_value2   = mr_selfield_line->high ).
     ELSE.
-      zcl_sat_data_converter=>convert_selopt_to_disp_format(
-        EXPORTING iv_tabname   = mr_selfield_line->tabname
-                  iv_fieldname = mr_selfield_line->fieldname
-        CHANGING  cv_value1    = mr_selfield_line->low
-                  cv_value2    = mr_selfield_line->high
-      ).
+      zcl_sat_data_converter=>convert_selopt_to_disp_format( EXPORTING iv_tabname   = mr_selfield_line->tabname
+                                                                       iv_fieldname = mr_selfield_line->fieldname
+                                                             CHANGING  cv_value1    = mr_selfield_line->low
+                                                                       cv_value2    = mr_selfield_line->high ).
     ENDIF.
-
   ENDMETHOD.
-
 
   METHOD get_current_line.
-
     GET CURSOR LINE rv_index.
     rv_index = rv_index + mr_ui_multi_select_ctrl->top_line - 1.
-
   ENDMETHOD.
-
 
   METHOD get_template_line.
     rs_template = ms_template.
   ENDMETHOD.
 
-
   METHOD handle_option_selection.
-
 *&---------------------------------------------------------------------*
 *& Description: Shows f4 help for all possible options
 *&---------------------------------------------------------------------*
 
     DATA(lv_current_line) = get_current_line( ).
 
-    TRY .
+    TRY.
         DATA(ls_current_line) = mr_selfield_lines->*[ lv_current_line ].
       CATCH cx_sy_itab_line_not_found.
         RETURN.
@@ -253,8 +223,7 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
 
     " get user selection
     DATA(ls_chosen_option) = zcl_dbbr_selopt_util=>choose_sel_option(
-      if_allow_null = xsdbool( ls_current_line-is_parameter = abap_false )
-    ).
+                                 if_allow_null = xsdbool( ls_current_line-is_parameter = abap_false ) ).
     IF ls_chosen_option IS INITIAL.
       RETURN.
     ENDIF.
@@ -269,31 +238,27 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
     ENDIF.
 
     MODIFY mr_selfield_lines->* FROM ls_current_line INDEX lv_current_line.
-
-
   ENDMETHOD.
-
 
   METHOD init_table.
     CLEAR: mr_selfield_lines->*,
            mr_selfield_line->*.
 
-    " initalize the table data
+    " initialize the table data
     ASSIGN mr_selfield_lines->* TO FIELD-SYMBOL(<lt_multi>).
     " set template
     set_template_line( is_template ).
 
     IF is_template-low <> space OR is_template-high <> space.
-      <lt_multi> = VALUE #( BASE <lt_multi> ( is_template ) ).
+      <lt_multi> = VALUE #( BASE <lt_multi>
+                            ( is_template ) ).
     ENDIF.
 
-    <lt_multi> = VALUE #(
-      BASE <lt_multi>
-      FOR multi IN it_multi
-      WHERE ( tabname   = is_template-tabname AND
-              fieldname = is_template-fieldname )
-      ( multi )
-    ).
+    <lt_multi> = VALUE #( BASE <lt_multi>
+                          FOR multi IN it_multi
+                          WHERE (     tabname   = is_template-tabname
+                                  AND fieldname = is_template-fieldname )
+                          ( multi ) ).
 
     " set global variables for screen
     IF <lt_multi> IS INITIAL.
@@ -301,13 +266,9 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-
   METHOD set_template_line.
-
     ms_template = is_selfield.
-
   ENDMETHOD.
-
 
   METHOD update_fields.
 *& Description: Updates the internal table from the table control
@@ -326,27 +287,22 @@ CLASS zcl_dbbr_multi_select_table IMPLEMENTATION.
                              CHANGING  cv_value             = mr_selfield_line->high ).
 
     TRY.
-        conv_selfields_to_internal(
-            if_no_uppercase_conversion = lf_no_uppercase_conversion ).
+        conv_selfields_to_internal( if_no_uppercase_conversion = lf_no_uppercase_conversion ).
 
       CATCH zcx_sat_conversion_exc INTO DATA(lx_conv_error).
         lx_conv_error->zif_sat_exception_message~print( iv_msg_type = 'E' ).
         RETURN.
     ENDTRY.
 
-    check_interval_validity(
-      iv_save_low  = lv_save_low
-      iv_save_high = lv_save_high ).
+    check_interval_validity( iv_save_low  = lv_save_low
+                             iv_save_high = lv_save_high ).
 
     fill_selopt_sign( ).
 
     MODIFY mr_selfield_lines->* FROM mr_selfield_line->* INDEX mr_ui_multi_select_ctrl->current_line.
-
   ENDMETHOD.
-
 
   METHOD update_option_template.
     ms_option_template = is_option_template.
   ENDMETHOD.
-
 ENDCLASS.

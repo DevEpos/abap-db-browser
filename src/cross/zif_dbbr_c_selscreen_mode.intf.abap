@@ -1,8 +1,8 @@
-interface ZIF_DBBR_C_SELSCREEN_MODE
-  public .
+INTERFACE zif_dbbr_c_selscreen_mode
+  PUBLIC.
 
 
-  constants TABLE type ZDBBR_SELSCREEN_MODE value 'T' ##NO_TEXT.
-  constants CDS_VIEW type ZDBBR_SELSCREEN_MODE value 'C' ##NO_TEXT.
-  constants QUERY type ZDBBR_SELSCREEN_MODE value 'Q' ##NO_TEXT.
-endinterface.
+  CONSTANTS table TYPE zdbbr_selscreen_mode VALUE 'T' ##NO_TEXT.
+  CONSTANTS cds_view TYPE zdbbr_selscreen_mode VALUE 'C' ##NO_TEXT.
+  CONSTANTS query TYPE zdbbr_selscreen_mode VALUE 'Q' ##NO_TEXT.
+ENDINTERFACE.

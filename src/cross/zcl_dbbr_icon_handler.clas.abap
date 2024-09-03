@@ -1,52 +1,50 @@
-"! <p class="shorttext synchronized" lang="en">Util class for icons</p>
+"! <p class="shorttext synchronized">Util class for icons</p>
 CLASS zcl_dbbr_icon_handler DEFINITION
   PUBLIC
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-
-    "! <p class="shorttext synchronized" lang="en">Creates icon</p>
+    "! <p class="shorttext synchronized">Creates icon</p>
     "!
-    "! @parameter iv_icon_name | <p class="shorttext synchronized" lang="en">Name of an icon</p>
-    "! @parameter iv_text | <p class="shorttext synchronized" lang="en">Tooltip for the icon</p>
-    "! @parameter iv_info | <p class="shorttext synchronized" lang="en">Info Text of the Icon</p>
-    "! @parameter ev_info_text | <p class="shorttext synchronized" lang="en">Created info text of the icon</p>
-    "! @parameter ev_push | <p class="shorttext synchronized" lang="en">The created icon</p>
+    "! @parameter iv_icon_name | <p class="shorttext synchronized">Name of an icon</p>
+    "! @parameter iv_text      | <p class="shorttext synchronized">Tooltip for the icon</p>
+    "! @parameter iv_info      | <p class="shorttext synchronized">Info Text of the Icon</p>
+    "! @parameter ev_info_text | <p class="shorttext synchronized">Created info text of the icon</p>
+    "! @parameter ev_push      | <p class="shorttext synchronized">The created icon</p>
     CLASS-METHODS create_icon
       IMPORTING
-        !iv_icon_name TYPE iconname
-        !iv_text      TYPE any DEFAULT space
-        !iv_info      TYPE any DEFAULT space
+        iv_icon_name TYPE iconname
+        iv_text      TYPE any DEFAULT space
+        iv_info      TYPE any DEFAULT space
       EXPORTING
-        !ev_info_text TYPE iconquick
-        !ev_push      TYPE any .
+        ev_info_text TYPE iconquick
+        ev_push      TYPE any.
 
-    "! <p class="shorttext synchronized" lang="en">Shows Icon Value Help</p>
+    "! <p class="shorttext synchronized">Shows Icon Value Help</p>
     "!
-    "! @parameter result | <p class="shorttext synchronized" lang="en">The chosen icon</p>
+    "! @parameter result | <p class="shorttext synchronized">The chosen icon</p>
     CLASS-METHODS show_icon_value_help
       RETURNING
-        VALUE(result) TYPE icon-name .
-    "! <p class="shorttext synchronized" lang="en">Create icon string with quicktip</p>
+        VALUE(result) TYPE icon-name.
+
+    "! <p class="shorttext synchronized">Create icon string with quicktip</p>
     "!
-    "! @parameter iv_icon | <p class="shorttext synchronized" lang="en">The icon</p>
-    "! @oarameter iv_quicktip | <p class="shorttext synchronized" lang="en">The tooltip for the icon</p>
+    "! @parameter iv_icon | <p class="shorttext synchronized">The icon</p>
+    "! @oarameter iv_quicktip | <p class="shorttext synchronized">The tooltip for the icon</p>
     CLASS-METHODS create_icon_with_tip
       IMPORTING
-        !iv_icon                     TYPE icon_d
-        !iv_quicktip                 TYPE string
+        iv_icon                      TYPE icon_d
+        iv_quicktip                  TYPE string
       RETURNING
-        VALUE(rv_icon_with_quicktip) TYPE string .
+        VALUE(rv_icon_with_quicktip) TYPE string.
 
   PROTECTED SECTION.
+
   PRIVATE SECTION.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_icon_handler IMPLEMENTATION.
-
-
   METHOD create_icon.
 *&---------------------------------------------------------------------*
 *& Description: Creates Icon
@@ -67,58 +65,45 @@ CLASS zcl_dbbr_icon_handler IMPLEMENTATION.
     ENDIF.
 
     CALL FUNCTION 'ICON_CREATE'
-      EXPORTING
-        name                  = iv_icon_name
-        text                  = iv_text
-        info                  = iv_info
-      IMPORTING
-        result                = ev_push
-      EXCEPTIONS
-        icon_not_found        = 1
-        outputfield_too_short = 2
-        OTHERS                = 3.
+      EXPORTING  name                  = iv_icon_name
+                 text                  = iv_text
+                 info                  = iv_info
+      IMPORTING  result                = ev_push
+      EXCEPTIONS icon_not_found        = 1
+                 outputfield_too_short = 2
+                 OTHERS                = 3.
 
     IF sy-subrc <> 0.
       IF sy-subrc = 1.
         RAISE EXCEPTION TYPE zcx_dbbr_exception
-          EXPORTING
-            textid = zcx_dbbr_exception=>icon_not_existing
-            msgv1  = |{ iv_icon_name }|.
+          EXPORTING textid = zcx_dbbr_exception=>icon_not_existing
+                    msgv1  = |{ iv_icon_name }|.
       ENDIF.
     ENDIF.
 
     CALL FUNCTION 'ICON_CHECK'
-      EXPORTING
-        icon_name      = iv_icon_name
-        language       = sy-langu
-        button         = ' '
-        status         = ' '
-        message        = ' '
-        function       = ' '
-        textfield      = 'X'
-        locked         = ' '
-      IMPORTING
-        icon_text      = ev_info_text
-      EXCEPTIONS
-        icon_not_found = 1
-        OTHERS         = 2.
-
+      EXPORTING  icon_name      = iv_icon_name
+                 language       = sy-langu
+                 button         = ' '
+                 status         = ' '
+                 message        = ' '
+                 function       = ' '
+                 textfield      = 'X'
+                 locked         = ' '
+      IMPORTING  icon_text      = ev_info_text
+      EXCEPTIONS icon_not_found = 1
+                 OTHERS         = 2.
   ENDMETHOD.
-
 
   METHOD create_icon_with_tip.
     rv_icon_with_quicktip = |@{ iv_icon+1(2) }\\Q{ iv_quicktip }@|.
   ENDMETHOD.
 
-
   METHOD show_icon_value_help.
     CALL FUNCTION 'ICON_SHOW'
-      IMPORTING
-        icon_name        = result
-      EXCEPTIONS
-        no_icon_selected = 1
-        no_object_found  = 2
-        OTHERS           = 3.
+      IMPORTING  icon_name        = result
+      EXCEPTIONS no_icon_selected = 1
+                 no_object_found  = 2
+                 OTHERS           = 3.
   ENDMETHOD.
-
 ENDCLASS.

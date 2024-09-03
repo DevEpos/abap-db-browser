@@ -1,4 +1,4 @@
-FUNCTION CONVERSION_EXIT_NUM_INPUT.
+FUNCTION conversion_exit_num_input.
 *"----------------------------------------------------------------------
 *"*"Lokale Schnittstelle:
 *"  IMPORTING
@@ -6,24 +6,29 @@ FUNCTION CONVERSION_EXIT_NUM_INPUT.
 *"  EXPORTING
 *"     VALUE(OUTPUT) TYPE  NUMERIC
 *"----------------------------------------------------------------------
-  DATA: text1(1) TYPE c.
 
   " handle zero values
   IF input = space.
     RETURN.
   ENDIF.
 
+  input = replace( val  = input
+                   sub  = '.'
+                   with = '' ).
+  input = replace( val  = input
+                   sub  = ','
+                   with = '.' ).
 
-  input = replace( val = input sub = '.' with = '' ).
-  input = replace( val = input sub = ',' with = '.' ).
-
-
-  if contains( val = input sub = '-' ).
-    data(lf_is_negative) = abap_true.
-    input = replace( val = input sub = '-' with = '' ).
+  IF contains( val = input
+               sub = '-' ).
+    " TODO: variable is assigned but never used (ABAP cleaner)
+    DATA(lf_is_negative) = abap_true.
+    input = replace( val  = input
+                     sub  = '-'
+                     with = '' ).
     input = condense( val = input ).
-    input = input && '-'.
-  endif.
+    input = |{ input }-|.
+  ENDIF.
 
   output = input.
 ENDFUNCTION.

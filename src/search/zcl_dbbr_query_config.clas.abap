@@ -1,8 +1,7 @@
 "! <p class="shorttext synchronized">Configuration for Db Browser Query</p>
 CLASS zcl_dbbr_query_config DEFINITION
   PUBLIC
-  INHERITING FROM zcl_sat_base_query_config
-  FINAL
+  INHERITING FROM zcl_sat_base_query_config FINAL
   CREATE PUBLIC.
 
   PUBLIC SECTION.

@@ -1,6 +1,5 @@
 CLASS zcl_dbbr_fe_stmnt_str_builder DEFINITION
-  PUBLIC
-  FINAL
+  PUBLIC FINAL
   CREATE PRIVATE.
 
   PUBLIC SECTION.
@@ -9,15 +8,10 @@ CLASS zcl_dbbr_fe_stmnt_str_builder DEFINITION
         is_statement      TYPE zif_dbbr_fe_types=>ty_statement
       RETURNING
         VALUE(rr_builder) TYPE REF TO zif_dbbr_stmnt_string_builder.
-  PROTECTED SECTION.
-  PRIVATE SECTION.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_fe_stmnt_str_builder IMPLEMENTATION.
-
-
   METHOD get_string_builder.
     IF is_statement-is_form_stmnt = abap_true.
 
@@ -35,7 +29,7 @@ CLASS zcl_dbbr_fe_stmnt_str_builder IMPLEMENTATION.
         WHEN zif_dbbr_c_fe_keywords=>define_unit.
           rr_builder = NEW zcl_dbbr_fe_unit_stb( ).
 
-          " will be included in existing formula field definition
+        " will be included in existing formula field definition
         WHEN OTHERS.
           rr_builder = NEW zcl_dbbr_fe_dummy_stb( ).
       ENDCASE.

@@ -1,4 +1,4 @@
-FUNCTION CONVERSION_EXIT_TZSTL_OUTPUT.
+FUNCTION conversion_exit_tzstl_output.
 *"----------------------------------------------------------------------
 *"*"Local Interface:
 *"  IMPORTING
@@ -6,27 +6,27 @@ FUNCTION CONVERSION_EXIT_TZSTL_OUTPUT.
 *"  EXPORTING
 *"     VALUE(OUTPUT)
 *"----------------------------------------------------------------------
-  DATA: lv_timestmp          TYPE tzntstmpl,
-        lv_date              TYPE d,
-        lv_time              TYPE t,
-        lv_input             TYPE string,
-        lv_init_timestmp(14) TYPE n,
-        lv_time_zone         TYPE sy-zonlo,
-        lv_output            TYPE rschavl60.
+  DATA lv_timestmp TYPE tzntstmpl.
+  DATA lv_date TYPE d.
+  DATA lv_time TYPE t.
+  DATA lv_input TYPE string.
+  DATA lv_init_timestmp TYPE n LENGTH 14.
+  DATA lv_time_zone TYPE sy-zonlo.
+  DATA lv_output TYPE rschavl60.
 
   output = input.
 
   lv_input = input.
-  CONDENSE lv_input.
-  IF NOT lv_input IS INITIAL
-  AND lv_input CO '0123456789.'.
+  lv_input = condense( lv_input ).
+  IF     lv_input IS NOT INITIAL
+     AND lv_input CO '0123456789.'.
     lv_timestmp = lv_input.
     CONVERT TIME STAMP lv_timestmp TIME ZONE lv_time_zone
             INTO DATE lv_date TIME lv_time.
 
-    IF sy-subrc = 0 OR
-       sy-subrc = 4 or
-       lv_input = lv_init_timestmp.
+    IF    sy-subrc = 0
+       OR sy-subrc = 4
+       OR lv_input = lv_init_timestmp.
       WRITE lv_date TO lv_output.
       WRITE lv_time TO lv_output+12.
       output = lv_output.
@@ -36,6 +36,4 @@ FUNCTION CONVERSION_EXIT_TZSTL_OUTPUT.
     ENDIF.
 
   ENDIF.
-
-
 ENDFUNCTION.

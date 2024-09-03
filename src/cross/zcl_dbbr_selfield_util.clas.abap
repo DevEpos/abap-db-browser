@@ -1,14 +1,14 @@
-class ZCL_DBBR_SELFIELD_UTIL definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_selfield_util DEFINITION
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
-public section.
+  PUBLIC SECTION.
+
   PROTECTED SECTION.
+
   PRIVATE SECTION.
 ENDCLASS.
 
 
-
-CLASS ZCL_DBBR_SELFIELD_UTIL IMPLEMENTATION.
+CLASS zcl_dbbr_selfield_util IMPLEMENTATION.
 ENDCLASS.

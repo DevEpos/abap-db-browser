@@ -46,6 +46,6 @@ MODULE pbo_0105 OUTPUT.
   gr_choose_entity_controller->zif_uitb_screen_controller~pbo( ).
 ENDMODULE.
 
-MODULE pbo_0300 output.
+MODULE pbo_0300 OUTPUT.
   gr_obj_brws_search_enter_ctrl->pbo( ).
 ENDMODULE.

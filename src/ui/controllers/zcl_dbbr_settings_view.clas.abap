@@ -1,99 +1,87 @@
-class ZCL_DBBR_SETTINGS_VIEW definition
-  public
-  create public .
+CLASS zcl_dbbr_settings_view DEFINITION
+  PUBLIC
+  CREATE PUBLIC.
 
-public section.
+  PUBLIC SECTION.
+    INTERFACES zif_uitb_view.
 
-  interfaces ZIF_UITB_VIEW .
+    ALIASES show FOR zif_uitb_view~show.
 
-  aliases SHOW
-    for ZIF_UITB_VIEW~SHOW .
+    METHODS constructor
+      IMPORTING
+        iv_title    TYPE c
+        it_settings TYPE zdbbr_setting_t.
 
-  methods CONSTRUCTOR
-    importing
-      !IV_TITLE type C
-      !IT_SETTINGS type ZDBBR_SETTING_T .
-  methods GET_SETTINGS
-    returning
-      value(RESULT) type ZDBBR_SETTING_T .
-  methods HAS_BEEN_UPDATED
-    returning
-      value(RESULT) type ABAP_BOOL .
+    METHODS get_settings
+      RETURNING
+        VALUE(result) TYPE zdbbr_setting_t.
+
+    METHODS has_been_updated
+      RETURNING
+        VALUE(result) TYPE abap_bool.
+
   PROTECTED SECTION.
-private section.
 
-  types:
-    "ZIF_DBBR_C_INPUT_TYPE
-    BEGIN OF ty_data.
-            INCLUDE TYPE zdbbr_setting.
-    TYPES: t_cell        TYPE lvc_t_styl.
-    TYPES: END OF ty_data .
-  types:
-    tt_data TYPE STANDARD TABLE OF ty_data .
+  PRIVATE SECTION.
+    TYPES: " ZIF_DBBR_C_INPUT_TYPE
+           BEGIN OF ty_data.
+             INCLUDE TYPE zdbbr_setting.
+    TYPES:   t_cell TYPE lvc_t_styl.
+    TYPES: END OF ty_data.
+    TYPES tt_data TYPE STANDARD TABLE OF ty_data.
 
-  data MF_TAKE_VALUES type ABAP_BOOL .
-  data MR_ALV type ref to ZCL_UITB_ALV .
-  data MR_VIEW type ref to ZIF_UITB_TEMPLATE_PROG .
-  data MT_DATA type TT_DATA .
+    DATA mf_take_values TYPE abap_bool.
+    DATA mr_alv TYPE REF TO zcl_uitb_alv.
+    DATA mr_view TYPE REF TO zif_uitb_template_prog.
+    DATA mt_data TYPE tt_data.
 
-  methods CREATE_ALV .
-  methods ON_PBO
-    for event BEFORE_OUTPUT of ZIF_UITB_VIEW_CALLBACK
-    importing
-      !ER_CALLBACK .
-  methods ON_PAI
-    for event USER_COMMAND of ZIF_UITB_VIEW_CALLBACK
-    importing
-      !ER_CALLBACK
-      !EV_FUNCTION_ID .
+    METHODS create_alv.
+
+    METHODS on_pbo
+      FOR EVENT before_output OF zif_uitb_view_callback
+      IMPORTING
+        er_callback.
+
+    METHODS on_pai
+      FOR EVENT user_command OF zif_uitb_view_callback
+      IMPORTING
+        er_callback
+        ev_function_id.
 ENDCLASS.
 
 
-
-CLASS ZCL_DBBR_SETTINGS_VIEW IMPLEMENTATION.
-
-
+CLASS zcl_dbbr_settings_view IMPLEMENTATION.
   METHOD constructor.
     mt_data = VALUE #(
-      FOR setting IN it_settings
-      ( setting_id = setting-setting_id
-        setting_name = setting-setting_name
-        setting_value = setting-setting_value
-        t_cell = VALUE #(
-          ( fieldname = 'SETTING_VALUE'
-            style = COND #(
-              WHEN setting-input_type = zif_dbbr_c_input_type=>checkbox AND
-                   setting-setting_value = abap_false THEN zif_uitb_c_alv_cell_style=>checkbox_not_checked
-              WHEN setting-input_type = zif_dbbr_c_input_type=>checkbox AND
-                   setting-setting_value = abap_true THEN zif_uitb_c_alv_cell_style=>checkbox_checked
-            )
-            maxlen = cond #( when setting-max_length is not INITIAL then setting-max_length )
-          )
-          ( fieldname = 'SETTING_NAME'
-            style = zif_uitb_c_alv_cell_style=>font_bold
-          )
-        )
-      )
-    ).
+        FOR setting IN it_settings
+        ( setting_id    = setting-setting_id
+          setting_name  = setting-setting_name
+          setting_value = setting-setting_value
+          t_cell        = VALUE #(
+              ( fieldname = 'SETTING_VALUE'
+                style     = COND #(
+                      WHEN setting-input_type    = zif_dbbr_c_input_type=>checkbox
+                       AND setting-setting_value = abap_false THEN
+                        zif_uitb_c_alv_cell_style=>checkbox_not_checked
+                      WHEN setting-input_type    = zif_dbbr_c_input_type=>checkbox
+                       AND setting-setting_value = abap_true THEN
+                        zif_uitb_c_alv_cell_style=>checkbox_checked )
+                maxlen    = COND #( WHEN setting-max_length IS NOT INITIAL THEN setting-max_length ) )
+              ( fieldname = 'SETTING_NAME'
+                style     = zif_uitb_c_alv_cell_style=>font_bold ) ) ) ).
 
     mr_view = zcl_uitb_templt_prog_callback=>create_template_program( iv_title = iv_title ).
 
-    SET HANDLER:
-      on_pbo FOR mr_view,
-      on_pai FOR mr_view.
-
+    SET HANDLER on_pbo FOR mr_view.
+    SET HANDLER on_pai FOR mr_view.
   ENDMETHOD.
 
-
   METHOD create_alv.
+    DATA lr_col TYPE REF TO zcl_uitb_alv_column.
 
-    DATA: lr_col TYPE REF TO zcl_uitb_alv_column.
-
-    mr_alv = zcl_uitb_alv=>create_alv(
-        ir_data       = REF #( mt_data )
-        ir_container  = mr_view->get_container( )
-        if_editable   = abap_true
-    ).
+    mr_alv = zcl_uitb_alv=>create_alv( ir_data      = REF #( mt_data )
+                                       ir_container = mr_view->get_container( )
+                                       if_editable  = abap_true ).
 
     mr_alv->get_functions( )->set_all( abap_false ).
 
@@ -122,19 +110,15 @@ CLASS ZCL_DBBR_SETTINGS_VIEW IMPLEMENTATION.
 *    mr_alv->get_data_changes( )->set_change_event( cl_gui_alv_grid=>mc_evt_modified ).
 
     mr_alv->display( ).
-
   ENDMETHOD.
-
 
   METHOD get_settings.
     result = CORRESPONDING #( mt_data ).
   ENDMETHOD.
 
-
   METHOD has_been_updated.
     result = mf_take_values.
   ENDMETHOD.
-
 
   METHOD on_pai.
     CASE ev_function_id.
@@ -147,24 +131,18 @@ CLASS ZCL_DBBR_SETTINGS_VIEW IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
-
   METHOD on_pbo.
-
     er_callback->deactivate_function( zif_uitb_template_prog=>c_save ).
 
     IF er_callback->is_first_screen_call( ).
       create_alv( ).
     ENDIF.
-
   ENDMETHOD.
 
-
   METHOD zif_uitb_view~show.
-    mr_view->show(
-      iv_start_column = 10
-      iv_start_line   = 2
-      iv_end_column   = 60
-      iv_end_line     = 12
-    ).
+    mr_view->show( iv_start_column = 10
+                   iv_start_line   = 2
+                   iv_end_column   = 60
+                   iv_end_line     = 12 ).
   ENDMETHOD.
 ENDCLASS.

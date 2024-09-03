@@ -1,0 +1,24 @@
+{
+  "name": "abap-db-browser",
+  "version": "1.0.0",
+  "description": "ABAP DB Browser",
+  "scripts": {
+    "lint": "abaplint -f summary",
+    "lint:file": "abaplint -f summary > lint-issues.txt",
+    "format": "abap-cleanerc.exe --sourcedir src --recursive --overwrite --release 750 --profile abapcleaner.cfj"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevEpos/abap-db-browser.git"
+  },
+  "keywords": [
+    "ABAP",
+    "ADT"
+  ],
+  "author": "Ludwig Stockbauer-Muhr",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DevEpos/abap-db-browser/issues"
+  },
+  "homepage": "https://github.com/DevEpos/abap-db-browser#readme"
+}

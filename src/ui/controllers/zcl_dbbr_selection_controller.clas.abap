@@ -1,12 +1,10 @@
-"! <p class="shorttext synchronized" lang="en">Controller for data selection</p>
+"! <p class="shorttext synchronized">Controller for data selection</p>
 CLASS zcl_dbbr_selection_controller DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PRIVATE .
+  PUBLIC FINAL
+  CREATE PRIVATE.
 
   PUBLIC SECTION.
-
-    INTERFACES zif_uitb_screen_controller .
+    INTERFACES zif_uitb_screen_controller.
 
     CONSTANTS:
       BEGIN OF c_function_texts,
@@ -42,250 +40,284 @@ CLASS zcl_dbbr_selection_controller DEFINITION
         set_fixed_rows           TYPE gui_text VALUE 'Freeze to Row',
         remove_fixed_rows        TYPE gui_text VALUE 'Unfreeze Rows',
         freeze_rows_cols         TYPE gui_text VALUE 'Freeze to here',
-      END OF c_function_texts .
+      END OF c_function_texts.
 
-    "! <p class="shorttext synchronized" lang="en">Global initializer for class</p>
-    CLASS-METHODS class_constructor .
-    "! <p class="shorttext synchronized" lang="en">Creates the controller</p>
+    "! <p class="shorttext synchronized">Global initializer for class</p>
+    CLASS-METHODS class_constructor.
+
+    "! <p class="shorttext synchronized">Creates the controller</p>
     CLASS-METHODS create_controller
       IMPORTING
         is_selection_data    TYPE zcl_dbbr_selection_util=>ty_s_selection_data
       RETURNING
-        VALUE(rr_controller) TYPE REF TO zcl_dbbr_selection_controller .
-    "! <p class="shorttext synchronized" lang="en">Create new controller instance from memory</p>
+        VALUE(rr_controller) TYPE REF TO zcl_dbbr_selection_controller.
+
+    "! <p class="shorttext synchronized">Create new controller instance from memory</p>
     CLASS-METHODS create_controller_from_data
       IMPORTING
-        !is_controller_serialized TYPE zif_dbbr_ty_global=>ty_sel_ctrl_serialized
-        !ir_t_for_all_data        TYPE REF TO data OPTIONAL
-        !if_not_first_screen_call TYPE abap_bool
+        is_controller_serialized TYPE zif_dbbr_ty_global=>ty_sel_ctrl_serialized
+        ir_t_for_all_data        TYPE REF TO data OPTIONAL
+        if_not_first_screen_call TYPE abap_bool
       RETURNING
-        VALUE(rr_controller)      TYPE REF TO zcl_dbbr_selection_controller .
-    "! <p class="shorttext synchronized" lang="en">Executes the selection</p>
+        VALUE(rr_controller)     TYPE REF TO zcl_dbbr_selection_controller.
+
+    "! <p class="shorttext synchronized">Executes the selection</p>
     METHODS execute_selection
       IMPORTING
-        !if_count_lines_only TYPE boolean OPTIONAL
+        if_count_lines_only TYPE boolean OPTIONAL
       RETURNING
-        VALUE(rf_no_data)    TYPE abap_bool.
-    "! <p class="shorttext synchronized" lang="en">Returns the updated table fields</p>
+        VALUE(rf_no_data)   TYPE abap_bool.
+
+    "! <p class="shorttext synchronized">Returns the updated table fields</p>
     METHODS get_updated_tabfields
       RETURNING
-        VALUE(rr_tabfields) TYPE REF TO zcl_dbbr_tabfield_list .
-    "! <p class="shorttext synchronized" lang="en">Indicates if the layout was transferred</p>
+        VALUE(rr_tabfields) TYPE REF TO zcl_dbbr_tabfield_list.
+
+    "! <p class="shorttext synchronized">Indicates if the layout was transferred</p>
     METHODS layout_was_transferred
       RETURNING
-        VALUE(rf_transferred) TYPE sap_bool .
+        VALUE(rf_transferred) TYPE sap_bool.
+
   PROTECTED SECTION.
+    "! <p class="shorttext synchronized">Initializes the ALV Grid</p>
+    METHODS init_grid_control.
 
-    "! <p class="shorttext synchronized" lang="en">Initializes the ALV Grid</p>
-    METHODS init_grid_control .
   PRIVATE SECTION.
-
-    ALIASES mf_first_call
-      FOR zif_uitb_screen_controller~mf_first_call .
-    ALIASES get_report_id
-      FOR zif_uitb_screen_controller~get_report_id .
-    ALIASES get_screen_id
-      FOR zif_uitb_screen_controller~get_screen_id .
+    ALIASES mf_first_call FOR zif_uitb_screen_controller~mf_first_call.
+    ALIASES get_report_id FOR zif_uitb_screen_controller~get_report_id.
+    ALIASES get_screen_id FOR zif_uitb_screen_controller~get_screen_id.
 
     TYPES:
       BEGIN OF t_compare_field,
         fieldname  TYPE fieldname,
         is_numeric TYPE boolean,
-      END OF t_compare_field .
-    TYPES:
-      tt_compare_field TYPE STANDARD TABLE OF t_compare_field .
+      END OF t_compare_field.
+    TYPES tt_compare_field TYPE STANDARD TABLE OF t_compare_field.
     TYPES:
       BEGIN OF ty_group_tab_map,
         sp_group TYPE lvc_spgrp,
         tabname  TYPE tabname,
-      END OF ty_group_tab_map .
+      END OF ty_group_tab_map.
 
-    CLASS-DATA ss_hide_row_filter TYPE lvc_s_filt .
-    DATA mt_column_groups TYPE lvc_t_sgrp .
-    DATA mf_layout_transferred TYPE sap_bool .
-    DATA mf_first_cell_marked TYPE boolean .
+    CLASS-DATA ss_hide_row_filter TYPE lvc_s_filt.
+
+    DATA mt_column_groups TYPE lvc_t_sgrp.
+    DATA mf_layout_transferred TYPE sap_bool.
+    DATA mf_first_cell_marked TYPE boolean.
     DATA mf_no_data TYPE abap_bool.
-    DATA mo_alv_grid TYPE REF TO zcl_dbbr_output_grid .
-    DATA mo_alv_header_doc TYPE REF TO cl_dd_document .
-    DATA mo_header_dock TYPE REF TO cl_gui_docking_container .
-    DATA ms_alv_layout TYPE lvc_s_layo .
-    DATA mf_default_alv_var_active TYPE abap_bool .
-    DATA mo_util TYPE REF TO zcl_dbbr_selection_util .
-    DATA mf_has_parent TYPE abap_bool .
-    DATA mo_splitter_container TYPE REF TO cl_gui_splitter_container .
-    DATA mo_output_container TYPE REF TO cl_gui_container .
-    DATA: mo_textfield_util TYPE REF TO zcl_dbbr_text_field_ui_util.
+    DATA mo_alv_grid TYPE REF TO zcl_dbbr_output_grid.
+    DATA mo_alv_header_doc TYPE REF TO cl_dd_document.
+    DATA mo_header_dock TYPE REF TO cl_gui_docking_container.
+    DATA ms_alv_layout TYPE lvc_s_layo.
+    DATA mf_default_alv_var_active TYPE abap_bool.
+    DATA mo_util TYPE REF TO zcl_dbbr_selection_util.
+    DATA mf_has_parent TYPE abap_bool.
+    DATA mo_splitter_container TYPE REF TO cl_gui_splitter_container.
+    DATA mo_output_container TYPE REF TO cl_gui_container.
+    DATA mo_textfield_util TYPE REF TO zcl_dbbr_text_field_ui_util.
 
-    "! <p class="shorttext synchronized" lang="en">Indicates if the ALV header needs a refresh</p>
+    "! <p class="shorttext synchronized">Indicates if the ALV header needs a refresh</p>
     METHODS alv_headers_needs_refresh
       IMPORTING
-        !iv_function_code       TYPE sy-ucomm
+        iv_function_code        TYPE sy-ucomm
       RETURNING
-        VALUE(rf_needs_refresh) TYPE boolean .
+        VALUE(rf_needs_refresh) TYPE boolean.
+
     METHODS are_selected_cols_filtered
       IMPORTING
-        !it_cols        TYPE lvc_t_col
+        it_cols         TYPE lvc_t_col
       RETURNING
-        VALUE(r_result) TYPE abap_bool .
+        VALUE(r_result) TYPE abap_bool.
+
     METHODS build_accentuation_submenu
       RETURNING
-        VALUE(rr_emph_menu) TYPE REF TO cl_ctmenu .
-    METHODS calculate_sum_of_cells .
+        VALUE(rr_emph_menu) TYPE REF TO cl_ctmenu.
+
+    METHODS calculate_sum_of_cells.
+
     METHODS call_jumpfield_transaction
       IMPORTING
-        !iv_fieldname TYPE lvc_s_col-fieldname
-        is_row_data   TYPE any.
+        iv_fieldname TYPE lvc_s_col-fieldname
+        is_row_data  TYPE any.
+
 *        !iv_row_index TYPE lvc_s_row-index .
-    METHODS compare_selected_lines .
+    METHODS compare_selected_lines.
+
     METHODS constructor
       IMPORTING
         is_selection_data TYPE zcl_dbbr_selection_util=>ty_s_selection_data.
-    METHODS control_tech_view .
-    "! <p class="shorttext synchronized" lang="en">Create the header for the ALV Grid</p>
-    METHODS create_alv_header .
-    "! <p class="shorttext synchronized" lang="en">Returns the current line count</p>
+
+    METHODS control_tech_view.
+    "! <p class="shorttext synchronized">Create the header for the ALV Grid</p>
+    METHODS create_alv_header.
+
+    "! <p class="shorttext synchronized">Returns the current line count</p>
     METHODS current_line_count
       RETURNING
-        VALUE(rv_current_line_count) TYPE sy-tabix .
-    METHODS delete_coloring_of_columns .
-    METHODS delete_coloring_of_rows .
-    "! <p class="shorttext synchronized" lang="en">Deletes all hidden rows until next refresh</p>
-    METHODS delete_hidden_lines .
-    METHODS display_top_header .
-    METHODS emphasize_negative_values .
+        VALUE(rv_current_line_count) TYPE sy-tabix.
+
+    METHODS delete_coloring_of_columns.
+    METHODS delete_coloring_of_rows.
+    "! <p class="shorttext synchronized">Deletes all hidden rows until next refresh</p>
+    METHODS delete_hidden_lines.
+    METHODS display_top_header.
+    METHODS emphasize_negative_values.
+
     METHODS emphasize_selected
       IMPORTING
-        !iv_chosen_color_code TYPE sy-ucomm OPTIONAL
-        !if_clear_color       TYPE boolean OPTIONAL .
+        iv_chosen_color_code TYPE sy-ucomm OPTIONAL
+        if_clear_color       TYPE boolean  OPTIONAL.
+
     METHODS emphasize_selected_cells
       IMPORTING
-        !it_selected_cells    TYPE lvc_t_cell
-        !iv_chosen_color_code TYPE sy-ucomm
-        !if_clear_color       TYPE boolean .
+        it_selected_cells    TYPE lvc_t_cell
+        iv_chosen_color_code TYPE sy-ucomm
+        if_clear_color       TYPE boolean.
+
     METHODS emphasize_selected_columns
       IMPORTING
-        !it_selected_cols     TYPE lvc_t_col
-        !iv_chosen_color_code TYPE sy-ucomm
-        !if_clear_color       TYPE boolean .
+        it_selected_cols     TYPE lvc_t_col
+        iv_chosen_color_code TYPE sy-ucomm
+        if_clear_color       TYPE boolean.
+
     METHODS emphasize_selected_rows
       IMPORTING
-        !it_selected_rows     TYPE lvc_t_row
-        !iv_chosen_color_code TYPE sy-ucomm
-        !if_clear_color       TYPE boolean .
+        it_selected_rows     TYPE lvc_t_row
+        iv_chosen_color_code TYPE sy-ucomm
+        if_clear_color       TYPE boolean.
+
     METHODS emphasize_sort_fields
       IMPORTING
-        !it_sort     TYPE lvc_t_sort
+        it_sort     TYPE lvc_t_sort
       CHANGING
-        !ct_fieldcat TYPE lvc_t_fcat .
+        ct_fieldcat TYPE lvc_t_fcat.
+
     METHODS get_color_code_for_ucomm
       IMPORTING
-        !iv_chosen_color_code TYPE sy-ucomm
+        iv_chosen_color_code TYPE sy-ucomm
       RETURNING
-        VALUE(rs_color)       TYPE lvc_s_colo .
-    METHODS group_by_selected_columns .
-    "! <p class="shorttext synchronized" lang="en">Hides the selected rows from the table</p>
-    METHODS hide_selected_rows .
-    "! <p class="shorttext synchronized" lang="en">Hide not selected columns</p>
-    METHODS keep_selected_columns .
-    "! <p class="shorttext synchronized" lang="en">Discard all non selected rows</p>
-    METHODS keep_selected_rows .
+        VALUE(rs_color)      TYPE lvc_s_colo.
+
+    METHODS group_by_selected_columns.
+    "! <p class="shorttext synchronized">Hides the selected rows from the table</p>
+    METHODS hide_selected_rows.
+    "! <p class="shorttext synchronized">Hide not selected columns</p>
+    METHODS keep_selected_columns.
+    "! <p class="shorttext synchronized">Discard all non selected rows</p>
+    METHODS keep_selected_rows.
+
     METHODS on_after_user_command
       FOR EVENT after_user_command OF cl_gui_alv_grid
       IMPORTING
-        !e_not_processed
-        !e_saved
-        !e_ucomm .
+        e_not_processed
+        e_saved
+        e_ucomm.
+
     METHODS on_before_user_command
       FOR EVENT before_user_command OF cl_gui_alv_grid
       IMPORTING
-        !e_ucomm .
+        e_ucomm.
+
     METHODS on_context_menu_request
       FOR EVENT context_menu_request OF cl_gui_alv_grid
       IMPORTING
-        !e_object .
+        e_object.
+
     METHODS on_double_click
       FOR EVENT double_click OF cl_gui_alv_grid
       IMPORTING
-        !e_row
-        !e_column
-        !es_row_no .
+        e_row
+        e_column
+        es_row_no.
+
     METHODS on_hotspot_click
       FOR EVENT hotspot_click OF cl_gui_alv_grid
       IMPORTING
-        !e_column_id
-        !e_row_id
-        !es_row_no .
+        e_column_id
+        e_row_id
+        es_row_no.
+
     METHODS on_no_data
       FOR EVENT no_data OF zcl_dbbr_selection_util
       IMPORTING
         ef_criteria_exist.
+
     METHODS on_selection_finish
       FOR EVENT selection_finished OF zcl_dbbr_selection_util
       IMPORTING
         ef_first_select
         ef_reset_alv_table.
+
     METHODS on_toolbar_clicked
       FOR EVENT function_selected OF cl_gui_toolbar
       IMPORTING
-        !fcode .
+        fcode.
+
     METHODS on_user_command
       FOR EVENT user_command OF cl_gui_alv_grid
       IMPORTING
-        !e_ucomm .
-    "! <p class="shorttext synchronized" lang="en">Performs a quick filter</p>
+        e_ucomm.
+
+    "! <p class="shorttext synchronized">Performs a quick filter</p>
     METHODS perform_quick_filter
       IMPORTING
-        !if_exclude TYPE boolean OPTIONAL .
+        if_exclude TYPE boolean OPTIONAL.
+
     METHODS perform_row_comparison
       IMPORTING
-        !it_fieldcat             TYPE lvc_t_fcat
+        it_fieldcat              TYPE lvc_t_fcat
       RETURNING
-        VALUE(rf_rows_identical) TYPE boolean .
-    METHODS process_filter_change .
-    "! <p class="shorttext synchronized" lang="en">Refreshes the data by performing a new select</p>
-    METHODS refresh .
-    METHODS remove_filt_from_selected_cols .
-    METHODS remove_grouping .
-    METHODS reset_alv_layout .
+        VALUE(rf_rows_identical) TYPE boolean.
+
+    METHODS process_filter_change.
+    "! <p class="shorttext synchronized">Refreshes the data by performing a new select</p>
+    METHODS refresh.
+    METHODS remove_filt_from_selected_cols.
+    METHODS remove_grouping.
+    METHODS reset_alv_layout.
+
     METHODS rows_differ
       IMPORTING
-        !is_left_row          TYPE any
-        !it_compare_by        TYPE tt_compare_field
-        !is_right_row         TYPE any
+        is_left_row           TYPE any
+        it_compare_by         TYPE tt_compare_field
+        is_right_row          TYPE any
       RETURNING
-        VALUE(rf_rows_differ) TYPE boolean .
-    "! <p class="shorttext synchronized" lang="en">Saves the current selection as Value help</p>
-    METHODS save_as_f4 .
-    METHODS scroll_to_column .
-    "! <p class="shorttext synchronized" lang="en">Inserts all hidden rows back into the table area</p>
+        VALUE(rf_rows_differ) TYPE boolean.
+
+    "! <p class="shorttext synchronized">Saves the current selection as Value help</p>
+    METHODS save_as_f4.
+    METHODS scroll_to_column.
+
+    "! <p class="shorttext synchronized">Inserts all hidden rows back into the table area</p>
     METHODS show_hidden_rows
       IMPORTING
-        !if_refresh TYPE boolean DEFAULT abap_true .
+        if_refresh TYPE boolean DEFAULT abap_true.
 
-    "! <p class="shorttext synchronized" lang="en">Shows the detail view for a certain line</p>
+    "! <p class="shorttext synchronized">Shows the detail view for a certain line</p>
     METHODS show_line_detail
       IMPORTING
-        !is_line TYPE any .
+        is_line TYPE any.
+
     METHODS transfer_filter_values
       IMPORTING
-        !if_leave_screen TYPE boolean DEFAULT abap_true .
-    METHODS transfer_layout_info_to_selscr .
-    "! <p class="shorttext synchronized" lang="en">Shows the cell content in a popup editor</p>
+        if_leave_screen TYPE boolean DEFAULT abap_true.
+
+    METHODS transfer_layout_info_to_selscr.
+    "! <p class="shorttext synchronized">Shows the cell content in a popup editor</p>
     "! This action makes only sense if the data type of the column is STRING
     METHODS show_string_cell_content.
-    "! <p class="shorttext synchronized" lang="en">Hides all columns where no cell has any values</p>
+    "! <p class="shorttext synchronized">Hides all columns where no cell has any values</p>
     METHODS hide_cols_without_values.
+
     METHODS disable_checkbox_style
       IMPORTING
         if_selected_cols_only TYPE abap_bool OPTIONAL.
+
     METHODS show_all_cols.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
-
-
   METHOD alv_headers_needs_refresh.
     CASE iv_function_code.
       WHEN zif_dbbr_c_selection_functions=>clear_filter OR
@@ -296,86 +328,56 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
-
   METHOD are_selected_cols_filtered.
-    DATA: lt_fields_range TYPE RANGE OF fieldname.
+    DATA lt_fields_range TYPE RANGE OF fieldname.
 
     r_result = abap_false.
 
-    lt_fields_range = VALUE #( FOR col IN it_cols ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
+    lt_fields_range = VALUE #( FOR col IN it_cols
+                               ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
 
     mo_alv_grid->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter) ).
 
     IF lt_filter IS NOT INITIAL.
 
+      " TODO: variable is assigned but never used (ABAP cleaner)
       LOOP AT lt_filter ASSIGNING FIELD-SYMBOL(<ls_filter>) WHERE fieldname IN lt_fields_range.
         EXIT.
       ENDLOOP.
 
       r_result = xsdbool( sy-subrc = 0 ).
     ENDIF.
-
   ENDMETHOD.
-
 
   METHOD build_accentuation_submenu.
-
-    rr_emph_menu  = NEW cl_ctmenu( ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_light_green
-        text  = c_function_texts-emph_light_green
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_green
-        text  = c_function_texts-emph_green
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_green_inverted
-        text  = c_function_texts-emph_green_inverted
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_light_orange
-        text  = c_function_texts-emph_light_orange
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_orange
-        text  = c_function_texts-emph_orange
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_light_yellow
-        text  = c_function_texts-emph_light_yellow
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_yellow
-        text  = c_function_texts-emph_yellow
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_light_blue
-        text  = c_function_texts-emph_light_blue
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_blue
-        text  = c_function_texts-emph_blue
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_light_grey_blue
-        text  = c_function_texts-emph_light_grey_blue
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_light_red
-        text  = c_function_texts-emph_light_red
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_red_inverted
-        text  = c_function_texts-emph_red_inverted
-    ).
-    rr_emph_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emph_red
-        text  = c_function_texts-emph_red
-    ).
-
+    rr_emph_menu = NEW cl_ctmenu( ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_light_green
+                                text  = c_function_texts-emph_light_green ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_green
+                                text  = c_function_texts-emph_green ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_green_inverted
+                                text  = c_function_texts-emph_green_inverted ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_light_orange
+                                text  = c_function_texts-emph_light_orange ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_orange
+                                text  = c_function_texts-emph_orange ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_light_yellow
+                                text  = c_function_texts-emph_light_yellow ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_yellow
+                                text  = c_function_texts-emph_yellow ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_light_blue
+                                text  = c_function_texts-emph_light_blue ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_blue
+                                text  = c_function_texts-emph_blue ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_light_grey_blue
+                                text  = c_function_texts-emph_light_grey_blue ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_light_red
+                                text  = c_function_texts-emph_light_red ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_red_inverted
+                                text  = c_function_texts-emph_red_inverted ).
+    rr_emph_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emph_red
+                                text  = c_function_texts-emph_red ).
   ENDMETHOD.
-
 
   METHOD calculate_sum_of_cells.
     TYPES: BEGIN OF lty_cell,
@@ -384,10 +386,9 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
              value  TYPE lvc_value,
            END OF lty_cell.
 
-    DATA: lt_cells_internal TYPE STANDARD TABLE OF lty_cell,
-          lv_sum            TYPE p LENGTH 16 DECIMALS 2.
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
-
+    DATA lt_cells_internal TYPE STANDARD TABLE OF lty_cell.
+    DATA lv_sum TYPE p LENGTH 16 DECIMALS 2.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
 
     mo_alv_grid->get_selected_cells( IMPORTING et_cell = DATA(lt_cells) ).
 
@@ -395,12 +396,10 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    lt_cells_internal = VALUE #(
-      FOR cell IN lt_cells
-      ( index  = cell-row_id-index
-        col_id = cell-col_id-fieldname
-        value  = cell-value )
-    ).
+    lt_cells_internal = VALUE #( FOR cell IN lt_cells
+                                 ( index  = cell-row_id-index
+                                   col_id = cell-col_id-fieldname
+                                   value  = cell-value ) ).
 
     CLEAR lt_cells.
 
@@ -430,34 +429,30 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         ASSIGN <lt_table>[ <ls_cell>-index ] TO FIELD-SYMBOL(<ls_row>).
       ENDAT.
 
-
       ASSIGN COMPONENT <ls_cell>-col_id OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_value>).
       IF sy-subrc = 0.
-        ADD <lv_value> TO lv_sum.
+        lv_sum = lv_sum + <lv_value>.
       ENDIF.
     ENDLOOP.
 
     MESSAGE |Total: { lv_sum NUMBER = USER ALIGN = RIGHT }| TYPE 'I'.
   ENDMETHOD.
 
-
   METHOD call_jumpfield_transaction.
     " column is automatically a jump field
     " 1) get jumpfield definition
     DATA(lr_tabfield) = mo_util->mo_tabfields->get_field_ref_by_alv_name( iv_fieldname ).
 
-    LOOP AT mo_util->mt_jumpdest INTO DATA(ls_jumpfield) WHERE jump_source_field = lr_tabfield->fieldname
-                                                           AND jump_source_table = lr_tabfield->tabname.
+    LOOP AT mo_util->mt_jumpdest INTO DATA(ls_jumpfield) WHERE     jump_source_field = lr_tabfield->fieldname
+                                                               AND jump_source_table = lr_tabfield->tabname.
       " 2) check if conditions are met
       IF ls_jumpfield-crit_field IS NOT INITIAL.
-        DATA(ls_crit_field) = mo_util->mo_tabfields->get_field(
-            iv_tabname   = ls_jumpfield-crit_table
-            iv_fieldname = ls_jumpfield-crit_field
-        ).
+        DATA(ls_crit_field) = mo_util->mo_tabfields->get_field( iv_tabname   = ls_jumpfield-crit_table
+                                                                iv_fieldname = ls_jumpfield-crit_field ).
         ASSIGN COMPONENT ls_crit_field-alv_fieldname OF STRUCTURE is_row_data TO FIELD-SYMBOL(<lv_crit_val>).
         CASE ls_jumpfield-crit_operation.
           WHEN 'EQ'.
-            IF NOT <lv_crit_val> EQ ls_jumpfield-crit_value.
+            IF NOT <lv_crit_val> = ls_jumpfield-crit_value.
               CONTINUE.
             ENDIF.
           WHEN 'CP'.
@@ -476,10 +471,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         IF <ls_param>-param_field IS NOT INITIAL.
           " read crit field
           TRY.
-              DATA(lr_param_field) = mo_util->mo_tabfields->get_field_ref(
-                  iv_tabname_alias = <ls_param>-param_table
-                  iv_fieldname     = <ls_param>-param_field
-              ).
+              DATA(lr_param_field) = mo_util->mo_tabfields->get_field_ref( iv_tabname_alias = <ls_param>-param_table
+                                                                           iv_fieldname     = <ls_param>-param_field ).
             CATCH cx_sy_itab_line_not_found.
               MESSAGE |Parameter Field { <ls_param>-param_table }-{ <ls_param>-param_field } was not found. Jump was aborted!| TYPE 'S' DISPLAY LIKE 'E'.
               RETURN.
@@ -508,32 +501,26 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       WHEN zif_dbbr_c_global=>c_jump_call_types-normal.
         CALL FUNCTION 'ZDBBR_CALL_TRANSACTION' " STARTING NEW TASK 'NEWT'
 *          DESTINATION 'NONE'
-          EXPORTING
-            is_jump_dest = ls_jumpfield.    " DBAnalyt.:.: UI-Daten eines Sprungfeldes
+          EXPORTING is_jump_dest = ls_jumpfield.    " DBAnalyt.:.: UI-Daten eines Sprungfeldes
       WHEN zif_dbbr_c_global=>c_jump_call_types-start_new_mode.
         CALL FUNCTION 'ZDBBR_CALL_TRANSACTION' STARTING NEW TASK 'NEWT'
           DESTINATION 'NONE'
-          EXPORTING
-            is_jump_dest = ls_jumpfield.    " DBAnalyt.:.: UI-Daten eines Sprungfeldes
+          EXPORTING is_jump_dest = ls_jumpfield.    " DBAnalyt.:.: UI-Daten eines Sprungfeldes
     ENDCASE.
   ENDMETHOD.
 
-
   METHOD class_constructor.
-    ss_hide_row_filter = VALUE #(
-       fieldname = zif_dbbr_c_special_out_columns=>hide_flag
-       ref_field = zif_dbbr_c_special_out_columns=>hide_flag
-       ref_table = 'ZDBBR_ALV_SPECIAL_CELLS'
-       no_sign   = abap_true
-       sign      = 'I'
-       option    = 'EQ'
-    ).
+    ss_hide_row_filter = VALUE #( fieldname = zif_dbbr_c_special_out_columns=>hide_flag
+                                  ref_field = zif_dbbr_c_special_out_columns=>hide_flag
+                                  ref_table = 'ZDBBR_ALV_SPECIAL_CELLS'
+                                  no_sign   = abap_true
+                                  sign      = 'I'
+                                  option    = 'EQ' ).
   ENDMETHOD.
 
-
   METHOD compare_selected_lines.
-    FIELD-SYMBOLS: <lt_table>         TYPE STANDARD TABLE,
-                   <lt_table_compare> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_table_compare> TYPE STANDARD TABLE.
 
     mo_alv_grid->get_selected_rows( IMPORTING et_index_rows = DATA(lt_index_rows) ).
 
@@ -545,6 +532,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
 
     " get field count which need to be compared
+    " TODO: variable is assigned but never used (ABAP cleaner)
     LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE no_out = abap_false.
     ENDLOOP.
 
@@ -559,21 +547,16 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       APPEND <lt_table>[ <ls_row_index>-index ] TO <lt_table_compare>.
     ENDLOOP.
 
-    perform_row_comparison(
-        it_fieldcat = lt_fieldcat
-    ).
+    perform_row_comparison( it_fieldcat = lt_fieldcat ).
 
     TRY.
-        cl_salv_table=>factory(
-          IMPORTING
-            r_salv_table   = DATA(lr_compare_alv)
-          CHANGING
-            t_table        = <lt_table_compare>
-        ).
+        cl_salv_table=>factory( IMPORTING r_salv_table = DATA(lr_compare_alv)
+                                CHANGING  t_table      = <lt_table_compare> ).
 
         lr_compare_alv->get_functions( )->set_default( ).
         lr_compare_alv->get_columns( )->set_color_column( CONV #( zif_dbbr_c_special_out_columns=>cell_col_row_color ) ).
-        lr_compare_alv->get_display_settings( )->set_list_header( |DB Browser - Comparison of { lines( lt_index_rows ) } Entries| ).
+        lr_compare_alv->get_display_settings( )->set_list_header(
+            |DB Browser - Comparison of { lines( lt_index_rows ) } Entries| ).
 
         " transfer fieldcatalog definitions
         DATA(lt_columns) = lr_compare_alv->get_columns( )->get( ).
@@ -604,22 +587,18 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDTRY.
   ENDMETHOD.
 
-
   METHOD constructor.
     SET LANGUAGE 'EN'.
 
-*... create util instance for handling selection stuff
+    " ... create util instance for handling selection stuff
     mo_util = zcl_dbbr_selection_util=>create_util( is_selection_data ).
     mo_textfield_util = NEW zcl_dbbr_text_field_ui_util( mo_util ).
 
-    SET HANDLER:
-      on_selection_finish FOR mo_util,
-      on_no_data FOR mo_util.
+    SET HANDLER on_selection_finish FOR mo_util.
+    SET HANDLER on_no_data FOR mo_util.
 
     mf_first_call = abap_true.
-
   ENDMETHOD.
-
 
   METHOD control_tech_view.
     mo_util->ms_technical_info-tech_names = xsdbool( mo_util->ms_technical_info-tech_names = abap_false ).
@@ -633,12 +612,10 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
              <ls_fcat>-coltext,
              <ls_fcat>-reptext,
              <ls_fcat>-tooltip.
-      TRY .
+      TRY.
           DATA(lr_field) = mo_util->mo_tabfields_all->get_field_ref_by_alv_name( <ls_fcat>-fieldname ).
-          mo_util->set_fieldcat_coltexts(
-            EXPORTING ir_field    = lr_field
-            CHANGING  cs_fieldcat = <ls_fcat>
-          ).
+          mo_util->set_fieldcat_coltexts( EXPORTING ir_field    = lr_field
+                                          CHANGING  cs_fieldcat = <ls_fcat> ).
         CATCH cx_sy_itab_line_not_found.
           IF <ls_fcat>-fieldname = zif_dbbr_c_special_out_columns=>line_index.
             mo_util->set_line_index_column_texts( CHANGING cs_field = <ls_fcat> ).
@@ -649,24 +626,21 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     mo_alv_grid->set_frontend_fieldcatalog( lt_fcat ).
 
-    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
     mo_alv_grid->optimize_columns( ).
-
   ENDMETHOD.
-
 
   METHOD create_alv_header.
     mo_alv_grid->set_gridtitle( i_gridtitle = mo_util->build_simple_alv_title( )  ).
   ENDMETHOD.
 
-
   METHOD create_controller.
     rr_controller = NEW zcl_dbbr_selection_controller( is_selection_data ).
   ENDMETHOD.
 
-
   METHOD create_controller_from_data.
-*... first create table fields
+    " ... first create table fields
     DATA(lr_tabfields) = zcl_dbbr_tabfield_list=>create_from_serialized( is_controller_serialized-tabfields_data ).
     DATA(lr_tabfields_all) = zcl_dbbr_tabfield_list=>create_from_serialized( is_controller_serialized-tabfields_all_data ).
 
@@ -682,21 +656,20 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
                                         nav_breadcrumbs    = navigation_breadcrumbs ).
 
     ls_selection_data-technical_infos = ls_tech_info.
-    ls_selection_data-tabfields = lr_tabfields.
-    ls_selection_data-tabfields_all = lr_tabfields_all.
+    ls_selection_data-tabfields       = lr_tabfields.
+    ls_selection_data-tabfields_all   = lr_tabfields_all.
 
     rr_controller = NEW zcl_dbbr_selection_controller( ls_selection_data ).
 
-*... manually reset first screen call if required
+    " ... manually reset first screen call if required
     IF if_not_first_screen_call = abap_true.
 *      CLEAR: rr_controller->mf_first_call.
       rr_controller->mf_has_parent = abap_true.
     ENDIF.
   ENDMETHOD.
 
-
   METHOD current_line_count.
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
 
     IF mo_util->mr_t_data IS NOT INITIAL.
       ASSIGN mo_util->mr_t_data->* TO <lt_table>.
@@ -705,7 +678,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       rv_current_line_count = mo_util->mv_selected_lines.
     ENDIF.
   ENDMETHOD.
-
 
   METHOD delete_coloring_of_columns.
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
@@ -717,15 +689,13 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
 
-    mo_alv_grid->refresh_table_display(
-      is_stable      = VALUE #( row = abap_true col = abap_true )
-      i_soft_refresh = abap_true
-    ).
+    mo_alv_grid->refresh_table_display( is_stable      = VALUE #( row = abap_true
+                                                                  col = abap_true )
+                                        i_soft_refresh = abap_true ).
   ENDMETHOD.
 
-
   METHOD delete_coloring_of_rows.
-    FIELD-SYMBOLS: <lt_table>       TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
 
     ASSIGN mo_util->mr_t_data->* TO <lt_table>.
 
@@ -736,12 +706,10 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       ENDIF.
     ENDLOOP.
 
-    mo_alv_grid->refresh_table_display(
-      is_stable      = VALUE #( row = abap_true col = abap_true )
-      i_soft_refresh = abap_true
-    ).
+    mo_alv_grid->refresh_table_display( is_stable      = VALUE #( row = abap_true
+                                                                  col = abap_true )
+                                        i_soft_refresh = abap_true ).
   ENDMETHOD.
-
 
   METHOD delete_hidden_lines.
 *&---------------------------------------------------------------------*
@@ -749,7 +717,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 *&---------------------------------------------------------------------*
 *& Description: Deletes the currently hidden rows from data table
 *&---------------------------------------------------------------------*
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
 
     mo_alv_grid->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter_criteria) ).
     DELETE lt_filter_criteria WHERE fieldname = ss_hide_row_filter-fieldname.
@@ -767,9 +735,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     mo_alv_grid->set_filter_criteria( lt_filter_criteria ).
   ENDMETHOD.
 
-
   METHOD disable_checkbox_style.
-    DATA: lf_refresh TYPE abap_bool.
+    DATA lf_refresh TYPE abap_bool.
 
     IF if_selected_cols_only = abap_true.
       mo_alv_grid->get_selected_columns( IMPORTING et_index_columns = DATA(lt_cols) ).
@@ -782,16 +749,18 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         CHECK line_exists( lt_cols[ fieldname = <ls_fcat>-fieldname ] ).
       ENDIF.
       <ls_fcat>-just = 'L'.
-      CLEAR: <ls_fcat>-checkbox.
+      CLEAR <ls_fcat>-checkbox.
       lf_refresh = abap_true.
     ENDLOOP.
 
-    CHECK lf_refresh = abap_true.
+    IF lf_refresh = abap_false.
+      RETURN.
+    ENDIF.
 
     mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
-    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
   ENDMETHOD.
-
 
   METHOD display_top_header.
 *& Description: Creates top of page header for ALV Grid with dynamic document
@@ -805,11 +774,9 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDIF.
 
     IF mo_header_dock IS INITIAL.
-      mo_header_dock = NEW cl_gui_docking_container(
-          side  = cl_gui_docking_container=>dock_at_top
-          lifetime = cl_gui_control=>lifetime_dynpro
-          ratio = 15
-      ).
+      mo_header_dock = NEW cl_gui_docking_container( side     = cl_gui_docking_container=>dock_at_top
+                                                     lifetime = cl_gui_control=>lifetime_dynpro
+                                                     ratio    = 15 ).
     ENDIF.
 
     ">>> create dynamic document for header
@@ -823,16 +790,14 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     mo_alv_header_doc->merge_document( ).
 
-    mo_alv_header_doc->display_document( parent = mo_header_dock reuse_control = abap_true ).
-
-
+    mo_alv_header_doc->display_document( parent        = mo_header_dock
+                                         reuse_control = abap_true ).
   ENDMETHOD.
 
-
   METHOD emphasize_negative_values.
-    DATA: lt_numeric_fields TYPE TABLE OF string.
-    FIELD-SYMBOLS: <lt_table>  TYPE STANDARD TABLE,
-                   <lt_colors> TYPE STANDARD TABLE.
+    DATA lt_numeric_fields TYPE TABLE OF string.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_colors> TYPE STANDARD TABLE.
 
     " first determine all numeric fields
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
@@ -853,21 +818,19 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       LOOP AT lt_numeric_fields ASSIGNING FIELD-SYMBOL(<lv_numeric_field_name>).
         ASSIGN COMPONENT <lv_numeric_field_name> OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_numeric_field>).
         IF sy-subrc = 0 AND <lv_numeric_field> < 0.
-          APPEND VALUE lvc_s_scol(
-            fname    = <lv_numeric_field_name>
-            color    = VALUE #( col = 6 inv = 1 )
-            nokeycol = abap_true
-          ) TO <lt_colors>.
+          APPEND VALUE lvc_s_scol( fname    = <lv_numeric_field_name>
+                                   color    = VALUE #( col = 6
+                                                       inv = 1 )
+                                   nokeycol = abap_true )
+                 TO <lt_colors>.
         ENDIF.
       ENDLOOP.
 
     ENDLOOP.
 
-    mo_alv_grid->refresh_table_display(
-        is_stable = VALUE #( row = abap_true col = abap_true )
-    ).
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
   ENDMETHOD.
-
 
   METHOD emphasize_selected.
     mo_alv_grid->get_selected_columns( IMPORTING et_index_columns = DATA(lt_index_cols) ).
@@ -889,17 +852,14 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDIF.
 
     " refresh table
-    mo_alv_grid->refresh_table_display(
-      is_stable      = VALUE #( row = abap_true col = abap_true )
-      i_soft_refresh = abap_true
-    ).
-
+    mo_alv_grid->refresh_table_display( is_stable      = VALUE #( row = abap_true
+                                                                  col = abap_true )
+                                        i_soft_refresh = abap_true ).
   ENDMETHOD.
 
-
   METHOD emphasize_selected_cells.
-    FIELD-SYMBOLS: <lt_table>  TYPE STANDARD TABLE,
-                   <lt_colors> TYPE lvc_t_scol.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_colors> TYPE lvc_t_scol.
 
     ASSIGN mo_util->mr_t_data->* TO <lt_table>.
 
@@ -907,15 +867,13 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     IF if_clear_color = abap_false.
       " get correct color code
-      DATA(ls_color) = VALUE lvc_s_scol(
-        color    = get_color_code_for_ucomm( iv_chosen_color_code )
-        nokeycol = abap_true
-      ).
+      DATA(ls_color) = VALUE lvc_s_scol( color    = get_color_code_for_ucomm( iv_chosen_color_code )
+                                         nokeycol = abap_true ).
     ENDIF.
 
     LOOP AT it_selected_cells ASSIGNING FIELD-SYMBOL(<ls_selected_cell>)
-        GROUP BY ( row = <ls_selected_cell>-row_id )
-        ASSIGNING FIELD-SYMBOL(<ls_selected_cell_group>).
+         GROUP BY ( row = <ls_selected_cell>-row_id )
+         ASSIGNING FIELD-SYMBOL(<ls_selected_cell_group>).
 
       " determine current row
       ASSIGN <lt_table>[ <ls_selected_cell_group>-row ] TO FIELD-SYMBOL(<ls_current_row>).
@@ -935,12 +893,11 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       ENDLOOP.
     ENDLOOP.
 
-    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
   ENDMETHOD.
 
-
   METHOD emphasize_selected_columns.
-
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
     DATA(ls_color) = get_color_code_for_ucomm( iv_chosen_color_code ).
     DATA(lv_color_string) = condense( val = |C{ ls_color-col }{ ls_color-int }{ ls_color-inv }| ).
@@ -957,22 +914,18 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDLOOP.
 
     mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
-    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
   ENDMETHOD.
 
-
   METHOD emphasize_selected_rows.
-    FIELD-SYMBOLS: <lt_table>       TYPE STANDARD TABLE,
-                   <lt_color_struc> TYPE lvc_t_scol.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_color_struc> TYPE lvc_t_scol.
 
     IF if_clear_color = abap_false.
       " get correct color code
-      DATA(lt_color_tab) = VALUE lvc_t_scol(
-          (
-            color    = get_color_code_for_ucomm( iv_chosen_color_code )
-            nokeycol = abap_true
-          )
-      ).
+      DATA(lt_color_tab) = VALUE lvc_t_scol( ( color    = get_color_code_for_ucomm( iv_chosen_color_code )
+                                               nokeycol = abap_true ) ).
     ENDIF.
 
     ASSIGN mo_util->mr_t_data->* TO <lt_table>.
@@ -990,7 +943,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-
   METHOD emphasize_sort_fields.
 *&---------------------------------------------------------------------*
 *& Author:    stockbal     Date: 2016/12/1
@@ -1003,29 +955,28 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
       " is this a sorted field?
       TRY.
+          " TODO: variable is assigned but never used (ABAP cleaner)
           DATA(ls_sorted) = it_sort[ fieldname = <ls_fieldcat>-fieldname ].
           <ls_fieldcat>-emphasize = zif_dbbr_c_global=>c_alv_colors-light_green.
         CATCH cx_sy_itab_line_not_found.
           CASE <ls_fieldcat>-parameter2.
 
-            WHEN 'F'. "Formula Field
-              <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-color_formula_fields = abap_true THEN
-                                                  zif_dbbr_c_global=>c_alv_colors-light_yellow ).
+            WHEN 'F'. " Formula Field
+              <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-color_formula_fields = abap_true
+                                                THEN zif_dbbr_c_global=>c_alv_colors-light_yellow ).
             WHEN 'K'. " Key field
               <ls_fieldcat>-emphasize = zif_dbbr_c_global=>c_alv_emphasize-key_color.
 
             WHEN 'T'. " Additional Text Field
-              <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-emphasize_text_fields = abap_true THEN
-                                                  zif_dbbr_c_global=>c_alv_emphasize-text_field_color  ).
+              <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-emphasize_text_fields = abap_true
+                                                THEN zif_dbbr_c_global=>c_alv_emphasize-text_field_color  ).
             WHEN 'C'. " Calculated Field in CDS
-              <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-color_cds_calculated_fields = abap_true THEN
-                                                  zif_dbbr_c_global=>c_alv_emphasize-cds_calculated_fields_color ).
+              <ls_fieldcat>-emphasize = COND #( WHEN mo_util->ms_technical_info-color_cds_calculated_fields = abap_true
+                                                THEN zif_dbbr_c_global=>c_alv_emphasize-cds_calculated_fields_color ).
           ENDCASE.
       ENDTRY.
     ENDLOOP.
-
   ENDMETHOD.
-
 
   METHOD execute_selection.
     CLEAR mf_no_data.
@@ -1049,59 +1000,58 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     rf_no_data = mf_no_data.
   ENDMETHOD.
 
-
   METHOD get_color_code_for_ucomm.
     CASE iv_chosen_color_code.
       WHEN zif_dbbr_c_selection_functions=>emph_light_green.
         rs_color = VALUE #( col = 5 ).
       WHEN zif_dbbr_c_selection_functions=>emph_green.
-        rs_color = VALUE #( col = 5 int = 1 ).
+        rs_color = VALUE #( col = 5
+                            int = 1 ).
       WHEN zif_dbbr_c_selection_functions=>emph_green_inverted.
-        rs_color = VALUE #( col = 5 inv = 1 ).
+        rs_color = VALUE #( col = 5
+                            inv = 1 ).
       WHEN zif_dbbr_c_selection_functions=>emph_light_orange.
         rs_color = VALUE #( col = 7 ).
       WHEN zif_dbbr_c_selection_functions=>emph_orange.
-        rs_color = VALUE #( col = 7 int = 1 ).
+        rs_color = VALUE #( col = 7
+                            int = 1 ).
       WHEN zif_dbbr_c_selection_functions=>emph_light_yellow.
         rs_color = VALUE #( col = 3 ).
       WHEN zif_dbbr_c_selection_functions=>emph_yellow.
-        rs_color = VALUE #( col = 3 int = 1 ).
+        rs_color = VALUE #( col = 3
+                            int = 1 ).
       WHEN zif_dbbr_c_selection_functions=>emph_light_grey_blue.
         rs_color = VALUE #( col = 4 ).
       WHEN zif_dbbr_c_selection_functions=>emph_light_blue.
         rs_color = VALUE #( col = 1 ).
       WHEN zif_dbbr_c_selection_functions=>emph_blue.
-        rs_color = VALUE #( col = 1 int = 1 ).
+        rs_color = VALUE #( col = 1
+                            int = 1 ).
       WHEN zif_dbbr_c_selection_functions=>emph_light_red.
         rs_color = VALUE #( col = 6 ).
       WHEN zif_dbbr_c_selection_functions=>emph_red.
-        rs_color = VALUE #( col = 6 int = 1 ).
+        rs_color = VALUE #( col = 6
+                            int = 1 ).
       WHEN zif_dbbr_c_selection_functions=>emph_red_inverted.
-        rs_color = VALUE #( col = 6 inv = 1 ).
+        rs_color = VALUE #( col = 6
+                            inv = 1 ).
     ENDCASE.
   ENDMETHOD.
-
 
   METHOD get_updated_tabfields.
     rr_tabfields = mo_util->mo_tabfields_original.
   ENDMETHOD.
 
-
   METHOD group_by_selected_columns.
     mo_util->get_alv_util( )->execute_column_grouping( ).
   ENDMETHOD.
 
-
   METHOD hide_cols_without_values.
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
 
-    mo_util->get_alv_util( )->hide_empty_columns(
-      IMPORTING
-        ef_no_empty_cols = DATA(lf_no_empty_cols)
-        ev_hidden_cols   = DATA(lv_hidden_cols)
-      CHANGING
-        ct_fieldcat      = lt_fieldcat
-    ).
+    mo_util->get_alv_util( )->hide_empty_columns( IMPORTING ef_no_empty_cols = DATA(lf_no_empty_cols)
+                                                            ev_hidden_cols   = DATA(lv_hidden_cols)
+                                                  CHANGING  ct_fieldcat      = lt_fieldcat ).
 
     IF lf_no_empty_cols = abap_true.
       MESSAGE s103(zdbbr_info).
@@ -1112,7 +1062,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
 
-    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
   ENDMETHOD.
 
   METHOD show_all_cols.
@@ -1124,9 +1075,9 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
 
-    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
   ENDMETHOD.
-
 
   METHOD hide_selected_rows.
 *&---------------------------------------------------------------------*
@@ -1134,13 +1085,12 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 *&---------------------------------------------------------------------*
 *& Description: Hide the selected rows
 *&---------------------------------------------------------------------*
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
 
-    mo_alv_grid->get_selected_rows(
-      IMPORTING
-        et_index_rows = DATA(lt_index_rows)
-        et_row_no     = DATA(lt_row_no)
-    ).
+    mo_alv_grid->get_selected_rows( IMPORTING
+                                    " TODO: variable is assigned but never used (ABAP cleaner)
+                                              et_index_rows = DATA(lt_index_rows)
+                                              et_row_no     = DATA(lt_row_no) ).
 
     ASSIGN mo_util->mr_t_data->* TO <lt_table>.
 
@@ -1165,41 +1115,38 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     mo_alv_grid->set_filter_criteria( lt_filter ).
 
     " refresh table
-    mo_alv_grid->refresh_table_display(
-      is_stable      = VALUE #( row = abap_true col = abap_true )
-    ).
-
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
   ENDMETHOD.
 
-
   METHOD init_grid_control.
-    DATA: lr_alv_container TYPE REF TO cl_gui_container.
+    DATA lr_alv_container TYPE REF TO cl_gui_container.
 
-    FIELD-SYMBOLS: <lt_table> TYPE table.
+    FIELD-SYMBOLS <lt_table> TYPE table.
 
     CHECK mo_output_container IS INITIAL.
 
     ASSIGN mo_util->mr_t_data->* TO <lt_table>.
 
-    zcl_dbbr_screen_helper=>show_progress( iv_text = |{ TEXT-002 }| iv_progress = 75 ).
+    zcl_dbbr_screen_helper=>show_progress( iv_text     = |{ TEXT-002 }|
+                                           iv_progress = 75 ).
 
     mo_output_container = cl_gui_container=>default_screen.
 
     IF mf_has_parent = abap_true.
-      mo_splitter_container = NEW #(
-        parent  = mo_output_container
-        rows    = 2
-        columns = 1
-      ).
+      mo_splitter_container = NEW #( parent  = mo_output_container
+                                     rows    = 2
+                                     columns = 1 ).
 
       mo_splitter_container->set_row_mode( cl_gui_splitter_container=>mode_absolute ).
-      mo_splitter_container->set_row_height( id = 1 height = 65 ).
-*.,.. retrieve container for alv creation
-      lr_alv_container = mo_splitter_container->get_container( column = 1 row = 2 ).
-*..,. initialize the navigation bread crumbs
-      mo_util->init_navigation_breadcrumbs(
-        mo_splitter_container->get_container( column = 1 row = 1 )
-      ).
+      mo_splitter_container->set_row_height( id     = 1
+                                             height = 65 ).
+      " .,.. retrieve container for alv creation
+      lr_alv_container = mo_splitter_container->get_container( column = 1
+                                                               row    = 2 ).
+      " ..,. initialize the navigation bread crumbs
+      mo_util->init_navigation_breadcrumbs( mo_splitter_container->get_container( column = 1
+                                                                                  row    = 1 ) ).
     ELSE.
       lr_alv_container = mo_output_container.
     ENDIF.
@@ -1209,30 +1156,25 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     mo_alv_grid->set_default_toolbar( ).
     mo_util->mo_alv_grid = mo_alv_grid.
 
-    SET HANDLER:
-       on_double_click FOR mo_alv_grid,
-       on_user_command FOR mo_alv_grid,
-       on_before_user_command FOR mo_alv_grid,
-       on_after_user_command FOR mo_alv_grid,
-       on_context_menu_request FOR mo_alv_grid,
-       on_hotspot_click FOR mo_alv_grid.
+    SET HANDLER on_double_click FOR mo_alv_grid.
+    SET HANDLER on_user_command FOR mo_alv_grid.
+    SET HANDLER on_before_user_command FOR mo_alv_grid.
+    SET HANDLER on_after_user_command FOR mo_alv_grid.
+    SET HANDLER on_context_menu_request FOR mo_alv_grid.
+    SET HANDLER on_hotspot_click FOR mo_alv_grid.
 
-    ms_alv_layout = VALUE #(
-        sel_mode   = 'D'
-        cwidth_opt = abap_true
-        no_merging = mo_util->ms_technical_info-no_merging_on
-        ctab_fname = zif_dbbr_c_special_out_columns=>cell_col_row_color
-        grid_title = mo_util->build_simple_alv_title( )
-        no_keyfix  = mo_util->ms_technical_info-key_cols_not_fixed
-    ).
+    ms_alv_layout = VALUE #( sel_mode   = 'D'
+                             cwidth_opt = abap_true
+                             no_merging = mo_util->ms_technical_info-no_merging_on
+                             ctab_fname = zif_dbbr_c_special_out_columns=>cell_col_row_color
+                             grid_title = mo_util->build_simple_alv_title( )
+                             no_keyfix  = mo_util->ms_technical_info-key_cols_not_fixed ).
 
     mo_util->read_entity_infos( ).
 
-    DATA(ls_variant) = VALUE disvariant(
-        report     = zif_dbbr_c_report_id=>main && mo_util->get_entity_name( )
-        handle     = abap_true
-        username   = sy-uname
-    ).
+    DATA(ls_variant) = VALUE disvariant( report   = zif_dbbr_c_report_id=>main && mo_util->get_entity_name( )
+                                         handle   = abap_true
+                                         username = sy-uname ).
 
     " coloring of sort fields
     IF mo_util->ms_technical_info-color_sort_columns = abap_true.
@@ -1259,10 +1201,9 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       CHANGING  it_fieldcatalog   = lt_fieldcat
                 it_outtab         = <lt_table>
                 it_sort           = lt_sort
-                it_filter         = lt_filter
-    ).
+                it_filter         = lt_filter ).
 
-*.. Filters in the ALV util need to updated to reflect the ALV filters
+    " .. Filters in the ALV util need to updated to reflect the ALV filters
     mo_util->get_alv_util( )->update_filters( ).
 
     IF mo_util->ms_technical_info-enable_alv_default_variant = abap_true AND ls_variant-variant IS INITIAL.
@@ -1273,20 +1214,19 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         MESSAGE s052(zdbbr_info).
       ENDIF.
     ENDIF.
-
   ENDMETHOD.
 
-
   METHOD keep_selected_columns.
-    DATA: lt_fieldname_range TYPE RANGE OF lvc_fname.
+    DATA lt_fieldname_range TYPE RANGE OF lvc_fname.
 
     mo_alv_grid->get_selected_columns( IMPORTING et_index_columns = DATA(lt_cols) ).
 
-    CHECK lt_cols IS NOT INITIAL.
+    IF lt_cols IS INITIAL.
+      RETURN.
+    ENDIF.
 
-    lt_fieldname_range = VALUE #(
-      FOR col IN lt_cols ( sign = 'I' option = 'EQ' low = col-fieldname )
-    ).
+    lt_fieldname_range = VALUE #( FOR col IN lt_cols
+                                  ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
 
     CLEAR lt_cols.
 
@@ -1296,18 +1236,17 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       <ls_fieldcat>-no_out = abap_true.
     ENDLOOP.
 
-    CHECK sy-subrc = 0.
+    IF sy-subrc <> 0.
+      RETURN.
+    ENDIF.
 
     mo_alv_grid->set_frontend_fieldcatalog( lt_field_cat ).
 
-
-    mo_alv_grid->refresh_table_display(
-      is_stable      = VALUE #( row = abap_true col = abap_true )
-    ).
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
 
     mo_alv_grid->optimize_columns( ).
   ENDMETHOD.
-
 
   METHOD keep_selected_rows.
 *&---------------------------------------------------------------------*
@@ -1315,20 +1254,15 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 *&---------------------------------------------------------------------*
 *& Description: Hide non-selected rows
 *&---------------------------------------------------------------------*
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
 
-    mo_alv_grid->get_selected_rows(
-      IMPORTING
-        et_row_no     = DATA(lt_row_no)
-    ).
+    mo_alv_grid->get_selected_rows( IMPORTING et_row_no = DATA(lt_row_no) ).
 
     " build selopt table for selected rows
-    DATA(lt_selected_row_selopt) = VALUE zif_sat_ty_global=>ty_t_selopt(
-      FOR row_no IN lt_row_no
-      ( sign   = 'I'
-        option = 'EQ'
-        low    = row_no-row_id )
-    ).
+    DATA(lt_selected_row_selopt) = VALUE zif_sat_ty_global=>ty_t_selopt( FOR row_no IN lt_row_no
+                                                                         ( sign   = 'I'
+                                                                           option = 'EQ'
+                                                                           low    = row_no-row_id ) ).
 
     ASSIGN mo_util->mr_t_data->* TO <lt_table>.
 
@@ -1349,22 +1283,18 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     mo_alv_grid->set_filter_criteria( lt_filter ).
 
     " refresh table
-    mo_alv_grid->refresh_table_display(
-      is_stable      = VALUE #( row = abap_true col = abap_true )
-    ).
-
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
   ENDMETHOD.
-
 
   METHOD layout_was_transferred.
     rf_transferred = mf_layout_transferred.
   ENDMETHOD.
 
-
   METHOD on_after_user_command.
-    DATA: lf_emphasize_sort_fields TYPE abap_bool,
-          lf_trigger_pbo           TYPE abap_bool,
-          lf_update_filter         TYPE abap_bool.
+    DATA lf_emphasize_sort_fields TYPE abap_bool.
+    DATA lf_trigger_pbo TYPE abap_bool.
+    DATA lf_update_filter TYPE abap_bool.
 
     CASE e_ucomm.
 
@@ -1403,7 +1333,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
            zif_dbbr_c_selection_functions=>navigate_association OR
            zif_dbbr_c_selection_functions=>show_cds_source OR
            zif_dbbr_c_selection_functions=>hide_other_columns OR
-           zif_dbbr_c_selection_functions=>open_in_sql_console or
+           zif_dbbr_c_selection_functions=>open_in_sql_console OR
            zif_dbbr_c_selection_functions=>determine_line_count.
         RETURN.
     ENDCASE.
@@ -1413,8 +1343,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
         mo_alv_grid->get_sort_criteria( IMPORTING et_sort = DATA(lt_sort) ).
 
-        emphasize_sort_fields( EXPORTING it_sort    = lt_sort
-                               CHANGING ct_fieldcat = lt_fieldcat ).
+        emphasize_sort_fields( EXPORTING it_sort     = lt_sort
+                               CHANGING  ct_fieldcat = lt_fieldcat ).
 
         mo_alv_grid->set_frontend_fieldcatalog( lt_fieldcat ).
       ENDIF.
@@ -1426,24 +1356,21 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     IF lf_trigger_pbo = abap_true.
       zif_uitb_screen_controller~pbo( ).
-    ELSEIF e_ucomm NP '%*' AND
-           e_ucomm NP '&*'.
+    ELSEIF     e_ucomm NP '%*'
+           AND e_ucomm NP '&*'.
       cl_gui_cfw=>set_new_ok_code( e_ucomm ).
     ENDIF.
-
   ENDMETHOD.
 
-
   METHOD on_before_user_command.
-
-    DATA: lr_s_dummy_line TYPE REF TO data.
-    FIELD-SYMBOLS: <lt_data> TYPE table.
+    DATA lr_s_dummy_line TYPE REF TO data.
+    FIELD-SYMBOLS <lt_data> TYPE table.
 
     CASE e_ucomm.
 
       WHEN cl_gui_alv_grid=>mc_fc_filter.
-*...... This is necessary due to a change in the ALV logic, that
-*...... the filters cannot be adjusted if the underlying table is empty
+        " ...... This is necessary due to a change in the ALV logic, that
+        " ...... the filters cannot be adjusted if the underlying table is empty
         ASSIGN mo_util->mr_t_data->* TO <lt_data>.
         IF sy-subrc = 0 AND <lt_data> IS INITIAL.
           CREATE DATA lr_s_dummy_line LIKE LINE OF <lt_data>.
@@ -1460,112 +1387,100 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
-
   METHOD on_context_menu_request.
 *& Description: Context menu request event for alv grid
 *&---------------------------------------------------------------------*
-    DATA: ls_field             TYPE lvc_s_fcat,
-          lt_serialized        TYPE sctx_serialize,
-          lt_temp_menu_entries TYPE sctx_entrytab,
-          lt_cols              TYPE RANGE OF lvc_fname,
-          lt_menu_flat         TYPE sctx_entrytab.
+    DATA ls_field TYPE lvc_s_fcat.
+    DATA lt_serialized TYPE sctx_serialize.
+    DATA lt_temp_menu_entries TYPE sctx_entrytab.
+    DATA lt_cols TYPE RANGE OF lvc_fname.
+    DATA lt_menu_flat TYPE sctx_entrytab.
 
     e_object->if_ctxmnu_internal~serialize_menu( CHANGING menu = lt_serialized ).
-    lt_menu_flat = VALUE #(
-      FOR serialized_entry IN lt_serialized
-      ( type        = serialized_entry-type
-        fcode       = serialized_entry-fcode
-        icon        = serialized_entry-icon
-        text        = serialized_entry-text
-        disabled    = serialized_entry-disabled
-        checked     = serialized_entry-checked
-        accelerator = serialized_entry-accelerator )
-    ).
+    lt_menu_flat = VALUE #( FOR serialized_entry IN lt_serialized
+                            ( type        = serialized_entry-type
+                              fcode       = serialized_entry-fcode
+                              icon        = serialized_entry-icon
+                              text        = serialized_entry-text
+                              disabled    = serialized_entry-disabled
+                              checked     = serialized_entry-checked
+                              accelerator = serialized_entry-accelerator ) ).
 
-    mo_alv_grid->get_selected_rows(
-      IMPORTING et_index_rows = DATA(lt_index_rows)
-                et_row_no     = DATA(lt_row_no)
-    ).
+    mo_alv_grid->get_selected_rows( IMPORTING et_index_rows = DATA(lt_index_rows)
+                                              et_row_no     = DATA(lt_row_no) ).
 
     mo_alv_grid->get_selected_columns( IMPORTING et_index_columns = DATA(lt_index_cols) ).
-    lt_cols = VALUE #( FOR col IN lt_index_cols ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
+    lt_cols = VALUE #( FOR col IN lt_index_cols
+                       ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
     mo_alv_grid->get_selected_cells( IMPORTING et_cell = DATA(lt_cells) ).
 
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
 
     DATA(lr_emph_menu) = build_accentuation_submenu( ).
 
-    mo_util->handle_alv_ctx_menu_request(
-       EXPORTING if_selected_cells = xsdbool( lt_cells IS NOT INITIAL )
-                 if_selected_rows  = xsdbool( lt_row_no IS NOT INITIAL )
-                 if_selected_cols  = xsdbool( lt_cols IS NOT INITIAL )
-                 it_selected_cells = lt_cells
-                 it_selected_cols  = lt_index_cols
-                 it_fieldcat       = lt_fieldcat
-       CHANGING  ct_menu_entries = lt_menu_flat
-    ).
+    mo_util->handle_alv_ctx_menu_request( EXPORTING if_selected_cells = xsdbool( lt_cells IS NOT INITIAL )
+                                                    if_selected_rows  = xsdbool( lt_row_no IS NOT INITIAL )
+                                                    if_selected_cols  = xsdbool( lt_cols IS NOT INITIAL )
+                                                    it_selected_cells = lt_cells
+                                                    it_selected_cols  = lt_index_cols
+                                                    it_fieldcat       = lt_fieldcat
+                                          CHANGING  ct_menu_entries   = lt_menu_flat ).
 
     IF lt_index_rows IS NOT INITIAL.
       lt_menu_flat = VALUE #( BASE lt_menu_flat
-        ( type  = sctx_c_type_separator )
-        ( type = sctx_c_type_function
-          fcode = zif_dbbr_c_selection_functions=>set_fixed_rows
-          text  = c_function_texts-set_fixed_rows )
-        ( type = sctx_c_type_function
-          fcode = zif_dbbr_c_selection_functions=>remove_fixed_rows
-          text  = c_function_texts-remove_fixed_rows )
-        ( type  = sctx_c_type_separator )
-        ( type  = sctx_c_type_function
-          fcode = zif_dbbr_c_selection_functions=>hide_lines
-          text  = c_function_texts-hide_lines )
-        ( type  = sctx_c_type_function
-          fcode = zif_dbbr_c_selection_functions=>keep_lines
-          text  = c_function_texts-keep_lines )
-        ( type  = sctx_c_type_separator )
-        ( type  = sctx_c_type_submenu
-          text  = 'Color selected Rows'
-          menu  = lr_emph_menu )
-        ( type  = sctx_c_type_function
-          fcode = zif_dbbr_c_selection_functions=>no_emphasize_lines
-          text  = c_function_texts-dont_emphasize_rows )
-      ).
+                              ( type  = sctx_c_type_separator )
+                              ( type  = sctx_c_type_function
+                                fcode = zif_dbbr_c_selection_functions=>set_fixed_rows
+                                text  = c_function_texts-set_fixed_rows )
+                              ( type  = sctx_c_type_function
+                                fcode = zif_dbbr_c_selection_functions=>remove_fixed_rows
+                                text  = c_function_texts-remove_fixed_rows )
+                              ( type  = sctx_c_type_separator )
+                              ( type  = sctx_c_type_function
+                                fcode = zif_dbbr_c_selection_functions=>hide_lines
+                                text  = c_function_texts-hide_lines )
+                              ( type  = sctx_c_type_function
+                                fcode = zif_dbbr_c_selection_functions=>keep_lines
+                                text  = c_function_texts-keep_lines )
+                              ( type  = sctx_c_type_separator )
+                              ( type  = sctx_c_type_submenu
+                                text  = 'Color selected Rows'
+                                menu  = lr_emph_menu )
+                              ( type  = sctx_c_type_function
+                                fcode = zif_dbbr_c_selection_functions=>no_emphasize_lines
+                                text  = c_function_texts-dont_emphasize_rows ) ).
 
       IF lines( lt_index_rows ) > 1.
-        lt_menu_flat = VALUE #( BASE lt_menu_flat ( type = sctx_c_type_separator ) ).
         lt_menu_flat = VALUE #( BASE lt_menu_flat
-          ( type  = sctx_c_type_function
-            fcode = zif_dbbr_c_selection_functions=>compare_selected_lines
-            text  = c_function_texts-compare_lines
-          )
-        ).
+                                ( type = sctx_c_type_separator ) ).
+        lt_menu_flat = VALUE #( BASE lt_menu_flat
+                                ( type  = sctx_c_type_function
+                                  fcode = zif_dbbr_c_selection_functions=>compare_selected_lines
+                                  text  = c_function_texts-compare_lines ) ).
 
       ENDIF.
     ELSEIF lt_cols IS NOT INITIAL.
-      mo_textfield_util->add_text_field_column_func(
-        EXPORTING it_selected_cols = lt_index_cols
-                  it_fieldcat      = lt_fieldcat
-        CHANGING  ct_menu_entries  = lt_menu_flat
-      ).
+      mo_textfield_util->add_text_field_column_func( EXPORTING it_selected_cols = lt_index_cols
+                                                               it_fieldcat      = lt_fieldcat
+                                                     CHANGING  ct_menu_entries  = lt_menu_flat ).
       IF lt_cells IS INITIAL.
         DATA(lv_hide_func_index) = line_index( lt_menu_flat[ fcode = zif_uitb_c_alv_functions=>column_invisible ] ).
-        INSERT VALUE #(
-            type  = sctx_c_type_function
-            fcode = zif_dbbr_c_selection_functions=>hide_other_columns
-            text  = c_function_texts-hide_other_columns
-        ) INTO lt_menu_flat INDEX lv_hide_func_index + 1.
+        INSERT VALUE #( type  = sctx_c_type_function
+                        fcode = zif_dbbr_c_selection_functions=>hide_other_columns
+                        text  = c_function_texts-hide_other_columns )
+               INTO lt_menu_flat INDEX lv_hide_func_index + 1.
       ENDIF.
 
       lt_menu_flat = VALUE #( BASE lt_menu_flat
-        ( type  = sctx_c_type_submenu
-          text  = 'Color selected Columns'
-          menu  = lr_emph_menu
-        )
-      ).
+                              ( type = sctx_c_type_submenu
+                                text = 'Color selected Columns'
+                                menu = lr_emph_menu ) ).
 
-*.... Option to disable checkbox style if at least one selected column has this style
+      " .... Option to disable checkbox style if at least one selected column has this style
       DATA(lt_checkbox_style_cols) = lt_fieldcat.
       DELETE lt_checkbox_style_cols WHERE checkbox = abap_false.
       IF lt_checkbox_style_cols IS NOT INITIAL.
+        " TODO: variable is assigned but never used (ABAP cleaner)
         LOOP AT lt_checkbox_style_cols ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE fieldname IN lt_cols.
           EXIT.
         ENDLOOP.
@@ -1575,102 +1490,86 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
             lv_sort_func_index = lines( lt_menu_flat ).
           ENDIF.
 
-          lt_temp_menu_entries = VALUE #(
-            ( type = sctx_c_type_separator )
-            ( type  = sctx_c_type_function
-              fcode = zif_dbbr_c_selection_functions=>disable_checkbox_col_style
-              text  = 'Disable Checkbox Style' )
-            ( type = sctx_c_type_separator )
-          ).
+          lt_temp_menu_entries = VALUE #( ( type = sctx_c_type_separator )
+                                          ( type  = sctx_c_type_function
+                                            fcode = zif_dbbr_c_selection_functions=>disable_checkbox_col_style
+                                            text  = 'Disable Checkbox Style' )
+                                          ( type = sctx_c_type_separator ) ).
 
           INSERT LINES OF lt_temp_menu_entries INTO lt_menu_flat INDEX lv_sort_func_index.
         ENDIF.
       ENDIF.
 
       lt_menu_flat = VALUE #( BASE lt_menu_flat
-        ( type  = sctx_c_type_function
-          fcode = zif_dbbr_c_selection_functions=>no_emphasize_lines
-          text  = c_function_texts-dont_emphasize_columns
-        )
-      ).
+                              ( type  = sctx_c_type_function
+                                fcode = zif_dbbr_c_selection_functions=>no_emphasize_lines
+                                text  = c_function_texts-dont_emphasize_columns ) ).
 
-      lt_menu_flat = VALUE #( BASE lt_menu_flat ( type = sctx_c_type_separator ) ).
+      lt_menu_flat = VALUE #( BASE lt_menu_flat
+                              ( type = sctx_c_type_separator ) ).
 
-      IF NOT ( mo_util->mf_group_by = abap_true OR
-               mo_util->mf_aggregation = abap_true ).
+      IF NOT (    mo_util->mf_group_by    = abap_true
+               OR mo_util->mf_aggregation = abap_true ).
         lt_menu_flat = VALUE #( BASE lt_menu_flat
-          ( type  = sctx_c_type_function
-            fcode = zif_dbbr_c_selection_functions=>group_by_selected_columns
-            text  = c_function_texts-group_selected_columns
-          )
-        ).
+                                ( type  = sctx_c_type_function
+                                  fcode = zif_dbbr_c_selection_functions=>group_by_selected_columns
+                                  text  = c_function_texts-group_selected_columns ) ).
       ENDIF.
 
       IF are_selected_cols_filtered( lt_index_cols ).
         DATA(lv_filter_func_index) = line_index( lt_menu_flat[ fcode = zif_uitb_c_alv_functions=>filter ] ).
         INSERT VALUE #( type  = sctx_c_type_function
-            fcode = zif_dbbr_c_selection_functions=>delete_filters_from_cols
-            text  = c_function_texts-delete_filters_from_cols
-        ) INTO lt_menu_flat INDEX lv_filter_func_index + 1.
+                        fcode = zif_dbbr_c_selection_functions=>delete_filters_from_cols
+                        text  = c_function_texts-delete_filters_from_cols )
+               INTO lt_menu_flat INDEX lv_filter_func_index + 1.
       ENDIF.
     ELSE.
-      lt_menu_flat = VALUE #( BASE lt_menu_flat ( type = sctx_c_type_separator ) ).
       lt_menu_flat = VALUE #( BASE lt_menu_flat
-        ( type  = sctx_c_type_submenu
-          text  = 'Color selected Cells'
-          menu  = lr_emph_menu
-        )
-      ).
+                              ( type = sctx_c_type_separator ) ).
       lt_menu_flat = VALUE #( BASE lt_menu_flat
-        ( type  = sctx_c_type_function
-          fcode = zif_dbbr_c_selection_functions=>no_emphasize_cells
-          text  = c_function_texts-dont_emphasize_cells
-        )
-      ).
+                              ( type = sctx_c_type_submenu
+                                text = 'Color selected Cells'
+                                menu = lr_emph_menu ) ).
+      lt_menu_flat = VALUE #( BASE lt_menu_flat
+                              ( type  = sctx_c_type_function
+                                fcode = zif_dbbr_c_selection_functions=>no_emphasize_cells
+                                text  = c_function_texts-dont_emphasize_cells ) ).
       lv_filter_func_index = line_index( lt_menu_flat[ fcode = zif_uitb_c_alv_functions=>filter ] ).
-      lt_temp_menu_entries = VALUE #(
-        ( type  = sctx_c_type_function
-          fcode = zif_dbbr_c_selection_functions=>quick_filter
-          text  = c_function_texts-quickfilter )
-        ( type  = sctx_c_type_function
-          fcode = zif_dbbr_c_selection_functions=>quick_filter_exclusion
-          text  = c_function_texts-quickfilter_exclusion )
-      ).
+      lt_temp_menu_entries = VALUE #( type = sctx_c_type_function
+                                      ( fcode = zif_dbbr_c_selection_functions=>quick_filter
+                                        text  = c_function_texts-quickfilter )
+                                      ( fcode = zif_dbbr_c_selection_functions=>quick_filter_exclusion
+                                        text  = c_function_texts-quickfilter_exclusion ) ).
 
       INSERT LINES OF lt_temp_menu_entries INTO lt_menu_flat INDEX lv_filter_func_index + 1.
 
       " add option to calculate certain selected cells
       IF lt_cells IS NOT INITIAL.
-        lt_menu_flat = VALUE #( BASE lt_menu_flat ( type = sctx_c_type_separator ) ).
+        lt_menu_flat = VALUE #( BASE lt_menu_flat
+                                ( type = sctx_c_type_separator ) ).
         IF lines( lt_cells ) = 1.
-*......... Check if cell type is string
+          " ......... Check if cell type is string
           ls_field = VALUE #( lt_fieldcat[ fieldname = lt_cells[ 1 ]-col_id-fieldname ] OPTIONAL ).
-          IF ls_field IS NOT INITIAL AND ( ls_field-inttype = cl_abap_typedescr=>typekind_string OR
-                                           ls_field-datatype = 'LCHR' ).
+          IF ls_field IS NOT INITIAL AND (    ls_field-inttype  = cl_abap_typedescr=>typekind_string
+                                           OR ls_field-datatype = 'LCHR' ).
             lt_menu_flat = VALUE #( BASE lt_menu_flat
-              ( type  = sctx_c_type_function
-                fcode = zif_dbbr_c_selection_functions=>show_string_cell_content
-                text  = c_function_texts-show_string_cell_content )
-            ).
+                                    ( type  = sctx_c_type_function
+                                      fcode = zif_dbbr_c_selection_functions=>show_string_cell_content
+                                      text  = c_function_texts-show_string_cell_content ) ).
           ENDIF.
         ENDIF.
         lt_menu_flat = VALUE #( BASE lt_menu_flat
-          ( type  = sctx_c_type_function
-            fcode = zif_dbbr_c_selection_functions=>calc_sum_of_chosen_cells
-            text  = c_function_texts-calc_sum_of_chosen_cells
-          )
-        ).
-        e_object->add_function(
-            fcode = zif_dbbr_c_selection_functions=>calc_sum_of_chosen_cells
-            text  = c_function_texts-calc_sum_of_chosen_cells
-        ).
+                                ( type  = sctx_c_type_function
+                                  fcode = zif_dbbr_c_selection_functions=>calc_sum_of_chosen_cells
+                                  text  = c_function_texts-calc_sum_of_chosen_cells ) ).
+        e_object->add_function( fcode = zif_dbbr_c_selection_functions=>calc_sum_of_chosen_cells
+                                text  = c_function_texts-calc_sum_of_chosen_cells ).
       ENDIF.
     ENDIF.
 
     e_object->clear( ).
     e_object->initialize_from_source( lt_menu_flat ).
   ENDMETHOD.
-
 
   METHOD on_double_click.
 *&---------------------------------------------------------------------*
@@ -1684,7 +1583,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
              tech_fieldname    TYPE fieldname,
            END OF lty_selfield.
 
-    FIELD-SYMBOLS: <lt_table>        TYPE table.
+    FIELD-SYMBOLS <lt_table> TYPE table.
 
     ASSIGN mo_util->mr_t_data->* TO <lt_table>.
 
@@ -1698,42 +1597,36 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     IF ls_field IS NOT INITIAL.
 
       IF ls_field-parameter1 = 'J'.
-        on_hotspot_click(
-            e_column_id = e_column
-            e_row_id    = e_row
-            es_row_no   = es_row_no
-        ).
+        on_hotspot_click( e_column_id = e_column
+                          e_row_id    = e_row
+                          es_row_no   = es_row_no ).
         RETURN.
       ENDIF.
     ENDIF.
 
-    show_line_detail(
-      is_line = <ls_current_line>
-    ).
-
+    show_line_detail( is_line = <ls_current_line> ).
   ENDMETHOD.
 
-
   METHOD on_hotspot_click.
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE,
-                   <ls_line>  TYPE any.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <ls_line> TYPE any.
 
     ASSIGN mo_util->mr_t_data->* TO <lt_table>.
     ASSIGN <lt_table>[ e_row_id-index ] TO <ls_line>.
 
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_field_cat) ).
+    " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(ls_field) = lt_field_cat[ fieldname = e_column_id-fieldname ].
 
     call_jumpfield_transaction( iv_fieldname = e_column_id-fieldname
                                 is_row_data  = <ls_line> ).
   ENDMETHOD.
 
-
   METHOD on_no_data.
     mf_no_data = abap_true.
 
     IF mf_has_parent = abap_true.
-*... export error message to memory
+      " ... export error message to memory
       IF ef_criteria_exist = abap_true.
         MESSAGE i101(zdbbr_info) INTO DATA(lv_message).
       ELSE.
@@ -1755,7 +1648,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
             MESSAGE i060(zdbbr_info).
           ENDIF.
         ELSE.
-          mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+          mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                                   col = abap_true ) ).
         ENDIF.
       ELSE.
         IF ef_criteria_exist = abap_true.
@@ -1767,9 +1661,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-
   METHOD on_selection_finish.
-    FIELD-SYMBOLS: <lt_data> TYPE table.
+    FIELD-SYMBOLS <lt_data> TYPE table.
 
     IF ef_first_select = abap_true.
       zif_uitb_screen_controller~call_screen( ).
@@ -1788,28 +1681,26 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         mo_alv_grid->get_sort_criteria( IMPORTING et_sort = DATA(lt_sort) ).
 
         mo_alv_grid->set_table_for_first_display(
-          EXPORTING is_layout         = ls_layout
-                    i_save            = 'A'
-                    i_default         = mo_util->ms_technical_info-enable_alv_default_variant
-                    is_variant        = ls_variant
-          CHANGING  it_fieldcatalog   = mo_util->mt_temp_fieldcat
-                    it_outtab         = <lt_data>
-                    it_sort           = lt_sort
-                    it_filter         = lt_filter
-        ).
+          EXPORTING is_layout       = ls_layout
+                    i_save          = 'A'
+                    i_default       = mo_util->ms_technical_info-enable_alv_default_variant
+                    is_variant      = ls_variant
+          CHANGING  it_fieldcatalog = mo_util->mt_temp_fieldcat
+                    it_outtab       = <lt_data>
+                    it_sort         = lt_sort
+                    it_filter       = lt_filter ).
         CLEAR mo_util->mt_temp_fieldcat.
       ELSE.
-        mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+        mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                                 col = abap_true ) ).
       ENDIF.
 
     ENDIF.
   ENDMETHOD.
 
-
   METHOD on_toolbar_clicked.
     on_user_command( fcode ).
   ENDMETHOD.
-
 
   METHOD on_user_command.
     CASE e_ucomm.
@@ -1836,7 +1727,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         disable_checkbox_style( if_selected_cols_only = abap_true ).
 
       WHEN zif_dbbr_c_selection_functions=>disable_chkbox_col_style_all.
-        disable_checkbox_style(  ).
+        disable_checkbox_style( ).
 
       WHEN zif_dbbr_c_selection_functions=>emph_light_green OR
            zif_dbbr_c_selection_functions=>emph_green OR
@@ -1889,17 +1780,14 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
       WHEN OTHERS.
         DATA(lf_trigger_pbo) = SWITCH #( e_ucomm
-          WHEN zif_dbbr_c_selection_functions=>change_cds_parameters
-            THEN abap_true
-        ).
+                                         WHEN zif_dbbr_c_selection_functions=>change_cds_parameters
+                                         THEN abap_true ).
         mo_util->zif_dbbr_screen_util~handle_ui_function( CHANGING cv_function = e_ucomm ).
         IF lf_trigger_pbo = abap_true.
           zif_uitb_screen_controller~pbo( ).
         ENDIF.
     ENDCASE.
-
   ENDMETHOD.
-
 
   METHOD perform_quick_filter.
     DATA(lr_alv_util) = mo_util->get_alv_util( ).
@@ -1908,14 +1796,14 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     process_filter_change( ).
   ENDMETHOD.
 
-
   METHOD perform_row_comparison.
 *&---------------------------------------------------------------------*
 *& Description: Compares rows across all columns
 *&---------------------------------------------------------------------*
-    FIELD-SYMBOLS: <lt_table>            TYPE STANDARD TABLE,
-                   <lt_colors_left_row>  TYPE lvc_t_scol,
-                   <lt_colors_right_row> TYPE lvc_t_scol.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
+    " TODO: variable is assigned but never used (ABAP cleaner)
+    FIELD-SYMBOLS <lt_colors_left_row> TYPE lvc_t_scol.
+    FIELD-SYMBOLS <lt_colors_right_row> TYPE lvc_t_scol.
 
     ASSIGN mo_util->mr_t_temp_data->* TO <lt_table>.
 
@@ -1934,8 +1822,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       ASSIGN COMPONENT zif_dbbr_c_special_out_columns=>cell_col_row_color OF STRUCTURE <ls_left_row> TO <lt_colors_left_row>.
       ASSIGN COMPONENT zif_dbbr_c_special_out_columns=>cell_col_row_color OF STRUCTURE <ls_right_row> TO <lt_colors_right_row>.
 
-      LOOP AT it_fieldcat ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE no_out = abap_false
-                                                               AND tech   = abap_false.
+      LOOP AT it_fieldcat ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE     no_out = abap_false
+                                                                   AND tech   = abap_false.
         ASSIGN COMPONENT <ls_field>-fieldname OF STRUCTURE <ls_left_row> TO FIELD-SYMBOL(<lv_left_value>).
         ASSIGN COMPONENT <ls_field>-fieldname OF STRUCTURE <ls_right_row> TO FIELD-SYMBOL(<lv_right_value>).
         IF <lv_left_value> IS NOT ASSIGNED OR <lv_right_value> IS NOT ASSIGNED.
@@ -1943,14 +1831,11 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
         ENDIF.
 
         IF <lv_left_value> <> <lv_right_value>.
-          APPEND VALUE lvc_s_scol(
-              fname    = <ls_field>-fieldname
-              color    = VALUE lvc_s_colo(
-                col = col_negative
-                int = 0
-                inv = 0
-              )
-          ) TO <lt_colors_right_row>.
+          APPEND VALUE lvc_s_scol( fname = <ls_field>-fieldname
+                                   color = VALUE lvc_s_colo( col = col_negative
+                                                             int = 0
+                                                             inv = 0 ) )
+                 TO <lt_colors_right_row>.
           lf_row_differs = abap_true.
           rf_rows_identical = abap_false.
         ENDIF.
@@ -1959,20 +1844,15 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       ENDLOOP.
 
       IF lf_row_differs = abap_false.
-        APPEND VALUE lvc_s_scol(
-            color    = VALUE lvc_s_colo(
-              col = col_positive
-              int = 0
-              inv = 0
-            )
-        ) TO <lt_colors_right_row>.
+        APPEND VALUE lvc_s_scol( color = VALUE lvc_s_colo( col = col_positive
+                                                           int = 0
+                                                           inv = 0 ) )
+               TO <lt_colors_right_row>.
       ENDIF.
 
-      ADD 1 TO lv_index.
+      lv_index = lv_index + 1.
     ENDWHILE.
-
   ENDMETHOD.
-
 
   METHOD process_filter_change.
     DATA(lr_alv_util) = mo_util->get_alv_util( ).
@@ -1982,10 +1862,10 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       mo_util->update_selection_for_filter( ).
     ELSE.
       mo_alv_grid->set_filter_criteria( lr_alv_util->get_filters( ) ).
-      mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+      mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                               col = abap_true ) ).
     ENDIF.
   ENDMETHOD.
-
 
   METHOD refresh.
     mo_util->refresh_selection( ).
@@ -1993,12 +1873,10 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     mo_alv_grid->optimize_columns( ).
   ENDMETHOD.
 
-
   METHOD remove_filt_from_selected_cols.
     CHECK mo_util->get_alv_util( )->del_filter_from_selected_cols( ).
     process_filter_change( ).
   ENDMETHOD.
-
 
   METHOD remove_grouping.
     mo_util->get_alv_util( )->remove_column_grouping( ).
@@ -2011,14 +1889,12 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     mo_alv_grid->set_scroll_info_via_id(
         is_col_info = VALUE lvc_s_col( fieldname = mo_util->mt_fieldcat[ 2 ]-fieldname )
-        is_row_no   = VALUE lvc_s_roid( row_id = 1 )
-    ).
+        is_row_no   = VALUE lvc_s_roid( row_id = 1 ) ).
 
     mo_alv_grid->optimize_columns( ).
 
     cl_gui_control=>set_focus( mo_alv_grid ).
   ENDMETHOD.
-
 
   METHOD reset_alv_layout.
     mo_alv_grid->set_frontend_fieldcatalog( mo_util->mt_fieldcat ).
@@ -2026,9 +1902,9 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     mo_alv_grid->set_frontend_layout( ms_alv_layout ).
 
     mo_alv_grid->optimize_columns( ).
-    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+    mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                             col = abap_true ) ).
   ENDMETHOD.
-
 
   METHOD rows_differ.
     LOOP AT it_compare_by ASSIGNING FIELD-SYMBOL(<ls_field>) WHERE is_numeric = abap_false.
@@ -2042,7 +1918,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-
   METHOD save_as_f4.
 *&---------------------------------------------------------------------*
 *& Description: Saves current selection as custom f4 help for a database table
@@ -2051,24 +1926,20 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     DELETE lt_fieldcat WHERE no_out = abap_true OR tech = abap_true.
     SORT lt_fieldcat BY col_pos.
 
-    DATA(lr_f4_screen_controller) = NEW zcl_dbbr_custom_f4_sc(
-        it_fieldcat     = lt_fieldcat
-        io_tabfields    = mo_util->mo_tabfields
-        is_join_def     = mo_util->ms_join_def
-    ).
+    DATA(lr_f4_screen_controller) = NEW zcl_dbbr_custom_f4_sc( it_fieldcat  = lt_fieldcat
+                                                               io_tabfields = mo_util->mo_tabfields
+                                                               is_join_def  = mo_util->ms_join_def ).
 
     lr_f4_screen_controller->zif_uitb_screen_controller~call_screen( ).
-
   ENDMETHOD.
 
-
   METHOD scroll_to_column.
-    DATA: lt_columns TYPE lty_t_col_selection.
+    DATA lt_columns TYPE lty_t_col_selection.
 
-*.. Build columns list from alv field catalog of visible columns
+    " .. Build columns list from alv field catalog of visible columns
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_field_catalog) ).
-    DELETE lt_field_catalog WHERE tech = abap_true
-                               OR no_out = abap_true.
+    DELETE lt_field_catalog WHERE    tech   = abap_true
+                                  OR no_out = abap_true.
 
     LOOP AT lt_field_catalog ASSIGNING FIELD-SYMBOL(<ls_field_cat>).
       DATA(lv_col_index) = sy-tabix.
@@ -2076,53 +1947,44 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       TRY.
           DATA(lr_field) = mo_util->mo_tabfields_all->get_field_ref_by_alv_name( <ls_field_cat>-fieldname ).
           lt_columns = VALUE #( BASE lt_columns
-            ( idx            = lv_col_index
-              tech_fieldname = lr_field->alv_fieldname
-              fieldname      = lr_field->sql_fieldname
-              description    = lr_field->field_ddtext )
-          ).
+                                ( idx            = lv_col_index
+                                  tech_fieldname = lr_field->alv_fieldname
+                                  fieldname      = lr_field->sql_fieldname
+                                  description    = lr_field->field_ddtext ) ).
         CATCH cx_sy_itab_line_not_found.
           CONTINUE.
       ENDTRY.
 
     ENDLOOP.
 
-*.. choose column via popup dialog
-    DATA(lr_view) = NEW lcl_choose_col_view(
-        it_col = lt_columns
-    ).
+    " .. choose column via popup dialog
+    DATA(lr_view) = NEW lcl_choose_col_view( it_col = lt_columns ).
 
     DATA(lv_chosen_column) = lr_view->get_chosen_column( ).
-    CHECK lv_chosen_column IS NOT INITIAL.
+    IF lv_chosen_column IS INITIAL.
+      RETURN.
+    ENDIF.
 
-    mo_alv_grid->get_current_cell(
-      IMPORTING es_row_id = DATA(ls_row_id)
-    ).
+    mo_alv_grid->get_current_cell( IMPORTING es_row_id = DATA(ls_row_id) ).
 
-*... select found column
-    mo_alv_grid->set_current_cell_via_id(
-      EXPORTING
-        is_column_id = VALUE lvc_s_col( fieldname = lv_chosen_column )
-        is_row_no    = VALUE lvc_s_roid( row_id = ls_row_id-index )
-    ).
+    " ... select found column
+    mo_alv_grid->set_current_cell_via_id( is_column_id = VALUE lvc_s_col( fieldname = lv_chosen_column )
+                                          is_row_no    = VALUE lvc_s_roid( row_id = ls_row_id-index ) ).
 
-    mo_alv_grid->set_selected_columns(
-        it_col_table = VALUE #( ( fieldname = lv_chosen_column ) )
-    ).
+    mo_alv_grid->set_selected_columns( it_col_table = VALUE #( ( fieldname = lv_chosen_column ) ) ).
 
     cl_gui_control=>set_focus( mo_alv_grid ).
   ENDMETHOD.
 
-
   METHOD show_hidden_rows.
-    FIELD-SYMBOLS: <lt_table> TYPE STANDARD TABLE.
+    FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
 
     ASSIGN mo_util->mr_t_data->* TO <lt_table>.
 
     LOOP AT <lt_table> ASSIGNING FIELD-SYMBOL(<ls_row>) WHERE (`HIDE_FLAG EQ 'X'`).
       ASSIGN COMPONENT zif_dbbr_c_special_out_columns=>hide_flag OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_hide_flag>).
       IF sy-subrc = 0.
-        CLEAR: <lv_hide_flag>.
+        CLEAR <lv_hide_flag>.
       ENDIF.
     ENDLOOP.
 
@@ -2133,37 +1995,38 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     " refresh table
     IF if_refresh = abap_true.
-      mo_alv_grid->refresh_table_display(
-        is_stable      = VALUE #( row = abap_true col = abap_true )
-      ).
+      mo_alv_grid->refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                               col = abap_true ) ).
     ENDIF.
-
   ENDMETHOD.
 
-
   METHOD show_line_detail.
-    DATA(lo_detail_viewer) = NEW lcl_detail_viewer(
-      io_util           = mo_util
-      it_fieldcat       = mo_util->mt_fieldcat
-      io_tabfields_all  = mo_util->mo_tabfields_all
-      is_technical_info = mo_util->ms_technical_info
-    ).
+    DATA(lo_detail_viewer) = NEW lcl_detail_viewer( io_util           = mo_util
+                                                    it_fieldcat       = mo_util->mt_fieldcat
+                                                    io_tabfields_all  = mo_util->mo_tabfields_all
+                                                    is_technical_info = mo_util->ms_technical_info ).
     lo_detail_viewer->show_details( is_line ).
   ENDMETHOD.
 
-
   METHOD show_string_cell_content.
-    FIELD-SYMBOLS: <lt_data> TYPE table.
+    FIELD-SYMBOLS <lt_data> TYPE table.
+
     ASSIGN mo_util->mr_t_data->* TO <lt_data>.
-    CHECK sy-subrc = 0.
+    IF sy-subrc <> 0.
+      RETURN.
+    ENDIF.
     mo_alv_grid->get_selected_cells( IMPORTING et_cell = DATA(lt_cell) ).
     DATA(ls_cell) = lt_cell[ 1 ].
 
     ASSIGN <lt_data>[ ls_cell-row_id-index ] TO FIELD-SYMBOL(<ls_row>).
-    CHECK sy-subrc = 0.
+    IF sy-subrc <> 0.
+      RETURN.
+    ENDIF.
 
     ASSIGN COMPONENT ls_cell-col_id-fieldname OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_value>).
-    CHECK sy-subrc = 0.
+    IF sy-subrc <> 0.
+      RETURN.
+    ENDIF.
 
     IF <lv_value> IS INITIAL.
       MESSAGE |No String content to display| TYPE 'S'.
@@ -2171,33 +2034,33 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDIF.
 
     mo_alv_grid->get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
+    " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(ls_field) = lt_fieldcat[ fieldname = ls_cell-col_id-fieldname ].
 
     DATA(lv_value) = |{ <lv_value> }|.
 
-    zcl_uitb_abap_code_viewer=>show_code(
-      iv_title  = |Cell Content for { ls_cell-col_id-fieldname }|
-      iv_code   = lv_value
-      iv_width  = 900
-      iv_height = 500
-      iv_theme  = mo_util->ms_technical_info-code_viewer_theme
-    ).
+    zcl_uitb_abap_code_viewer=>show_code( iv_title  = |Cell Content for { ls_cell-col_id-fieldname }|
+                                          iv_code   = lv_value
+                                          iv_width  = 900
+                                          iv_height = 500
+                                          iv_theme  = mo_util->ms_technical_info-code_viewer_theme ).
   ENDMETHOD.
-
 
   METHOD transfer_filter_values.
 *&---------------------------------------------------------------------*
 *& Description: Transfers filter values to selection screen mask
 *&---------------------------------------------------------------------*
-    DATA: lv_transferred_filter_vals TYPE sy-tabix.
+    DATA lv_transferred_filter_vals TYPE sy-tabix.
 
-    FIELD-SYMBOLS: <lt_selfields>       TYPE zdbbr_selfield_itab,
-                   <lt_selfields_multi> TYPE zdbbr_selfield_itab.
+    FIELD-SYMBOLS <lt_selfields> TYPE zdbbr_selfield_itab.
+    FIELD-SYMBOLS <lt_selfields_multi> TYPE zdbbr_selfield_itab.
 
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
-    DATA(lr_selfields) = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_selection_fields ) ).
-    DATA(lr_selfields_multi) = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref( zif_dbbr_main_report_var_ids=>c_t_selection_fields_multi ) ).
+    DATA(lr_selfields) = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref(
+                                                       zif_dbbr_main_report_var_ids=>c_t_selection_fields ) ).
+    DATA(lr_selfields_multi) = CAST zdbbr_selfield_itab( lr_data_cache->get_data_ref(
+                                                             zif_dbbr_main_report_var_ids=>c_t_selection_fields_multi ) ).
 
     ASSIGN lr_selfields->* TO <lt_selfields>.
     ASSIGN lr_selfields_multi->* TO <lt_selfields_multi>.
@@ -2206,10 +2069,10 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     mo_alv_grid->get_filter_criteria( IMPORTING et_filter = DATA(lt_filter) ).
 
     LOOP AT lt_filter ASSIGNING FIELD-SYMBOL(<ls_filter_value>)
-      GROUP BY ( fieldname = <ls_filter_value>-fieldname
-                 ref_field = <ls_filter_value>-ref_field
-                 ref_tab   = <ls_filter_value>-ref_table )
-      ASSIGNING FIELD-SYMBOL(<ls_filter_value_group>).
+         GROUP BY ( fieldname = <ls_filter_value>-fieldname
+                    ref_field = <ls_filter_value>-ref_field
+                    ref_tab   = <ls_filter_value>-ref_table )
+         ASSIGNING FIELD-SYMBOL(<ls_filter_value_group>).
 
       " check if this field exists in the selection screen table
       IF NOT line_exists( <lt_selfields>[ tabname   = <ls_filter_value_group>-ref_tab
@@ -2234,13 +2097,13 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
           APPEND ls_selfield_multi TO <lt_selfields_multi> ASSIGNING <ls_selfield>.
         ENDIF.
 
-        <ls_selfield>-low = condense( val = <ls_filter_value_group_entry>-low ).
-        <ls_selfield>-high = condense( val = <ls_filter_value_group_entry>-high ).
-        <ls_selfield>-sign = <ls_filter_value_group_entry>-sign.
+        <ls_selfield>-low    = condense( val = <ls_filter_value_group_entry>-low ).
+        <ls_selfield>-high   = condense( val = <ls_filter_value_group_entry>-high ).
+        <ls_selfield>-sign   = <ls_filter_value_group_entry>-sign.
         <ls_selfield>-option = <ls_filter_value_group_entry>-option.
 
-        IF <ls_selfield>-low = space AND
-           <ls_selfield>-high = space.
+        IF     <ls_selfield>-low  = space
+           AND <ls_selfield>-high = space.
 
           <ls_selfield>-option = 'EQ'.
         ELSEIF <ls_selfield>-sign = 'I' AND <ls_selfield>-option = 'EQ'.
@@ -2249,11 +2112,16 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
           <ls_selfield>-option = <ls_filter_value_group_entry>-option.
         ENDIF.
 
-        ADD 1 TO lv_transferred_filter_vals.
+        lv_transferred_filter_vals = lv_transferred_filter_vals + 1.
       ENDLOOP.
     ENDLOOP.
 
-    SORT <lt_selfields_multi> BY tabname fieldname sign option low high.
+    SORT <lt_selfields_multi> BY tabname
+                                 fieldname
+                                 sign
+                                 option
+                                 low
+                                 high.
     DELETE ADJACENT DUPLICATES FROM <lt_selfields_multi> COMPARING tabname fieldname sign option low high.
 
     IF if_leave_screen = abap_true.
@@ -2266,7 +2134,6 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       ENDIF.
     ENDIF.
   ENDMETHOD.
-
 
   METHOD transfer_layout_info_to_selscr.
     " get fieldcatalog to determine all visible fields and the ordering
@@ -2281,7 +2148,7 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     DATA(lv_pos) = 1.
     LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fieldcat>).
       <ls_fieldcat>-col_pos = lv_pos.
-      ADD 1 TO lv_pos.
+      lv_pos = lv_pos + 1.
     ENDLOOP.
 
     DATA(lr_original_tabfields) = mo_util->mo_tabfields_original.
@@ -2297,41 +2164,35 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       ASSIGN lt_fieldcat[ fieldname = lr_tabfield->alv_fieldname ] TO <ls_fieldcat>.
       IF sy-subrc = 0.
         lr_tabfield->output_active = xsdbool( <ls_fieldcat>-no_out = abap_false ).
-        lr_tabfield->output_order = <ls_fieldcat>-col_pos.
+        lr_tabfield->output_order  = <ls_fieldcat>-col_pos.
       ENDIF.
 
       ASSIGN lt_sort[ fieldname = lr_tabfield->alv_fieldname ] TO FIELD-SYMBOL(<ls_sort_criteria>).
       IF sy-subrc = 0.
-        lr_tabfield->sort_active = abap_true.
+        lr_tabfield->sort_active    = abap_true.
         lr_tabfield->sort_direction = COND #( WHEN <ls_sort_criteria>-down = abap_true THEN
                                                 zif_dbbr_c_global=>c_sort_direction-descending
                                               WHEN <ls_sort_criteria>-up = abap_true THEN
                                                 zif_dbbr_c_global=>c_sort_direction-ascending ).
-        lr_tabfield->sort_order = <ls_sort_criteria>-spos.
+        lr_tabfield->sort_order     = <ls_sort_criteria>-spos.
       ENDIF.
     ENDWHILE.
 
     mf_layout_transferred = abap_true.
   ENDMETHOD.
 
-
   METHOD zif_uitb_screen_controller~call_screen.
     CHECK mf_has_parent = abap_false.
 
-    zcl_uitb_screen_util=>call_screen(
-        iv_screen_id    = get_screen_id( )
-        iv_report_id    = get_report_id( )
-        it_object_map   = VALUE #(
-          ( variable_name = zif_dbbr_output_rep_var_ids=>c_r_controller
-            global_ref    = me )
-        )
-    ).
+    zcl_uitb_screen_util=>call_screen( iv_screen_id  = get_screen_id( )
+                                       iv_report_id  = get_report_id( )
+                                       it_object_map = VALUE #(
+                                           ( variable_name = zif_dbbr_output_rep_var_ids=>c_r_controller
+                                             global_ref    = me ) ) ).
   ENDMETHOD.
 
-
-  METHOD zif_uitb_screen_controller~cancel ##needed.
+  METHOD zif_uitb_screen_controller~cancel ##NEEDED.
   ENDMETHOD.
-
 
   METHOD zif_uitb_screen_controller~free_screen_resources.
     IF mo_util IS BOUND.
@@ -2339,16 +2200,13 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-
   METHOD zif_uitb_screen_controller~get_report_id.
     result = zif_dbbr_c_report_id=>output.
   ENDMETHOD.
 
-
   METHOD zif_uitb_screen_controller~get_screen_id.
     result = zif_dbbr_screen_ids=>c_selection_output.
   ENDMETHOD.
-
 
   METHOD zif_uitb_screen_controller~handle_user_command.
     DATA(lv_function_code) = cv_function_code.
@@ -2357,13 +2215,12 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     CASE lv_function_code.
 
       WHEN zif_dbbr_c_selection_functions=>show_details.
-        mo_alv_grid->get_current_cell( IMPORTING es_row_id = DATA(ls_row_id) es_row_no = DATA(ls_row_no) es_col_id = DATA(ls_col_id) ).
-        on_double_click(
-          EXPORTING
-            e_row     = ls_row_id
-            e_column  = ls_col_id
-            es_row_no = ls_row_no
-        ).
+        mo_alv_grid->get_current_cell( IMPORTING es_row_id = DATA(ls_row_id)
+                                                 es_row_no = DATA(ls_row_no)
+                                                 es_col_id = DATA(ls_col_id) ).
+        on_double_click( e_row     = ls_row_id
+                         e_column  = ls_col_id
+                         es_row_no = ls_row_no ).
         RETURN.
 
       WHEN zif_dbbr_c_selection_functions=>reset_alv_layout.
@@ -2385,10 +2242,10 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
            zif_dbbr_c_global=>c_function_codes-cancel_screen OR
            zif_dbbr_c_global=>c_function_codes-quit_program.
 
-        IF lv_function_code = zif_dbbr_c_global=>c_function_codes-leave_screen AND
-           mo_util->ms_technical_info-auto_layout_transfer = abap_true AND
-           mo_util->mf_aggregation = abap_false AND
-           mo_util->mf_group_by = abap_false.
+        IF     lv_function_code = zif_dbbr_c_global=>c_function_codes-leave_screen
+           AND mo_util->ms_technical_info-auto_layout_transfer = abap_true
+           AND mo_util->mf_aggregation = abap_false
+           AND mo_util->mf_group_by = abap_false.
           transfer_layout_info_to_selscr( ).
         ENDIF.
         zif_uitb_screen_controller~free_screen_resources( ).
@@ -2490,49 +2347,40 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       WHEN zif_dbbr_c_selection_functions=>copy_as_val_stmnts OR
            zif_dbbr_c_selection_functions=>copy_as_val_stmnt_compact.
         mo_alv_grid->copy_as_value_statement(
-            if_compact = xsdbool( lv_function_code = zif_dbbr_c_selection_functions=>copy_as_val_stmnt_compact )
-        ).
+            if_compact = xsdbool( lv_function_code = zif_dbbr_c_selection_functions=>copy_as_val_stmnt_compact ) ).
         RETURN.
 
-***      WHEN zif_dbbr_c_selection_functions=>disable_checkbox_col_style.
-***        disable_checkbox_style( ).
-***        RETURN.
+      " WHEN zif_dbbr_c_selection_functions=>disable_checkbox_col_style.
+      " disable_checkbox_style( ).
+      " RETURN.
 
       WHEN OTHERS.
         mo_util->handle_ui_function( CHANGING cv_function = lv_function_code ).
 
     ENDCASE.
 
-    CHECK lv_function_code IS NOT INITIAL.
+    IF lv_function_code IS INITIAL.
+      RETURN.
+    ENDIF.
 
     " now handle alv grid function codes
-    mo_alv_grid->set_function_code(
-      CHANGING
-        c_ucomm = lv_function_code
-    ).
-
+    mo_alv_grid->set_function_code( CHANGING c_ucomm = lv_function_code ).
   ENDMETHOD.
 
-
   METHOD zif_uitb_screen_controller~pbo.
-
     mo_util->zif_dbbr_screen_util~handle_pbo( if_first_call = mf_first_call ).
 
     IF mo_alv_grid IS NOT INITIAL.
-*... mark first cell and focus on alv grid, after screen has been initially loaded
+      " ... mark first cell and focus on alv grid, after screen has been initially loaded
       IF mf_first_cell_marked = abap_false.
-        mo_alv_grid->set_current_cell_via_id(
-            is_row_no     = VALUE #( row_id = 1 )
-        ).
+        mo_alv_grid->set_current_cell_via_id( is_row_no = VALUE #( row_id = 1 ) ).
         cl_gui_control=>set_focus( mo_alv_grid ).
         mf_first_cell_marked = abap_true.
       ENDIF.
     ELSE.
       init_grid_control( ).
       IF mf_first_cell_marked = abap_false.
-        mo_alv_grid->set_current_cell_via_id(
-            is_row_no     = VALUE #( row_id = 1 )
-        ).
+        mo_alv_grid->set_current_cell_via_id( is_row_no = VALUE #( row_id = 1 ) ).
         cl_gui_control=>set_focus( mo_alv_grid ).
         mf_first_cell_marked = abap_true.
       ENDIF.
@@ -2540,13 +2388,13 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
 
     zif_uitb_screen_controller~set_status( ).
 
-*... reset flag to signal first screen call is over
+    " ... reset flag to signal first screen call is over
     CLEAR mf_first_call.
   ENDMETHOD.
 
-
   METHOD zif_uitb_screen_controller~set_status.
-    DATA: lt_excluding TYPE ui_functions.
+    DATA lt_excluding TYPE ui_functions.
+
     lt_excluding = mo_util->zif_dbbr_screen_util~get_deactivated_functions( ).
 
     IF mo_alv_grid IS NOT INITIAL.
@@ -2562,7 +2410,8 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
     ENDIF.
 
     IF mo_alv_grid IS INITIAL OR NOT mo_util->get_alv_util( )->is_column_grouping_active( ).
-      lt_excluding = VALUE #( BASE lt_excluding ( zif_dbbr_c_selection_functions=>remove_column_grouping ) ).
+      lt_excluding = VALUE #( BASE lt_excluding
+                              ( zif_dbbr_c_selection_functions=>remove_column_grouping ) ).
     ENDIF.
 
     DATA(lv_select_type_text) = COND string( WHEN mo_util->is_join_active( ) THEN TEXT-t03 ELSE TEXT-t02 ).
@@ -2575,12 +2424,11 @@ CLASS zcl_dbbr_selection_controller IMPLEMENTATION.
       DATA(lv_alv_filtered_entries) = mo_util->get_alv_util( )->get_filtered_count( ).
     ENDIF.
 
-    DATA(lv_filtered_line_count) = COND #( WHEN lv_alv_filtered_entries = 0 THEN
-                                             current_line_count( )
-                                           ELSE
-                                             current_line_count( ) - lv_alv_filtered_entries ).
+    DATA(lv_filtered_line_count) = COND #( WHEN lv_alv_filtered_entries = 0
+                                           THEN current_line_count( )
+                                           ELSE current_line_count( ) - lv_alv_filtered_entries ).
 
-    DATA(lv_selection_count_text) = mo_util->get_sel_count_text( EXPORTING iv_filtered_line_count = lv_filtered_line_count ).
+    DATA(lv_selection_count_text) = mo_util->get_sel_count_text( iv_filtered_line_count = lv_filtered_line_count ).
 
     SET TITLEBAR 'OUTPUT_TITLE' OF PROGRAM zif_dbbr_c_report_id=>output WITH lv_select_type_text lv_selection_count_text.
   ENDMETHOD.

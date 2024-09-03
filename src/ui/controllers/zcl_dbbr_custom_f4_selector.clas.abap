@@ -1,25 +1,27 @@
-"! <p class="shorttext synchronized" lang="en">Selection dialog for custom F4</p>
+"! <p class="shorttext synchronized">Selection dialog for custom F4</p>
 CLASS zcl_dbbr_custom_f4_selector DEFINITION
   PUBLIC
-  INHERITING FROM zcl_uitb_selection_dialog
-  FINAL
-  CREATE PUBLIC .
+  INHERITING FROM zcl_uitb_selection_dialog FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    "! <p class="shorttext synchronized">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
         is_tabfield TYPE zdbbr_tabfield_info_ui.
-    "! <p class="shorttext synchronized" lang="en">Assign value helps to the given field</p>
+
+    "! <p class="shorttext synchronized">Assign value helps to the given field</p>
     METHODS assign_value_helps
       RETURNING
         VALUE(rf_updated) TYPE abap_bool.
+
   PROTECTED SECTION.
-    METHODS: get_output_table REDEFINITION,
-      matches_filter REDEFINITION,
-      adjust_column REDEFINITION,
-      has_selections REDEFINITION,
-      get_mark_field_description REDEFINITION.
+    METHODS get_output_table           REDEFINITION.
+    METHODS matches_filter             REDEFINITION.
+    METHODS adjust_column              REDEFINITION.
+    METHODS has_selections             REDEFINITION.
+    METHODS get_mark_field_description REDEFINITION.
+
   PRIVATE SECTION.
     TYPES:
       BEGIN OF ty_s_f4,
@@ -35,62 +37,57 @@ CLASS zcl_dbbr_custom_f4_selector DEFINITION
         created_by   TYPE zsat_created_by,
         filtered     TYPE abap_bool,
       END OF ty_s_f4.
-    TYPES: ty_t_f4 TYPE STANDARD TABLE OF ty_s_f4 WITH EMPTY KEY.
+    TYPES ty_t_f4 TYPE STANDARD TABLE OF ty_s_f4 WITH EMPTY KEY.
 
     DATA mt_custom_f4 TYPE ty_t_f4.
     DATA ms_tabfield TYPE zdbbr_tabfield_info_ui.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
-
   METHOD constructor.
-    super->constructor(
-        iv_title          = |{ 'Assign F4 to Field' } { is_tabfield-fieldname }|
-        if_multi_select   = abap_true
-        if_use_alv_filter = abap_true
-    ).
+    super->constructor( iv_title          = |{ 'Assign F4 to Field' } { is_tabfield-fieldname }|
+                        if_multi_select   = abap_true
+                        if_use_alv_filter = abap_true ).
     ms_tabfield = is_tabfield.
   ENDMETHOD.
 
   METHOD assign_value_helps.
-    CLEAR: mt_custom_f4.
+    CLEAR mt_custom_f4.
 
-*.. Read all possible value helps for the fieldname and datatype of the field
+    " .. Read all possible value helps for the fieldname and datatype of the field
     IF ms_tabfield-rollname IS NOT INITIAL.
-      zcl_dbbr_custom_f4_factory=>find_f4_for_datatype(
-        EXPORTING iv_rollname      = ms_tabfield-rollname
-        IMPORTING et_f4            = DATA(lt_f4)
-      ).
+      zcl_dbbr_custom_f4_factory=>find_f4_for_datatype( EXPORTING iv_rollname = ms_tabfield-rollname
+                                                        IMPORTING et_f4       = DATA(lt_f4) ).
     ENDIF.
     IF ms_tabfield-datatype IS NOT INITIAL.
-      zcl_dbbr_custom_f4_factory=>find_f4_for_datatype(
-        EXPORTING is_built_in_type = VALUE #(
-                    datatype = ms_tabfield-datatype
-                    inttype  = ms_tabfield-inttype
-                  )
-        IMPORTING et_f4            = DATA(lt_datatype_f4)
-      ).
-      lt_f4 = VALUE #( BASE lt_f4 ( LINES OF lt_datatype_f4 ) ).
+      zcl_dbbr_custom_f4_factory=>find_f4_for_datatype( EXPORTING is_built_in_type = VALUE #(
+                                                            datatype = ms_tabfield-datatype
+                                                            inttype  = ms_tabfield-inttype )
+                                                        IMPORTING et_f4            = DATA(lt_datatype_f4) ).
+      lt_f4 = VALUE #( BASE lt_f4
+                       ( LINES OF lt_datatype_f4 ) ).
     ENDIF.
 
-    CHECK lt_f4 IS NOT INITIAL.
+    IF lt_f4 IS INITIAL.
+      RETURN.
+    ENDIF.
 
-*.. Remove duplicates
+    " .. Remove duplicates
     SORT lt_f4 BY f4_id.
     DELETE ADJACENT DUPLICATES FROM lt_f4.
 
-*.... read assignments for F4
+    " .... read assignments for F4
     DATA(lt_f4_assgmt) = zcl_dbbr_custom_f4_factory=>get_f4_assignments( ).
 
+    " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(lv_mark_count) = 0.
     LOOP AT lt_f4 ASSIGNING FIELD-SYMBOL(<ls_f4_data>).
       DATA(ls_search_field) = <ls_f4_data>-fields[ is_search_key = abap_true ].
 
-      IF ms_tabfield-rollname = ls_search_field-rollname OR
-         ( ms_tabfield-datatype = ls_search_field-datatype AND
-           ms_tabfield-inttype = ls_search_field-inttype ).
+      IF    ms_tabfield-rollname = ls_search_field-rollname
+         OR (     ms_tabfield-datatype = ls_search_field-datatype
+              AND ms_tabfield-inttype  = ls_search_field-inttype ).
 
         CHECK ms_tabfield-length >= ls_search_field-leng.
       ENDIF.
@@ -98,15 +95,15 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
       APPEND INITIAL LINE TO mt_custom_f4 ASSIGNING FIELD-SYMBOL(<ls_f4>).
       <ls_f4> = CORRESPONDING #( <ls_f4_data> ).
       <ls_f4>-search_field = ls_search_field-search_field.
-      <ls_f4>-datatype = ls_search_field-datatype.
-      <ls_f4>-rollname = ls_search_field-rollname.
-      <ls_f4>-length = ls_search_field-leng.
+      <ls_f4>-datatype     = ls_search_field-datatype.
+      <ls_f4>-rollname     = ls_search_field-rollname.
+      <ls_f4>-length       = ls_search_field-leng.
       <ls_f4>-search_table = ls_search_field-search_table.
-      <ls_f4>-mark = xsdbool( line_exists( lt_f4_assgmt[ ref_f4_id = <ls_f4_data>-f4_id
-                                                         fieldname = ms_tabfield-fieldname
-                                                         entity_id = ms_tabfield-tabname ] ) ).
+      <ls_f4>-mark         = xsdbool( line_exists( lt_f4_assgmt[ ref_f4_id = <ls_f4_data>-f4_id
+                                                                 fieldname = ms_tabfield-fieldname
+                                                                 entity_id = ms_tabfield-tabname ] ) ).
       IF <ls_f4>-mark = abap_true.
-        ADD 1 TO lv_mark_count.
+        lv_mark_count = lv_mark_count + 1.
       ENDIF.
     ENDLOOP.
 
@@ -115,39 +112,36 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    show(
-        iv_top    = 2
-        iv_left   = 10
-        iv_width  = 125
-        iv_height = 17
-    ).
+    show( iv_top    = 2
+          iv_left   = 10
+          iv_width  = 125
+          iv_height = 17 ).
 
-    CHECK mf_data_selected = abap_true.
+    IF mf_data_selected = abap_false.
+      RETURN.
+    ENDIF.
 
-    rf_updated =  zcl_dbbr_custom_f4_factory=>update_f4_assignments(
-        it_f4_assignments = VALUE #(
-          FOR f4 IN mt_custom_f4
-          WHERE ( mark = abap_true )
-          ( entity_id  = ms_tabfield-tabname
-            fieldname  = ms_tabfield-fieldname
-            ref_f4_id  = f4-f4_id )
-        )
-        it_f4_assgnmt_delete = VALUE #(
-          FOR f4 IN mt_custom_f4
-          WHERE ( mark = abap_false )
-          ( entity_id  = ms_tabfield-tabname
-            fieldname  = ms_tabfield-fieldname
-            ref_f4_id  = f4-f4_id )
-        )
-    ).
+    rf_updated = zcl_dbbr_custom_f4_factory=>update_f4_assignments( it_f4_assignments    = VALUE #(
+                                                                        FOR f4 IN mt_custom_f4
+                                                                        WHERE ( mark = abap_true )
+                                                                        ( entity_id = ms_tabfield-tabname
+                                                                          fieldname = ms_tabfield-fieldname
+                                                                          ref_f4_id = f4-f4_id ) )
+                                                                    it_f4_assgnmt_delete = VALUE #(
+                                                                        FOR f4 IN mt_custom_f4
+                                                                        WHERE ( mark = abap_false )
+                                                                        ( entity_id = ms_tabfield-tabname
+                                                                          fieldname = ms_tabfield-fieldname
+                                                                          ref_f4_id = f4-f4_id ) ) ).
 
-    CHECK rf_updated = abap_true.
+    IF rf_updated = abap_false.
+      RETURN.
+    ENDIF.
 
     MESSAGE s100(zdbbr_info) WITH ms_tabfield-tabname ms_tabfield-fieldname.
   ENDMETHOD.
 
   METHOD adjust_column.
-
     CASE io_column->get_name( ).
 
       WHEN 'F4_ID'.
@@ -167,26 +161,25 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
 
       WHEN 'LENGTH'.
         io_column->set_optimized( ).
-        io_column->set_descriptions( iv_medium = 'Lngth' iv_long = 'Length' ).
+        io_column->set_descriptions( iv_medium = 'Lngth'
+                                     iv_long   = 'Length' ).
 
       WHEN OTHERS.
         io_column->set_optimized( ).
 
     ENDCASE.
-
   ENDMETHOD.
 
   METHOD matches_filter.
-
-    FIELD-SYMBOLS: <ls_custom_f4> TYPE ty_s_f4.
+    FIELD-SYMBOLS <ls_custom_f4> TYPE ty_s_f4.
 
     ASSIGN is_data TO <ls_custom_f4>.
 
     DATA(lv_filter) = |*{ to_upper( iv_filter ) }*|.
 
-    IF to_upper( <ls_custom_f4>-description ) CP lv_filter OR
-       to_upper( <ls_custom_f4>-search_field ) CP lv_filter OR
-       to_upper( <ls_custom_f4>-search_table ) CP lv_filter.
+    IF    to_upper( <ls_custom_f4>-description )  CP lv_filter
+       OR to_upper( <ls_custom_f4>-search_field ) CP lv_filter
+       OR to_upper( <ls_custom_f4>-search_table ) CP lv_filter.
       rf_matches = abap_true.
     ENDIF.
   ENDMETHOD.
@@ -199,10 +192,11 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
     rf_has_selections = abap_true.
   ENDMETHOD.
 
-  method get_mark_field_description.
-    ev_short =
-    ev_medium =
+  METHOD get_mark_field_description.
     ev_long = |{ 'Assign?'(001) }|.
+    ev_medium = ev_long.
+    ev_short =
+    ev_medium
+    .
   ENDMETHOD.
-
 ENDCLASS.

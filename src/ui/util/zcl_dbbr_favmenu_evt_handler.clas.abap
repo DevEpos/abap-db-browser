@@ -1,38 +1,28 @@
 CLASS zcl_dbbr_favmenu_evt_handler DEFINITION
-  PUBLIC
-  FINAL
+  PUBLIC FINAL
   CREATE PRIVATE
-
   GLOBAL FRIENDS zcl_dbbr_favorites_tree.
 
   PUBLIC SECTION.
+    INTERFACES zif_dbbr_favmenu_evt_handler.
 
-    INTERFACES zif_dbbr_favmenu_evt_handler .
-  PROTECTED SECTION.
-private section.
+  PRIVATE SECTION.
+    DATA mr_favmenu_tree TYPE REF TO zcl_dbbr_favorites_tree.
 
-  data MR_FAVMENU_TREE type ref to ZCL_DBBR_FAVORITES_TREE .
-
-  methods CONSTRUCTOR
-    importing
-      !IR_FAVMENU_TREE type ref to ZCL_DBBR_FAVORITES_TREE .
+    METHODS constructor
+      IMPORTING
+        ir_favmenu_tree TYPE REF TO zcl_dbbr_favorites_tree.
 ENDCLASS.
 
 
-
-CLASS ZCL_DBBR_FAVMENU_EVT_HANDLER IMPLEMENTATION.
-
-
+CLASS zcl_dbbr_favmenu_evt_handler IMPLEMENTATION.
   METHOD constructor.
     mr_favmenu_tree = ir_favmenu_tree.
   ENDMETHOD.
 
-
   METHOD zif_dbbr_favmenu_evt_handler~add_favorite.
-    mr_favmenu_tree->create_new_favorite(
-        iv_fav_type    = iv_type
-        iv_favorite    = iv_favorite
-        iv_description = iv_description
-    ).
+    mr_favmenu_tree->create_new_favorite( iv_fav_type    = iv_type
+                                          iv_favorite    = iv_favorite
+                                          iv_description = iv_description ).
   ENDMETHOD.
 ENDCLASS.

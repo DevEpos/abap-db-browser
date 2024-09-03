@@ -1,6 +1,6 @@
-**********************************************************************
+" ---------------------------------------------------------------------
 " Include LZLS_DATA_BROWSERIO1
-**********************************************************************
+" ---------------------------------------------------------------------
 MODULE cancel INPUT.
   gr_selscreen_controller->zif_uitb_screen_controller~cancel( ok_code ).
   CLEAR ok_code.
@@ -22,7 +22,7 @@ ENDMODULE.
 MODULE validate_table_name INPUT.
   TRY.
       zcl_dbbr_ddic_util=>validate_table_name( gs_data-primary_table ).
-    CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lr_validation_exception).
+    CATCH zcx_sat_validation_exception INTO DATA(lr_validation_exception).
       lr_validation_exception->show_message( ).
   ENDTRY.
 ENDMODULE.
@@ -64,46 +64,34 @@ ENDMODULE.
 
 MODULE search_table_f4 INPUT.
   IF sy-dynnr = zif_dbbr_c_global=>c_dynpro_code-custom_built_in_f4_create.
-    gr_selscreen_controller->call_table_f4(
-      EXPORTING iv_dynp_field_name = 'GS_BUILT_IN_F4-SEARCH_TABLE'
-      CHANGING  cv_table           = gs_built_in_f4-search_table ).
+    gr_selscreen_controller->call_table_f4( EXPORTING iv_dynp_field_name = 'GS_BUILT_IN_F4-SEARCH_TABLE'
+                                            CHANGING  cv_table           = gs_built_in_f4-search_table ).
   ELSE.
-    gr_selscreen_controller->call_table_f4(
-      EXPORTING iv_dynp_field_name = 'GS_CUSTOM_SEARCH_HELP-TABNAME'
-      CHANGING  cv_table           = gs_custom_search_help-tabname ).
+    gr_selscreen_controller->call_table_f4( EXPORTING iv_dynp_field_name = 'GS_CUSTOM_SEARCH_HELP-TABNAME'
+                                            CHANGING  cv_table           = gs_custom_search_help-tabname ).
   ENDIF.
 ENDMODULE.
 
 MODULE search_field_f4 INPUT.
   IF sy-dynnr = zif_dbbr_c_global=>c_dynpro_code-custom_built_in_f4_create.
-    zcl_dbbr_ddic_util=>call_table_field_f4(
-      EXPORTING
-        iv_repid              = sy-repid
-        iv_dynpname_tablename = 'GS_BUILT_IN_F4-SEARCH_TABLE'
-        iv_dynpname_fieldname = 'GS_BUILT_IN_F4-SEARCH_FIELD'
-      CHANGING
-        cv_fieldname          = gs_built_in_f4-search_field
-    ).
+    zcl_dbbr_ddic_util=>call_table_field_f4( EXPORTING iv_repid              = sy-repid
+                                                       iv_dynpname_tablename = 'GS_BUILT_IN_F4-SEARCH_TABLE'
+                                                       iv_dynpname_fieldname = 'GS_BUILT_IN_F4-SEARCH_FIELD'
+                                             CHANGING  cv_fieldname          = gs_built_in_f4-search_field ).
   ELSE.
-    zcl_dbbr_ddic_util=>call_table_field_f4(
-      EXPORTING
-        iv_repid              = sy-repid
-        iv_dynpname_tablename = 'GS_CUSTOM_SEARCH_HELP-TABNAME'
-        iv_dynpname_fieldname = 'GS_CUSTOM_SEARCH_HELP-FIELDNAME'
-      CHANGING
-        cv_fieldname          = gs_custom_search_help-fieldname
-    ).
+    zcl_dbbr_ddic_util=>call_table_field_f4( EXPORTING iv_repid              = sy-repid
+                                                       iv_dynpname_tablename = 'GS_CUSTOM_SEARCH_HELP-TABNAME'
+                                                       iv_dynpname_fieldname = 'GS_CUSTOM_SEARCH_HELP-FIELDNAME'
+                                             CHANGING  cv_fieldname          = gs_custom_search_help-fieldname ).
   ENDIF.
 ENDMODULE.
 
 MODULE check_search_table INPUT.
   IF sy-dynnr = zif_dbbr_c_global=>c_dynpro_code-custom_built_in_f4_create.
     TRY.
-        zcl_dbbr_ddic_util=>validate_table_name(
-            iv_table_name               = gs_built_in_f4-search_table
-            if_customizing_view_allowed = abap_false
-        ).
-      CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO lr_validation_exception.
+        zcl_dbbr_ddic_util=>validate_table_name( iv_table_name               = gs_built_in_f4-search_table
+                                                 if_customizing_view_allowed = abap_false ).
+      CATCH zcx_sat_validation_exception INTO lr_validation_exception.
         lr_validation_exception->show_message( ).
     ENDTRY.
   ELSE.
@@ -115,8 +103,8 @@ MODULE check_search_field INPUT.
   IF sy-dynnr = zif_dbbr_c_global=>c_dynpro_code-custom_built_in_f4_create.
     TRY.
         zcl_dbbr_ddic_util=>validate_table_field( iv_table_field = gs_built_in_f4-search_field
-                                                           iv_table_name  = gs_built_in_f4-search_table ).
-      CATCH ZCX_SAT_VALIDATION_EXCEPTION INTO DATA(lr_exc).
+                                                  iv_table_name  = gs_built_in_f4-search_table ).
+      CATCH zcx_sat_validation_exception INTO DATA(lr_exc).
         lr_exc->show_message( iv_message_type = 'I' ).
     ENDTRY.
   ELSE.
@@ -146,7 +134,8 @@ ENDMODULE.
 MODULE pai_0105 INPUT.
   save_ok_code = ok_code.
   CLEAR ok_code.
-  gr_choose_entity_controller->zif_uitb_screen_controller~handle_user_command( CHANGING cv_function_code = save_ok_code ).
+  gr_choose_entity_controller->zif_uitb_screen_controller~handle_user_command(
+    CHANGING cv_function_code = save_ok_code ).
 ENDMODULE.
 
 MODULE validate_input_0101 INPUT.

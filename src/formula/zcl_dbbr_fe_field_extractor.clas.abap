@@ -1,7 +1,6 @@
-"! <p class="shorttext synchronized" lang="en">Extracts information for formula field</p>
+"! <p class="shorttext synchronized">Extracts information for formula field</p>
 CLASS zcl_dbbr_fe_field_extractor DEFINITION
-  PUBLIC
-  FINAL
+  PUBLIC FINAL
   CREATE PRIVATE.
 
   PUBLIC SECTION.
@@ -12,14 +11,10 @@ CLASS zcl_dbbr_fe_field_extractor DEFINITION
         VALUE(rr_extractor) TYPE REF TO zif_dbbr_fe_field_extractor
       RAISING
         zcx_dbbr_formula_exception.
-  PROTECTED SECTION.
-  PRIVATE SECTION.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_fe_field_extractor IMPLEMENTATION.
-
   METHOD get_extractor.
     CASE iv_token.
 
@@ -40,11 +35,9 @@ CLASS zcl_dbbr_fe_field_extractor IMPLEMENTATION.
 
       WHEN OTHERS.
         RAISE EXCEPTION TYPE zcx_dbbr_formula_exception
-          EXPORTING
-            textid = zcx_dbbr_formula_exception=>no_extractor_found
-            msgv1  = |{ iv_token }|.
+          EXPORTING textid = zcx_dbbr_formula_exception=>no_extractor_found
+                    msgv1  = |{ iv_token }|.
 
     ENDCASE.
   ENDMETHOD.
-
 ENDCLASS.

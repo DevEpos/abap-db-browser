@@ -1,23 +1,19 @@
-class ZCL_DBBR_FE_ICON_STB definition
-  public
-  create public .
+CLASS zcl_dbbr_fe_icon_stb DEFINITION
+  PUBLIC
+  CREATE PUBLIC.
 
-public section.
+  PUBLIC SECTION.
+    INTERFACES zif_dbbr_stmnt_string_builder.
 
-  interfaces ZIF_DBBR_STMNT_STRING_BUILDER .
-protected section.
-private section.
+  PROTECTED SECTION.
+
+  PRIVATE SECTION.
 ENDCLASS.
 
 
-
-CLASS ZCL_DBBR_FE_ICON_STB IMPLEMENTATION.
-
-
-  method ZIF_DBBR_STMNT_STRING_BUILDER~BUILD_STRING.
-
+CLASS zcl_dbbr_fe_icon_stb IMPLEMENTATION.
+  METHOD zif_dbbr_stmnt_string_builder~build_string.
     cs_statement-stringform =
        |DATA { cs_statement-tokens[ 2 ]-str } TYPE { zif_dbbr_c_fe_global=>c_icon_type }.|.
-
-  endmethod.
+  ENDMETHOD.
 ENDCLASS.

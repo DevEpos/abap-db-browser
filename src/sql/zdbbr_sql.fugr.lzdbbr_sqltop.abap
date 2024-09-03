@@ -1,3 +1,3 @@
-FUNCTION-POOL ZDBBR_SQL.                    "MESSAGE-ID ..
+FUNCTION-POOL zdbbr_sql.                    " MESSAGE-ID ..
 
-* INCLUDE LZDBBR_SQLD...                     " Local class definition
+" INCLUDE LZDBBR_SQLD...                     " Local class definition

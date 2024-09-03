@@ -1,9 +1,9 @@
-interface ZIF_DBBR_C_JOIN_COND_METHOD
-  public .
+INTERFACE zif_dbbr_c_join_cond_method
+  PUBLIC.
 
 
-  constants CONSTANT type ZDBBR_JOIN_METHOD value 'CONSTANT' ##NO_TEXT.
-  constants REFERENCE_FIELD type ZDBBR_JOIN_METHOD value 'REF_FIELD' ##NO_TEXT.
-  constants CONSTANT_REFERENCE_FIELD type ZDBBR_JOIN_METHOD value 'CONST_REF' ##NO_TEXT.
-  constants SYSTEM_CONSTANT type ZDBBR_JOIN_METHOD value 'SYST_CONST' ##NO_TEXT.
-endinterface.
+  CONSTANTS constant TYPE zdbbr_join_method VALUE 'CONSTANT' ##NO_TEXT.
+  CONSTANTS reference_field TYPE zdbbr_join_method VALUE 'REF_FIELD' ##NO_TEXT.
+  CONSTANTS constant_reference_field TYPE zdbbr_join_method VALUE 'CONST_REF' ##NO_TEXT.
+  CONSTANTS system_constant TYPE zdbbr_join_method VALUE 'SYST_CONST' ##NO_TEXT.
+ENDINTERFACE.

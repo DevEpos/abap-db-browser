@@ -1,29 +1,25 @@
 CLASS zcl_dbbr_fe_custom_sv DEFINITION
   PUBLIC
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
+    INTERFACES zif_dbbr_statement_validator.
 
-    INTERFACES zif_dbbr_statement_validator .
   PROTECTED SECTION.
-  PRIVATE SECTION.
 
+  PRIVATE SECTION.
     METHODS validate_token_count
       IMPORTING
-        !is_statement TYPE zif_dbbr_fe_types=>ty_statement
+        is_statement TYPE zif_dbbr_fe_types=>ty_statement
       RAISING
-        zcx_dbbr_fe_stmnt_valid_exc .
+        zcx_dbbr_fe_stmnt_valid_exc.
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_fe_custom_sv IMPLEMENTATION.
-
-
   METHOD validate_token_count.
-
-    DATA: lv_template TYPE string,
-          lf_error    TYPE abap_bool.
+    DATA lv_template TYPE string.
+    DATA lf_error TYPE abap_bool.
 
     CASE is_statement-first_token_str.
 
@@ -58,8 +54,8 @@ CLASS zcl_dbbr_fe_custom_sv IMPLEMENTATION.
         ENDIF.
 
       WHEN zif_dbbr_c_fe_keywords=>define_description.
-        IF is_statement-token_count <> 3 AND
-           is_statement-token_count <> 4.
+        IF     is_statement-token_count <> 3
+           AND is_statement-token_count <> 4.
           lv_template = zcl_dbbr_fe_templates=>gv_text_for_field_tmplt.
           lf_error = abap_true.
         ENDIF.
@@ -80,27 +76,21 @@ CLASS zcl_dbbr_fe_custom_sv IMPLEMENTATION.
 
     IF lf_error = abap_true.
       RAISE EXCEPTION TYPE zcx_dbbr_fe_stmnt_valid_exc
-        EXPORTING
-          textid      = zcx_dbbr_fe_stmnt_valid_exc=>formfield_not_tmplt_conform
-          invalid_row = is_statement-trow
-          msgv1       = |{ is_statement-first_token_str }|
-          msgv2       = |{ lv_template }|.
+        EXPORTING textid      = zcx_dbbr_fe_stmnt_valid_exc=>formfield_not_tmplt_conform
+                  invalid_row = is_statement-trow
+                  msgv1       = |{ is_statement-first_token_str }|
+                  msgv2       = |{ lv_template }|.
     ENDIF.
-
   ENDMETHOD.
 
-
   METHOD zif_dbbr_statement_validator~validate.
-
-
     IF NOT zcl_dbbr_fe_token_validator=>is_definition_keyword( cs_statement-first_token_str ).
       RAISE EXCEPTION TYPE zcx_dbbr_fe_stmnt_valid_exc
-        EXPORTING
-          textid      = zcx_dbbr_fe_stmnt_valid_exc=>unknown_keyword_found
-          invalid_row = cs_statement-tokens[ 1 ]-row
-          msgv1       = |{ cs_statement-first_token_str }|.
+        EXPORTING textid      = zcx_dbbr_fe_stmnt_valid_exc=>unknown_keyword_found
+                  invalid_row = cs_statement-tokens[ 1 ]-row
+                  msgv1       = |{ cs_statement-first_token_str }|.
     ELSE.
-      cs_statement-is_form_stmnt = abap_true.
+      cs_statement-is_form_stmnt    = abap_true.
       cs_statement-is_function_call = zcl_dbbr_fe_token_validator=>is_function_keyword( cs_statement-first_token_str ).
 
       IF cs_statement-is_function_call = abap_true.
@@ -120,6 +110,5 @@ CLASS zcl_dbbr_fe_custom_sv IMPLEMENTATION.
     ENDLOOP.
 
     cs_statement-exclude_from_subroutine = xsdbool( NOT zcl_dbbr_fe_token_validator=>is_subroutine_relevant( cs_statement-first_token_str ) ).
-
   ENDMETHOD.
 ENDCLASS.

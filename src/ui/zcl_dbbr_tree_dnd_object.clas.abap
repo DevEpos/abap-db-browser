@@ -1,59 +1,48 @@
-class ZCL_DBBR_TREE_DND_OBJECT definition
-  public
-  create public .
+CLASS zcl_dbbr_tree_dnd_object DEFINITION
+  PUBLIC
+  CREATE PUBLIC.
 
-public section.
+  PUBLIC SECTION.
+    METHODS constructor
+      IMPORTING
+        it_node_keys TYPE treemnotab.
 
-  methods CONSTRUCTOR
-    importing
-      !IT_NODE_KEYS type TREEMNOTAB .
-  methods HAS_MORE_KEYS
-    returning
-      value(RF_HAS_MORE) type BOOLEAN .
-  methods GET_NEXT_NODE
-    returning
-      value(RV_NODE_KEY) type TM_NODEKEY .
-  methods GET_ALL_KEYS
-    returning
-      value(RT_KEYS) type TREEMNOTAB .
-protected section.
-private section.
+    METHODS has_more_keys
+      RETURNING
+        VALUE(rf_has_more) TYPE boolean.
 
-  data MT_NODE_KEYS type TREEMNOTAB .
+    METHODS get_next_node
+      RETURNING
+        VALUE(rv_node_key) TYPE tm_nodekey.
+
+    METHODS get_all_keys
+      RETURNING
+        VALUE(rt_keys) TYPE treemnotab.
+
+  PROTECTED SECTION.
+
+  PRIVATE SECTION.
+    DATA mt_node_keys TYPE treemnotab.
 ENDCLASS.
 
 
-
-CLASS ZCL_DBBR_TREE_DND_OBJECT IMPLEMENTATION.
-
-
-  method CONSTRUCTOR.
-
+CLASS zcl_dbbr_tree_dnd_object IMPLEMENTATION.
+  METHOD constructor.
     mt_node_keys = it_node_keys.
+  ENDMETHOD.
 
-  endmethod.
-
-
-  method GET_ALL_KEYS.
-
+  METHOD get_all_keys.
     rt_keys = mt_node_keys.
+  ENDMETHOD.
 
-  endmethod.
-
-
-  method GET_NEXT_NODE.
-
+  METHOD get_next_node.
     CHECK has_more_keys( ).
 
     rv_node_key = mt_node_keys[ 1 ].
     DELETE mt_node_keys INDEX 1.
+  ENDMETHOD.
 
-  endmethod.
-
-
-  method HAS_MORE_KEYS.
-
+  METHOD has_more_keys.
     rf_has_more = xsdbool( mt_node_keys IS NOT INITIAL ).
-
-  endmethod.
+  ENDMETHOD.
 ENDCLASS.

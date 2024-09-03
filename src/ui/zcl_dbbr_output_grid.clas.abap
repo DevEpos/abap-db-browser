@@ -1,74 +1,87 @@
-"! <p class="shorttext synchronized" lang="en">ALV Output</p>
+"! <p class="shorttext synchronized">ALV Output</p>
 CLASS zcl_dbbr_output_grid DEFINITION
   PUBLIC
   INHERITING FROM cl_gui_alv_grid
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
+    "! <p class="shorttext synchronized">Sortierte Felder haben sich geändert</p>
+    EVENTS sorted_fields_changed.
 
-    "! <p class="shorttext synchronized" lang="en">Sortierte Felder haben sich geändert</p>
-    EVENTS sorted_fields_changed .
-
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    "! <p class="shorttext synchronized">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
-        !ir_parent TYPE REF TO cl_gui_container .
-    "! <p class="shorttext synchronized" lang="en">CLASS CONSTRUCTOR</p>
+        ir_parent TYPE REF TO cl_gui_container.
+
+    "! <p class="shorttext synchronized">CLASS CONSTRUCTOR</p>
     CLASS-METHODS class_constructor.
+
     METHODS execute_user_command
       IMPORTING
-        !iv_function_code TYPE sy-ucomm .
-    "! <p class="shorttext synchronized" lang="en">Retrieves all selected rows</p>
+        iv_function_code TYPE sy-ucomm.
+
+    "! <p class="shorttext synchronized">Retrieves all selected rows</p>
     METHODS get_all_selected_rows
       RETURNING
-        VALUE(result) TYPE lvc_t_indx .
-    "! <p class="shorttext synchronized" lang="en">Gibt 'X' zurück wenn mind. 1 Spalte selektiert ist</p>
+        VALUE(result) TYPE lvc_t_indx.
+
+    "! <p class="shorttext synchronized">Gibt 'X' zurück wenn mind. 1 Spalte selektiert ist</p>
     METHODS has_selected_columns
       RETURNING
-        VALUE(rf_columns_selected) TYPE boolean .
-    METHODS hide_selected_columns .
-    "! <p class="shorttext synchronized" lang="en">Optimiert die Spaltenbreite</p>
-    METHODS optimize_columns .
+        VALUE(rf_columns_selected) TYPE boolean.
+
+    METHODS hide_selected_columns.
+    "! <p class="shorttext synchronized">Optimiert die Spaltenbreite</p>
+    METHODS optimize_columns.
+
     METHODS set_column_names
       IMPORTING
-        !if_tech_names TYPE boolean .
-    METHODS dispatch
-        REDEFINITION .
+        if_tech_names TYPE boolean.
+
+    METHODS dispatch REDEFINITION.
+
     METHODS get_variant_fieldcat
       RETURNING
         VALUE(rt_fieldcat) TYPE lvc_t_fcat.
-    METHODS set_sort_criteria
-        REDEFINITION .
-    "! <p class="shorttext synchronized" lang="en">Sets the toolbar functions</p>
+
+    METHODS set_sort_criteria REDEFINITION.
+
+    "! <p class="shorttext synchronized">Sets the toolbar functions</p>
     METHODS set_toolbar_functions
       IMPORTING
         it_functions TYPE ttb_button
         it_menus     TYPE ttb_btnmnu OPTIONAL.
-    "! <p class="shorttext synchronized" lang="en">Excludes the given functions from ALV</p>
+
+    "! <p class="shorttext synchronized">Excludes the given functions from ALV</p>
     METHODS set_excluded_functions
       IMPORTING
         it_functions TYPE ui_functions.
-    "! <p class="shorttext synchronized" lang="en">Sets the default toolbar buttons</p>
+
+    "! <p class="shorttext synchronized">Sets the default toolbar buttons</p>
     METHODS set_default_toolbar.
-    "! <p class="shorttext synchronized" lang="en">Shows the defined default GUI Status shortcuts</p>
+    "! <p class="shorttext synchronized">Shows the defined default GUI Status shortcuts</p>
     METHODS show_active_default_shortcuts.
 
-    "! <p class="shorttext synchronized" lang="en">Changes the number of fixed rows</p>
+    "! <p class="shorttext synchronized">Changes the number of fixed rows</p>
     METHODS change_fixed_rows
       IMPORTING
-        iv_rows           TYPE i OPTIONAL
+        iv_rows           TYPE i         OPTIONAL
         if_from_selection TYPE abap_bool OPTIONAL.
-    "! <p class="shorttext synchronized" lang="en">Copy table content as ABAP Value Statement</p>
+
+    "! <p class="shorttext synchronized">Copy table content as ABAP Value Statement</p>
     "!
-    "! @parameter if_compact | <p class="shorttext synchronized" lang="en">Compact mode on/off</p>
+    "! @parameter if_compact | <p class="shorttext synchronized">Compact mode on/off</p>
     METHODS copy_as_value_statement
       IMPORTING
         if_compact TYPE abap_bool OPTIONAL.
-    "! <p class="shorttext synchronized" lang="en">Returns range of selected columns</p>
+
+    "! <p class="shorttext synchronized">Returns range of selected columns</p>
     METHODS get_selected_cols_range
       RETURNING
         VALUE(rt_col_range) TYPE zif_sat_ty_global=>ty_t_selopt.
+
   PROTECTED SECTION.
+
   PRIVATE SECTION.
     DATA mt_toolbar_buttons TYPE ttb_button.
     DATA mt_toolbar_menu TYPE ttb_btnmnu.
@@ -76,23 +89,25 @@ CLASS zcl_dbbr_output_grid DEFINITION
 
     TYPES: BEGIN OF ty_s_tb_button.
              INCLUDE TYPE stb_button.
-    TYPES: fkey TYPE ui_func.
-    TYPES:END OF ty_s_tb_button.
+    TYPES:   fkey TYPE ui_func.
+    TYPES: END OF ty_s_tb_button.
 
     CLASS-DATA gt_shortcuts_map TYPE zif_uitb_ty_gui_screen=>ty_t_fkey_map.
     CLASS-DATA gt_default_tb_buttons TYPE STANDARD TABLE OF ty_s_tb_button WITH EMPTY KEY.
     CLASS-DATA gt_default_tb_menu TYPE ttb_btnmnu.
 
-    "! <p class="shorttext synchronized" lang="en">Retrieves the currently active toolbar buttons</p>
+    "! <p class="shorttext synchronized">Retrieves the currently active toolbar buttons</p>
     METHODS get_active_toolbar_buttons
       RETURNING
         VALUE(rt_buttons) TYPE ttb_button.
-    "! <p class="shorttext synchronized" lang="en">Handler for toolbar build event</p>
+
+    "! <p class="shorttext synchronized">Handler for toolbar build event</p>
     METHODS on_toolbar
       FOR EVENT toolbar OF cl_gui_alv_grid
       IMPORTING
         e_interactive
         e_object.
+
     METHODS on_toolbar_button
       FOR EVENT toolbar_button_click OF cl_gui_alv_grid
       IMPORTING
@@ -101,325 +116,277 @@ CLASS zcl_dbbr_output_grid DEFINITION
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_output_grid IMPLEMENTATION.
-
-
   METHOD class_constructor.
-*.. Create default toolbar buttons
-    gt_default_tb_buttons = VALUE #(
-      ( function  = zif_dbbr_c_selection_functions=>edit_data
-        icon      = icon_change
-        quickinfo = |{ TEXT-002 }|
-        fkey = zif_uitb_c_gui_screen=>c_functions-shift_f6 )
-      ( butn_type = cntb_btype_sep )
-      ( function  = zif_dbbr_c_selection_functions=>refresh
-        icon      = icon_refresh
-        quickinfo = |{ TEXT-004 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-f8 )
-      ( function  = zif_dbbr_c_selection_functions=>change_max_row_count
-        text      = |{ TEXT-001 }| quickinfo = |{ TEXT-005 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-f5 )
-      ( function  = zif_dbbr_c_selection_functions=>change_cds_parameters
-        icon      = icon_parameter_export
-        quickinfo = |{ TEXT-007 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-f6 )
-      ( function  = zif_dbbr_c_selection_functions=>determine_line_count
-        text      = |{ TEXT-059 }| quickinfo =  |{ TEXT-060 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-f7 )
-      ( butn_type = cntb_btype_sep )
-      ( function  = zif_dbbr_c_selection_functions=>show_users_settings
-        icon      = icon_personal_settings
-        quickinfo = |{ TEXT-008 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f11 )
-      ( butn_type = cntb_btype_sep )
-      ( function  = cl_gui_alv_grid=>mc_fc_sort_asc
-        icon      = icon_sort_up
-        quickinfo = |{ TEXT-009 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f4 )
-      ( function  = cl_gui_alv_grid=>mc_fc_sort_dsc
-        icon      = icon_sort_down
-        quickinfo = |{ TEXT-010 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f4 )
-      ( butn_type = cntb_btype_sep )
-      ( function  = cl_gui_alv_grid=>mc_fc_filter
-        icon      = icon_filter
-        quickinfo = |{ TEXT-011 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f5 )
-      ( function  = zif_dbbr_c_selection_functions=>quick_filter
-        icon      = icon_select_with_condition  text = |{ TEXT-012 }|
-        quickinfo = |{ TEXT-013 }|
-        butn_type = cntb_btype_dropdown
-        fkey      = zif_uitb_c_gui_screen=>c_functions-f9 )
-      ( function  = cl_gui_alv_grid=>mc_fc_delete_filter
-        icon      = icon_filter_undo
-        quickinfo = |{ TEXT-014 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f2  )
-      ( function  = zif_dbbr_c_selection_functions=>transfer_filter_values
-        icon      = icon_filter
-        text      = |{ TEXT-016 }|
-        quickinfo = |{ TEXT-015 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f12 )
-      ( butn_type = cntb_btype_sep )
-      ( function  = cl_gui_alv_grid=>mc_fc_sum
-        icon      = icon_sum
-        quickinfo = |{ TEXT-017 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f6 )
-      ( function  = cl_gui_alv_grid=>mc_fc_subtot
-        icon      = icon_intermediate_sum
-        quickinfo = |{ TEXT-018 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f6 )
-      ( butn_type = cntb_btype_sep )
-      ( function  = zif_dbbr_c_selection_functions=>go_to_column
-        icon      = icon_next_page
-        text      = |{ TEXT-019 }|
-        quickinfo = |{ TEXT-057 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f4 )
-      ( function  = 'ROWS'
-        icon      = icon_settings
-        text      = |{ TEXT-020 }|
-        quickinfo = |{ TEXT-020 }|
-        butn_type = cntb_btype_menu )
-      ( function  = 'COLS'
-        icon      = icon_settings
-        text      = |{ TEXT-021 }|
-        quickinfo = |{ TEXT-021 }|
-        butn_type = cntb_btype_menu )
-      ( butn_type = cntb_btype_sep )
-      ( function  = cl_gui_alv_grid=>mc_fc_call_xxl
-        icon      = icon_xxl
-        text      = |{ TEXT-022 }|
-        quickinfo = |{ TEXT-023 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f8 )
-      ( function  = cl_gui_alv_grid=>mc_fc_current_variant
-        icon      = icon_alv_variants
-        quickinfo = |{ TEXT-024 }|
-        butn_type = cntb_btype_dropdown
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f8 )
-      ( function  = cl_gui_alv_grid=>mc_fc_load_variant
-        icon      = icon_alv_variant_choose
-        quickinfo = |{ TEXT-025 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f9 )
-      ( function  = cl_gui_alv_grid=>mc_fc_save_variant
-        icon      = icon_alv_variant_save
-        quickinfo = |{ TEXT-026 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f10 )
-      ( butn_type = cntb_btype_sep )
-      ( function  = zif_dbbr_c_selection_functions=>control_tech_view
-        icon      = icon_active_inactive
-        text      = |{ TEXT-027 }|
-        quickinfo = |{ TEXT-028 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f7 )
-      ( function  = zif_dbbr_c_selection_functions=>compare_selected_lines
-        icon      = icon_compare
-        quickinfo = |{ TEXT-029 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f7 )
-      ( function  = zif_dbbr_c_selection_functions=>remove_column_grouping
-        icon      = icon_delete
-        text      = |{ TEXT-030 }|
-        quickinfo = |{ TEXT-031 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f5 )
-      ( butn_type = cntb_btype_sep )
-      ( function  = zif_dbbr_c_selection_functions=>navigate_association
-        icon      = icon_workflow_fork
-        quickinfo = |{ TEXT-033 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f5 )
-      ( function  = zif_dbbr_c_selection_functions=>show_cds_source
-        icon      = icon_biw_info_object
-        text      = |{ 'Source' }|
-        quickinfo = |{ TEXT-052 }|
-        fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f10 )
-      ( butn_type = cntb_btype_sep )
-      ( function  = zif_dbbr_c_selection_functions=>open_in_sql_console
-        icon      = icon_edit_file
-        quickinfo = |{ TEXT-056 }| )
-      ( butn_type = cntb_btype_sep )
-      ( function  = 'COPY_MENU'
-        icon      = icon_system_copy
-        butn_type = cntb_btype_menu
-        text      = 'Copy as...' )
-    ).
+    " .. Create default toolbar buttons
+    gt_default_tb_buttons = VALUE #( ( function  = zif_dbbr_c_selection_functions=>edit_data
+                                       icon      = icon_change
+                                       quickinfo = |{ TEXT-002 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f6 )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = zif_dbbr_c_selection_functions=>refresh
+                                       icon      = icon_refresh
+                                       quickinfo = |{ TEXT-004 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-f8 )
+                                     ( function  = zif_dbbr_c_selection_functions=>change_max_row_count
+                                       text      = |{ TEXT-001 }|
+                                       quickinfo = |{ TEXT-005 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-f5 )
+                                     ( function  = zif_dbbr_c_selection_functions=>change_cds_parameters
+                                       icon      = icon_parameter_export
+                                       quickinfo = |{ TEXT-007 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-f6 )
+                                     ( function  = zif_dbbr_c_selection_functions=>determine_line_count
+                                       text      = |{ TEXT-059 }|
+                                       quickinfo = |{ TEXT-060 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-f7 )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = zif_dbbr_c_selection_functions=>show_users_settings
+                                       icon      = icon_personal_settings
+                                       quickinfo = |{ TEXT-008 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f11 )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = cl_gui_alv_grid=>mc_fc_sort_asc
+                                       icon      = icon_sort_up
+                                       quickinfo = |{ TEXT-009 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f4 )
+                                     ( function  = cl_gui_alv_grid=>mc_fc_sort_dsc
+                                       icon      = icon_sort_down
+                                       quickinfo = |{ TEXT-010 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f4 )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = cl_gui_alv_grid=>mc_fc_filter
+                                       icon      = icon_filter
+                                       quickinfo = |{ TEXT-011 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f5 )
+                                     ( function  = zif_dbbr_c_selection_functions=>quick_filter
+                                       icon      = icon_select_with_condition
+                                       text      = |{ TEXT-012 }|
+                                       quickinfo = |{ TEXT-013 }|
+                                       butn_type = cntb_btype_dropdown
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-f9 )
+                                     ( function  = cl_gui_alv_grid=>mc_fc_delete_filter
+                                       icon      = icon_filter_undo
+                                       quickinfo = |{ TEXT-014 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f2  )
+                                     ( function  = zif_dbbr_c_selection_functions=>transfer_filter_values
+                                       icon      = icon_filter
+                                       text      = |{ TEXT-016 }|
+                                       quickinfo = |{ TEXT-015 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f12 )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = cl_gui_alv_grid=>mc_fc_sum
+                                       icon      = icon_sum
+                                       quickinfo = |{ TEXT-017 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f6 )
+                                     ( function  = cl_gui_alv_grid=>mc_fc_subtot
+                                       icon      = icon_intermediate_sum
+                                       quickinfo = |{ TEXT-018 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f6 )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = zif_dbbr_c_selection_functions=>go_to_column
+                                       icon      = icon_next_page
+                                       text      = |{ TEXT-019 }|
+                                       quickinfo = |{ TEXT-057 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f4 )
+                                     ( function  = 'ROWS'
+                                       icon      = icon_settings
+                                       text      = |{ TEXT-020 }|
+                                       quickinfo = |{ TEXT-020 }|
+                                       butn_type = cntb_btype_menu )
+                                     ( function  = 'COLS'
+                                       icon      = icon_settings
+                                       text      = |{ TEXT-021 }|
+                                       quickinfo = |{ TEXT-021 }|
+                                       butn_type = cntb_btype_menu )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = cl_gui_alv_grid=>mc_fc_call_xxl
+                                       icon      = icon_xxl
+                                       text      = |{ TEXT-022 }|
+                                       quickinfo = |{ TEXT-023 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f8 )
+                                     ( function  = cl_gui_alv_grid=>mc_fc_current_variant
+                                       icon      = icon_alv_variants
+                                       quickinfo = |{ TEXT-024 }|
+                                       butn_type = cntb_btype_dropdown
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f8 )
+                                     ( function  = cl_gui_alv_grid=>mc_fc_load_variant
+                                       icon      = icon_alv_variant_choose
+                                       quickinfo = |{ TEXT-025 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f9 )
+                                     ( function  = cl_gui_alv_grid=>mc_fc_save_variant
+                                       icon      = icon_alv_variant_save
+                                       quickinfo = |{ TEXT-026 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_f10 )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = zif_dbbr_c_selection_functions=>control_tech_view
+                                       icon      = icon_active_inactive
+                                       text      = |{ TEXT-027 }|
+                                       quickinfo = |{ TEXT-028 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f7 )
+                                     ( function  = zif_dbbr_c_selection_functions=>compare_selected_lines
+                                       icon      = icon_compare
+                                       quickinfo = |{ TEXT-029 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f7 )
+                                     ( function  = zif_dbbr_c_selection_functions=>remove_column_grouping
+                                       icon      = icon_delete
+                                       text      = |{ TEXT-030 }|
+                                       quickinfo = |{ TEXT-031 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f5 )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = zif_dbbr_c_selection_functions=>navigate_association
+                                       icon      = icon_workflow_fork
+                                       quickinfo = |{ TEXT-033 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-shift_f5 )
+                                     ( function  = zif_dbbr_c_selection_functions=>show_cds_source
+                                       icon      = icon_biw_info_object
+                                       text      = |{ 'Source' }|
+                                       quickinfo = |{ TEXT-052 }|
+                                       fkey      = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f10 )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = zif_dbbr_c_selection_functions=>open_in_sql_console
+                                       icon      = icon_edit_file
+                                       quickinfo = |{ TEXT-056 }| )
+                                     ( butn_type = cntb_btype_sep )
+                                     ( function  = 'COPY_MENU'
+                                       icon      = icon_system_copy
+                                       butn_type = cntb_btype_menu
+                                       text      = 'Copy as...' ) ).
 
-*.. Fill shortcut mapping from default toolbar buttons
-    gt_shortcuts_map = VALUE #( FOR bt IN gt_default_tb_buttons
-                                WHERE ( fkey IS NOT INITIAL )
-                                ( fkey            = bt-fkey
-                                  mapped_function = bt-function
-                                  text            = COND #( WHEN bt-quickinfo IS NOT INITIAL THEN bt-quickinfo ELSE bt-text ) ) ).
+    " .. Fill shortcut mapping from default toolbar buttons
+    gt_shortcuts_map = VALUE #(
+        FOR bt IN gt_default_tb_buttons
+        WHERE ( fkey IS NOT INITIAL )
+        ( fkey            = bt-fkey
+          mapped_function = bt-function
+          text            = COND #( WHEN bt-quickinfo IS NOT INITIAL THEN bt-quickinfo ELSE bt-text ) ) ).
 
-*.. Add some additional shortcut mappings for which there are no buttons
+    " .. Add some additional shortcut mappings for which there are no buttons
     gt_shortcuts_map = VALUE #( BASE gt_shortcuts_map
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-f2
-        text            = |{ TEXT-046 }|  )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f11
-        mapped_function = zif_dbbr_c_selection_functions=>save_selection_as_f4
-        text            = |{ TEXT-047 }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f12
-        mapped_function = zif_dbbr_c_selection_functions=>show_sql_of_select
-        text            = |{ TEXT-048 }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f2
-        text            = |{ TEXT-049 }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f1
-        mapped_function = zif_dbbr_c_selection_functions=>set_focus_to_list
-        text            = |{ TEXT-050 }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f2
-        mapped_function = zif_dbbr_c_selection_functions=>set_focus_to_assoc_list
-        text            = |{ TEXT-051 }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f9
-        mapped_function = zif_dbbr_c_selection_functions=>delete_filters_from_cols
-        text            = |{ TEXT-053 }| )
-      ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f8
-        mapped_function = zif_dbbr_c_selection_functions=>copy_as_val_stmnts
-        text            = |{ TEXT-055 }| )
-    ).
+                                ( fkey            = zif_uitb_c_gui_screen=>c_functions-f2
+                                  text            = |{ TEXT-046 }|  )
+                                ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f11
+                                  mapped_function = zif_dbbr_c_selection_functions=>save_selection_as_f4
+                                  text            = |{ TEXT-047 }| )
+                                ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f12
+                                  mapped_function = zif_dbbr_c_selection_functions=>show_sql_of_select
+                                  text            = |{ TEXT-048 }| )
+                                ( fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f2
+                                  text            = |{ TEXT-049 }| )
+                                ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f1
+                                  mapped_function = zif_dbbr_c_selection_functions=>set_focus_to_list
+                                  text            = |{ TEXT-050 }| )
+                                ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_f2
+                                  mapped_function = zif_dbbr_c_selection_functions=>set_focus_to_assoc_list
+                                  text            = |{ TEXT-051 }| )
+                                ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f9
+                                  mapped_function = zif_dbbr_c_selection_functions=>delete_filters_from_cols
+                                  text            = |{ TEXT-053 }| )
+                                ( fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f8
+                                  mapped_function = zif_dbbr_c_selection_functions=>copy_as_val_stmnts
+                                  text            = |{ TEXT-055 }| ) ).
 
-*.. Create and fill button menus
+    " .. Create and fill button menus
     DATA(lo_quickfilt_menu) = NEW cl_ctmenu( ).
-    lo_quickfilt_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>quick_filter_exclusion
-        text  = |{ TEXT-034 }|
-    ).
-    gt_shortcuts_map = VALUE #( BASE gt_shortcuts_map ( text            = TEXT-034
-                                                        fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f9
-                                                        mapped_function = zif_dbbr_c_selection_functions=>quick_filter_exclusion ) ).
+    lo_quickfilt_menu->add_function( fcode = zif_dbbr_c_selection_functions=>quick_filter_exclusion
+                                     text  = |{ TEXT-034 }| ).
+    gt_shortcuts_map = VALUE #( BASE gt_shortcuts_map
+                                ( text            = TEXT-034
+                                  fkey            = zif_uitb_c_gui_screen=>c_functions-shift_f9
+                                  mapped_function = zif_dbbr_c_selection_functions=>quick_filter_exclusion ) ).
 
     DATA(lo_rows_menu) = NEW cl_ctmenu( ).
-    lo_rows_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>show_hidden_lines
-        text  = |{ TEXT-035 }|
-    ).
-    lo_rows_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>delete_hidden_lines
-        text  = |{ TEXT-036 }|
-    ).
+    lo_rows_menu->add_function( fcode = zif_dbbr_c_selection_functions=>show_hidden_lines
+                                text  = |{ TEXT-035 }| ).
+    lo_rows_menu->add_function( fcode = zif_dbbr_c_selection_functions=>delete_hidden_lines
+                                text  = |{ TEXT-036 }| ).
     lo_rows_menu->add_separator( ).
-    lo_rows_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>delete_colors_of_rows
-        text  = |{ TEXT-037 }|
-    ).
-    lo_rows_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>emphasize_negative_values
-        text  = |{ TEXT-038 }|
-    ).
+    lo_rows_menu->add_function( fcode = zif_dbbr_c_selection_functions=>delete_colors_of_rows
+                                text  = |{ TEXT-037 }| ).
+    lo_rows_menu->add_function( fcode = zif_dbbr_c_selection_functions=>emphasize_negative_values
+                                text  = |{ TEXT-038 }| ).
     lo_rows_menu->add_separator( ).
-    lo_rows_menu->add_function(
-       fcode  = zif_dbbr_c_selection_functions=>remove_fixed_rows
-       text   = |{ TEXT-054 }|
-    ).
+    lo_rows_menu->add_function( fcode = zif_dbbr_c_selection_functions=>remove_fixed_rows
+                                text  = |{ TEXT-054 }| ).
 
     DATA(lo_cols_menu) = NEW cl_ctmenu( ).
-    lo_cols_menu->add_function(
-        fcode = cl_gui_alv_grid=>mc_fc_col_optimize
-        text  = |{ 'Optimize Column Width' }|
-    ).
+    lo_cols_menu->add_function( fcode = cl_gui_alv_grid=>mc_fc_col_optimize
+                                text  = |{ 'Optimize Column Width' }| ).
     lo_cols_menu->add_separator( ).
-    lo_cols_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>manage_text_fields
-        text  = |{ 'Manage Text Fields' }|
-    ).
+    lo_cols_menu->add_function( fcode = zif_dbbr_c_selection_functions=>manage_text_fields
+                                text  = |{ 'Manage Text Fields' }| ).
     lo_cols_menu->add_separator( ).
-    lo_cols_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>group_by_selected_columns
-        text  = |{ TEXT-039 }|
-    ).
-    lo_cols_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>remove_column_grouping
-        text  = |{ TEXT-030 }|
-    ).
+    lo_cols_menu->add_function( fcode = zif_dbbr_c_selection_functions=>group_by_selected_columns
+                                text  = |{ TEXT-039 }| ).
+    lo_cols_menu->add_function( fcode = zif_dbbr_c_selection_functions=>remove_column_grouping
+                                text  = |{ TEXT-030 }| ).
     lo_cols_menu->add_separator( ).
-    lo_cols_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>disable_chkbox_col_style_all
-        text  = |{ 'Disable checkbox cell style' }|
-    ).
+    lo_cols_menu->add_function( fcode = zif_dbbr_c_selection_functions=>disable_chkbox_col_style_all
+                                text  = |{ 'Disable checkbox cell style' }| ).
     lo_cols_menu->add_separator( ).
-    lo_cols_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>delete_colors_of_columns
-        text  = |{ TEXT-040 }|
-    ).
+    lo_cols_menu->add_function( fcode = zif_dbbr_c_selection_functions=>delete_colors_of_columns
+                                text  = |{ TEXT-040 }| ).
     lo_cols_menu->add_separator( ).
-    lo_cols_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>hide_cols_without_values
-        text  = |{ TEXT-041 }|
-    ).
-    lo_cols_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>show_all_columns
-        text  = |{ TEXT-058 }|
-    ).
+    lo_cols_menu->add_function( fcode = zif_dbbr_c_selection_functions=>hide_cols_without_values
+                                text  = |{ TEXT-041 }| ).
+    lo_cols_menu->add_function( fcode = zif_dbbr_c_selection_functions=>show_all_columns
+                                text  = |{ TEXT-058 }| ).
 
     DATA(lo_variant_menu) = NEW cl_ctmenu( ).
-    lo_variant_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>reset_alv_layout
-        text  = |{ TEXT-042 }|
-    ).
-    lo_variant_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>leave_screen_with_layout
-        text  = |{ TEXT-043 }|
-    ).
+    lo_variant_menu->add_function( fcode = zif_dbbr_c_selection_functions=>reset_alv_layout
+                                   text  = |{ TEXT-042 }| ).
+    lo_variant_menu->add_function( fcode = zif_dbbr_c_selection_functions=>leave_screen_with_layout
+                                   text  = |{ TEXT-043 }| ).
 
     DATA(lo_copy_menu) = NEW cl_ctmenu( ).
-    lo_copy_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>copy_as_val_stmnts
-        text  = |{ 'Copy as VALUE Statement' }|
-    ).
-    lo_copy_menu->add_function(
-        fcode = zif_dbbr_c_selection_functions=>copy_as_val_stmnt_compact
-        text  = |{ 'Copy as VALUE Statement (Compact)' }|
-    ).
-    gt_shortcuts_map = VALUE #( BASE gt_shortcuts_map ( text            = TEXT-043
-                                                        fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f3
-                                                        mapped_function = zif_dbbr_c_selection_functions=>leave_screen_with_layout ) ).
+    lo_copy_menu->add_function( fcode = zif_dbbr_c_selection_functions=>copy_as_val_stmnts
+                                text  = |{ 'Copy as VALUE Statement' }| ).
+    lo_copy_menu->add_function( fcode = zif_dbbr_c_selection_functions=>copy_as_val_stmnt_compact
+                                text  = |{ 'Copy as VALUE Statement (Compact)' }| ).
+    gt_shortcuts_map = VALUE #( BASE gt_shortcuts_map
+                                ( text            = TEXT-043
+                                  fkey            = zif_uitb_c_gui_screen=>c_functions-ctrl_shift_f3
+                                  mapped_function = zif_dbbr_c_selection_functions=>leave_screen_with_layout ) ).
 
-    gt_default_tb_menu = VALUE #(
-      ( function = zif_dbbr_c_selection_functions=>quick_filter ctmenu = lo_quickfilt_menu )
-      ( function = cl_gui_alv_grid=>mc_fc_current_variant       ctmenu = lo_variant_menu )
-      ( function = 'ROWS'                                       ctmenu = lo_rows_menu )
-      ( function = 'COLS'                                       ctmenu = lo_cols_menu )
-      ( function = 'COPY_MENU'                                  ctmenu = lo_copy_menu )
-    ).
-
+    gt_default_tb_menu = VALUE #( ( function = zif_dbbr_c_selection_functions=>quick_filter ctmenu = lo_quickfilt_menu )
+                                  ( function = cl_gui_alv_grid=>mc_fc_current_variant       ctmenu = lo_variant_menu )
+                                  ( function = 'ROWS'                                       ctmenu = lo_rows_menu )
+                                  ( function = 'COLS'                                       ctmenu = lo_cols_menu )
+                                  ( function = 'COPY_MENU'                                  ctmenu = lo_copy_menu ) ).
   ENDMETHOD.
-
 
   METHOD constructor.
-    super->constructor(
-        i_parent        = ir_parent
-        i_lifetime      = cl_gui_control=>lifetime_dynpro
-        i_fcat_complete = abap_true
-    ).
+    super->constructor( i_parent        = ir_parent
+                        i_lifetime      = cl_gui_control=>lifetime_dynpro
+                        i_fcat_complete = abap_true ).
 
-    SET HANDLER:
-      on_toolbar FOR me,
-      on_toolbar_button FOR me.
+    SET HANDLER on_toolbar FOR me.
+    SET HANDLER on_toolbar_button FOR me.
   ENDMETHOD.
-
 
   METHOD dispatch.
 *& Description: Redefined because of additional event handling
 *&---------------------------------------------------------------------*
 
-    DATA: lv_action TYPE sy-ucomm.
+    DATA lv_action TYPE sy-ucomm.
 
     get_event_parameter( EXPORTING parameter_id = 0
                                    queue_only   = space
                          IMPORTING parameter    = lv_action ).
 
-    super->dispatch(
-      EXPORTING
-        cargo             = cargo
-        eventid           = eventid
-        is_shellevent     = is_shellevent
-        is_systemdispatch = is_systemdispatch
-      EXCEPTIONS
-        cntl_error        = 1
-        OTHERS            = 2
-    ).
+    super->dispatch( EXPORTING  cargo             = cargo
+                                eventid           = eventid
+                                is_shellevent     = is_shellevent
+                                is_systemdispatch = is_systemdispatch
+                     EXCEPTIONS cntl_error        = 1
+                                OTHERS            = 2 ).
     IF sy-subrc <> 0.
-*.... Implement suitable error handling here
+      " .... Implement suitable error handling here
       RETURN.
     ENDIF.
 *    ENDIF.
 
-*.. handle specific function codes
+    " .. handle specific function codes
     CASE lv_action.
       WHEN mc_mb_variant OR
            mc_fc_current_variant OR
@@ -440,19 +407,19 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
-
   METHOD execute_user_command.
+    " TODO: parameter IV_FUNCTION_CODE is never used (ABAP cleaner)
+
     fcode_bouncer( ).
   ENDMETHOD.
 
-
   METHOD get_active_toolbar_buttons.
     rt_buttons = mt_toolbar_buttons.
-*.. Remove exluded functions
+    " .. Remove excluded functions
     IF mt_excluded IS NOT INITIAL.
       DELETE rt_buttons WHERE function IN mt_excluded.
     ENDIF.
-*.. Remove adjacent separators
+    " .. Remove adjacent separators
     DATA(lf_sep_found) = abap_false.
 
     LOOP AT rt_buttons ASSIGNING FIELD-SYMBOL(<ls_button>).
@@ -468,41 +435,28 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-
   METHOD get_all_selected_rows.
-    get_selected_rows(
-      IMPORTING
-        et_index_rows = DATA(lt_rows)
-    ).
-    get_selected_cells(
-      IMPORTING
-        et_cell = DATA(lt_cells)
-    ).
+    get_selected_rows( IMPORTING et_index_rows = DATA(lt_rows) ).
+    get_selected_cells( IMPORTING et_cell = DATA(lt_cells) ).
 
-    result = VALUE #(
-      FOR cell IN lt_cells
-      ( cell-row_id-index  )
-    ).
+    result = VALUE #( FOR cell IN lt_cells
+                      ( cell-row_id-index  ) ).
 
     result = VALUE #( BASE result
-      FOR row IN lt_rows
-      ( row-index )
-    ).
+                      FOR row IN lt_rows
+                      ( row-index ) ).
 
     SORT result.
     DELETE ADJACENT DUPLICATES FROM result.
   ENDMETHOD.
 
-
   METHOD get_variant_fieldcat.
     get_internal_fieldcat( IMPORTING et_fieldcatalog = rt_fieldcat ).
 
-    set_toolbar_buttons(
-      EXPORTING
-        toolbar_table = mt_toolbar_buttons
+    set_toolbar_buttons( toolbar_table = mt_toolbar_buttons
 *      EXCEPTIONS
-*        error         = 1
-*        others        = 2
+*                         error         = 1
+*                         others        = 2
     ).
     IF sy-subrc <> 0.
 *     MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
@@ -510,22 +464,19 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-
   METHOD has_selected_columns.
     get_selected_columns( IMPORTING et_index_columns = DATA(lt_col_index) ).
 
     rf_columns_selected = xsdbool( lt_col_index IS NOT INITIAL ).
   ENDMETHOD.
 
-
   METHOD hide_selected_columns.
-
     get_scroll_info_via_id( IMPORTING es_row_info = DATA(ls_row_id)
                                       es_col_info = DATA(ls_col_id) ).
 
     get_selected_columns( IMPORTING et_index_columns = DATA(lt_index_columns) ).
 
-    IF me->is_cache_valid( ) NE abap_true OR www_active EQ abap_true.
+    IF me->is_cache_valid( ) <> abap_true OR www_active = abap_true.
       cl_gui_cfw=>flush( ).
     ENDIF.
 
@@ -541,26 +492,23 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       " update fieldcatalog
       set_frontend_fieldcatalog( lt_fieldcat ).
 
-      set_scroll_info_via_id(
-          is_row_info = ls_row_id
-          is_col_info = ls_col_id
-      ).
+      set_scroll_info_via_id( is_row_info = ls_row_id
+                              is_col_info = ls_col_id ).
       refresh_table_display( ).
     ELSE.
       MESSAGE s005(0k).
     ENDIF.
   ENDMETHOD.
 
-
   METHOD on_toolbar.
-    e_object->mt_btnmnu =  mt_toolbar_menu.
+    e_object->mt_btnmnu  = mt_toolbar_menu.
     e_object->mt_toolbar = mt_toolbar_buttons.
 
-*.. Remove exluded functions
+    " .. Remove excluded functions
     IF mt_excluded IS NOT INITIAL.
       DELETE e_object->mt_toolbar WHERE function IN mt_excluded.
     ENDIF.
-*.. Remove adjacent separators
+    " .. Remove adjacent separators
     DATA(lf_sep_found) = abap_false.
 
     LOOP AT e_object->mt_toolbar ASSIGNING FIELD-SYMBOL(<ls_button>).
@@ -576,11 +524,8 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-
   METHOD on_toolbar_button.
-
   ENDMETHOD.
-
 
   METHOD optimize_columns.
     optimize_all_cols(
@@ -596,14 +541,12 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-
   METHOD set_column_names.
-    DATA: lv_tooltip TYPE lvc_tip,
-          lv_coltext TYPE lvc_txtcol.
-    get_internal_variant(
-      IMPORTING
-        es_variant = DATA(ls_variant)
-    ).
+    " TODO: parameter IF_TECH_NAMES is never used (ABAP cleaner)
+
+    get_internal_variant( IMPORTING
+                          " TODO: variable is assigned but never used (ABAP cleaner)
+                                    es_variant = DATA(ls_variant) ).
     get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fcat) ).
 
     LOOP AT lt_fcat ASSIGNING FIELD-SYMBOL(<ls_fcat>).
@@ -614,20 +557,18 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
 
     set_frontend_fieldcatalog( lt_fcat ).
 
-    refresh_table_display( is_stable = VALUE #( row = abap_true col = abap_true ) ).
+    refresh_table_display( is_stable = VALUE #( row = abap_true
+                                                col = abap_true ) ).
   ENDMETHOD.
-
 
   METHOD set_default_toolbar.
-    set_toolbar_functions(
-        it_functions = CORRESPONDING #( gt_default_tb_buttons )
-        it_menus     = gt_default_tb_menu
-    ).
+    set_toolbar_functions( it_functions = CORRESPONDING #( gt_default_tb_buttons )
+                           it_menus     = gt_default_tb_menu ).
   ENDMETHOD.
 
-
   METHOD set_excluded_functions.
-    mt_excluded = VALUE #( FOR function IN it_functions ( sign = 'I' option = 'EQ' low = function ) ).
+    mt_excluded = VALUE #( FOR function IN it_functions
+                           ( sign = 'I' option = 'EQ' low = function ) ).
     LOOP AT mt_excluded ASSIGNING FIELD-SYMBOL(<ls_excluded>).
       CASE <ls_excluded>-low.
 
@@ -660,12 +601,10 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       ENDCASE.
     ENDLOOP.
 
-    set_toolbar_buttons(
-      EXPORTING
-        toolbar_table = get_active_toolbar_buttons( )
+    set_toolbar_buttons( toolbar_table = get_active_toolbar_buttons( )
 *      EXCEPTIONS
-*        error         = 1
-*        others        = 2
+*                         error         = 1
+*                         others        = 2
     ).
     IF sy-subrc <> 0.
 *     MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
@@ -673,25 +612,21 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
-
   METHOD set_sort_criteria.
 *&---------------------------------------------------------------------*
 *& Author:    stockbal     Date: 2016/12/01
 *&---------------------------------------------------------------------*
-    super->set_sort_criteria( EXPORTING it_sort = it_sort ).
+    super->set_sort_criteria( it_sort = it_sort ).
 
     RAISE EVENT sorted_fields_changed.
   ENDMETHOD.
-
 
   METHOD set_toolbar_functions.
     mt_toolbar_buttons = it_functions.
     mt_toolbar_menu = it_menus.
   ENDMETHOD.
 
-
   METHOD show_active_default_shortcuts.
-    DATA: lt_active_buttons_range TYPE RANGE OF ui_func.
 
     DATA(lt_shortcuts) = gt_shortcuts_map.
 
@@ -700,34 +635,34 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     ENDIF.
 
     zcl_uitb_app_shortcuts_viewer=>display_shortcuts( it_shortcuts = lt_shortcuts ).
-
   ENDMETHOD.
 
   METHOD change_fixed_rows.
     IF if_from_selection = abap_true.
       get_selected_rows( IMPORTING et_index_rows = DATA(lt_row) ).
-      CHECK lt_row IS NOT INITIAL.
+      IF lt_row IS INITIAL.
+        RETURN.
+      ENDIF.
       set_fixed_rows( CONV #( lt_row[ lines( lt_row ) ]-index ) ).
     ELSE.
       set_fixed_rows( iv_rows ).
     ENDIF.
   ENDMETHOD.
 
-
   METHOD copy_as_value_statement.
-    TYPES: lty_value_line TYPE string.
+    TYPES lty_value_line TYPE string.
 
-    DATA: lt_value_stmnt          TYPE TABLE OF lty_value_line,
-          lv_value_stmnt          TYPE lty_value_line,
-          lv_value                TYPE string,
-          lr_clipboard_export_tab TYPE REF TO data,
-          lv_rc                   TYPE i.
+    DATA lt_value_stmnt TYPE TABLE OF lty_value_line.
+    DATA lv_value_stmnt TYPE lty_value_line.
+    DATA lv_value TYPE string.
+    DATA lr_clipboard_export_tab TYPE REF TO data.
+    DATA lv_rc TYPE i.
 
-    FIELD-SYMBOLS: <lt_data> TYPE table.
+    FIELD-SYMBOLS <lt_data> TYPE table.
 
     get_frontend_fieldcatalog( IMPORTING et_fieldcatalog = DATA(lt_fieldcat) ).
-    DELETE lt_fieldcat WHERE tech   = abap_true OR
-                             no_out = abap_true.
+    DELETE lt_fieldcat WHERE    tech   = abap_true
+                             OR no_out = abap_true.
     ASSIGN mt_outtab->* TO <lt_data>.
 
     lt_value_stmnt = VALUE #( ( |VALUE #(| ) ).
@@ -741,28 +676,29 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
         CHECK NOT line_exists( lt_filtered_entries[ table_line = sy-tabix ] ).
       ENDIF.
 
-
       lv_value_stmnt = |  (|.
       LOOP AT lt_fieldcat ASSIGNING FIELD-SYMBOL(<ls_fieldcat>).
         ASSIGN COMPONENT <ls_fieldcat>-fieldname OF STRUCTURE <ls_line> TO FIELD-SYMBOL(<lv_cell_value>).
         CHECK sy-subrc = 0.
         lv_value = |'{ <lv_cell_value> }'|.
         IF if_compact = abap_true.
-          lv_value_stmnt = |{ lv_value_stmnt } { <ls_fieldcat>-fieldname  } = { lv_value }|.
+          lv_value_stmnt = |{ lv_value_stmnt } { <ls_fieldcat>-fieldname } = { lv_value }|.
         ELSE.
-          lv_value_stmnt = |{ lv_value_stmnt } { <ls_fieldcat>-fieldname  } = { lv_value WIDTH = <ls_fieldcat>-outputlen + 2 }#|.
+          lv_value_stmnt = |{ lv_value_stmnt } { <ls_fieldcat>-fieldname } = { lv_value WIDTH = <ls_fieldcat>-outputlen + 2 }#|.
         ENDIF.
       ENDLOOP.
 
-      lv_value_stmnt = lv_value_stmnt && | )|.
+      lv_value_stmnt = |{ lv_value_stmnt } )|.
       REPLACE ALL OCCURRENCES OF '#' IN lv_value_stmnt WITH space.
-      lt_value_stmnt = VALUE #( BASE lt_value_stmnt ( lv_value_stmnt ) ).
-      ADD 1 TO lv_copied_rows.
+      lt_value_stmnt = VALUE #( BASE lt_value_stmnt
+                                ( lv_value_stmnt ) ).
+      lv_copied_rows = lv_copied_rows + 1.
     ENDLOOP.
 
-    lt_value_stmnt = VALUE #( BASE lt_value_stmnt ( |).| ) ).
+    lt_value_stmnt = VALUE #( BASE lt_value_stmnt
+                              ( |).| ) ).
 
-*.. Determine line with maximum length
+    " .. Determine line with maximum length
     DATA(lv_max_char) = 0.
     LOOP AT lt_value_stmnt ASSIGNING FIELD-SYMBOL(<lv_value_line>).
       DATA(lv_length) = strlen( <lv_value_line> ).
@@ -772,9 +708,7 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
     ENDLOOP.
 
     DATA(lo_line_type_descr) = cl_abap_elemdescr=>get_c( lv_max_char ).
-    DATA(lo_table_descr) = cl_abap_tabledescr=>get(
-        p_line_type  = lo_line_type_descr
-    ).
+    DATA(lo_table_descr) = cl_abap_tabledescr=>get( p_line_type = lo_line_type_descr ).
 
     CREATE DATA lr_clipboard_export_tab TYPE HANDLE lo_table_descr.
     ASSIGN lr_clipboard_export_tab->* TO FIELD-SYMBOL(<lt_clipboard_data>).
@@ -783,19 +717,18 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
       MOVE-CORRESPONDING lt_value_stmnt TO <lt_clipboard_data>.
     ENDIF.
 
-    CHECK <lt_clipboard_data> IS NOT INITIAL.
+    IF <lt_clipboard_data> IS INITIAL.
+      RETURN.
+    ENDIF.
 
     cl_gui_frontend_services=>clipboard_export(
 *      EXPORTING
-*        no_auth_check        = space
-      IMPORTING
-        data                 = <lt_clipboard_data>
-      CHANGING
-        rc                   = lv_rc
-    ).
+*                                                          no_auth_check = space
+                                                IMPORTING data = <lt_clipboard_data>
+                                                CHANGING  rc   = lv_rc ).
     IF sy-subrc <> 0.
       MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
-        WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+              WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
     ELSE.
       MESSAGE |Copied VALUE #( ) Statement of { lv_copied_rows } lines to Clipboard| TYPE 'S'.
     ENDIF.
@@ -803,7 +736,7 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
 
   METHOD get_selected_cols_range.
     get_selected_columns( IMPORTING et_index_columns = DATA(lt_cols) ).
-    rt_col_range = VALUE #( FOR col IN lt_cols ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
+    rt_col_range = VALUE #( FOR col IN lt_cols
+                            ( sign = 'I' option = 'EQ' low = col-fieldname ) ).
   ENDMETHOD.
-
 ENDCLASS.

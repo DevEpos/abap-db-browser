@@ -1,5 +1,5 @@
 INTERFACE zif_dbbr_c_annotations
-  PUBLIC .
+  PUBLIC.
 
   CONSTANTS:
     BEGIN OF objectmodel,

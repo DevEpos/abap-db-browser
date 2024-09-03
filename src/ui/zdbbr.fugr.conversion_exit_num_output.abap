@@ -1,4 +1,4 @@
-FUNCTION CONVERSION_EXIT_NUM_OUTPUT.
+FUNCTION conversion_exit_num_output.
 *"----------------------------------------------------------------------
 *"*"Lokale Schnittstelle:
 *"  IMPORTING
@@ -6,8 +6,6 @@ FUNCTION CONVERSION_EXIT_NUM_OUTPUT.
 *"  EXPORTING
 *"     VALUE(OUTPUT) TYPE  CLIKE
 *"----------------------------------------------------------------------
-
-  DATA: text1(1) TYPE c.
 
   " handle zero values
   IF input IS INITIAL.
@@ -21,17 +19,18 @@ FUNCTION CONVERSION_EXIT_NUM_OUTPUT.
 
   DATA(lv_number_as_string) = |{ input NUMBER = USER }|.
 
-  lv_number_as_string = replace( val = lv_number_as_string sub = '-' with = '' ).
+  lv_number_as_string = replace( val  = lv_number_as_string
+                                 sub  = '-'
+                                 with = '' ).
 
   " handle negative values
   IF input < 0.
     IF gs_data-no_trailing_sign = abap_false.
-      lv_number_as_string = lv_number_as_string && '-'.
+      lv_number_as_string = |{ lv_number_as_string }-|.
     ELSE.
-      lv_number_as_string = `- ` && lv_number_as_string.
+      lv_number_as_string = |- { lv_number_as_string }|.
     ENDIF.
   ENDIF.
 
   output = lv_number_as_string.
-
 ENDFUNCTION.

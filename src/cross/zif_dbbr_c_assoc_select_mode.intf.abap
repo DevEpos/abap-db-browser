@@ -1,7 +1,7 @@
-interface ZIF_DBBR_C_ASSOC_SELECT_MODE
-  public .
+INTERFACE zif_dbbr_c_assoc_select_mode
+  PUBLIC.
 
 
-  constants POPUP type ZDBBR_ASSOC_SELECTION_MODE value 'POPUP' ##NO_TEXT.
-  constants DOCKED type ZDBBR_ASSOC_SELECTION_MODE value 'DOCKED' ##NO_TEXT.
-endinterface.
+  CONSTANTS popup TYPE zdbbr_assoc_selection_mode VALUE 'POPUP' ##NO_TEXT.
+  CONSTANTS docked TYPE zdbbr_assoc_selection_mode VALUE 'DOCKED' ##NO_TEXT.
+ENDINTERFACE.

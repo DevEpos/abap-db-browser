@@ -1,5 +1,5 @@
 INTERFACE zif_dbbr_user_settings_ids
-  PUBLIC .
+  PUBLIC.
 
   "! Type ABAP_BOOL
   CONSTANTS c_auto_hide_empty_cols TYPE string VALUE 'P_AUTHEC' ##NO_TEXT.
@@ -20,15 +20,15 @@ INTERFACE zif_dbbr_user_settings_ids
   "! Type ABAP_BOOL
   CONSTANTS c_object_navigator_at_start TYPE string VALUE 'P_ONAST' ##NO_TEXT.
   "! Type zdbbr_obj_navigator_Mode
-  CONSTANTS c_initial_obj_nav_mode TYPE string VALUE 'P_IOBJM' ##no_text.
+  CONSTANTS c_initial_obj_nav_mode TYPE string VALUE 'P_IOBJM' ##NO_TEXT.
   "! Type ZSAT_OBJ_BROWSER_MODE
-  CONSTANTS c_initial_obj_browser_mode TYPE string VALUE 'P_IOBBRM' ##no_text.
+  CONSTANTS c_initial_obj_browser_mode TYPE string VALUE 'P_IOBBRM' ##NO_TEXT.
   "! Type ABAP_BOOL
   CONSTANTS c_no_fixed_key_cols TYPE string VALUE 'P_KCOLNF' ##NO_TEXT.
   "! Type SY-TABIX
   CONSTANTS c_max_result_lines TYPE string VALUE 'P_MAXL' ##NO_TEXT.
   "! Type sy-tabix
-  CONSTANTS c_disable_date_to_timest_conv TYPE string VALUE 'P_XDD2TC' ##no_text.
+  CONSTANTS c_disable_date_to_timest_conv TYPE string VALUE 'P_XDD2TC' ##NO_TEXT.
   "! Type ABAP_BOOL
   CONSTANTS c_no_conv_exit TYPE string VALUE 'P_NOCVEX' ##NO_TEXT.
   "! Type ABAP_BOOL
@@ -58,13 +58,13 @@ INTERFACE zif_dbbr_user_settings_ids
   "! Type ABAP_BOOL
   CONSTANTS c_override_sy_langu TYPE string VALUE 'P_OVRSYL' ##NO_TEXT.
   "! Type abap_bool
-  CONSTANTS c_activate_alv_live_filter TYPE string VALUE 'P_XFLLIV' ##no_text.
+  CONSTANTS c_activate_alv_live_filter TYPE string VALUE 'P_XFLLIV' ##NO_TEXT.
   "! Type abap_bool
-  CONSTANTS c_use_ddl_view_for_select TYPE string VALUE 'P_XDDLFS' ##no_text.
+  CONSTANTS c_use_ddl_view_for_select TYPE string VALUE 'P_XDDLFS' ##NO_TEXT.
   "! Type abap_bool
-  CONSTANTS c_deactvt_highltng_in_cqe TYPE string VALUE 'P_XDHLQE' ##no_text.
+  CONSTANTS c_deactvt_highltng_in_cqe TYPE string VALUE 'P_XDHLQE' ##NO_TEXT.
   "! type zuitb_code_viewer_theme
-  CONSTANTS c_code_viewer_theme TYPE string VALUE 'P_CVTHME' ##no_text.
+  CONSTANTS c_code_viewer_theme TYPE string VALUE 'P_CVTHME' ##NO_TEXT.
   "!Type SAP_BOOL
   CONSTANTS c_search_ignore_case TYPE string VALUE 'P_XIGNCS' ##NO_TEXT.
   CONSTANTS c_assocation_sel_mode TYPE string VALUE 'P_ASNVMO' ##NO_TEXT.

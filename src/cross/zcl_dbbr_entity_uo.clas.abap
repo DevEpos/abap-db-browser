@@ -1,28 +1,21 @@
-class ZCL_DBBR_ENTITY_UO definition
-  public
-  final
-  create public .
+CLASS zcl_dbbr_entity_uo DEFINITION
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
-public section.
+  PUBLIC SECTION.
+    DATA mv_entity_id TYPE zsat_entity_id READ-ONLY.
+    DATA mv_entity_type TYPE zsat_entity_type READ-ONLY.
+    DATA mv_source_type TYPE ddtargetkind READ-ONLY.
 
-  data MV_ENTITY_ID type ZSAT_ENTITY_ID read-only .
-  data MV_ENTITY_TYPE type ZSAT_ENTITY_TYPE read-only .
-  data MV_SOURCE_TYPE type DDTARGETKIND read-only .
-
-  methods CONSTRUCTOR
-    importing
-      !IV_ENTITY_ID type ZSAT_ENTITY_ID
-      !IV_ENTITY_TYPE type ZSAT_ENTITY_TYPE
-      !IV_SOURCE_TYPE type DDTARGETKIND .
-protected section.
-private section.
+    METHODS constructor
+      IMPORTING
+        iv_entity_id   TYPE zsat_entity_id
+        iv_entity_type TYPE zsat_entity_type
+        iv_source_type TYPE ddtargetkind.
 ENDCLASS.
 
 
-
-CLASS ZCL_DBBR_ENTITY_UO IMPLEMENTATION.
-
-
+CLASS zcl_dbbr_entity_uo IMPLEMENTATION.
   METHOD constructor.
     mv_entity_id = iv_entity_id.
     mv_entity_type = iv_entity_type.

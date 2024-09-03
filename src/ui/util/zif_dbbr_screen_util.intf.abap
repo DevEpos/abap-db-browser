@@ -1,15 +1,18 @@
-interface ZIF_DBBR_SCREEN_UTIL
-  public .
+INTERFACE zif_dbbr_screen_util
+  PUBLIC.
 
 
-  methods GET_DEACTIVATED_FUNCTIONS
-    returning
-      value(RESULT) type UI_FUNCTIONS .
-  methods HANDLE_UI_FUNCTION
-    changing
-      !CV_FUNCTION type UI_FUNC .
-  methods HANDLE_PBO default ignore
-    importing
-      !IF_FIRST_CALL type ABAP_BOOL optional .
-  methods FREE_RESOURCES default ignore .
-endinterface.
+  METHODS get_deactivated_functions
+    RETURNING
+      VALUE(result) TYPE ui_functions.
+
+  METHODS handle_ui_function
+    CHANGING
+      cv_function TYPE ui_func.
+
+  METHODS handle_pbo DEFAULT IGNORE
+    IMPORTING
+      if_first_call TYPE abap_bool OPTIONAL.
+
+  METHODS free_resources DEFAULT IGNORE.
+ENDINTERFACE.

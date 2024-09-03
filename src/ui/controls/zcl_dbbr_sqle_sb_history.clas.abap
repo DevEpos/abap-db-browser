@@ -1,19 +1,20 @@
-"! <p class="shorttext synchronized" lang="en">Query history in SQL Query Editor</p>
+"! <p class="shorttext synchronized">Query history in SQL Query Editor</p>
 CLASS zcl_dbbr_sqle_sb_history DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     INTERFACES zif_uitb_gui_view.
     INTERFACES zif_uitb_gui_control.
+
     METHODS constructor
       IMPORTING
         io_container TYPE REF TO cl_gui_container
         io_parent    TYPE REF TO zif_uitb_gui_composite_view.
-    "! <p class="shorttext synchronized" lang="en">Refresh history entries</p>
+
+    "! <p class="shorttext synchronized">Refresh history entries</p>
     METHODS refresh_history.
-  PROTECTED SECTION.
+
   PRIVATE SECTION.
     CONSTANTS:
       BEGIN OF c_function,
@@ -22,10 +23,10 @@ CLASS zcl_dbbr_sqle_sb_history DEFINITION
         delete_all TYPE ui_func VALUE 'DELETE_ALL',
       END OF c_function.
 
-    TYPES: BEGIN OF ty_s_history.
-    TYPES icon TYPE c LENGTH 40.
-    INCLUDE TYPE zdbbrsqlqh.
-    TYPES simple_query TYPE zdbbr_sql_query_string.
+    TYPES  BEGIN OF ty_s_history.
+    TYPES    icon         TYPE c LENGTH 40.
+             INCLUDE TYPE zdbbrsqlqh.
+    TYPES    simple_query TYPE zdbbr_sql_query_string.
     TYPES: END OF ty_s_history.
 
     DATA mo_alv TYPE REF TO zcl_uitb_alv.
@@ -33,20 +34,22 @@ CLASS zcl_dbbr_sqle_sb_history DEFINITION
     DATA mo_parent TYPE REF TO zif_uitb_gui_composite_view.
     DATA mt_history TYPE TABLE OF ty_s_history.
 
-    "! <p class="shorttext synchronized" lang="en"></p>
+    "! <p class="shorttext synchronized"></p>
     "!
     METHODS create_alv.
+
     METHODS delete_history_entries
       IMPORTING
         if_all TYPE abap_bool.
 
     METHODS on_double_click
-        FOR EVENT double_click OF zcl_uitb_alv_events
+      FOR EVENT double_click OF zcl_uitb_alv_events
       IMPORTING
         ev_column
         ev_row.
+
     METHODS on_function_click
-        FOR EVENT function_chosen OF zcl_uitb_alv_events
+      FOR EVENT function_chosen OF zcl_uitb_alv_events
       IMPORTING
         ev_function
         ev_tag.
@@ -55,7 +58,6 @@ ENDCLASS.
 
 
 CLASS zcl_dbbr_sqle_sb_history IMPLEMENTATION.
-
   METHOD constructor.
     mo_container = io_container.
     mo_parent = io_parent.
@@ -74,35 +76,25 @@ CLASS zcl_dbbr_sqle_sb_history IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_alv.
-
-    mo_alv = zcl_uitb_alv=>create_alv(
-     ir_data                 = REF #( mt_history )
-     ir_container            = mo_container
-    ).
+    mo_alv = zcl_uitb_alv=>create_alv( ir_data      = REF #( mt_history )
+                                       ir_container = mo_container ).
 
     DATA(lo_functions) = mo_alv->get_functions( ).
     lo_functions->set_all( abap_false ).
-    lo_functions->add_function(
-        iv_name             = c_function-refresh
-        iv_icon             = |{ icon_refresh }|
-        iv_tooltip          = |{ 'Refresh History' }|
-    ).
+    lo_functions->add_function( iv_name    = c_function-refresh
+                                iv_icon    = |{ icon_refresh }|
+                                iv_tooltip = |{ 'Refresh History' }| ).
     lo_functions->add_function( iv_type = zcl_uitb_alv_functions=>separator ).
-    lo_functions->add_function(
-        iv_name             = c_function-delete
-        iv_icon             = |{ icon_delete }|
-        iv_tooltip          = |{ 'Delete selected entries' }|
-    ).
-    lo_functions->add_function(
-        iv_name             = c_function-delete_all
-        iv_icon             = |{ icon_delete }|
-        iv_text             = |{ 'All' }|
-        iv_tooltip          = |{ 'Delete all entries' }|
-    ).
+    lo_functions->add_function( iv_name    = c_function-delete
+                                iv_icon    = |{ icon_delete }|
+                                iv_tooltip = |{ 'Delete selected entries' }| ).
+    lo_functions->add_function( iv_name    = c_function-delete_all
+                                iv_icon    = |{ icon_delete }|
+                                iv_text    = |{ 'All' }|
+                                iv_tooltip = |{ 'Delete all entries' }| ).
 
-    SET HANDLER:
-      on_double_click FOR mo_alv->get_events( ),
-      on_function_click FOR mo_alv->get_events( ).
+    SET HANDLER on_double_click FOR mo_alv->get_events( ).
+    SET HANDLER on_function_click FOR mo_alv->get_events( ).
 
     DATA(lo_cols) = mo_alv->get_columns( ).
     lo_cols->set_single_click_sort( ).
@@ -135,28 +127,33 @@ CLASS zcl_dbbr_sqle_sb_history IMPLEMENTATION.
       ENDCASE.
     ENDWHILE.
 
-    lo_cols->set_column_position( iv_columnname = 'CREATED_DATE' iv_position = 1 ).
-    lo_cols->set_column_position( iv_columnname = 'EXECUTION_TIME' iv_position = 2 ).
-    lo_cols->set_column_position( iv_columnname = 'SIMPLE_QUERY' iv_position = 3 ).
+    lo_cols->set_column_position( iv_columnname = 'CREATED_DATE'
+                                  iv_position   = 1 ).
+    lo_cols->set_column_position( iv_columnname = 'EXECUTION_TIME'
+                                  iv_position   = 2 ).
+    lo_cols->set_column_position( iv_columnname = 'SIMPLE_QUERY'
+                                  iv_position   = 3 ).
 
     mo_alv->get_selections( )->set_mode( zif_uitb_c_alv_selection=>row_column ).
 
     mo_alv->display( ).
   ENDMETHOD.
 
-
   METHOD refresh_history.
     mt_history = CORRESPONDING #( zcl_dbbr_sql_query_factory=>get_history_entries( ) ).
 
     LOOP AT mt_history ASSIGNING FIELD-SYMBOL(<ls_history>).
-      <ls_history>-icon = |{ icon_query }|.
+      <ls_history>-icon         = |{ icon_query }|.
       <ls_history>-simple_query = <ls_history>-query_string.
       REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN <ls_history>-simple_query WITH space.
-      <ls_history>-simple_query = replace( val = <ls_history>-simple_query regex = '(\s)(\s*)' with = '$1' occ = 0 ).
+      <ls_history>-simple_query = replace( val   = <ls_history>-simple_query
+                                           regex = '(\s)(\s*)'
+                                           with  = '$1'
+                                           occ   = 0 ).
       DATA(lv_length) = strlen( <ls_history>-simple_query ).
       IF lv_length > 60.
         lv_length = 60.
-        <ls_history>-simple_query = <ls_history>-simple_query(60) && '...'.
+        <ls_history>-simple_query = |{ <ls_history>-simple_query(60) }...|.
       ENDIF.
 
       REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN <ls_history>-query_string WITH cl_abap_char_utilities=>newline.
@@ -167,14 +164,13 @@ CLASS zcl_dbbr_sqle_sb_history IMPLEMENTATION.
 
   METHOD on_double_click.
     ASSIGN mt_history[ ev_row ] TO FIELD-SYMBOL(<ls_history>).
-    CHECK sy-subrc = 0.
+    IF sy-subrc <> 0.
+      RETURN.
+    ENDIF.
 
-    mo_parent->execute_command(
-        NEW zcl_uitb_gui_simple_command(
-          iv_function = zcl_uitb_gui_code_editor=>c_command_ids-replace_content
-          ir_params   = NEW string( <ls_history>-query_string )
-        )
-    ).
+    mo_parent->execute_command( NEW zcl_uitb_gui_simple_command(
+                                        iv_function = zcl_uitb_gui_code_editor=>c_command_ids-replace_content
+                                        ir_params   = NEW string( <ls_history>-query_string ) ) ).
   ENDMETHOD.
 
   METHOD on_function_click.
@@ -192,16 +188,13 @@ CLASS zcl_dbbr_sqle_sb_history IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
-
   METHOD delete_history_entries.
-    DATA: lt_history_query_range TYPE zcl_dbbr_sql_query_factory=>ty_t_history_id_range,
-          lt_node_keys           TYPE treemnotab.
+    DATA lt_history_query_range TYPE zcl_dbbr_sql_query_factory=>ty_t_history_id_range.
 
     IF if_all = abap_true.
-      IF zcl_dbbr_appl_util=>popup_to_confirm(
-           iv_title                 = 'Delete history?'
-           iv_query                 = |Are you sure you want to clear the history?|
-           iv_icon_type             = 'ICON_QUESTION' ) = '1'.
+      IF zcl_dbbr_appl_util=>popup_to_confirm( iv_title     = 'Delete history?'
+                                               iv_query     = |Are you sure you want to clear the history?|
+                                               iv_icon_type = 'ICON_QUESTION' ) = '1'.
 
         CLEAR mt_history.
         zcl_dbbr_sql_query_factory=>delete_history_entries( ).
@@ -216,7 +209,8 @@ CLASS zcl_dbbr_sqle_sb_history IMPLEMENTATION.
 
       LOOP AT lt_rows INTO DATA(lv_row).
         ASSIGN mt_history[ lv_row ] TO FIELD-SYMBOL(<ls_history>).
-        lt_history_query_range = VALUE #( BASE lt_history_query_range ( sign = 'I' option = 'EQ' low = <ls_history>-query_history_id ) ).
+        lt_history_query_range = VALUE #( BASE lt_history_query_range
+                                          ( sign = 'I' option = 'EQ' low = <ls_history>-query_history_id ) ).
       ENDLOOP.
 
       zcl_dbbr_sql_query_factory=>delete_history_entries( lt_history_query_range ).
@@ -224,5 +218,4 @@ CLASS zcl_dbbr_sqle_sb_history IMPLEMENTATION.
       mo_alv->refresh( ).
     ENDIF.
   ENDMETHOD.
-
 ENDCLASS.

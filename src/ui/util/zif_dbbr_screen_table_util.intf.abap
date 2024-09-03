@@ -1,6 +1,6 @@
-interface ZIF_DBBR_SCREEN_TABLE_UTIL
-  public .
+INTERFACE zif_dbbr_screen_table_util
+  PUBLIC.
 
 
-  methods HANDLE_PBO .
-endinterface.
+  METHODS handle_pbo.
+ENDINTERFACE.

@@ -7,7 +7,7 @@ TYPES:
     value TYPE string,
     alias TYPE string,
   END OF lty_s_field.
-TYPES: lty_t_field TYPE STANDARD TABLE OF lty_s_field WITH EMPTY KEY.
+TYPES lty_t_field TYPE STANDARD TABLE OF lty_s_field WITH EMPTY KEY.
 
 TYPES:
   BEGIN OF lty_s_select_part,
@@ -18,7 +18,7 @@ TYPES:
     value  TYPE string,
     and_or TYPE string,
   END OF lty_s_where_comp.
-TYPES: lty_t_where_comp TYPE STANDARD TABLE OF lty_s_where_comp WITH EMPTY KEY.
+TYPES lty_t_where_comp TYPE STANDARD TABLE OF lty_s_where_comp WITH EMPTY KEY.
 
 TYPES:
   BEGIN OF lty_s_where_part,
@@ -38,8 +38,9 @@ INTERFACE lif_statement_parser.
       VALUE(rr_data) TYPE REF TO data.
 ENDINTERFACE.
 
+
 CLASS lcl_token_parser DEFINITION
- ABSTRACT.
+  ABSTRACT.
 
   PUBLIC SECTION.
     METHODS constructor
@@ -51,61 +52,68 @@ CLASS lcl_token_parser DEFINITION
     DATA mv_count TYPE i.
     DATA mv_current_index TYPE i.
     DATA ms_current_token TYPE zcl_dbbr_sql_query_parser=>ty_s_token.
-    "! <p class="shorttext synchronized" lang="en">Navigate to next token in the list</p>
+
+    "! <p class="shorttext synchronized">Navigate to next token in the list</p>
     "!
     METHODS next_token.
-    "! <p class="shorttext synchronized" lang="en">Delete the current token</p>
+    "! <p class="shorttext synchronized">Delete the current token</p>
     "!
     METHODS delete_current.
-    "! <p class="shorttext synchronized" lang="en">Set index to first token in the list</p>
+    "! <p class="shorttext synchronized">Set index to first token in the list</p>
     "!
     METHODS set_index_to_first.
-    "! <p class="shorttext synchronized" lang="en">Navigate to the previous token in the list</p>
+    "! <p class="shorttext synchronized">Navigate to the previous token in the list</p>
     "!
     METHODS previous_token.
-    "! <p class="shorttext synchronized" lang="en">Retrieve the next token for the given value</p>
+
+    "! <p class="shorttext synchronized">Retrieve the next token for the given value</p>
     "!
     METHODS get_token
       IMPORTING
         iv_token         TYPE string
-        if_from_current  TYPE abap_bool optional
+        if_from_current  TYPE abap_bool OPTIONAL
       RETURNING
         VALUE(rf_exists) TYPE abap_bool.
-    "! <p class="shorttext synchronized" lang="en">Checks if there is another token after the current one</p>
+
+    "! <p class="shorttext synchronized">Checks if there is another token after the current one</p>
     "!
     METHODS has_next_token
       RETURNING
         VALUE(rf_has_next) TYPE abap_bool.
-    "! <p class="shorttext synchronized" lang="en">Checks if there is another token before the current one</p>
+
+    "! <p class="shorttext synchronized">Checks if there is another token before the current one</p>
     "!
     METHODS has_previous_token
       RETURNING
         VALUE(rf_has_previous) TYPE abap_bool.
-    "! <p class="shorttext synchronized" lang="en">Check if the next token has the given value</p>
+
+    "! <p class="shorttext synchronized">Check if the next token has the given value</p>
     "!
     METHODS is_next_token
       IMPORTING
         iv_next_token     TYPE string
       RETURNING
         VALUE(rf_is_next) TYPE abap_bool.
-    "! <p class="shorttext synchronized" lang="en">Check if the previous token has the given value</p>
+
+    "! <p class="shorttext synchronized">Check if the previous token has the given value</p>
     "!
     METHODS is_previous_token
       IMPORTING
         iv_previous_token     TYPE string
       RETURNING
         VALUE(rf_is_previous) TYPE abap_bool.
-    "! <p class="shorttext synchronized" lang="en">Updates the current token from the current working structure</p>
+
+    "! <p class="shorttext synchronized">Updates the current token from the current working structure</p>
     "!
     METHODS update_from_current.
-    "! <p class="shorttext synchronized" lang="en">Deletes the next token in the list</p>
+    "! <p class="shorttext synchronized">Deletes the next token in the list</p>
     "!
     METHODS delete_next.
-    "! <p class="shorttext synchronized" lang="en">Delete the previous token in the list</p>
+    "! <p class="shorttext synchronized">Delete the previous token in the list</p>
     "!
     METHODS delete_previous.
 
-    "! <p class="shorttext synchronized" lang="en">Checks if the token matches a token in a comma separated token list</p>
+    "! <p class="shorttext synchronized">Checks if the token matches a token in a comma separated token list</p>
     "!
     METHODS token_matches
       IMPORTING
@@ -115,37 +123,37 @@ CLASS lcl_token_parser DEFINITION
         VALUE(rf_matches) TYPE abap_bool.
 ENDCLASS.
 
+
 CLASS lcl_query_token_simplifier DEFINITION
-INHERITING FROM lcl_token_parser.
+  INHERITING FROM lcl_token_parser.
 
   PUBLIC SECTION.
     METHODS simplify
       RETURNING
         VALUE(rt_tokens) TYPE zcl_dbbr_sql_query_parser=>ty_t_token.
-  PROTECTED SECTION.
-
 
   PRIVATE SECTION.
-
-
     METHODS simplify_by_clause
       IMPORTING
         iv_clause     TYPE string
         iv_simplified TYPE string.
+
     METHODS simplify_joins.
     METHODS simplify_conditions.
 ENDCLASS.
 
+
 CLASS lcl_query_param_parser DEFINITION
- INHERITING FROM lcl_token_parser.
+  INHERITING FROM lcl_token_parser.
 
   PUBLIC SECTION.
     INTERFACES lif_statement_parser.
-    ALIASES parse
-      FOR lif_statement_parser~parse.
+
+    ALIASES parse FOR lif_statement_parser~parse.
 
   PRIVATE SECTION.
     DATA mr_parameter TYPE REF TO zcl_dbbr_sql_query_parser=>ty_s_parameter.
+
     METHODS parse_type.
     METHODS parse_length.
     METHODS parse_value.

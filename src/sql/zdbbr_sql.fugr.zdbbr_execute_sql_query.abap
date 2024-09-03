@@ -9,17 +9,13 @@ FUNCTION zdbbr_execute_sql_query.
 *"  EXPORTING
 *"     VALUE(ES_QUERY_RESULT) TYPE  ZDBBR_DP_TABLE_DATA
 *"----------------------------------------------------------------------
-  DATA(lo_proxy_executor) = NEW zcl_dbbr_sql_query_exec_proxy(
-    is_query      = is_query
-    it_parameters = it_parameters
-  ).
+  DATA(lo_proxy_executor) = NEW zcl_dbbr_sql_query_exec_proxy( is_query      = is_query
+                                                               it_parameters = it_parameters ).
 
   TRY.
-      es_query_result = lo_proxy_executor->execute_select(
-          iv_row_count = iv_row_count
-      ).
+      es_query_result = lo_proxy_executor->execute_select( iv_row_count = iv_row_count ).
     CATCH zcx_dbbr_sql_query_error INTO DATA(lx_sql_error).
-      es_query_result-message = lx_sql_error->zif_sat_exception_message~get_message( ).
+      es_query_result-message          = lx_sql_error->zif_sat_exception_message~get_message( ).
       es_query_result-message_severity = 'E'.
   ENDTRY.
 ENDFUNCTION.

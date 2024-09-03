@@ -1,6 +1,6 @@
-"! <p class="shorttext synchronized" lang="en">Type definitions for formula editor</p>
+"! <p class="shorttext synchronized">Type definitions for formula editor</p>
 INTERFACE zif_dbbr_fe_types
-  PUBLIC .
+  PUBLIC.
   TYPES:
     "! <p class="shorttext synchronized" lang="en">Formula Field definition</p>
     BEGIN OF ty_form_field,
@@ -17,9 +17,9 @@ INTERFACE zif_dbbr_fe_types
       long_description  TYPE zdbbr_ff_list_output_long,
     END OF ty_form_field.
 
-  TYPES: tt_form_field TYPE HASHED TABLE OF ty_form_field WITH UNIQUE KEY field.
+  TYPES tt_form_field TYPE HASHED TABLE OF ty_form_field WITH UNIQUE KEY field.
 
-  TYPES: tt_formula_defs TYPE STANDARD TABLE OF zdbbr_ffdef WITH DEFAULT KEY.
+  TYPES tt_formula_defs TYPE STANDARD TABLE OF zdbbr_ffdef WITH DEFAULT KEY.
 
   TYPES:
     BEGIN OF ty_form_calc_field,
@@ -27,8 +27,8 @@ INTERFACE zif_dbbr_fe_types
       tabname   TYPE tabname,
     END OF ty_form_calc_field.
 
-  TYPES: tt_form_calc_field TYPE STANDARD TABLE OF ty_form_calc_field WITH DEFAULT KEY.
-  TYPES: tt_form_calc_field_unique TYPE SORTED TABLE OF ty_form_calc_field WITH UNIQUE KEY fieldname tabname.
+  TYPES tt_form_calc_field TYPE STANDARD TABLE OF ty_form_calc_field WITH DEFAULT KEY.
+  TYPES tt_form_calc_field_unique TYPE SORTED TABLE OF ty_form_calc_field WITH UNIQUE KEY fieldname tabname.
 
   TYPES:
     "! <p class="shorttext synchronized" lang="en">Token inside Formula Statement</p>
@@ -42,8 +42,8 @@ INTERFACE zif_dbbr_fe_types
       is_formula_field TYPE abap_bool,
     END OF ty_token.
 
-  TYPES: tt_token TYPE STANDARD TABLE OF ty_token WITH DEFAULT KEY
-                                                  WITH UNIQUE SORTED KEY idkey COMPONENTS id.
+  TYPES tt_token TYPE STANDARD TABLE OF ty_token WITH DEFAULT KEY
+                                                 WITH UNIQUE SORTED KEY idkey COMPONENTS id.
 
   TYPES:
     "! <p class="shorttext synchronized" lang="en">Statement inside formula</p>
@@ -68,5 +68,5 @@ INTERFACE zif_dbbr_fe_types
       tokens                  TYPE tt_token,
     END OF ty_statement.
 
-  TYPES: tt_statement TYPE STANDARD TABLE OF ty_statement WITH DEFAULT KEY.
+  TYPES tt_statement TYPE STANDARD TABLE OF ty_statement WITH DEFAULT KEY.
 ENDINTERFACE.

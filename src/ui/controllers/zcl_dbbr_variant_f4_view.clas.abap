@@ -1,38 +1,35 @@
-"! <p class="shorttext synchronized" lang="en">F4 View for choosing variants</p>
+"! <p class="shorttext synchronized">F4 View for choosing variants</p>
 CLASS zcl_dbbr_variant_f4_view DEFINITION
   PUBLIC
-  INHERITING FROM zcl_uitb_selection_dialog
-  FINAL
-  CREATE PUBLIC .
+  INHERITING FROM zcl_uitb_selection_dialog FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    "! <p class="shorttext synchronized">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
-        iv_entity_id   TYPE ZSAT_ENTITY_ID
-        iv_entity_name TYPE ZSAT_ENTITY_ID_raw OPTIONAL
-        iv_entity_type TYPE ZSAT_ENTITY_TYPE.
-    "! <p class="shorttext synchronized" lang="en">Display ALV popup to show variant options</p>
+        iv_entity_id   TYPE zsat_entity_id
+        iv_entity_name TYPE zsat_entity_id_raw OPTIONAL
+        iv_entity_type TYPE zsat_entity_type.
+
+    "! <p class="shorttext synchronized">Display ALV popup to show variant options</p>
     METHODS choose_variant
       RETURNING
         VALUE(rv_variant_id) TYPE zdbbr_variant_id.
-  PROTECTED SECTION.
-    METHODS adjust_column
-        REDEFINITION.
-    METHODS get_output_table
-        REDEFINITION.
-    METHODS get_filtered_data
-        REDEFINITION.
-    METHODS set_selected_element
-        REDEFINITION.
-  PRIVATE SECTION.
 
+  PROTECTED SECTION.
+    METHODS adjust_column        REDEFINITION.
+    METHODS get_output_table     REDEFINITION.
+    METHODS get_filtered_data    REDEFINITION.
+    METHODS set_selected_element REDEFINITION.
+
+  PRIVATE SECTION.
     DATA mt_variant TYPE zdbbr_variant_info_itab.
-    DATA mv_entity_id TYPE ZSAT_ENTITY_ID.
-    DATA mv_entity_type TYPE ZSAT_ENTITY_TYPE.
+    DATA mv_entity_id TYPE zsat_entity_id.
+    DATA mv_entity_type TYPE zsat_entity_type.
     DATA mv_variant_id TYPE zdbbr_variant_id.
 
-    "! <p class="shorttext synchronized" lang="en">Finds variants for the current entity and filter value</p>
+    "! <p class="shorttext synchronized">Finds variants for the current entity and filter value</p>
     METHODS find_variants
       IMPORTING
         iv_name_filter    TYPE string OPTIONAL
@@ -42,19 +39,15 @@ CLASS zcl_dbbr_variant_f4_view DEFINITION
 ENDCLASS.
 
 
-
 CLASS zcl_dbbr_variant_f4_view IMPLEMENTATION.
   METHOD constructor.
     DATA(lv_title) = |{ 'Choose Variant' }| &&
                      COND #( WHEN iv_entity_name IS NOT INITIAL THEN | for { iv_entity_name }| ).
-    super->constructor(
-        iv_title         = lv_title
-        iv_filter_prompt = 'Filter by Variant Name'
-    ).
+    super->constructor( iv_title         = lv_title
+                        iv_filter_prompt = 'Filter by Variant Name' ).
     mv_entity_id = iv_entity_id.
     mv_entity_type = iv_entity_type.
   ENDMETHOD.
-
 
   METHOD choose_variant.
     CLEAR: mv_variant_id,
@@ -66,28 +59,21 @@ CLASS zcl_dbbr_variant_f4_view IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    show(
-        iv_top    = 2
-        iv_left   = 20
-        iv_width  = 90
-        iv_height = 20
-    ).
+    show( iv_top    = 2
+          iv_left   = 20
+          iv_width  = 90
+          iv_height = 20 ).
 
     CLEAR mo_alv.
 
     rv_variant_id = mv_variant_id.
   ENDMETHOD.
 
-
   METHOD find_variants.
-    zcl_dbbr_variant_factory=>find_variants(
-      EXPORTING
-        iv_variant_name = |*{ to_upper( iv_name_filter ) }*|
-        iv_entity_id    = mv_entity_id
-        iv_entity_type  = mv_entity_type
-      IMPORTING
-        et_variant_info = rt_variant
-    ).
+    zcl_dbbr_variant_factory=>find_variants( EXPORTING iv_variant_name = |*{ to_upper( iv_name_filter ) }*|
+                                                       iv_entity_id    = mv_entity_id
+                                                       iv_entity_type  = mv_entity_type
+                                             IMPORTING et_variant_info = rt_variant ).
   ENDMETHOD.
 
   METHOD adjust_column.
@@ -120,5 +106,4 @@ CLASS zcl_dbbr_variant_f4_view IMPLEMENTATION.
   METHOD set_selected_element.
     mv_variant_id = mt_variant[ iv_row ]-variant_id.
   ENDMETHOD.
-
 ENDCLASS.

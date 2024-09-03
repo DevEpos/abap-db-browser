@@ -2,8 +2,8 @@
 *&  Include           LZLS_DATA_BROWSERO02
 *&---------------------------------------------------------------------*
 
-module pbo_0001 output.
-    gr_multi_select_controller->ZIF_UITB_SCREEN_CONTROLLER~pbo( ).
+MODULE pbo_0001 OUTPUT.
+  gr_multi_select_controller->zif_uitb_screen_controller~pbo( ).
 ENDMODULE.
 
 MODULE get_linecount_0001 OUTPUT.
@@ -19,18 +19,17 @@ MODULE prepare_fields OUTPUT.
 ENDMODULE.
 
 MODULE pbo_0106 OUTPUT.
-  gr_multi_or_controller->ZIF_UITB_SCREEN_CONTROLLER~pbo( ).
+  gr_multi_or_controller->zif_uitb_screen_controller~pbo( ).
 ENDMODULE.
 
 MODULE get_linecount_0106 OUTPUT.
   gr_multi_or_table->pbo( ).
 ENDMODULE.
 
-
-module table_pbo_0106 OUTPUT.
+MODULE table_pbo_0106 OUTPUT.
   gr_multi_or_table->pbo( ).
-endmodule.
+ENDMODULE.
 
 MODULE prepare_fields_0106 OUTPUT.
-  gr_multi_or_table->ZIF_UITB_TABLE~update_screen_attributes( ).
+  gr_multi_or_table->zif_uitb_table~update_screen_attributes( ).
 ENDMODULE.

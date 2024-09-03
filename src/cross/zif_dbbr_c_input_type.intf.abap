@@ -1,8 +1,8 @@
-interface ZIF_DBBR_C_INPUT_TYPE
-  public .
+INTERFACE zif_dbbr_c_input_type
+  PUBLIC.
 
 
-  constants TEXT_INPUT type I value 0 ##NO_TEXT.
-  constants CHECKBOX type I value 1 ##NO_TEXT.
-  constants DROPDOWN type I value 2 ##NO_TEXT.
-endinterface.
+  CONSTANTS text_input TYPE i VALUE 0 ##NO_TEXT.
+  CONSTANTS checkbox TYPE i VALUE 1 ##NO_TEXT.
+  CONSTANTS dropdown TYPE i VALUE 2 ##NO_TEXT.
+ENDINTERFACE.

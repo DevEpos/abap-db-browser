@@ -1,22 +1,21 @@
-class ZCL_DBBR_FE_SET_ROW_COLOR_STB definition
-  public
-  create public .
+CLASS zcl_dbbr_fe_set_row_color_stb DEFINITION
+  PUBLIC
+  CREATE PUBLIC.
 
-public section.
+  PUBLIC SECTION.
+    INTERFACES zif_dbbr_stmnt_string_builder.
 
-  interfaces ZIF_DBBR_STMNT_STRING_BUILDER .
-protected section.
-private section.
+  PROTECTED SECTION.
+
+  PRIVATE SECTION.
 ENDCLASS.
 
 
-
-CLASS ZCL_DBBR_FE_SET_ROW_COLOR_STB IMPLEMENTATION.
-
-
-  method ZIF_DBBR_STMNT_STRING_BUILDER~BUILD_STRING.
-
-    DATA(lv_color_code) = replace( val = cs_statement-tokens[ 2 ]-str regex = |'(.+)'| with = '$1' ).
+CLASS zcl_dbbr_fe_set_row_color_stb IMPLEMENTATION.
+  METHOD zif_dbbr_stmnt_string_builder~build_string.
+    DATA(lv_color_code) = replace( val   = cs_statement-tokens[ 2 ]-str
+                                   regex = |'(.+)'|
+                                   with  = '$1' ).
     DATA(lv_cell_color) =
       |&1 = VALUE { zif_dbbr_c_special_out_columns=>alv_col_color_type }( | &&
       |  BASE &1 | &&
@@ -26,8 +25,13 @@ CLASS ZCL_DBBR_FE_SET_ROW_COLOR_STB IMPLEMENTATION.
     DATA(lv_color_col) = zif_dbbr_c_special_out_columns=>cell_col_row_color.
     DATA(lv_subroutine_color_col) = |<{ zif_dbbr_c_special_out_columns=>cell_col_row_color }>|.
 
-    cs_statement-stringform = replace( val = lv_cell_color sub = '&1' with = lv_color_col occ = 0 ).
-    cs_statement-stringform_subroutine = replace( val = lv_cell_color sub = '&1' with = lv_subroutine_color_col occ = 0 ).
-
-  endmethod.
+    cs_statement-stringform            = replace( val  = lv_cell_color
+                                                  sub  = '&1'
+                                                  with = lv_color_col
+                                                  occ  = 0 ).
+    cs_statement-stringform_subroutine = replace( val  = lv_cell_color
+                                                  sub  = '&1'
+                                                  with = lv_subroutine_color_col
+                                                  occ  = 0 ).
+  ENDMETHOD.
 ENDCLASS.

@@ -1,5 +1,5 @@
 INTERFACE zif_dbbr_output_rep_var_ids
-  PUBLIC .
+  PUBLIC.
 
 
   "! Type - ZSAT_QUERY_NAME
