@@ -235,9 +235,7 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
       ls_f4_dummy = VALUE #( tab   = iv_tablename
                              minus = '-'
                              field = iv_fieldname ).
-      ls_f4_dummy = condense( val  = ls_f4_dummy
-                              from = ` `
-                              to   = `` ).
+      CONDENSE ls_f4_dummy NO-GAPS.
 
       ASSIGN lt_return_tab[ retfield = ls_f4_dummy ] TO FIELD-SYMBOL(<ls_return>).
       IF sy-subrc = 0.
@@ -305,9 +303,7 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
     ls_f4_dummy = VALUE #( tab   = lv_tabname
                            minus = '-'
                            field = lv_fieldname ).
-    ls_f4_dummy = condense( val  = ls_f4_dummy
-                            from = ` `
-                            to   = `` ).
+    CONDENSE ls_f4_dummy NO-GAPS.
 
     LOOP AT lt_return_tab ASSIGNING FIELD-SYMBOL(<ls_return_value>) WHERE    retfield  = ls_f4_dummy
                                                                           OR fieldname = iv_fieldname.
@@ -391,9 +387,7 @@ CLASS zcl_dbbr_f4_helper IMPLEMENTATION.
       ls_f4_dummy = VALUE #( tab   = iv_tablename
                              minus = '-'
                              field = iv_fieldname ).
-      ls_f4_dummy = condense( val  = ls_f4_dummy
-                              from = ` `
-                              to   = `` ).
+      CONDENSE ls_f4_dummy NO-GAPS.
 
       ASSIGN lt_return_tab[ retfield = ls_f4_dummy ] TO FIELD-SYMBOL(<ls_return>).
       IF sy-subrc = 0.
