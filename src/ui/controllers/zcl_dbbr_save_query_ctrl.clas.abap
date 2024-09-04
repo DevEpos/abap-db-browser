@@ -71,25 +71,17 @@ CLASS zcl_dbbr_save_query_ctrl IMPLEMENTATION.
 
     " init some global data references from ui
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
-    read_parameter_reference
-      mr_ui_global_data            c_s_data.
-    read_parameter_reference
-      mr_ui_query_name c_p_scrnam.
-    read_parameter_reference
-      mr_ui_query_desc c_p_scrdec.
-    read_parameter_reference
-      mr_ui_use_output_fields      c_p_xfield.
-    read_parameter_reference
-      mr_ui_use_sort_fields        c_p_xsort.
-    read_parameter_reference
-      mr_ui_is_global              c_p_xglob.
+    read_parameter_reference:
+      mr_ui_global_data            c_s_data,
+      mr_ui_query_name             c_p_scrnam,
+      mr_ui_query_desc             c_p_scrdec,
+      mr_ui_use_output_fields      c_p_xfield,
+      mr_ui_use_sort_fields        c_p_xsort,
+      mr_ui_is_global              c_p_xglob,
 
-    read_parameter_reference
-      mr_ui_selection_fields       c_t_selection_fields.
-    read_parameter_reference
-      mr_ui_selfields_multi        c_t_selection_fields_multi.
+      mr_ui_selection_fields       c_t_selection_fields,
+      mr_ui_selfields_multi        c_t_selection_fields_multi,
 
-    read_parameter_reference
       mr_ui_use_selection_criteria c_p_has_selection_criteria.
   ENDMETHOD.
 

@@ -268,23 +268,21 @@ CLASS zcl_dbbr_object_central_search IMPLEMENTATION.
         WHEN zif_dbbr_c_eb_link_mode=>open_in_db_browser.
           " ........ Start Z2 Transaction with chosen entity
           CALL FUNCTION 'ZDBBR_SHOW_SELSCREEN'
-            EXPORTING
-              iv_entity_id           = iv_entity_id
-              iv_entity_type         = COND #( WHEN iv_entity_type = zif_sat_c_entity_type=>view
-                                               THEN zif_sat_c_entity_type=>table
-                                               ELSE iv_entity_type )
-              if_from_central_search = abap_true
-              if_load_parameters     = abap_true.
+            EXPORTING iv_entity_id           = iv_entity_id
+                      iv_entity_type         = COND #( WHEN iv_entity_type = zif_sat_c_entity_type=>view
+                                                       THEN zif_sat_c_entity_type=>table
+                                                       ELSE iv_entity_type )
+                      if_from_central_search = abap_true
+                      if_load_parameters     = abap_true.
 
         WHEN zif_dbbr_c_eb_link_mode=>open_in_db_browser_new_task.
           " ........ Start Z2 Transaction with chosen entity in new task
           CALL FUNCTION 'ZDBBR_SHOW_SELSCREEN' STARTING NEW TASK 'ZDBBR_SEARCH'
-            EXPORTING
-              iv_entity_id       = iv_entity_id
-              iv_entity_type     = COND #( WHEN iv_entity_type = zif_sat_c_entity_type=>view
-                                           THEN zif_sat_c_entity_type=>table
-                                           ELSE iv_entity_type )
-              if_load_parameters = abap_true.
+            EXPORTING iv_entity_id       = iv_entity_id
+                      iv_entity_type     = COND #( WHEN iv_entity_type = zif_sat_c_entity_type=>view
+                                                   THEN zif_sat_c_entity_type=>table
+                                                   ELSE iv_entity_type )
+                      if_load_parameters = abap_true.
 
         WHEN zif_dbbr_c_eb_link_mode=>open_with_adt.
           " ........ Open the chosen entity with ADT Tools

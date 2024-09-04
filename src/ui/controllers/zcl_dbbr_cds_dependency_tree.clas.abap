@@ -239,25 +239,25 @@ CLASS zcl_dbbr_cds_dependency_tree IMPLEMENTATION.
 
     DATA(lo_nodes) = mo_tree->get_nodes( ).
     DATA(lo_node) = lo_nodes->add_node(
-        iv_relative_node_key = iv_parent_node
-        iv_image             = get_icon_for_node( is_node-type )
-        iv_expanded_image    = get_icon_for_node( is_node-type )
-        it_item_table        = VALUE #(
-            font  = cl_item_tree_model=>item_font_prop
-            class = cl_item_tree_model=>item_class_text
-            ( item_name = mo_tree->c_hierarchy_column
-              text      = |{ COND #(
-                WHEN is_node-user_defined_entity_name IS NOT INITIAL
-                THEN is_node-user_defined_entity_name
-                ELSE is_node-name ) }| )
-            ( item_name = c_hierarchy_node2
-              style     = zif_uitb_c_ctm_style=>inverted_gray )
-            ( item_name = c_sql_name_col
-              text      = |{ COND #( WHEN lv_entity_type IS NOT INITIAL THEN is_node-name ) }| )
-            ( item_name = c_relation_col
-              text      = get_relation_text( is_node-relation ) )
-            ( item_name = c_object_type_col
-              text      = get_object_type_text( is_node-type ) ) ) ).
+                        iv_relative_node_key = iv_parent_node
+                        iv_image             = get_icon_for_node( is_node-type )
+                        iv_expanded_image    = get_icon_for_node( is_node-type )
+                        it_item_table        = VALUE #(
+                            font  = cl_item_tree_model=>item_font_prop
+                            class = cl_item_tree_model=>item_class_text
+                            ( item_name = mo_tree->c_hierarchy_column
+                              text      = |{ COND #(
+                                WHEN is_node-user_defined_entity_name IS NOT INITIAL
+                                THEN is_node-user_defined_entity_name
+                                ELSE is_node-name ) }| )
+                            ( item_name = c_hierarchy_node2
+                              style     = zif_uitb_c_ctm_style=>inverted_gray )
+                            ( item_name = c_sql_name_col
+                              text      = |{ COND #( WHEN lv_entity_type IS NOT INITIAL THEN is_node-name ) }| )
+                            ( item_name = c_relation_col
+                              text      = get_relation_text( is_node-relation ) )
+                            ( item_name = c_object_type_col
+                              text      = get_object_type_text( is_node-type ) ) ) ).
 
     IF lv_entity_type IS NOT INITIAL.
       mt_node_map = VALUE #(

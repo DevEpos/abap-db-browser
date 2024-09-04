@@ -177,7 +177,6 @@ CLASS zcl_dbbr_cds_selscreen_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD fill_primary_entity.
-
     " set cursor to first line
     mo_data->mo_selection_table->zif_uitb_page_scroller~scroll_page_top( ).
     mo_data->mo_custom_f4_map->clear( ).

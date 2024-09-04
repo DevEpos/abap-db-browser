@@ -169,8 +169,8 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD exists_assignment_for_tabfield.
-    " TODO: variable is assigned but never used (ABAP cleaner)
     SELECT SINGLE ref_f4_id FROM zdbbr_f4assnmt
+      " TODO: variable is assigned but never used (ABAP cleaner)
       INTO @DATA(lv_f4_id)
       WHERE entity_id = @iv_tabname
         AND fieldname = @iv_fieldname.
@@ -181,8 +181,8 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
   METHOD exists_built_in_f4.
     SELECT SINGLE f4_id INTO @DATA(lv_f4_id)
       FROM zdbbr_f4h AS f4_head
-             INNER JOIN
-               zdbbr_f4f AS f4_field ON f4_head~f4_id = f4_field~ref_f4_id
+           INNER JOIN zdbbr_f4f AS f4_field
+             ON f4_head~f4_id = f4_field~ref_f4_id
       WHERE f4_field~search_table  = @iv_tabname
         AND f4_field~search_field  = @iv_fieldname
         AND f4_field~is_search_key = @abap_true
@@ -197,8 +197,8 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
       " TODO: variable is assigned but never used (ABAP cleaner)
       INTO @DATA(lv_f4_id)
       FROM zdbbr_f4h AS f4_head
-             INNER JOIN
-               zdbbr_f4f AS f4_field ON f4_head~f4_id = f4_field~ref_f4_id
+           INNER JOIN zdbbr_f4f AS f4_field
+             ON f4_head~f4_id = f4_field~ref_f4_id
       WHERE f4_field~search_table  = @iv_search_tab
         AND f4_field~search_field  = @iv_search_field
         AND f4_field~is_search_key = @abap_true.
@@ -319,8 +319,8 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
            is_built_in,
            ref_join_id
       FROM zdbbr_f4assnmt AS assignment
-             INNER JOIN
-               zdbbr_f4h AS f4_head ON assignment~ref_f4_id = f4_head~f4_id
+           INNER JOIN zdbbr_f4h AS f4_head
+             ON assignment~ref_f4_id = f4_head~f4_id
       INTO CORRESPONDING FIELDS OF TABLE @et_f4
       WHERE entity_id = @iv_tabname.
 
@@ -352,8 +352,7 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
     DATA lt_ref_f4_id_selopt TYPE RANGE OF zdbbr_f4_id.
 
     lt_ref_f4_id_selopt = COND #( WHEN iv_ref_f4_id IS NOT INITIAL
-                                  THEN VALUE #(
-     ( sign = 'I' option = 'EQ' low = iv_ref_f4_id ) ) ).
+                                  THEN VALUE #( ( sign = 'I' option = 'EQ' low = iv_ref_f4_id ) ) ).
 
     SELECT * FROM zdbbr_f4assnmt
       WHERE ref_f4_id IN @lt_ref_f4_id_selopt
@@ -366,8 +365,8 @@ CLASS zcl_dbbr_custom_f4_factory IMPLEMENTATION.
            f4_fld~search_field
       INTO CORRESPONDING FIELDS OF TABLE @rt_f4_overview
       FROM zdbbr_f4h AS f4_head
-             INNER JOIN
-               zdbbr_f4f AS f4_fld ON f4_head~f4_id = f4_fld~ref_f4_id
+           INNER JOIN zdbbr_f4f AS f4_fld
+             ON f4_head~f4_id = f4_fld~ref_f4_id
       WHERE f4_fld~is_search_key = @abap_true.
   ENDMETHOD.
 

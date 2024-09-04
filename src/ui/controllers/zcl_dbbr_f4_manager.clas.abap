@@ -228,7 +228,6 @@ CLASS zcl_dbbr_f4_manager IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD do_on_first_screen_call.
-
     IF mr_f4_helps_alv IS INITIAL.
       create_f4_alv( ).
     ENDIF.

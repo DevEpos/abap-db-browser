@@ -110,13 +110,13 @@ CLASS lcl_text_field_reader_base IMPLEMENTATION.
            shlp_f_param~shlpfield,
            shlp~texttab
       FROM dd35l AS shlp_field
-             INNER JOIN
-               dd30l AS shlp ON  shlp_field~shlpname = shlp~shlpname
-                             AND shlp~as4local       = 'A'
-                 INNER JOIN
-                   dd36s AS shlp_f_param ON  shlp_field~tabname   = shlp_f_param~tabname
-                                         AND shlp_field~fieldname = shlp_f_param~fieldname
-                                         AND shlp_field~fieldname = shlp_f_param~shfield
+           INNER JOIN dd30l AS shlp
+             ON  shlp_field~shlpname = shlp~shlpname
+             AND shlp~as4local       = 'A'
+           INNER JOIN dd36s AS shlp_f_param
+             ON  shlp_field~tabname   = shlp_f_param~tabname
+             AND shlp_field~fieldname = shlp_f_param~fieldname
+             AND shlp_field~fieldname = shlp_f_param~shfield
       WHERE shlp_field~as4local   = 'A'
         AND shlp_field~fieldname <> @space
         AND shlp_field~tabname    = @mv_entity
@@ -203,14 +203,14 @@ CLASS lcl_cds_text_field_reader IMPLEMENTATION.
            text_table~fieldname AS dtel_text_table_key,
            shlp~texttab
       FROM dd03nd AS field
-             INNER JOIN
-               dd04l AS dtel ON field~rollname = dtel~rollname
-                 LEFT OUTER JOIN
-                   dd30l AS shlp ON dtel~shlpname = shlp~shlpname
-                     LEFT OUTER JOIN
-                       dd08l AS text_table ON  dtel~entitytab     = text_table~checktable
-                                           AND text_table~frkart  = 'TEXT' " foreign key type
-                                           AND dtel~entitytab    <> 'T002' " exclude language table
+           INNER JOIN dd04l AS dtel
+             ON field~rollname = dtel~rollname
+           LEFT OUTER JOIN dd30l AS shlp
+             ON dtel~shlpname = shlp~shlpname
+           LEFT OUTER JOIN dd08l AS text_table
+             ON  dtel~entitytab     = text_table~checktable
+             AND text_table~frkart  = 'TEXT' " foreign key type
+             AND dtel~entitytab    <> 'T002' " exclude language table
       WHERE field~strucobjn = @mv_entity
         AND (
               (     dtel~shlpname <> @space
@@ -257,14 +257,14 @@ CLASS lcl_table_text_field_reader IMPLEMENTATION.
            text_table~fieldname AS dtel_text_table_key,
            shlp~texttab
       FROM dd03l AS field
-             INNER JOIN
-               dd04l AS dtel ON field~rollname = dtel~rollname
-                 LEFT OUTER JOIN
-                   dd30l AS shlp ON dtel~shlpname = shlp~shlpname
-                     LEFT OUTER JOIN
-                       dd08l AS text_table ON  dtel~entitytab     = text_table~checktable
-                                           AND text_table~frkart  = 'TEXT' " foreign key type
-                                           AND dtel~entitytab    <> 'T002' " exclude language table
+           INNER JOIN dd04l AS dtel
+             ON field~rollname = dtel~rollname
+           LEFT OUTER JOIN dd30l AS shlp
+             ON dtel~shlpname = shlp~shlpname
+           LEFT OUTER JOIN dd08l AS text_table
+             ON  dtel~entitytab     = text_table~checktable
+             AND text_table~frkart  = 'TEXT' " foreign key type
+             AND dtel~entitytab    <> 'T002' " exclude language table
       WHERE field~tabname = @mv_entity
         AND (
               (     dtel~shlpname <> @space

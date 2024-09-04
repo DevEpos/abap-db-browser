@@ -54,8 +54,7 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
         <ls_entity_id_field>-fieldtext = <ls_entity_id_field>-reptext.
         <ls_entity_id_field>-scrtext_l = <ls_entity_id_field>-fieldtext.
         <ls_entity_id_field>-scrtext_m = <ls_entity_id_field>-scrtext_l.
-        <ls_entity_id_field>-scrtext_s = <ls_entity_id_field>-scrtext_m
-                                         .
+        <ls_entity_id_field>-scrtext_s = <ls_entity_id_field>-scrtext_m.
 
       WHEN zif_sat_c_entity_type=>query.
         cs_search_help-intdescr-title = 'Search Help for query'(002).
@@ -63,8 +62,7 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
         <ls_entity_id_field>-fieldtext = <ls_entity_id_field>-reptext.
         <ls_entity_id_field>-scrtext_l = <ls_entity_id_field>-fieldtext.
         <ls_entity_id_field>-scrtext_m = <ls_entity_id_field>-scrtext_l.
-        <ls_entity_id_field>-scrtext_s = <ls_entity_id_field>-scrtext_m
-                                         .
+        <ls_entity_id_field>-scrtext_s = <ls_entity_id_field>-scrtext_m.
 
       WHEN zif_sat_c_entity_type=>cds_view.
         cs_search_help-intdescr-title = 'Search Help for CDS Views'(004).
@@ -72,8 +70,7 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
         <ls_entity_id_field>-fieldtext = <ls_entity_id_field>-reptext.
         <ls_entity_id_field>-scrtext_l = <ls_entity_id_field>-fieldtext.
         <ls_entity_id_field>-scrtext_m = <ls_entity_id_field>-scrtext_l.
-        <ls_entity_id_field>-scrtext_s = <ls_entity_id_field>-scrtext_m
-                                         .
+        <ls_entity_id_field>-scrtext_s = <ls_entity_id_field>-scrtext_m.
 
     ENDCASE.
   ENDMETHOD.
@@ -111,16 +108,16 @@ CLASS zcl_dbbr_entity_sh_helper IMPLEMENTATION.
     CASE mv_entity_type.
 
       WHEN zif_sat_c_entity_type=>table.
-        SELECT Entity             AS entity_id,
-               DevelopmentPackage AS devclass,
-               Language           AS ddlanguage,
-               Description        AS ddtext
+        SELECT entity             AS entity_id,
+               developmentpackage AS devclass,
+               language           AS ddlanguage,
+               description        AS ddtext
           FROM zsat_i_databaseentity
-          WHERE Entity IN @lt_entity_id_selopt
-            AND (    Type = @zif_sat_c_entity_type=>table
-                  OR Type = @zif_sat_c_entity_type=>view )
-            AND DevelopmentPackage IN @lt_package_selopt
-          ORDER BY Entity
+          WHERE entity IN @lt_entity_id_selopt
+            AND (    type = @zif_sat_c_entity_type=>table
+                  OR type = @zif_sat_c_entity_type=>view )
+            AND developmentpackage IN @lt_package_selopt
+          ORDER BY entity
           INTO CORRESPONDING FIELDS OF TABLE @lt_result
           UP TO @cs_callcontrol-maxrecords ROWS.
 

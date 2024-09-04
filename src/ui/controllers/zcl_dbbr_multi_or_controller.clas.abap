@@ -223,7 +223,6 @@ CLASS zcl_dbbr_multi_or_controller IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD go_to_next_criteria.
-
     mr_multi_or_table->zif_uitb_table~determine_current_line( ).
     DATA(lv_current_index) = mr_multi_or_table->zif_uitb_table~get_current_line_index( ) + 1.
 

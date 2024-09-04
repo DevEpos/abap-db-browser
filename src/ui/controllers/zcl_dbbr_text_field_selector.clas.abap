@@ -173,7 +173,6 @@ CLASS zcl_dbbr_text_field_selector IMPLEMENTATION.
     ev_long = |{ 'Show?'(002) }|.
     ev_medium = ev_long.
     ev_short =
-    ev_medium
-    .
+    ev_medium.
   ENDMETHOD.
 ENDCLASS.

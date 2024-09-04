@@ -575,10 +575,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
                     ( value = zif_dbbr_c_object_browser_mode=>package        text = 'Package'(001) ) )
       IMPORTING select_element = mo_search_type_select ).
 
-    mo_search_type_select->set_value(
-        COND #( WHEN lo_s_global_data->initial_obj_brws_mode IS NOT INITIAL
-                THEN lo_s_global_data->initial_obj_brws_mode
-                ELSE zif_dbbr_c_object_browser_mode=>cds_view ) ).
+    mo_search_type_select->set_value( COND #( WHEN lo_s_global_data->initial_obj_brws_mode IS NOT INITIAL
+                                              THEN lo_s_global_data->initial_obj_brws_mode
+                                              ELSE zif_dbbr_c_object_browser_mode=>cds_view ) ).
     mv_current_search_type = mo_search_type_select->value.
 
     lo_form->line_with_layout( end = abap_true ).
@@ -813,7 +812,6 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_single_cds_view_tree.
-
     " .. Create node/subnodes for a single cds view
     DATA(lo_nodes) = mo_tree->get_nodes( ).
     DATA(lo_cds_view_node) = io_node.
@@ -938,7 +936,7 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
 
     " .. Check table/view count in package
     SELECT * FROM zsat_i_databaseentityaggr
-      WHERE DevelopmentPackage = @io_package->package_name
+      WHERE developmentpackage = @io_package->package_name
       INTO TABLE @DATA(lt_entity_count_in_package).
 
     IF line_exists( lt_entity_count_in_package[ type = zif_sat_c_entity_type=>view ] ).
@@ -1128,7 +1126,6 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_tree.
-
     CHECK mo_tree IS INITIAL.
 
     mo_favorite_dd_menu = NEW cl_ctmenu( ).
@@ -1241,23 +1238,22 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    create_node(
-        iv_parent_node     = iv_node_key
-        iv_hier1_item_text = |{ 'Responsible'(018) }|
-        iv_image           = zif_dbbr_c_icon=>user_menu
-        is_hier2_item      = VALUE #( text  = |{ ls_entity-CreatedBy }|
-                                      class = c_text_class
-                                      style = zif_uitb_c_ctm_style=>inverted_blue )
-        ir_user_data       = NEW ty_s_user_data(
-            node_type = COND #( WHEN iv_node_type = c_node_type-dbtable_properties
-                                THEN c_node_type-dbtable_owner_prop
-                                ELSE c_node_type-view_owner_prop )
-            owner     = ls_entity-CreatedBy ) ).
-    IF ls_entity-CreatedDate IS INITIAL.
-      lv_date = |{ ls_entity-ChangedDate DATE = USER }|.
+    create_node( iv_parent_node     = iv_node_key
+                 iv_hier1_item_text = |{ 'Responsible'(018) }|
+                 iv_image           = zif_dbbr_c_icon=>user_menu
+                 is_hier2_item      = VALUE #( text  = |{ ls_entity-createdby }|
+                                               class = c_text_class
+                                               style = zif_uitb_c_ctm_style=>inverted_blue )
+                 ir_user_data       = NEW ty_s_user_data(
+                                              node_type = COND #( WHEN iv_node_type = c_node_type-dbtable_properties
+                                                                  THEN c_node_type-dbtable_owner_prop
+                                                                  ELSE c_node_type-view_owner_prop )
+                                              owner     = ls_entity-createdby ) ).
+    IF ls_entity-createddate IS INITIAL.
+      lv_date = |{ ls_entity-changeddate DATE = USER }|.
       lv_date_text = |{ 'Last Changed on'(039) }|.
     ELSE.
-      lv_date = |{ ls_entity-CreatedDate DATE = USER }|.
+      lv_date = |{ ls_entity-createddate DATE = USER }|.
       lv_date_text = |{ 'Created On'(033) }|.
     ENDIF.
 
@@ -1267,18 +1263,17 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
                  is_hier2_item      = VALUE #( text  = lv_date
                                                class = c_text_class
                                                style = zif_uitb_c_ctm_style=>inverted_blue ) ).
-    create_node(
-        iv_parent_node     = iv_node_key
-        iv_hier1_item_text = |{ 'Package'(001) }|
-        iv_image           = zif_dbbr_c_icon=>package
-        is_hier2_item      = VALUE #( text  = |{ ls_entity-DevelopmentPackage }|
-                                      class = c_text_class
-                                      style = zif_uitb_c_ctm_style=>inverted_blue )
-        ir_user_data       = NEW ty_s_user_data(
-            node_type = COND #( WHEN iv_node_type = c_node_type-dbtable_properties
-                                THEN c_node_type-dbtable_package_prop
-                                ELSE c_node_type-view_package_prop )
-            devclass  = ls_entity-DevelopmentPackage ) ).
+    create_node( iv_parent_node     = iv_node_key
+                 iv_hier1_item_text = |{ 'Package'(001) }|
+                 iv_image           = zif_dbbr_c_icon=>package
+                 is_hier2_item      = VALUE #( text  = |{ ls_entity-developmentpackage }|
+                                               class = c_text_class
+                                               style = zif_uitb_c_ctm_style=>inverted_blue )
+                 ir_user_data       = NEW ty_s_user_data(
+                                              node_type = COND #( WHEN iv_node_type = c_node_type-dbtable_properties
+                                                                  THEN c_node_type-dbtable_package_prop
+                                                                  ELSE c_node_type-view_package_prop )
+                                              devclass  = ls_entity-developmentpackage ) ).
 
     mo_tree->get_nodes( )->expand_node( iv_node_key ).
   ENDMETHOD.
@@ -1800,7 +1795,6 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD on_node_context_menu_select.
-
     DATA(lr_user_data) = mo_tree->get_nodes( )->get_node( ev_node_key )->get_user_data( ).
     IF lr_user_data IS NOT BOUND.
       RETURN.
@@ -1967,19 +1961,18 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
              c_node_type-cds_package_prop
         THEN |{ <ls_user_data>-devclass }|
         ELSE |{ <ls_user_data>-owner }| ).
-      on_external_object_search_req(
-          ev_object_type  = SWITCH #( <ls_user_data>-node_type
-                                      WHEN c_node_type-cds_owner_prop OR
-                                           c_node_type-cds_package_prop THEN
-                                        zif_dbbr_c_object_browser_mode=>cds_view
-                                      WHEN c_node_type-query_owner_prop THEN
-                                        zif_dbbr_c_object_browser_mode=>query
-                                      WHEN c_node_type-dbtable_owner_prop THEN
-                                        zif_dbbr_c_object_browser_mode=>database_table
-                                      WHEN c_node_type-view_owner_prop THEN
-                                        zif_dbbr_c_object_browser_mode=>database_view )
-          ev_search_query = |{ lv_query_param }{ lv_query_param_value }|
-          ef_close_popup  = abap_false ).
+      on_external_object_search_req( ev_object_type  = SWITCH #( <ls_user_data>-node_type
+                                                                 WHEN c_node_type-cds_owner_prop OR
+                                                                      c_node_type-cds_package_prop THEN
+                                                                   zif_dbbr_c_object_browser_mode=>cds_view
+                                                                 WHEN c_node_type-query_owner_prop THEN
+                                                                   zif_dbbr_c_object_browser_mode=>query
+                                                                 WHEN c_node_type-dbtable_owner_prop THEN
+                                                                   zif_dbbr_c_object_browser_mode=>database_table
+                                                                 WHEN c_node_type-view_owner_prop THEN
+                                                                   zif_dbbr_c_object_browser_mode=>database_view )
+                                     ev_search_query = |{ lv_query_param }{ lv_query_param_value }|
+                                     ef_close_popup  = abap_false ).
     ENDIF.
   ENDMETHOD.
 
@@ -2156,9 +2149,9 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
        OR lr_user_data->node_type = c_node_type-dbtable
        OR lr_user_data->node_type = c_node_type-view.
 
-      SELECT SINGLE DevelopmentPackage
+      SELECT SINGLE developmentpackage
         FROM zsat_i_databaseentity
-        WHERE Entity = @lr_user_data->entity_id
+        WHERE entity = @lr_user_data->entity_id
         INTO @DATA(lv_package).
 
     ELSEIF lr_user_data->node_type = c_node_type-package.
@@ -2546,7 +2539,6 @@ CLASS zcl_dbbr_object_browser_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD add_favorite.
-
     CHECK mo_search_input->value <> space.
 
     " .. Parse the query again to prevent storing favorite with invalid query

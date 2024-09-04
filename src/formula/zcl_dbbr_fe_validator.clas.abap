@@ -92,7 +92,7 @@ CLASS zcl_dbbr_fe_validator IMPLEMENTATION.
     DATA lv_line TYPE i.
     DATA lt_stmnt TYPE sstmnt_tab.
 
-    SCAN ABAP-SOURCE mt_formula_lines TOKENS INTO     lt_tokes
+    SCAN ABAP-SOURCE mt_formula_lines TOKENS INTO lt_tokes
          STATEMENTS INTO lt_stmnt
          MESSAGE INTO    lv_message
          WORD INTO       lv_word

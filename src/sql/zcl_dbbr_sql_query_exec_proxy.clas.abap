@@ -312,7 +312,8 @@ CLASS zcl_dbbr_sql_query_exec_proxy IMPLEMENTATION.
       DATA(lo_comp_type) = SWITCH #( lf_is_elementary_table
                                      WHEN abap_true
                                      THEN lo_line_descr
-                                     ELSE lo_ref_table_line_des->get_component_type( p_name = ls_table_field_details-name ) ).
+                                     ELSE lo_ref_table_line_des->get_component_type(
+                                              p_name = ls_table_field_details-name ) ).
 
       IF lo_comp_type->is_ddic_type( ) AND lo_comp_type->kind <> lo_comp_type->kind_struct.
         DATA(ls_ddic_header) = CAST cl_abap_elemdescr( lo_comp_type )->get_ddic_field( ).

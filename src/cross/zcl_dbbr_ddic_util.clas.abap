@@ -504,8 +504,8 @@ CLASS zcl_dbbr_ddic_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD is_transaction_valid.
-    " TODO: variable is assigned but never used (ABAP cleaner)
     SELECT SINGLE tcode FROM tstc
+      " TODO: variable is assigned but never used (ABAP cleaner)
       INTO @DATA(lv_tcode)
       WHERE tcode = @iv_transaction.
 

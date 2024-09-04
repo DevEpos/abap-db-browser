@@ -52,8 +52,7 @@ CLASS zcl_dbbr_formula_helper IMPLEMENTATION.
 
     DATA(ls_tabfield) = CORRESPONDING zdbbr_tabfield_info_ui( ls_dfies ).
     ls_tabfield-tabname_alias    = zif_dbbr_c_global=>c_formula_dummy_table.
-    ls_tabfield-tabname          = ls_tabfield-tabname_alias
-                                 .
+    ls_tabfield-tabname          = ls_tabfield-tabname_alias.
     ls_tabfield-fieldname        = is_form_field-field.
     ls_tabfield-alias            = zif_dbbr_c_global=>c_formula_alias.
     ls_tabfield-is_formula_field = abap_true.

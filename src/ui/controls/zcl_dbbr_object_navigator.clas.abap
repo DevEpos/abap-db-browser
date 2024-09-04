@@ -295,7 +295,6 @@ CLASS zcl_dbbr_object_navigator IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_next_view_function.
-
     DATA(lv_default_func) = mt_view_info[ cell_id = c_first_view_id ]-function.
 
     " .. Retrieve active cell

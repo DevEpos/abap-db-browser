@@ -1125,7 +1125,6 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD delete_condition.
-
     " .. Get selected node
     DATA(lt_nodes) = mo_join_tree->get_selections( )->get_selected_nodes( ).
     IF lines( lt_nodes ) <> 1.
@@ -1234,7 +1233,6 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD delete_or_group.
-
     CHECK zcl_dbbr_appl_util=>popup_to_confirm(
               if_suppress_query = mf_no_query_on_deletion
               iv_title          = 'Delete OR Group?'
@@ -1274,7 +1272,6 @@ CLASS zcl_dbbr_join_manager IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD delete_table.
-
     IF if_all = abap_true.
       IF mt_node_map IS INITIAL.
         RETURN.

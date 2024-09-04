@@ -264,7 +264,6 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD check_parameters_where_used.
-
     CHECK mt_parameter IS NOT INITIAL.
 
     ASSIGN mt_stmnt[ is_main_query = abap_true ] TO FIELD-SYMBOL(<ls_select>).
@@ -311,7 +310,7 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
     DATA(lt_source_code) = VALUE string_table( ( |REPORT ZCHECK_QUERY.| )
                                                ( LINES OF lt_query_lines ) ).
 
-    SYNTAX-CHECK FOR lt_source_code MESSAGE         lv_message
+    SYNTAX-CHECK FOR lt_source_code MESSAGE lv_message
                  LINE            lv_line
                  WORD            lv_word
                  DIRECTORY ENTRY dir.
@@ -511,7 +510,7 @@ CLASS zcl_dbbr_sql_query_parser IMPLEMENTATION.
     DATA lv_line TYPE i.
     DATA lt_db_entities TYPE TABLE OF tabname.
 
-    SCAN ABAP-SOURCE mt_query_lines TOKENS INTO     mt_token_raw
+    SCAN ABAP-SOURCE mt_query_lines TOKENS INTO mt_token_raw
          STATEMENTS INTO mt_stmnt_raw
          MESSAGE INTO    lv_message
          WORD INTO       lv_word

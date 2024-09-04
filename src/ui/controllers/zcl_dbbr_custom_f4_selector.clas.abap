@@ -196,7 +196,6 @@ CLASS zcl_dbbr_custom_f4_selector IMPLEMENTATION.
     ev_long = |{ 'Assign?'(001) }|.
     ev_medium = ev_long.
     ev_short =
-    ev_medium
-    .
+    ev_medium.
   ENDMETHOD.
 ENDCLASS.

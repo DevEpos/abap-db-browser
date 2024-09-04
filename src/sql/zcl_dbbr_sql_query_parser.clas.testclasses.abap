@@ -24,7 +24,6 @@ CLASS ltcl_unit_test IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD test_normal_select.
-
     mo_cut = NEW #( iv_query = 'SELECT * FROM MARA' ).
     TRY.
         mo_cut->parse( ).

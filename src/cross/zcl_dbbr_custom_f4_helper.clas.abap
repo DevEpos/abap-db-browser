@@ -265,12 +265,12 @@ CLASS zcl_dbbr_custom_f4_helper IMPLEMENTATION.
       IF iv_entered_value IS NOT INITIAL.
         " TODO: variable is assigned but never used (ABAP cleaner)
         DATA(lt_entered_value_selopt) = VALUE zif_sat_ty_global=>ty_t_selopt(
-            ( low    = iv_entered_value
-              option = COND ddoption( WHEN contains( val = iv_entered_value
-                                                     sub = '*' )
-                                      THEN 'CP'
-                                      ELSE 'EQ' )
-              sign   = 'I' ) ).
+                                                  ( low    = iv_entered_value
+                                                    option = COND ddoption( WHEN contains( val = iv_entered_value
+                                                                                           sub = '*' )
+                                                                            THEN 'CP'
+                                                                            ELSE 'EQ' )
+                                                    sign   = 'I' ) ).
         DATA(lv_entered_value_low) = COND string(
           WHEN lf_joins_needed = abap_true
            AND ls_search_field-search_table_alias IS NOT INITIAL THEN

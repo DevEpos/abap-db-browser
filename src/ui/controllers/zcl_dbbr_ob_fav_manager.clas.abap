@@ -149,7 +149,6 @@ CLASS zcl_dbbr_ob_fav_manager IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD edit_favorite_name.
-
     DATA(lo_selected_node) = mo_tree->get_selections( )->get_selected_node( ).
     IF lo_selected_node IS INITIAL.
       RETURN.

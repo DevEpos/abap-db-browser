@@ -79,7 +79,6 @@ CLASS zcl_dbbr_output_tab_builder IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_dyn_comp_tab.
-
     " ...create fieldcatalog / `select`-part from output fields
     " ...1) update mode of tabfield list to `output`.
     ir_tabfields->switch_mode( zif_dbbr_c_global=>c_field_chooser_modes-output ).

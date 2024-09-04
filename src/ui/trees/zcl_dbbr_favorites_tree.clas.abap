@@ -588,7 +588,6 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_new_fav_folder.
-
     DATA(lo_selected_node) = mo_tree_model->get_selections( )->get_selected_node( ).
 
     IF    lo_selected_node IS INITIAL
@@ -807,7 +806,6 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD edit_favorite.
-
     DATA(lo_selected_node) = mo_tree_model->get_selections( )->get_selected_node( ).
 
     IF    lo_selected_node              IS INITIAL
@@ -1516,7 +1514,6 @@ CLASS zcl_dbbr_favorites_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD show_in_object_list.
-
     DATA(lo_node) = mo_tree_model->get_nodes( )->get_node( iv_node_key ).
 
     DATA(lr_user_data) = lo_node->get_user_data( ).

@@ -43,19 +43,20 @@ CLASS zcl_dbbr_addtext_helper IMPLEMENTATION.
 
     ASSIGN COMPONENT iv_alv_text_field OF STRUCTURE <ls_row> TO FIELD-SYMBOL(<lv_text_value>).
     ASSIGN COMPONENT iv_text_field     OF STRUCTURE is_text_cache_row TO FIELD-SYMBOL(<lv_table_text_value>).
-    IF     <lv_text_value>       IS ASSIGNED
-       AND <lv_table_text_value> IS ASSIGNED.
+    IF NOT (     <lv_text_value>       IS ASSIGNED
+             AND <lv_table_text_value> IS ASSIGNED ).
+      RETURN.
+    ENDIF.
 
-      " check if there are domain fix values for this text field
-      IF it_fix_values IS NOT INITIAL.
-        DATA(lv_domain_fix_value) = condense( val = CONV domvalue_l( <lv_table_text_value> ) ).
-        DATA(ls_text_value) = VALUE #( it_fix_values[ low = lv_domain_fix_value ] OPTIONAL ).
-        <lv_text_value> = COND string( WHEN ls_text_value IS INITIAL
-                                       THEN <lv_table_text_value>
-                                       ELSE ls_text_value-ddtext ).
-      ELSE.
-        <lv_text_value> = <lv_table_text_value>.
-      ENDIF.
+    " check if there are domain fix values for this text field
+    IF it_fix_values IS NOT INITIAL.
+      DATA(lv_domain_fix_value) = condense( val = CONV domvalue_l( <lv_table_text_value> ) ).
+      DATA(ls_text_value) = VALUE #( it_fix_values[ low = lv_domain_fix_value ] OPTIONAL ).
+      <lv_text_value> = COND string( WHEN ls_text_value IS INITIAL
+                                     THEN <lv_table_text_value>
+                                     ELSE ls_text_value-ddtext ).
+    ELSE.
+      <lv_text_value> = <lv_table_text_value>.
     ENDIF.
   ENDMETHOD.
 

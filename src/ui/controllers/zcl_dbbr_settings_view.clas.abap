@@ -52,23 +52,22 @@ ENDCLASS.
 
 CLASS zcl_dbbr_settings_view IMPLEMENTATION.
   METHOD constructor.
-    mt_data = VALUE #(
-        FOR setting IN it_settings
-        ( setting_id    = setting-setting_id
-          setting_name  = setting-setting_name
-          setting_value = setting-setting_value
-          t_cell        = VALUE #(
-              ( fieldname = 'SETTING_VALUE'
-                style     = COND #(
-                      WHEN setting-input_type    = zif_dbbr_c_input_type=>checkbox
-                       AND setting-setting_value = abap_false THEN
-                        zif_uitb_c_alv_cell_style=>checkbox_not_checked
-                      WHEN setting-input_type    = zif_dbbr_c_input_type=>checkbox
-                       AND setting-setting_value = abap_true THEN
-                        zif_uitb_c_alv_cell_style=>checkbox_checked )
-                maxlen    = COND #( WHEN setting-max_length IS NOT INITIAL THEN setting-max_length ) )
-              ( fieldname = 'SETTING_NAME'
-                style     = zif_uitb_c_alv_cell_style=>font_bold ) ) ) ).
+    mt_data = VALUE #( FOR setting IN it_settings
+                       ( setting_id    = setting-setting_id
+                         setting_name  = setting-setting_name
+                         setting_value = setting-setting_value
+                         t_cell        = VALUE #(
+                             ( fieldname = 'SETTING_VALUE'
+                               style     = COND #(
+                                     WHEN setting-input_type    = zif_dbbr_c_input_type=>checkbox
+                                      AND setting-setting_value = abap_false THEN
+                                       zif_uitb_c_alv_cell_style=>checkbox_not_checked
+                                     WHEN setting-input_type    = zif_dbbr_c_input_type=>checkbox
+                                      AND setting-setting_value = abap_true THEN
+                                       zif_uitb_c_alv_cell_style=>checkbox_checked )
+                               maxlen    = COND #( WHEN setting-max_length IS NOT INITIAL THEN setting-max_length ) )
+                             ( fieldname = 'SETTING_NAME'
+                               style     = zif_uitb_c_alv_cell_style=>font_bold ) ) ) ).
 
     mr_view = zcl_uitb_templt_prog_callback=>create_template_program( iv_title = iv_title ).
 

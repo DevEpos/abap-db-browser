@@ -781,7 +781,6 @@ CLASS zcl_dbbr_fe_dnd_tree_model IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD refresh_saved_formulas.
-
     mo_tree_model->node_get_children( EXPORTING node_key       = mv_saved_formulas_top_node
                                       IMPORTING node_key_table = DATA(lt_saved_formula_nodes) ).
 

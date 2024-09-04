@@ -203,40 +203,24 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
     " init global data references from cache
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
-    read_cached_field
-      mr_join_source_field         c_p_join_src_field.
-    read_cached_field
-      mr_join_source_tab           c_p_join_src_tab.
-    read_cached_field
-      mr_join_cond_comp1           c_p_join_cond_comparator1.
-    read_cached_field
-      mr_join_cond_value1          c_p_join_cond_value1.
-    read_cached_field
-      mr_join_cond_value2          c_p_join_cond_value2.
-    read_cached_field
-      mr_join_target_field         c_p_join_trgt_field.
-    read_cached_field
-      mr_join_target_tab           c_p_join_trgt_tab.
-    read_cached_field
-      mr_title                     c_v_join_condition_title.
-    read_cached_field
-      mr_join_cond_val_type        c_p_join_cond_value_type.
-    read_cached_field
-      mr_join_target_offset        c_p_join_trgt_offset.
-    read_cached_field
-      mr_join_target_offset_length c_p_join_trgt_offset_length.
-    read_cached_field
-      mr_join_trgt_field_datatype  c_p_join_trgt_fld_datatype.
-    read_cached_field
-      mr_join_source_fld_datatype  c_p_join_source_fld_datatype.
-    read_cached_field
-      mr_join_trgt_fld_length      c_p_join_trgt_fld_length.
-    read_cached_field
-      mr_join_source_fld_length    c_p_join_source_fld_length.
-    read_cached_field
-      mr_save_func                 zif_dbbr_main_report_var_ids=>c_s_save_function.
-    read_cached_field
-      mr_save_new_func             zif_dbbr_main_report_var_ids=>c_s_save_and_stay_function.
+    read_cached_field:
+      mr_join_source_field          c_p_join_src_field,
+      mr_join_source_tab            c_p_join_src_tab,
+      mr_join_cond_comp1            c_p_join_cond_comparator1,
+      mr_join_cond_value1           c_p_join_cond_value1,
+      mr_join_cond_value2           c_p_join_cond_value2,
+      mr_join_target_field          c_p_join_trgt_field,
+      mr_join_target_tab            c_p_join_trgt_tab,
+      mr_title                      c_v_join_condition_title,
+      mr_join_cond_val_type         c_p_join_cond_value_type,
+      mr_join_target_offset         c_p_join_trgt_offset,
+      mr_join_target_offset_length  c_p_join_trgt_offset_length,
+      mr_join_trgt_field_datatype   c_p_join_trgt_fld_datatype,
+      mr_join_source_fld_datatype   c_p_join_source_fld_datatype,
+      mr_join_trgt_fld_length       c_p_join_trgt_fld_length,
+      mr_join_source_fld_length     c_p_join_source_fld_length,
+      mr_save_func                  zif_dbbr_main_report_var_ids=>c_s_save_function,
+      mr_save_new_func              zif_dbbr_main_report_var_ids=>c_s_save_and_stay_function.
 
     " .. clear all screen values first
     CLEAR: mr_join_source_field->*,
@@ -316,7 +300,6 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD call_source_field_f4.
-
     " ... Table is always filled during field mode as the source field always
     " ... comes from the join table
     IF mv_mode = c_field_mode.
@@ -710,7 +693,6 @@ CLASS zcl_dbbr_edit_join_cond_view IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD validate.
-
     IF mr_join_source_field->* IS INITIAL.
       zcx_sat_validation_exception=>raise_with_text( iv_text      = |{ 'Source Field must have a value'(019) }|
                                                      iv_parameter = c_p_join_src_field ).

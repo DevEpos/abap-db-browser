@@ -180,7 +180,6 @@ CLASS zcl_dbbr_cds_param_popup IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_alv.
-
     CHECK mo_alv IS INITIAL.
 
     mo_alv = zcl_uitb_alv=>create_alv( ir_data      = REF #( mt_parameters )

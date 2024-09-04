@@ -47,9 +47,9 @@ FUNCTION zdbbr_dbtab_sh_exit.
          ddlanguage,
          ddtext
     FROM zdbbrdbtab_v AS table
-           LEFT OUTER JOIN
-             dd02t AS text ON  table~tabname   = text~tabname
-                           AND text~ddlanguage = @lv_language
+         LEFT OUTER JOIN dd02t AS text
+           ON  table~tabname   = text~tabname
+           AND text~ddlanguage = @lv_language
     WHERE table~tabname IN @lt_tabname_selopt
       AND text~ddtext   IN @lt_description_selopt
       AND devclass      IN @lt_package_selopt

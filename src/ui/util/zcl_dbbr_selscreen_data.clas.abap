@@ -179,52 +179,30 @@ CLASS zcl_dbbr_selscreen_data IMPLEMENTATION.
     " init global data references from cache
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
-    read_cached_field
-       mr_s_tableview             zif_dbbr_main_report_var_ids=>c_selfields_tc.
-    read_cached_field
-       mr_s_current_line          zif_dbbr_main_report_var_ids=>c_s_selfields.
-    read_cached_field
-       mr_t_table_data            zif_dbbr_main_report_var_ids=>c_t_selection_fields.
-    read_cached_field
-       mr_v_push_icon             zif_dbbr_main_report_var_ids=>c_push.
-    read_cached_field
-       mr_v_multi_or_icon         zif_dbbr_main_report_var_ids=>c_multi_or_icon.
-    read_cached_field
-       mr_v_option_icon           zif_dbbr_main_report_var_ids=>c_option.
-    read_cached_field
-       mr_s_global_data           zif_dbbr_main_report_var_ids=>c_s_data.
-    read_cached_field
-       mr_t_selfields_multi       zif_dbbr_main_report_var_ids=>c_t_selection_fields_multi.
-    read_cached_field
-       mr_v_seltext_gui           zif_dbbr_main_report_var_ids=>c_s_sel_text_gui_text.
-    read_cached_field
-       mr_s_browser_mode          zif_dbbr_main_report_var_ids=>c_s_browser_mode.
-    read_cached_field
-       mr_v_selmask_entity_text   zif_dbbr_main_report_var_ids=>c_v_selmask_entity_text.
-    read_cached_field
-       mr_v_selmask_entity_type   zif_dbbr_main_report_var_ids=>c_v_selmask_entity_type.
-    read_cached_field
-       mr_v_selmask_entity_name   zif_dbbr_main_report_var_ids=>c_v_selmask_entity_name.
-    read_cached_field
-       mr_v_variant_description   zif_dbbr_main_report_var_ids=>c_p_vartxt.
-    read_cached_field
-       mr_s_entity_info           zif_dbbr_main_report_var_ids=>c_s_entity_info.
-    read_cached_field
-       mr_v_variant_name          zif_dbbr_main_report_var_ids=>c_p_varnam.
-    read_cached_field
-       mr_v_seltable_counter_text zif_dbbr_main_report_var_ids=>c_selection_field_count_txt.
-    read_cached_field
-       mr_s_top_custom_menu       zif_dbbr_main_report_var_ids=>c_s_custom_entity_menu.
-    read_cached_field
-       mr_s_entity_function1      zif_dbbr_main_report_var_ids=>c_s_custom_entity_function1.
-    read_cached_field
-       mr_s_entity_function2      zif_dbbr_main_report_var_ids=>c_s_custom_entity_function2.
-    read_cached_field
-       mr_s_entity_function3      zif_dbbr_main_report_var_ids=>c_s_custom_entity_function3.
-    read_cached_field
-       mr_s_entity_function4      zif_dbbr_main_report_var_ids=>c_s_custom_entity_function4.
-    read_cached_field
-       mr_s_entity_function5      zif_dbbr_main_report_var_ids=>c_s_custom_entity_function5.
+    read_cached_field:
+      mr_s_tableview             zif_dbbr_main_report_var_ids=>c_selfields_tc,
+      mr_s_current_line          zif_dbbr_main_report_var_ids=>c_s_selfields,
+      mr_t_table_data            zif_dbbr_main_report_var_ids=>c_t_selection_fields,
+      mr_v_push_icon             zif_dbbr_main_report_var_ids=>c_push,
+      mr_v_multi_or_icon         zif_dbbr_main_report_var_ids=>c_multi_or_icon,
+      mr_v_option_icon           zif_dbbr_main_report_var_ids=>c_option,
+      mr_s_global_data           zif_dbbr_main_report_var_ids=>c_s_data,
+      mr_t_selfields_multi       zif_dbbr_main_report_var_ids=>c_t_selection_fields_multi,
+      mr_v_seltext_gui           zif_dbbr_main_report_var_ids=>c_s_sel_text_gui_text,
+      mr_s_browser_mode          zif_dbbr_main_report_var_ids=>c_s_browser_mode,
+      mr_v_selmask_entity_text   zif_dbbr_main_report_var_ids=>c_v_selmask_entity_text,
+      mr_v_selmask_entity_type   zif_dbbr_main_report_var_ids=>c_v_selmask_entity_type,
+      mr_v_selmask_entity_name   zif_dbbr_main_report_var_ids=>c_v_selmask_entity_name,
+      mr_v_variant_description   zif_dbbr_main_report_var_ids=>c_p_vartxt,
+      mr_s_entity_info           zif_dbbr_main_report_var_ids=>c_s_entity_info,
+      mr_v_variant_name          zif_dbbr_main_report_var_ids=>c_p_varnam,
+      mr_v_seltable_counter_text zif_dbbr_main_report_var_ids=>c_selection_field_count_txt,
+      mr_s_top_custom_menu       zif_dbbr_main_report_var_ids=>c_s_custom_entity_menu,
+      mr_s_entity_function1      zif_dbbr_main_report_var_ids=>c_s_custom_entity_function1,
+      mr_s_entity_function2      zif_dbbr_main_report_var_ids=>c_s_custom_entity_function2,
+      mr_s_entity_function3      zif_dbbr_main_report_var_ids=>c_s_custom_entity_function3,
+      mr_s_entity_function4      zif_dbbr_main_report_var_ids=>c_s_custom_entity_function4,
+      mr_s_entity_function5      zif_dbbr_main_report_var_ids=>c_s_custom_entity_function5.
 
     mr_s_settings = NEW #( ).
 

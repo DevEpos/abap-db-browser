@@ -94,14 +94,13 @@ CLASS zcl_dbbr_fe_bldr_for_subroutn IMPLEMENTATION.
     DATA lv_terminator TYPE char1.
 
     LOOP AT it_stmnt ASSIGNING FIELD-SYMBOL(<ls_stmnt>).
-      lt_row_fields = VALUE #(
-          BASE lt_row_fields
-          FOR <ls_token> IN <ls_stmnt>-tokens
-          WHERE ( is_formula_field = abap_true OR is_row_field = abap_true )
-          ( COND #( WHEN <ls_token>-is_formula_field = abap_true THEN
-                      |X_{ <ls_token>-str }|
-                    WHEN <ls_token>-is_row_field = abap_true THEN
-                      zcl_dbbr_formula_helper=>get_raw_row_field( <ls_token>-str ) ) ) ).
+      lt_row_fields = VALUE #( BASE lt_row_fields
+                               FOR <ls_token> IN <ls_stmnt>-tokens
+                               WHERE ( is_formula_field = abap_true OR is_row_field = abap_true )
+                               ( COND #( WHEN <ls_token>-is_formula_field = abap_true THEN
+                                           |X_{ <ls_token>-str }|
+                                         WHEN <ls_token>-is_row_field = abap_true THEN
+                                           zcl_dbbr_formula_helper=>get_raw_row_field( <ls_token>-str ) ) ) ).
     ENDLOOP.
 
     SORT lt_row_fields.

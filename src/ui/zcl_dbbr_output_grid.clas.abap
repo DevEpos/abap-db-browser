@@ -627,7 +627,6 @@ CLASS zcl_dbbr_output_grid IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD show_active_default_shortcuts.
-
     DATA(lt_shortcuts) = gt_shortcuts_map.
 
     IF mt_excluded IS NOT INITIAL.

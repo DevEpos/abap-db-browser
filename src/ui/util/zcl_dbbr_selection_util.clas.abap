@@ -439,8 +439,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       ls_field-scrtext_l = ls_field-coltext.
       ls_field-scrtext_m = ls_field-scrtext_l.
       ls_field-scrtext_s = ls_field-scrtext_m.
-      ls_field-reptext   = ls_field-scrtext_s
-                           .
+      ls_field-reptext   = ls_field-scrtext_s.
     ENDIF.
 
     APPEND ls_field TO mt_fieldcat.
@@ -543,9 +542,9 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ms_association_target = is_selection_data-association_target.
     ms_technical_info     = is_selection_data-technical_infos.
     mf_case_insensitive_search = is_selection_data-technical_infos-search_ignore_case.
-    mt_selection_fields   = VALUE #( FOR selfield IN is_selection_data-selection_fields WHERE ( is_parameter = abap_false )
-                                     ( selfield ) ).
-    mt_param_values       = VALUE #(
+    mt_selection_fields = VALUE #( FOR selfield IN is_selection_data-selection_fields WHERE ( is_parameter = abap_false )
+                                   ( selfield ) ).
+    mt_param_values     = VALUE #(
         ( LINES OF VALUE #( FOR param IN is_selection_data-selection_fields WHERE (     is_parameter = abap_true
                                                                                     AND (    low    IS NOT INITIAL
                                                                                           OR high   IS NOT INITIAL
@@ -736,27 +735,25 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
                        OR option IS NOT INITIAL ).
 
         IF <ls_selfield_multi>-low = '#' AND <ls_selfield_multi>-option <> '#'.
-          APPEND VALUE #(
-              sqlfieldname = lv_fieldname_sql
-              field        = lv_fieldname
-              low          = COND #( WHEN lf_is_raw = abap_true AND <ls_selfield_multi>-low IS INITIAL
-                                     THEN lv_initial_value
-                                     ELSE space )
-              high         = space
-              sign         = <ls_selfield_multi>-sign
-              option       = <ls_selfield_multi>-option )
+          APPEND VALUE #( sqlfieldname = lv_fieldname_sql
+                          field        = lv_fieldname
+                          low          = COND #( WHEN lf_is_raw = abap_true AND <ls_selfield_multi>-low IS INITIAL
+                                                 THEN lv_initial_value
+                                                 ELSE space )
+                          high         = space
+                          sign         = <ls_selfield_multi>-sign
+                          option       = <ls_selfield_multi>-option )
                  TO lt_selfields.
         ELSE.
-          APPEND VALUE #(
-              sqlfieldname = lv_fieldname_sql
-              sql_function = lv_sql_function
-              field        = lv_fieldname
-              low          = COND #( WHEN lf_is_raw = abap_true AND <ls_selfield_multi>-low IS INITIAL
-                                     THEN lv_initial_value
-                                     ELSE <ls_selfield_multi>-low )
-              high         = <ls_selfield_multi>-high
-              sign         = <ls_selfield_multi>-sign
-              option       = <ls_selfield_multi>-option )
+          APPEND VALUE #( sqlfieldname = lv_fieldname_sql
+                          sql_function = lv_sql_function
+                          field        = lv_fieldname
+                          low          = COND #( WHEN lf_is_raw = abap_true AND <ls_selfield_multi>-low IS INITIAL
+                                                 THEN lv_initial_value
+                                                 ELSE <ls_selfield_multi>-low )
+                          high         = <ls_selfield_multi>-high
+                          sign         = <ls_selfield_multi>-sign
+                          option       = <ls_selfield_multi>-option )
                  TO lt_selfields.
         ENDIF.
       ENDLOOP.
@@ -1208,12 +1205,12 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
     ENDIF.
 
     DATA(ls_add_text_field) = VALUE lvc_s_fcat(
-        fieldname = ir_selfield->alv_fieldname
-        emphasize = COND #( WHEN ms_technical_info-emphasize_text_fields = abap_true
-                            THEN zif_dbbr_c_global=>c_alv_emphasize-text_field_color  )
-        lowercase = abap_true
-        ref_field = lv_ref_field
-        ref_table = lv_ref_table ).
+                                        fieldname = ir_selfield->alv_fieldname
+                                        emphasize = COND #( WHEN ms_technical_info-emphasize_text_fields = abap_true
+                                                            THEN zif_dbbr_c_global=>c_alv_emphasize-text_field_color  )
+                                        lowercase = abap_true
+                                        ref_field = lv_ref_field
+                                        ref_table = lv_ref_table ).
 
     ls_add_text_field-sp_group   = VALUE #( mt_group_tab_map[ tabname = ir_selfield->tabname ]-sp_group OPTIONAL ).
     ls_add_text_field-parameter2 = 'T'.
@@ -1685,8 +1682,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       cs_fieldcat-scrtext_l = cs_fieldcat-coltext.
       cs_fieldcat-scrtext_m = cs_fieldcat-scrtext_l.
       cs_fieldcat-scrtext_s = cs_fieldcat-scrtext_m.
-      cs_fieldcat-reptext   = cs_fieldcat-scrtext_s
-                              .
+      cs_fieldcat-reptext   = cs_fieldcat-scrtext_s.
       cs_fieldcat-tooltip   = COND #( WHEN lv_scrtext_l IS NOT INITIAL THEN lv_scrtext_l
                                       WHEN lv_scrtext_m IS NOT INITIAL THEN lv_scrtext_m
                                       ELSE                                  lv_ddtext ) && lv_textfield_suffix.
@@ -1699,8 +1695,7 @@ CLASS zcl_dbbr_selection_util IMPLEMENTATION.
       cs_field-scrtext_l = cs_field-coltext.
       cs_field-scrtext_m = cs_field-scrtext_l.
       cs_field-scrtext_s = cs_field-scrtext_m.
-      cs_field-reptext   = cs_field-scrtext_s
-                           .
+      cs_field-reptext   = cs_field-scrtext_s.
       cs_field-tooltip   = COND #( WHEN ms_line_index-scrtext_l IS NOT INITIAL THEN ms_line_index-scrtext_l
                                    WHEN ms_line_index-scrtext_m IS NOT INITIAL THEN ms_line_index-scrtext_m
                                    ELSE                                             ms_line_index-fieldtext ).

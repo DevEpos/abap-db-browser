@@ -102,7 +102,6 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_from_clause.
-
     LOOP AT mt_param_values ASSIGNING FIELD-SYMBOL(<ls_param_value>).
       update_table_parameters(
           is_param = CORRESPONDING #( <ls_param_value> MAPPING param_name = fieldname param_value = low ) ).
@@ -201,7 +200,6 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD prefill_parameters.
-
     " .. Read parameters for primary and join entities
     DATA(lt_tables) = io_tabfields->get_table_list( ).
 
@@ -235,7 +233,7 @@ CLASS zcl_dbbr_join_selection_util IMPLEMENTATION.
     TRY.
         DATA(lo_cds_view) = zcl_sat_cds_view_factory=>read_cds_view( iv_entity ).
         lr_params->* = VALUE #( FOR <cds_param> IN lo_cds_view->get_parameters( if_exclude_system_params = abap_true )
-                                ( param_name = <cds_param>-ParameterName ) ).
+                                ( param_name = <cds_param>-parametername ) ).
       CATCH zcx_sat_data_read_error.
     ENDTRY.
   ENDMETHOD.

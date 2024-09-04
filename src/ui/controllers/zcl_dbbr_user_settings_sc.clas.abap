@@ -116,90 +116,49 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
     " initialize the global data cache
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>user_settings ).
 
-    read_parameter_reference
-        color_sort_columns            c_color_sorted_columns.
-    read_parameter_reference
-        tech_names                    c_technical_names.
-    read_parameter_reference
-        no_merging_on                 c_no_merging_of_srt_cols.
-    read_parameter_reference
-        no_convexit                   c_no_conv_exit.
-    read_parameter_reference
-        zero_val_as_blank             c_zeros_as_blanks.
-    read_parameter_reference
-        tech_first                    c_technical_fields_first.
-    read_parameter_reference
-        tech_view                     c_technical_view.
-    read_parameter_reference
-        max_lines                     c_max_result_lines.
-    read_parameter_reference
-        no_trailing_sign              c_no_trailing_sign.
-    read_parameter_reference
-        emphasize_text_fields         c_color_add_text_fields.
-    read_parameter_reference
-        key_cols_not_fixed            c_no_fixed_key_cols.
-    read_parameter_reference
-        fav_user_mode                 c_favorite_mode_entry.
-    read_parameter_reference
-        use_reduced_memory            c_use_reduced_memory.
-    read_parameter_reference
-        auto_layout_transfer          c_auto_layout_transfer.
-    read_parameter_reference
-        advanced_mode                 c_advanced_mode.
-    read_parameter_reference
-        object_navigator_open         c_object_navigator_at_start.
-    read_parameter_reference
-        initial_obj_brws_mode         c_initial_obj_browser_mode.
-    read_parameter_reference
-        initial_obj_nav_mode          c_initial_obj_nav_mode.
-    read_parameter_reference
-        last_used_count               c_number_fav_most_used.
-    read_parameter_reference
-        color_formula_fields          c_color_formula_fields.
-    read_parameter_reference
-        experimental_mode             c_experimental_mode.
-    read_parameter_reference
-        show_db_size_in_title         c_read_db_table_length.
-    read_parameter_reference
-        enable_alv_default_variant    c_enable_alv_default_var.
-    read_parameter_reference
-        maintain_entries              c_activate_maintain_entries.
-    read_parameter_reference
-        search_ignore_case            c_search_ignore_case.
-    read_parameter_reference
-        assoc_sel_mode                c_assocation_sel_mode.
-    read_parameter_reference
-        show_assoc_brws_at_start      c_show_assoc_sel_at_start.
-    read_parameter_reference
-        activate_alv_live_filter      c_activate_alv_live_filter.
-    read_parameter_reference
-        disable_date_to_times_conv    c_disable_date_to_timest_conv.
-    read_parameter_reference
-        use_ddl_view_for_select       c_use_ddl_view_for_select.
-    read_parameter_reference
-        deactvt_highltng_in_cqe       c_deactvt_highltng_in_cqe.
-    read_parameter_reference
-        code_viewer_theme             c_code_viewer_theme.
-    read_parameter_reference
-        auto_sel_filter_saving        c_auto_select_criteria_saving.
-    read_parameter_reference
-        always_load_def_variant_first c_always_load_def_var_first.
-    read_parameter_reference
-        dock_obj_nav_on_right         c_dock_obj_nav_on_right.
-    read_parameter_reference
-        selscr_compact_col_widths     c_selscr_compact_col_widths.
-    read_parameter_reference
-        auto_hide_empty_cols          c_auto_hide_empty_cols.
-    read_parameter_reference
-        calculate_virtual_element     c_calculate_virtual_elements.
-    read_parameter_reference
-        ignore_error_virt_elem_calc   c_ignore_error_virt_elem_calc.
-    read_parameter_reference
-        color_cds_calculated_fields   c_color_cds_calculated_fields.
-    read_parameter_reference
-        async_max_rows_determination  c_async_max_rows_determination.
-    read_parameter_reference
-        disable_auto_max_rows_det     c_disable_auto_max_rows_det.
+    read_parameter_reference:
+      color_sort_columns            c_color_sorted_columns,
+      tech_names                    c_technical_names,
+      no_merging_on                 c_no_merging_of_srt_cols,
+      no_convexit                   c_no_conv_exit,
+      zero_val_as_blank             c_zeros_as_blanks,
+      tech_first                    c_technical_fields_first,
+      tech_view                     c_technical_view,
+      max_lines                     c_max_result_lines,
+      no_trailing_sign              c_no_trailing_sign,
+      emphasize_text_fields         c_color_add_text_fields,
+      key_cols_not_fixed            c_no_fixed_key_cols,
+      fav_user_mode                 c_favorite_mode_entry,
+      use_reduced_memory            c_use_reduced_memory,
+      auto_layout_transfer          c_auto_layout_transfer,
+      advanced_mode                 c_advanced_mode,
+      object_navigator_open         c_object_navigator_at_start,
+      initial_obj_brws_mode         c_initial_obj_browser_mode,
+      initial_obj_nav_mode          c_initial_obj_nav_mode,
+      last_used_count               c_number_fav_most_used,
+      color_formula_fields          c_color_formula_fields,
+      experimental_mode             c_experimental_mode,
+      show_db_size_in_title         c_read_db_table_length,
+      enable_alv_default_variant    c_enable_alv_default_var,
+      maintain_entries              c_activate_maintain_entries,
+      search_ignore_case            c_search_ignore_case,
+      assoc_sel_mode                c_assocation_sel_mode,
+      show_assoc_brws_at_start      c_show_assoc_sel_at_start,
+      activate_alv_live_filter      c_activate_alv_live_filter,
+      disable_date_to_times_conv    c_disable_date_to_timest_conv,
+      use_ddl_view_for_select       c_use_ddl_view_for_select,
+      deactvt_highltng_in_cqe       c_deactvt_highltng_in_cqe,
+      code_viewer_theme             c_code_viewer_theme,
+      auto_sel_filter_saving        c_auto_select_criteria_saving,
+      always_load_def_variant_first c_always_load_def_var_first,
+      dock_obj_nav_on_right         c_dock_obj_nav_on_right,
+      selscr_compact_col_widths     c_selscr_compact_col_widths,
+      auto_hide_empty_cols          c_auto_hide_empty_cols,
+      calculate_virtual_element     c_calculate_virtual_elements,
+      ignore_error_virt_elem_calc   c_ignore_error_virt_elem_calc,
+      color_cds_calculated_fields   c_color_cds_calculated_fields,
+      async_max_rows_determination  c_async_max_rows_determination,
+      disable_auto_max_rows_det     c_disable_auto_max_rows_det.
   ENDMETHOD.
 
   METHOD initialize_screen.
@@ -220,7 +179,6 @@ CLASS zcl_dbbr_user_settings_sc IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD transfer_ui_data.
-
     DATA(lt_setting_comp_names) = zcl_uitb_rtti_util=>get_struct_components( ms_user_settings ).
 
     LOOP AT lt_setting_comp_names ASSIGNING FIELD-SYMBOL(<ls_setting_comp>).

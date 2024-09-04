@@ -104,9 +104,9 @@ CLASS zcl_dbbr_package_factory IMPLEMENTATION.
     SELECT package~devclass AS package,
            text~ctext       AS ddtext
       FROM tdevc AS package
-             LEFT OUTER JOIN
-               tdevct AS text ON  package~devclass = text~devclass
-                              AND text~spras       = @lv_descr_language
+           LEFT OUTER JOIN tdevct AS text
+             ON  package~devclass = text~devclass
+             AND text~spras       = @lv_descr_language
       WHERE package~devclass IN @lt_package_range
       ORDER BY package~devclass
       INTO CORRESPONDING FIELDS OF TABLE @result

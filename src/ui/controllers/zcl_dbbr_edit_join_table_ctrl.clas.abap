@@ -80,17 +80,17 @@ CLASS zcl_dbbr_edit_join_table_ctrl IMPLEMENTATION.
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
 
     read_cached_field
-       mr_join_table      c_p_join_table.
+       mr_join_table c_p_join_table.
     read_cached_field
        mr_is_virtual_join c_f_is_virtual_join.
     read_cached_field
-       mr_alias           c_p_alias.
+       mr_alias c_p_alias.
     read_cached_field
-       mr_join_type       c_p_join_type.
+       mr_join_type c_p_join_type.
     read_cached_field
-       mr_save_func       zif_dbbr_main_report_var_ids=>c_s_save_function.
+       mr_save_func zif_dbbr_main_report_var_ids=>c_s_save_function.
     read_cached_field
-       mr_save_new_func   zif_dbbr_main_report_var_ids=>c_s_save_and_stay_function.
+       mr_save_new_func zif_dbbr_main_report_var_ids=>c_s_save_and_stay_function.
 
     " ... update current screen fields
     mf_is_new = if_is_new.
@@ -104,8 +104,7 @@ CLASS zcl_dbbr_edit_join_table_ctrl IMPLEMENTATION.
       mr_join_type->* = is_join_table-join_type.
       mr_is_virtual_join->* = is_join_table-is_virtual.
       mv_old_alias = is_join_table-add_table_alias.
-      mr_alias->* = mv_old_alias
-                  .
+      mr_alias->* = mv_old_alias.
       ms_entity_temp = VALUE #( entity_type = is_join_table-entity_type ).
     ENDIF.
   ENDMETHOD.

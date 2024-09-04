@@ -52,13 +52,10 @@ CLASS zcl_dbbr_save_sql_query_ctrl IMPLEMENTATION.
 
     " init some global data references from ui
     DATA(lr_data_cache) = zcl_uitb_data_cache=>get_instance( zif_dbbr_c_report_id=>main ).
-    read_parameter_reference
-      mr_ui_global_data c_s_data.
-    read_parameter_reference
-      mr_ui_query_name  c_p_scrnam.
-    read_parameter_reference
-      mr_ui_query_desc  c_p_scrdec.
-    read_parameter_reference
+    read_parameter_reference:
+      mr_ui_global_data c_s_data,
+      mr_ui_query_name  c_p_scrnam,
+      mr_ui_query_desc  c_p_scrdec,
       mr_ui_is_global   c_p_xglob.
   ENDMETHOD.
 
@@ -67,7 +64,6 @@ CLASS zcl_dbbr_save_sql_query_ctrl IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD save_query.
-
     " .. validate query name
     TRY.
         zcl_dbbr_query_helper=>check_query_name( iv_query_name = mr_ui_query_name->*

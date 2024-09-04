@@ -300,38 +300,38 @@ CLASS zcl_dbbr_field_select_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_table_node.
-    mo_tree_model->add_node( node_key     = CONV #( iv_tablename )
-                             relationship = cl_list_tree_model=>relat_last_child
-                             isfolder     = abap_true
-                             expander     = if_expander
-                             style        = COND #( WHEN iv_tablename = mc_formula_node
-                                                    THEN cl_list_tree_model=>style_emphasized_b
-                                                    ELSE cl_list_tree_model=>style_emphasized_c )
-                             item_table   = VALUE treemcitab(
-                                                      ( item_name = c_column_names-alias_column
-                                                        class     = cl_list_tree_model=>item_class_text
-                                                        style     = COND #( WHEN iv_tablename = mc_formula_node
-                                                                            THEN cl_list_tree_model=>style_emphasized_b
-                                                                            ELSE cl_list_tree_model=>style_emphasized_c )
-                                                        text      = iv_alias
-                                                        font      = cl_list_tree_model=>item_font_prop )
-                                                      ( item_name = c_column_names-sel_all_column
-                                                        class     = cl_list_tree_model=>item_class_button
-                                                        t_image   = zif_dbbr_c_icon=>select_all )
-                                                      ( item_name = c_column_names-sel_key_column
-                                                        class     = cl_list_tree_model=>item_class_button
-                                                        t_image   = zif_dbbr_c_icon=>select_block )
-                                                      ( item_name = c_column_names-desel_all_column
-                                                        class     = cl_list_tree_model=>item_class_button
-                                                        t_image   = zif_dbbr_c_icon=>deselect_all )
-                                                      ( item_name = c_column_names-tablename_column
-                                                        class     = cl_list_tree_model=>item_class_text
-                                                        font      = cl_list_tree_model=>item_font_prop
-                                                        text      = iv_tablename )
-                                                      ( item_name = c_column_names-description_column
-                                                        class     = cl_list_tree_model=>item_class_text
-                                                        font      = cl_gui_list_tree=>item_font_prop
-                                                        text      = iv_table_text ) ) ).
+    mo_tree_model->add_node(
+        node_key     = CONV #( iv_tablename )
+        relationship = cl_list_tree_model=>relat_last_child
+        isfolder     = abap_true
+        expander     = if_expander
+        style        = COND #( WHEN iv_tablename = mc_formula_node
+                               THEN cl_list_tree_model=>style_emphasized_b
+                               ELSE cl_list_tree_model=>style_emphasized_c )
+        item_table   = VALUE treemcitab( ( item_name = c_column_names-alias_column
+                                           class     = cl_list_tree_model=>item_class_text
+                                           style     = COND #( WHEN iv_tablename = mc_formula_node
+                                                               THEN cl_list_tree_model=>style_emphasized_b
+                                                               ELSE cl_list_tree_model=>style_emphasized_c )
+                                           text      = iv_alias
+                                           font      = cl_list_tree_model=>item_font_prop )
+                                         ( item_name = c_column_names-sel_all_column
+                                           class     = cl_list_tree_model=>item_class_button
+                                           t_image   = zif_dbbr_c_icon=>select_all )
+                                         ( item_name = c_column_names-sel_key_column
+                                           class     = cl_list_tree_model=>item_class_button
+                                           t_image   = zif_dbbr_c_icon=>select_block )
+                                         ( item_name = c_column_names-desel_all_column
+                                           class     = cl_list_tree_model=>item_class_button
+                                           t_image   = zif_dbbr_c_icon=>deselect_all )
+                                         ( item_name = c_column_names-tablename_column
+                                           class     = cl_list_tree_model=>item_class_text
+                                           font      = cl_list_tree_model=>item_font_prop
+                                           text      = iv_tablename )
+                                         ( item_name = c_column_names-description_column
+                                           class     = cl_list_tree_model=>item_class_text
+                                           font      = cl_gui_list_tree=>item_font_prop
+                                           text      = iv_table_text ) ) ).
     APPEND iv_tablename TO mt_top_nodes.
   ENDMETHOD.
 
@@ -570,7 +570,6 @@ CLASS zcl_dbbr_field_select_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD select_fields_internal.
-
     IF iv_node_key IS NOT INITIAL.
       DATA(lt_nodes) = VALUE treemnotab( ( iv_node_key ) ).
     ELSE.

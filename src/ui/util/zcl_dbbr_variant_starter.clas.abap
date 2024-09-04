@@ -202,7 +202,6 @@ CLASS zcl_dbbr_variant_starter IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD fill_data_from_variant.
-
     CHECK mv_variant_id <> zif_dbbr_c_global=>c_dummy_variant.
 
     " if variant holds output fields clear all active formulas

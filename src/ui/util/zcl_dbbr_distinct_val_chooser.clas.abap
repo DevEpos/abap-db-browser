@@ -132,7 +132,6 @@ CLASS zcl_dbbr_distinct_val_chooser IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD group_by_field.
-
     FIELD-SYMBOLS <lt_table> TYPE STANDARD TABLE.
     FIELD-SYMBOLS <ls_distinct_value> TYPE ty_distinct.
 

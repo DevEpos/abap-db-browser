@@ -130,8 +130,7 @@ CLASS zcl_dbbr_table_selscreen_util IMPLEMENTATION.
     ev_entity_raw = mo_data->mr_s_global_data->primary_table.
     ev_entity_id = ev_entity_raw.
     ev_entity =
-    ev_entity_id
-    .
+    ev_entity_id.
   ENDMETHOD.
 
   METHOD get_title.

@@ -1,7 +1,7 @@
 {
   "requiredVersion": 1,
-  "programVersion": 22,
-  "ruleCount": 60,
+  "programVersion": 26,
+  "ruleCount": 75,
   "autoActivateNewFeatures": true,
   "rules": [
     {
@@ -41,11 +41,14 @@
     {
       "ruleID": "SPACES_IN_EMPTY_BRACKETS",
       "isActive": true,
-      "settingCount": 3,
+      "settingCount": 6,
       "settings": {
         "SeparateFromCharLiterals": "1",
+        "SeparateFromComments": "1",
+        "SeparateFromOperators": "1",
         "RemoveMultiSpaceIfEmpty": "1",
-        "SeparateCondensedCases": "1"
+        "SeparateCondensedCases": "1",
+        "SeparateFromKeywords": "1"
       }
     },
     {
@@ -57,8 +60,9 @@
     {
       "ruleID": "SPACE_BEFORE_PERIOD",
       "isActive": true,
-      "settingCount": 3,
+      "settingCount": 4,
       "settings": {
+        "MoveAcrossCommentLines": "1",
         "ExecuteOnClassDefinitionSections": "1",
         "ExecuteOnComma": "1",
         "ExecuteOnPeriod": "1"
@@ -76,23 +80,35 @@
     {
       "ruleID": "NEEDLESS_SPACES",
       "isActive": true,
-      "settingCount": 3,
+      "settingCount": 4,
       "settings": {
         "ProcessLineEndComments": "0",
         "SearchAcrossCommentLines": "1",
-        "SearchAcrossEmptyLines": "1"
+        "SearchAcrossEmptyLines": "1",
+        "ProcessEmptyBrackets": "1"
       }
     },
     {
       "ruleID": "DECLARATION_CHAIN",
       "isActive": true,
-      "settingCount": 5,
+      "settingCount": 6,
       "settings": {
         "ExecuteOnClassDefinitionSections": "1",
         "ExecuteOnSimpleCommands": "0",
         "ExecuteOnLocalDeclarations": "1",
         "ExecuteOnInterfaces": "1",
+        "KeepTablesWithStructures": "1",
         "ExecuteOnComplexCommands": "1"
+      }
+    },
+    {
+      "ruleID": "NEEDLESS_CLEAR",
+      "isActive": true,
+      "settingCount": 3,
+      "settings": {
+        "ActionAtEnd": "1",
+        "ActionAtStart": "0",
+        "KeepStrucBeforeAssign": "1"
       }
     },
     {
@@ -113,16 +129,30 @@
       }
     },
     {
-      "ruleID": "UNUSED_VARIABLES",
+      "ruleID": "UNUSED_PARAMETERS",
       "isActive": true,
       "settingCount": 6,
+      "settings": {
+        "ChangingParamScope": "1",
+        "ImportingParamScope": "1",
+        "ReturningParamScope": "4",
+        "ExportingParamScope": "0",
+        "IgnoreEmptyMethods": "1",
+        "IgnoreExportingByValue": "1"
+      }
+    },
+    {
+      "ruleID": "UNUSED_VARIABLES",
+      "isActive": true,
+      "settingCount": 7,
       "settings": {
         "MeasureForConstantsOnlyUsedInComment": "1",
         "MeasureForVarsNeverUsed": "0",
         "MeasureForAssignedVars": "0",
         "MeasureForConstantsNeverUsed": "1",
         "MeasureForVarsOnlyUsedInComment": "1",
-        "MeasureForAssignedVarsOnlyUsedInComment": "0"
+        "MeasureForAssignedVarsOnlyUsedInComment": "0",
+        "MeasureForVarsOnlyAssignedInMessageInto": "0"
       }
     },
     {
@@ -151,6 +181,27 @@
       "isActive": false,
       "settingCount": 0,
       "settings": {}
+    },
+    {
+      "ruleID": "CLASS_DEFINITION",
+      "isActive": true,
+      "settingCount": 14,
+      "settings": {
+        "NewLineForPublic": "1",
+        "NewLineForBehavior": "1",
+        "NewLineForAbstractOrFinal": "0",
+        "NewLineForLocalFriends": "0",
+        "MaxLineLength": "120",
+        "NewLineForRiskAndDuration": "0",
+        "NewLineForFriends": "1",
+        "NewLineForTesting": "1",
+        "NewLineForCreate": "1",
+        "NewLineForFriendNames": "1",
+        "IndentStyle": "0",
+        "NewLineForSharedMemory": "1",
+        "OneLinerAction": "2",
+        "NewLineForInheriting": "1"
+      }
     },
     {
       "ruleID": "ESCAPE_CHAR_FOR_PARAMS",
@@ -259,8 +310,12 @@
     {
       "ruleID": "COMPARISON_OPERATOR",
       "isActive": true,
-      "settingCount": 0,
-      "settings": {}
+      "settingCount": 3,
+      "settings": {
+        "ReplaceObsoleteOperators": "1",
+        "PreferredOperatorSet": "0",
+        "ReplaceRegularOperators": "1"
+      }
     },
     {
       "ruleID": "NOT_IS",
@@ -275,6 +330,29 @@
       "settings": {
         "MoveBooleanOperators": "1",
         "MoveKeyword": "1"
+      }
+    },
+    {
+      "ruleID": "STRING_TEMPLATE",
+      "isActive": true,
+      "settingCount": 5,
+      "settings": {
+        "AlwaysConvertLiterals": "1",
+        "IgnoreMultiLineOperands": "1",
+        "RequireOperandsOnSameLine": "0",
+        "KeepControlCharsSeparate": "1",
+        "StringTemplateCondition": "1"
+      }
+    },
+    {
+      "ruleID": "NEEDLESS_PARENTHESES",
+      "isActive": true,
+      "settingCount": 4,
+      "settings": {
+        "RemoveOrParenthesisAnd": "0",
+        "RemoveAroundSameOp": "0",
+        "RemoveAroundRelExpr": "0",
+        "RemoveAroundAll": "1"
       }
     },
     {
@@ -317,21 +395,24 @@
     {
       "ruleID": "CHECK_OUTSIDE_LOOP",
       "isActive": true,
-      "settingCount": 3,
+      "settingCount": 5,
       "settings": {
         "NegationStyle": "1",
+        "AllowCheckAfterCheckpoints": "1",
         "KeepCondition": "2",
-        "ConvertAbapFalseAndAbapTrue": "1"
+        "ConvertAbapFalseAndAbapTrue": "1",
+        "ProcessChains": "1"
       }
     },
     {
       "ruleID": "CHECK_IN_LOOP",
       "isActive": false,
-      "settingCount": 3,
+      "settingCount": 4,
       "settings": {
         "NegationStyle": "1",
         "KeepCondition": "0",
-        "ConvertAbapFalseAndAbapTrue": "1"
+        "ConvertAbapFalseAndAbapTrue": "1",
+        "ProcessChains": "1"
       }
     },
     {
@@ -363,14 +444,18 @@
     {
       "ruleID": "CALL_METHOD",
       "isActive": true,
-      "settingCount": 0,
-      "settings": {}
+      "settingCount": 1,
+      "settings": {
+        "ProcessChains": "1"
+      }
     },
     {
       "ruleID": "CREATE_OBJECT",
       "isActive": true,
-      "settingCount": 0,
-      "settings": {}
+      "settingCount": 1,
+      "settings": {
+        "ProcessChains": "1"
+      }
     },
     {
       "ruleID": "RAISE_TYPE",
@@ -381,8 +466,9 @@
     {
       "ruleID": "ADD_TO_ETC",
       "isActive": true,
-      "settingCount": 1,
+      "settingCount": 2,
       "settings": {
+        "ProcessChains": "1",
         "AddToReplacementStyle": "1"
       }
     },
@@ -397,11 +483,41 @@
     {
       "ruleID": "TRANSLATE",
       "isActive": true,
-      "settingCount": 3,
+      "settingCount": 5,
       "settings": {
         "ReplaceTranslateToUpperLower": "1",
+        "SkipUnknownTypes": "1",
         "ReplaceUnevenMasks": "0",
+        "ProcessChains": "1",
         "ReplaceTranslateUsing": "0"
+      }
+    },
+    {
+      "ruleID": "CONDENSE",
+      "isActive": false,
+      "settingCount": 4,
+      "settings": {
+        "SpecifyFromForNoGaps": "0",
+        "SpecifyValName": "0",
+        "KeepParamsOnOneLine": "0",
+        "SpecifyDel": "0"
+      }
+    },
+    {
+      "ruleID": "DESCRIBE_TABLE",
+      "isActive": true,
+      "settingCount": 0,
+      "settings": {}
+    },
+    {
+      "ruleID": "READ_TABLE",
+      "isActive": true,
+      "settingCount": 4,
+      "settings": {
+        "ReplaceWithLineExists": "1",
+        "ReplaceWithLineIndex": "1",
+        "ReplaceWithAssign": "1",
+        "UseComponentsKeyword": "0"
       }
     },
     {
@@ -423,9 +539,21 @@
     {
       "ruleID": "ASSERT_CLASS",
       "isActive": false,
-      "settingCount": 1,
+      "settingCount": 2,
       "settings": {
+        "ProcessChains": "1",
         "AssertClassName": "cx_assert"
+      }
+    },
+    {
+      "ruleID": "ASSERT_PARAMETER_ORDER",
+      "isActive": true,
+      "settingCount": 4,
+      "settings": {
+        "NumTextTableParamOrder": "0",
+        "ReturnCodeParamOrder": "0",
+        "ComparisonParamOrder": "0",
+        "AssertClassName": ""
       }
     },
     {
@@ -441,6 +569,20 @@
         "DefinitionIdentifierStyle": "1",
         "PragmaStyle": "2",
         "PragmaParameterStyle": "2"
+      }
+    },
+    {
+      "ruleID": "CAMEL_CASE_NAME",
+      "isActive": false,
+      "settingCount": 7,
+      "settings": {
+        "MinLengthOfSureMatch": "11",
+        "ContextWithUnknownAction": "3",
+        "ContextAllKnownAction": "0",
+        "RequireApprovalForSureMatch": "0",
+        "ProcessFieldNames": "1",
+        "DeviationAction": "1",
+        "ProcessViewNames": "1"
       }
     },
     {
@@ -513,13 +655,14 @@
     {
       "ruleID": "ALIGN_DECLARATIONS",
       "isActive": true,
-      "settingCount": 10,
+      "settingCount": 11,
       "settings": {
         "CondenseInnerSpaces": "1",
         "AlignNonChainsAction": "2",
         "FillPercentageToJustifyOwnColumn": "20",
         "ExecuteOnClassDefinitionSections": "1",
         "StructureAlignStyle": "1",
+        "AlignEnumAction": "0",
         "AlignChainAction": "1",
         "AlignAcrossEmptyLines": "1",
         "AlignStructureAction": "1",
@@ -554,14 +697,64 @@
       }
     },
     {
-      "ruleID": "ALIGN_PARAMETERS",
+      "ruleID": "ALIGN_SELECT_CLAUSES",
       "isActive": true,
       "settingCount": 10,
+      "settings": {
+        "MaxSelectListLengthBeforeFrom": "30",
+        "NextSelectPos": "2",
+        "SelectUnionIntoIndent": "0",
+        "NewLineForFromWithJoins": "1",
+        "SelectUnionIndent": "0",
+        "SelectClauseIndent": "0",
+        "MaxLineLength": "120",
+        "SubQueryOneLinerAction": "1",
+        "MaxSelectListLengthBeforeInto": "30",
+        "MainQueryOneLinerAction": "1"
+      }
+    },
+    {
+      "ruleID": "ALIGN_SELECT_FROM",
+      "isActive": true,
+      "settingCount": 7,
+      "settings": {
+        "AlignAsAcrossJoins": "0",
+        "FirstTableNamePosition": "0",
+        "SelectJoinIndent": "0",
+        "AlignOnAcrossJoins": "0",
+        "SelectOnPosition": "2",
+        "FurtherTableNamePositions": "0",
+        "SelectClientPosition": "1"
+      }
+    },
+    {
+      "ruleID": "ALIGN_SELECT_LISTS",
+      "isActive": true,
+      "settingCount": 11,
+      "settings": {
+        "SimpleSelectListLayout": "2",
+        "SelectIntoLayout": "2",
+        "SimpleGroupByListLayout": "2",
+        "SimpleOrderByListLayout": "0",
+        "AlignAsInSelectList": "1",
+        "ComplexSelectListLayout": "0",
+        "ComplexGroupByListLayout": "0",
+        "ComplexOrderByListLayout": "0",
+        "ConsiderTildeAsComplex": "1",
+        "MaxLineLength": "120",
+        "AlignAdditionsInOrderByList": "0"
+      }
+    },
+    {
+      "ruleID": "ALIGN_PARAMETERS",
+      "isActive": true,
+      "settingCount": 11,
       "settings": {
         "AlignAcrossTableRows": "1",
         "PutFunctionalCallKeywordsOnOwnLine": "0",
         "KeepParametersOnSingleLine": "1",
         "MaxParamCountBehindProceduralCall": "0",
+        "KeepOtherOneLiners": "1",
         "PutProceduralCallKeywordsOnOwnLine": "0",
         "MaxLineLength": "120",
         "MaxParamCountBehindFunctionalCall": "100",
@@ -573,17 +766,21 @@
     {
       "ruleID": "ALIGN_LOGICAL_EXPRESSIONS",
       "isActive": true,
-      "settingCount": 9,
+      "settingCount": 13,
       "settings": {
+        "AlignSqlWhenWithBoolOps": "0",
+        "AlignIfWithBoolOps": "0",
+        "AlignSqlOnWithBoolOps": "1",
+        "AlignCheckWithBoolOps": "0",
+        "AlignElseIfWithBoolOps": "0",
+        "AlignSqlHavingWithBoolOps": "2",
+        "OnlyAlignSameObjects": "0",
         "AlignUntilWithBoolOps": "0",
         "AlignWhileWithBoolOps": "0",
-        "AlignIfWithBoolOps": "0",
         "RightAlignComparisonOps": "1",
         "MaxInnerSpaces": "20",
         "AlignWhereWithBoolOps": "0",
-        "AlignCheckWithBoolOps": "0",
-        "AlignElseIfWithBoolOps": "0",
-        "OnlyAlignSameObjects": "0"
+        "AlignSqlWhereWithBoolOps": "2"
       }
     },
     {
@@ -599,6 +796,31 @@
         "OneLinerStyle": "1",
         "ThenOnWhenLine": "1",
         "ValueInset": "1"
+      }
+    },
+    {
+      "ruleID": "ALIGN_FORM_DECLARATION",
+      "isActive": true,
+      "settingCount": 5,
+      "settings": {
+        "ContinueAfterParamGroupKeyword": "1",
+        "RemoveEmptyLine": "1",
+        "ParamCountBehindFormName": "3",
+        "AlignTypes": "1",
+        "AddEmptyLine": "1"
+      }
+    },
+    {
+      "ruleID": "ALIGN_PERFORM",
+      "isActive": true,
+      "settingCount": 6,
+      "settings": {
+        "BreakAfterAdditions": "0",
+        "ParamCountToCondense": "16",
+        "ContinueAfterParamGroupKeyword": "1",
+        "ParamCountAfterPerform": "3",
+        "MaxLineLength": "120",
+        "AlignWithFormName": "0"
       }
     }
   ]

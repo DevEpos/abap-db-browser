@@ -336,7 +336,8 @@ CLASS zcl_dbbr_favmenu_factory IMPLEMENTATION.
 
     SELECT * INTO CORRESPONDING FIELDS OF TABLE @lt_favmenu_all
       FROM zdbbr_favmenu
-      ORDER BY uname, object_id.
+      ORDER BY uname,
+               object_id.
 
     " create new object ids for every entry
     LOOP AT lt_favmenu_all ASSIGNING FIELD-SYMBOL(<ls_favmenu>)

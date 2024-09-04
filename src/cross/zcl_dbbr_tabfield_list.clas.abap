@@ -812,7 +812,6 @@ CLASS zcl_dbbr_tabfield_list IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD fill_full_txt_fieldnames.
-
     CLEAR: cs_field-sql_fieldname,
            cs_field-alv_fieldname.
 

@@ -193,7 +193,6 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_tree.
-
     CHECK mo_tree IS INITIAL.
 
     mo_tree = NEW zcl_uitb_column_tree_model( ir_parent           = mo_parent_container
@@ -284,11 +283,10 @@ CLASS zcl_dbbr_object_history_tree IMPLEMENTATION.
 
       WHEN c_context_codes-full_history_flag.
         mf_full_history = xsdbool( mf_full_history = abap_false ).
-        mo_tree->get_toolbar( )->set_button_icon(
-            iv_function = c_context_codes-full_history_flag
-            iv_icon     = COND #( WHEN mf_full_history = abap_true
-                                  THEN icon_wd_radio_button
-                                  ELSE icon_wd_radio_button_empty ) ).
+        mo_tree->get_toolbar( )->set_button_icon( iv_function = c_context_codes-full_history_flag
+                                                  iv_icon     = COND #( WHEN mf_full_history = abap_true
+                                                                        THEN icon_wd_radio_button
+                                                                        ELSE icon_wd_radio_button_empty ) ).
         mo_tree->get_toolbar( )->refresh_ui( ).
         load_nodes( ).
 

@@ -211,8 +211,8 @@ CLASS zcl_dbbr_output_alv_util IMPLEMENTATION.
   METHOD check_filter_changed.
     rf_filter_changed = abap_false.
 
-    IF (     ct_filter_new IS INITIAL
-         AND ct_filter_old IS INITIAL ).
+    IF     ct_filter_new IS INITIAL
+       AND ct_filter_old IS INITIAL.
       RETURN.
     ENDIF.
 

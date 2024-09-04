@@ -59,7 +59,6 @@ ENDCLASS.
 
 CLASS zcl_dbbr_sql_query_exec IMPLEMENTATION.
   METHOD execute_query.
-
     DATA(lo_executor) = NEW lcl_query_executor( io_query              = io_query
                                                 iv_row_count          = iv_row_count
                                                 if_count_only         = if_count_only

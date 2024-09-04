@@ -21,7 +21,7 @@ TYPES:
 TYPES mtt_salv_sort TYPE STANDARD TABLE OF mty_salv_sort.
 
 CLASS lcl_find_table_field_view DEFINITION
-INHERITING FROM zcl_uitb_selection_dialog.
+  INHERITING FROM zcl_uitb_selection_dialog.
 
   PUBLIC SECTION.
     METHODS constructor
