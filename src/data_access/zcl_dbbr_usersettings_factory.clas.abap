@@ -43,6 +43,14 @@ CLASS zcl_dbbr_usersettings_factory DEFINITION
     CLASS-METHODS is_experimental_mode_active
       RETURNING
         VALUE(result) TYPE abap_bool.
+
+    CLASS-METHODS set_sql_console_settings
+      IMPORTING
+        is_settings TYPE zdbbr_sqlcons_settings_a.
+
+    CLASS-METHODS get_sql_console_settings
+      RETURNING
+        VALUE(rs_settings) TYPE zdbbr_sqlconsus.
 ENDCLASS.
 
 
@@ -136,5 +144,23 @@ CLASS zcl_dbbr_usersettings_factory IMPLEMENTATION.
     DATA(lr_global_data) = CAST zdbbr_global_data( lo_data_cache->get_data_ref(
                                                        iv_registered_name = zif_dbbr_main_report_var_ids=>c_s_data ) ).
     rr_s_settings = REF #( lr_global_data->settings ).
+  ENDMETHOD.
+
+  METHOD set_sql_console_settings.
+    DATA(ls_settings) = CORRESPONDING zdbbr_sqlconsus( is_settings ).
+    ls_settings-username = sy-uname.
+
+    MODIFY zdbbr_sqlconsus FROM ls_settings.
+    COMMIT WORK.
+  ENDMETHOD.
+
+  METHOD get_sql_console_settings.
+    SELECT SINGLE * FROM zdbbr_sqlconsus
+      WHERE username = @sy-uname
+      INTO CORRESPONDING FIELDS OF @rs_settings.
+
+    IF sy-subrc <> 0.
+      rs_settings = VALUE #( add_entity_to_field_name = abap_false ).
+    ENDIF.
   ENDMETHOD.
 ENDCLASS.

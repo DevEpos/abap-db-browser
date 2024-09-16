@@ -504,11 +504,14 @@ CLASS zcl_dbbr_sqle_sb_entity_tree IMPLEMENTATION.
       RETURN.
     ENDIF.
 
+    DATA(lv_add_entity_to_field_name) = zcl_dbbr_usersettings_factory=>get_sql_console_settings( )-add_entity_to_field_name.
     DATA(lv_node_count) = lines( lt_nodes_info ).
 
     LOOP AT lt_nodes_info ASSIGNING FIELD-SYMBOL(<lr_node>).
       lv_sep = COND #( WHEN sy-tabix < lv_node_count THEN ',' ).
-      lv_content = <lr_node>->fieldname.
+      lv_content = COND #( WHEN <lr_node>->node_type = c_node_type-field AND lv_add_entity_to_field_name = abap_true
+                           THEN |{ <lr_node>->entity_id }~{ <lr_node>->fieldname }|
+                           ELSE <lr_node>->fieldname ).
       IF <lr_node>->node_type = c_node_type-parameter.
         lv_content = |{ lv_content } = '{ <lr_node>->param_default_value }'|.
 
