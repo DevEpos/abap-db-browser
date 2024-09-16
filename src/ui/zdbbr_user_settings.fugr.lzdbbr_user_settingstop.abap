@@ -8,6 +8,7 @@ TABLES sscrfields.
 " global data definitions
 DATA gr_user_settings_controller TYPE REF TO zcl_dbbr_user_settings_sc.
 DATA gr_eb_settings_view TYPE REF TO zcl_dbbr_eb_settings_view.
+DATA gr_sqlcons_settings_controller TYPE REF TO zcl_dbbr_sqlcons_settings_sc.
 
 SELECTION-SCREEN BEGIN OF SCREEN 100 TITLE TEXT-s01 AS WINDOW.
   SELECTION-SCREEN BEGIN OF TABBED BLOCK setting_type FOR 15 LINES.
@@ -377,4 +378,15 @@ SELECTION-SCREEN BEGIN OF SCREEN 200 TITLE TEXT-s02 AS WINDOW.
   SELECTION-SCREEN END OF BLOCK search_settings.
 
 SELECTION-SCREEN END OF SCREEN 200.
+" -----------------------------------------------------
+
+" ... Screen for user settings of sql console
+" -----------------------------------------------------
+SELECTION-SCREEN BEGIN OF SCREEN 300 TITLE TEXT-s03 AS WINDOW.
+
+  SELECTION-SCREEN BEGIN OF BLOCK sqlcons_settings WITH FRAME TITLE TEXT-b10.
+    PARAMETERS p_enfn TYPE abap_bool AS CHECKBOX.
+  SELECTION-SCREEN END OF BLOCK sqlcons_settings.
+
+SELECTION-SCREEN END OF SCREEN 300.
 " -----------------------------------------------------

@@ -638,6 +638,12 @@
      <MSGNR>104</MSGNR>
      <TEXT>The entry is longer than 45 characters and is abbreviated using a &apos;*&apos;</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZDBBR_INFO</ARBGB>
+     <MSGNR>105</MSGNR>
+     <TEXT>SQL Console settings were saved succesfully</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

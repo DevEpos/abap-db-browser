@@ -68,6 +68,7 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
         insert_with_indent   TYPE ui_func VALUE 'INSERT_WITH_INDENT',
         format_source        TYPE ui_func VALUE 'PRETTY_PRINTER',
         show_code_completion TYPE ui_func VALUE 'CODE_COMPLETION',
+        settings             TYPE ui_func VALUE 'SETTINGS',
       END OF c_functions.
 
     DATA mv_query_name TYPE zsat_query_name.
@@ -79,6 +80,7 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
     DATA mv_last_tested_query TYPE string.
     DATA mo_splitter TYPE REF TO zcl_uitb_gui_splitter_cont.
     DATA mo_side_bar TYPE REF TO zcl_dbbr_sqle_sidebar.
+    DATA ms_settings TYPE zdbbr_sqlconsus.
 
     METHODS toggle_side_bar.
     METHODS init_side_bar.
@@ -88,6 +90,8 @@ CLASS zcl_dbbr_sql_query_editor DEFINITION
         it_entities TYPE zdbbr_tabname_range_itab.
 
     METHODS insert_from_clipboard.
+    METHODS show_settings.
+
 ENDCLASS.
 
 
@@ -147,7 +151,11 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
                                                             ( function  = c_functions-show_code_completion
                                                               icon      = icon_abap
                                                               text      = |{ 'Code Completion'(004) }|
-                                                              quickinfo = |{ 'Show Code completion results'(005) }| ) )
+                                                              quickinfo = |{ 'Show Code completion results'(005) }| )
+                                                            ( function  = c_functions-settings
+                                                              icon      = icon_personal_settings
+                                                              text      = |{ 'Settings'(011) }|
+                                                              quickinfo = |{ 'Customize Settings'(010) }| ) )
                             IMPORTING eo_toolbar = mo_toolbar
                                       eo_client  = DATA(lo_container) ).
 
@@ -238,6 +246,9 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
           mo_side_bar->zif_uitb_content_searcher~search_next( ).
         ENDIF.
 
+      WHEN c_functions-settings.
+        show_settings( ).
+
     ENDCASE.
   ENDMETHOD.
 
@@ -269,7 +280,10 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
                                                 text            = |{ TEXT-008 }| )
                                               ( fkey            = zif_uitb_c_gui_screen=>c_functions-f9
                                                 mapped_function = c_functions-toggle_side_bar
-                                                text            = |{ TEXT-006 }| ) ) ).
+                                                text            = |{ TEXT-006 }| )
+                                              ( fkey            = zif_uitb_c_gui_screen=>c_functions-f9
+                                                mapped_function = c_functions-settings
+                                                text            = |{ TEXT-010 }| ) ) ).
 
     IF mf_no_edit_allowed = abap_true.
       io_callback->deactivate_function( zif_uitb_c_gui_screen=>c_functions-save ).
@@ -467,5 +481,14 @@ CLASS zcl_dbbr_sql_query_editor IMPLEMENTATION.
     CONCATENATE LINES OF lt_clipboard_data INTO lv_clipboard_content SEPARATED BY cl_abap_char_utilities=>newline.
 
     mo_editor->set_selected_text( lv_clipboard_content ).
+  ENDMETHOD.
+
+  METHOD show_settings.
+    DATA(lr_settings_controller) = NEW zcl_dbbr_sqlcons_settings_sc( ).
+    lr_settings_controller->show( ).
+
+    IF lr_settings_controller->was_saved( ).
+      ms_settings = zcl_dbbr_usersettings_factory=>get_sql_console_settings( ).
+    ENDIF.
   ENDMETHOD.
 ENDCLASS.
