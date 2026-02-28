@@ -1,0 +1,7 @@
+PROCESS BEFORE OUTPUT.
+  MODULE status_0202.
+
+PROCESS AFTER INPUT.
+  MODULE determine_cursor_0202.
+  MODULE back_0202 AT EXIT-COMMAND.
+  MODULE user_command_0202.
