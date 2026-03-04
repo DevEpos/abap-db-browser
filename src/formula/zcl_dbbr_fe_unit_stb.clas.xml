@@ -5,7 +5,7 @@
    <VSEOCLASS>
     <CLSNAME>ZCL_DBBR_FE_UNIT_STB</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Statment builder for UNIT field</DESCRIPT>
+    <DESCRIPT>Statement builder for UNIT field</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>
