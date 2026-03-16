@@ -34,6 +34,7 @@ INTERFACE zif_dbbr_screen_ids
       cds_view_settings  TYPE dynnr VALUE '0106' ##NO_TEXT,
     END OF c_user_settings.
   CONSTANTS c_show_eb_settings TYPE dynnr VALUE '0200' ##NO_TEXT.
+  CONSTANTS c_sqlcons_settings TYPE dynnr VALUE '0300' ##NO_TEXT.
   CONSTANTS c_maintain_join_table TYPE dynnr VALUE 1700 ##NO_TEXT.
   CONSTANTS c_maintain_join_cond TYPE dynnr VALUE 1701 ##NO_TEXT.
 ENDINTERFACE.

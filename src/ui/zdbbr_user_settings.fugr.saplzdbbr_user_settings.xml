@@ -100,6 +100,12 @@
     </item>
     <item>
      <ID>I</ID>
+     <KEY>B10</KEY>
+     <ENTRY>SQL Console Settings</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
      <KEY>S01</KEY>
      <ENTRY>DB Browser - User settings</ENTRY>
      <LENGTH>35</LENGTH>
@@ -108,6 +114,12 @@
      <ID>I</ID>
      <KEY>S02</KEY>
      <ENTRY>DB Browser - Central Search - Settings</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>S03</KEY>
+     <ENTRY>DB Browser - SQL Console - Settings</ENTRY>
      <LENGTH>50</LENGTH>
     </item>
     <item>
@@ -370,14 +382,73 @@
     </item>
     <item>
      <ID>S</ID>
+     <KEY>P_ADVM</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
      <KEY>P_ASNVMO</KEY>
      <ENTRY>Selection Mode for Association</ENTRY>
      <LENGTH>38</LENGTH>
     </item>
     <item>
      <ID>S</ID>
+     <KEY>P_ASSLST</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_AUTHEC</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_AUTOL</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_CALCVE</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_COLAT</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_COLCF</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_COLFF</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_COLSO</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
      <KEY>P_CVTHME</KEY>
-     <LENGTH>33</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_DEFALV</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
     </item>
     <item>
      <ID>S</ID>
@@ -399,10 +470,34 @@
     </item>
     <item>
      <ID>S</ID>
+     <KEY>P_ENFN</KEY>
+     <ENTRY>Add Entity Name to Field Name</ENTRY>
+     <LENGTH>37</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_EXPM</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
      <KEY>P_FAVMO</KEY>
      <ENTRY>Mode for Favorite menu</ENTRY>
      <LENGTH>30</LENGTH>
      <SPLIT>D</SPLIT>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_FLUSED</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_IGEVEC</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
     </item>
     <item>
      <ID>S</ID>
@@ -415,6 +510,150 @@
      <KEY>P_IOBJM</KEY>
      <ENTRY>Initial Navigator Mode</ENTRY>
      <LENGTH>30</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_KCOLNF</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_MAXL</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_NOCVEX</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_NOSRTM</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_NOTRSG</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_ONAST</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_RDDBSZ</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_REDMEM</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_TFIRST</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_TNAMES</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_TVIEW</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XAMRDE</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XATSCR</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XDAMRD</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XDBEDT</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XDD2TC</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XDDLFS</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XDHLQE</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XDONOR</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XFLLIV</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XIGNCS</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XLDVAS</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_XSCCCW</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_ZERASB</KEY>
+     <ENTRY>?...</ENTRY>
+     <LENGTH>12</LENGTH>
     </item>
    </TPOOL>
   </asx:values>

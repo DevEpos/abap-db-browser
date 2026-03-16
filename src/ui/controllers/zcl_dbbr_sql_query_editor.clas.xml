@@ -66,6 +66,18 @@
      <ENTRY>Insert with indentations</ENTRY>
      <LENGTH>48</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>010</KEY>
+     <ENTRY>Customize Settings</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>011</KEY>
+     <ENTRY>Settings</ENTRY>
+     <LENGTH>50</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>

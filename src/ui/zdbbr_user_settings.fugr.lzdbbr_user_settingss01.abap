@@ -10,6 +10,9 @@ AT SELECTION-SCREEN.
 
     WHEN zif_dbbr_screen_ids=>c_show_eb_settings.
       gr_eb_settings_view->pai( CHANGING cv_function_code = sscrfields-ucomm ).
+
+    WHEN zif_dbbr_screen_ids=>c_sqlcons_settings.
+      gr_sqlcons_settings_controller->pai( CHANGING cv_function_code = sscrfields-ucomm ).
   ENDCASE.
 
 AT SELECTION-SCREEN ON EXIT-COMMAND.
@@ -20,6 +23,10 @@ AT SELECTION-SCREEN ON EXIT-COMMAND.
 
     WHEN zif_dbbr_screen_ids=>c_show_eb_settings.
       gr_eb_settings_view->cancel( ).
+
+    WHEN zif_dbbr_screen_ids=>c_sqlcons_settings.
+      gr_sqlcons_settings_controller->cancel( ).
+
   ENDCASE.
 
 AT SELECTION-SCREEN OUTPUT.
@@ -48,4 +55,8 @@ AT SELECTION-SCREEN OUTPUT.
 
     WHEN zif_dbbr_screen_ids=>c_show_eb_settings.
       gr_eb_settings_view->pbo( ).
+
+    WHEN zif_dbbr_screen_ids=>c_sqlcons_settings.
+      gr_sqlcons_settings_controller->pbo( ).
+
   ENDCASE.
